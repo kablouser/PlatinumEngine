@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$/Build/Debug/_deps/assimp-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Build/Debug/_deps/catch2-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Build/Debug/_deps/glm-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Build/Debug/_deps/imgui-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Build/Debug/_deps/imgui_sfml-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Build/Debug/_deps/sfml-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Build/Release/_deps/assimp-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Build/Release/_deps/glm-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Build/Release/_deps/imgui-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Build/Release/_deps/imgui_sfml-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Build/Release/_deps/sfml-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Build/_deps/assimp-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Build/_deps/glm-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Build/_deps/imgui-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Build/_deps/imgui_sfml-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Build/_deps/sfml-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/BuildDebug/_deps/assimp-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/BuildDebug/_deps/glm-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/BuildDebug/_deps/imgui-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/BuildDebug/_deps/imgui_sfml-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/BuildDebug/_deps/sfml-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/BuildRelease/_deps/assimp-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/BuildRelease/_deps/glm-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/BuildRelease/_deps/imgui-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/BuildRelease/_deps/imgui_sfml-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/BuildRelease/_deps/sfml-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/DebugBuild/_deps/assimp-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/DebugBuild/_deps/glm-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/DebugBuild/_deps/imgui-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/DebugBuild/_deps/imgui_sfml-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/DebugBuild/_deps/sfml-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ReleaseBuild/_deps/assimp-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ReleaseBuild/_deps/glm-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ReleaseBuild/_deps/imgui-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ReleaseBuild/_deps/imgui_sfml-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ReleaseBuild/_deps/sfml-src" vcs="Git" />
+  </component>
+</project>
