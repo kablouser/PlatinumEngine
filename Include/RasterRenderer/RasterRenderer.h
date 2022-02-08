@@ -23,9 +23,13 @@ namespace PlatinumEngine
 		 * false: if window is not open or cannot display content.
 		 */
 		bool Update(const sf::Clock& deltaClock);
-
+		/**
+		 * CreateShader()
+		 * test with glew lib. have no valid code yet
+		 * @return
+		 * void
+		 */
 		void CreateShader();
-
 
 		// Constructors
 		RasterRenderer(
