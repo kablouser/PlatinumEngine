@@ -6,7 +6,10 @@
 #include "RasterRenderer/RasterRenderer.h"
 #include "imgui-SFML.h"
 #include "imgui.h"
+#include <GL/glew.h>
 #include <SFML/OpenGL.hpp>
+
+
 
 // std
 #include <iostream>
@@ -98,3 +101,13 @@ bool RasterRenderer::Update(const sf::Clock& deltaClock)
 
 }
 
+void RasterRenderer::CreateShader()
+{
+	if (glewInit() != GLEW_OK)
+	{
+
+
+	}
+
+
+}

@@ -24,6 +24,7 @@ namespace PlatinumEngine
 		 */
 		bool Update(const sf::Clock& deltaClock);
 
+		void CreateShader();
 
 
 		// Constructors
