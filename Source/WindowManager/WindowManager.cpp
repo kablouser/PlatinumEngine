@@ -5,7 +5,6 @@
 #include "imgui.h"
 #include "stdio.h"
 #include <imgui-SFML.h>
-#include <D:\GithubDesktop\PlatinumEngine\cmake-build-debug\_deps\imgui-src\imgui_demo.cpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
@@ -16,7 +15,7 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	/// this function will create a basic window when you open the Platinum Engine
 	///---------------------------------------------------------------------------
-	void WindowManager::basicScene()
+	void MainWindow::ShowBasicScene()
 	{
 		sf::RenderWindow window(sf::VideoMode(1080, 960), "Platinum Engine");
 		window.setFramerateLimit(60);
@@ -79,10 +78,13 @@ namespace PlatinumEngine
 				ImGui::EndMainMenuBar();
 			}
 
+			ImGui::ShowDemoWindow();
 			window.clear();
 			ImGui::SFML::Render(window);
 			window.display();
 		}
+		bool showWindow = true;
+
 		ImGui::SFML::Shutdown();
 	}
 
@@ -90,7 +92,7 @@ namespace PlatinumEngine
 	/// this function helps to create a list of
 	/// operations of "File" in the menu Bar
 	///---------------------------------------------------------------------------
-	void WindowManager::showMenuFile()
+	void MainWindow::showMenuFile()
 	{
 		if(ImGui::MenuItem("New Scene"))
 		{
@@ -117,7 +119,7 @@ namespace PlatinumEngine
 	/// this function helps to create a list of
 	/// operations of "GameObject" in the menu Bar
 	///---------------------------------------------------------------------------
-	void WindowManager::showMenuGameObject()
+	void MainWindow::showMenuGameObject()
 	{
 		if(ImGui::MenuItem("Create Empty"))
 		{

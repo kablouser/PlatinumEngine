@@ -10,10 +10,23 @@ namespace PlatinumEngine
 	class WindowManager
 	{
 	public:
-         void basicScene();
-		 static void showMenuFile();
-		 static void showMenuGameObject();
+		void Create();
+		void Delete();
+		void Listen();
 	};
 
+	class Window
+	{
+	public:
+		virtual void ShowBasicScene();
+	};
+
+	class MainWindow: Window
+	{
+	public:
+		virtual void ShowBasicScene() override;
+		static void showMenuFile();
+		static void showMenuGameObject();
+	};
 }
 #endif //PLATINUMENGINE_WINDOWMANAGER_H
