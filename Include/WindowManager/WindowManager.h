@@ -13,9 +13,10 @@ namespace PlatinumEngine
 		///-----------------------------------
 		///Main menu bar functions
 		///-----------------------------------
-		static void ShowBasicScene();
-		static void ShowMenuFile();
-		static void ShowMenuGameObject();
+		void ShowBasicScene();
+		void ShowMenuFile();
+		void ShowMenuGameObject();
+		void SetUpMainMenu();
 		///-----------------------------------
 		///sub menu item functions to open corresponding window
 		///-----------------------------------
@@ -28,6 +29,40 @@ namespace PlatinumEngine
 		static void ShowWindowLight(bool* p_open);
 		static void ShowWindowAudio(bool* p_open);
 
+	public:
+		///-----------------------------------------------------------------------
+		///bools in main menu window list
+		///-----------------------------------------------------------------------
+		bool show_mainMenu_window_game                 = false;
+		bool show_mainMenu_window_scene                = false;
+		bool show_mainMenu_window_inspector            = false;
+		bool show_mainMenu_window_hierarchy            = false;
+		bool show_mainMenu_window_project              = false;
+		bool show_mainMenu_window_animation            = false;
+		bool show_mainMenu_window_audio                = false;
+		bool show_mainMenu_window_light                = false;
+
+		///-----------------------------------------------------------------------
+		///bools in main menu GameObject list
+		///-----------------------------------------------------------------------
+		bool show_mainMenu_gameObject_empty            = false;
+		bool show_mainMenu_gameObject_emptyChild       = false;
+		bool show_mainMenu_gameObject_emptyParent      = false;
+		bool show_mainMenu_gameObject_object_cube      = false;
+		bool show_mainMenu_gameObject_object_sphere    = false;
+		bool show_mainMenu_gameObject_object_plane     = false;
+		bool show_mainMenu_gameObject_object_capsule   = false;
+		bool show_mainMenu_gameObject_effect_particle  = false;
+		bool show_mainMenu_gameObject_camera           = false;
+		bool show_mainMenu_gameObject_light            = false;
+
+		///-----------------------------------------------------------------------
+		///bools in main menu file list
+		///-----------------------------------------------------------------------
+	    bool show_mainMenu_file_newScene               = false;
+	    bool show_mainMenu_file_openScene              = false;
+	    bool show_mainMenu_file_save                   = false;
+	    bool show_mainMenu_file_saveAs                 = false;
 
 	};
 

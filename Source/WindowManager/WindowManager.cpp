@@ -18,53 +18,6 @@ namespace PlatinumEngine
 	void WindowManager::ShowBasicScene()
 	{
 
-		///-----------------------------------------------------------------------
-		///bools in main menu window list
-		///-----------------------------------------------------------------------
-		static bool show_mainMenu_window_game                 = false;
-		static bool show_mainMenu_window_scene                = false;
-		static bool show_mainMenu_window_inspector            = false;
-		static bool show_mainMenu_window_hierarchy            = false;
-		static bool show_mainMenu_window_project              = false;
-		static bool show_mainMenu_window_animation            = false;
-		static bool show_mainMenu_window_audio                = false;
-		static bool show_mainMenu_window_light                = false;
-
-		///-----------------------------------------------------------------------
-		///bools in main menu GameObject list
-		///-----------------------------------------------------------------------
-		static bool show_mainMenu_gameObject_empty            = false;
-		static bool show_mainMenu_gameObject_emptyChild       = false;
-		static bool show_mainMenu_gameObject_emptyParent      = false;
-		static bool show_mainMenu_gameObject_object_cube      = false;
-		static bool show_mainMenu_gameObject_object_sphere    = false;
-		static bool show_mainMenu_gameObject_object_plane     = false;
-		static bool show_mainMenu_gameObject_object_capsule   = false;
-		static bool show_mainMenu_gameObject_effect_particle  = false;
-		static bool show_mainMenu_gameObject_camera           = false;
-		static bool show_mainMenu_gameObject_light            = false;
-
-		///-----------------------------------------------------------------------
-		///bools in main menu file list
-		///-----------------------------------------------------------------------
-		static bool show_mainMenu_file_newScene               = false;
-		static bool show_mainMenu_file_openScene              = false;
-		static bool show_mainMenu_file_save                   = false;
-		static bool show_mainMenu_file_saveAs                 = false;
-
-		///-----------------------------------------------------------------------
-		///ifs in main menu window list to call the function inside
-		///-----------------------------------------------------------------------
-		if(show_mainMenu_window_game)                ShowWindowGame(&show_mainMenu_window_game);
-		if(show_mainMenu_window_scene)               ShowWindowScene(&show_mainMenu_window_scene);
-		if(show_mainMenu_window_hierarchy)           ShowWindowHierarchy(&show_mainMenu_window_hierarchy);
-		if(show_mainMenu_window_inspector)           ShowWindowInspector(&show_mainMenu_window_inspector);
-		if(show_mainMenu_window_project)             ShowWindowProject(&show_mainMenu_window_project);
-		if(show_mainMenu_window_animation)           ShowWindowAnimation(&show_mainMenu_window_animation);
-		if(show_mainMenu_window_audio)               ShowWindowAudio(&show_mainMenu_window_audio);
-		if(show_mainMenu_window_light)               ShowWindowLight(&show_mainMenu_window_light);
-
-
 		sf::RenderWindow window(sf::VideoMode(1080, 960), "Platinum Engine");
 		window.setFramerateLimit(60);
 		ImGui::SFML::Init(window);
@@ -85,53 +38,27 @@ namespace PlatinumEngine
 			}
 			ImGui::SFML::Update(window, deltaClock.restart());
 
+			///-----------------------------------------------------------------------
+			///ifs in main menu window list to call the function inside
+			///-----------------------------------------------------------------------
+			if(show_mainMenu_window_game)                ShowWindowGame(&show_mainMenu_window_game);
+			if(show_mainMenu_window_scene)               ShowWindowScene(&show_mainMenu_window_scene);
+			if(show_mainMenu_window_hierarchy)           ShowWindowHierarchy(&show_mainMenu_window_hierarchy);
+			if(show_mainMenu_window_inspector)           ShowWindowInspector(&show_mainMenu_window_inspector);
+			if(show_mainMenu_window_project)             ShowWindowProject(&show_mainMenu_window_project);
+			if(show_mainMenu_window_animation)           ShowWindowAnimation(&show_mainMenu_window_animation);
+			if(show_mainMenu_window_audio)               ShowWindowAudio(&show_mainMenu_window_audio);
+			if(show_mainMenu_window_light)               ShowWindowLight(&show_mainMenu_window_light);
+
 			///-------------------------------------------------------------------
 			/// set up the main menu bar
 			///-------------------------------------------------------------------
-			if(ImGui::BeginMainMenuBar())
-			{
-				///---------------------------------------------------------------
-				/// File component
-				///---------------------------------------------------------------
-				if(ImGui::BeginMenu("File"))
-				{
-					ShowMenuFile();
-					ImGui::EndMenu();
-				}
-
-				///---------------------------------------------------------------
-				/// GameObject component
-				///---------------------------------------------------------------
-				if(ImGui::BeginMenu("GameObject"))
-				{
-					ShowMenuGameObject();
-					ImGui::EndMenu();
-				}
-
-				///---------------------------------------------------------------
-				/// Window component
-				///---------------------------------------------------------------
-                if(ImGui::BeginMenu("Window"))
-                {
-					if(ImGui::MenuItem("Game", "Ctrl+1")){/*TODO:*/}
-					if(ImGui::MenuItem("Hierarchy","Ctrl+2")){/*TODO:*/}
-					if(ImGui::MenuItem("Inspector","Ctrl+3")){/*TODO:*/}
-					if(ImGui::MenuItem("Project","Ctrl+4")){/*TODO:*/}
-					if(ImGui::MenuItem("Scene", "Ctrl+5")){/*TODO:*/}
-					if(ImGui::MenuItem("Animation", "Ctrl+6")){/*TODO:*/}
-					if(ImGui::MenuItem("Audio","Ctrl+7")){/*TODO:*/}
-					if(ImGui::MenuItem("Lighting","Ctrl+8")){/*TODO:*/}
-					ImGui::EndMenu();
-				}
-				ImGui::EndMainMenuBar();
-			}
-
-			ImGui::ShowDemoWindow();
+            SetUpMainMenu();
+			//ImGui::ShowDemoWindow();
 			window.clear();
 			ImGui::SFML::Render(window);
 			window.display();
 		}
-		ImGui::ShowDemoWindow();
 		ImGui::SFML::Shutdown();
 	}
 
@@ -209,7 +136,49 @@ namespace PlatinumEngine
 		}
 	}
 
+	///--------------------------------------------------------------------------
+	/// Set up the main menu for basic Window
+	///--------------------------------------------------------------------------
+	void WindowManager::SetUpMainMenu()
+	{
+		if(ImGui::BeginMainMenuBar())
+		{
+			///---------------------------------------------------------------
+			/// File component
+			///---------------------------------------------------------------
+			if(ImGui::BeginMenu("File"))
+			{
+				ShowMenuFile();
+				ImGui::EndMenu();
+			}
 
+			///---------------------------------------------------------------
+			/// GameObject component
+			///---------------------------------------------------------------
+			if(ImGui::BeginMenu("GameObject"))
+			{
+				ShowMenuGameObject();
+				ImGui::EndMenu();
+			}
+
+			///---------------------------------------------------------------
+			/// Window component
+			///---------------------------------------------------------------
+			if(ImGui::BeginMenu("Window"))
+			{
+				if(ImGui::MenuItem("Game", "Ctrl+1", &show_mainMenu_window_game)){}
+				if(ImGui::MenuItem("Hierarchy","Ctrl+2", &show_mainMenu_window_hierarchy)){}
+				if(ImGui::MenuItem("Inspector","Ctrl+3", &show_mainMenu_window_inspector)){}
+				if(ImGui::MenuItem("Project","Ctrl+4",&show_mainMenu_window_project)){}
+				if(ImGui::MenuItem("Scene", "Ctrl+5", &show_mainMenu_window_scene)){}
+				if(ImGui::MenuItem("Animation", "Ctrl+6", &show_mainMenu_window_animation)){}
+				if(ImGui::MenuItem("Audio","Ctrl+7", &show_mainMenu_window_audio)){}
+				if(ImGui::MenuItem("Lighting","Ctrl+8", &show_mainMenu_window_light)){}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMainMenuBar();
+		}
+	}
 	///--------------------------------------------------------------------------
 	///   ---                                                               ---
 	///   | Section: Please implement GUI in the corresponding function below |
@@ -219,7 +188,14 @@ namespace PlatinumEngine
 	//Please implement Animation Window below
 	void WindowManager::ShowWindowAnimation(bool* p_open)
 	{
-		//TODO:
+
+		if(!ImGui::Begin("Animation", p_open))
+		{
+			ImGui::Text("ABOUT THIS DEMO:");
+			ImGui::End();
+			return;
+		}
+		ImGui::End();
 	}
 
 	//Please implement Project Window below
