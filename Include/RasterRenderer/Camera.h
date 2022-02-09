@@ -16,18 +16,19 @@ namespace PlatinumEngine
 		void RotateAroundYaw(float angle);
 		void RotateAroundRoll(float angle);
 
-		// PARAMETER
+		// CONSTRUCTOR
+		Camera();
 		Camera(
-				glm::vec3 eyePos = glm::vec3(0.f,0.f,0.f),
-				glm::vec3 up     = glm::vec3 (0.f,1.f,0.f),
-				glm::vec3 dir    = glm::vec3(0.f,0.f,-1.f)
+				glm::vec3 eyePos,
+				glm::vec3 up,
+				glm::vec3 dir
 				);
 
 
 
 	private:
 		// PARAMETER
-		glm::vec3 _eyePos, _up, _dir;
+		glm::vec3 _eyePosition, _up, _viewDirection;
 	};
 
 }
