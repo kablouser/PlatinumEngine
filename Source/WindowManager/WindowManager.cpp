@@ -9,14 +9,62 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 #include "WindowManager/WindowManager.h"
-
+//#include "D:\GithubDesktop\PlatinumEngine\cmake-build-debug\_deps\imgui-src\imgui_demo.cpp"
 namespace PlatinumEngine
 {
 	///--------------------------------------------------------------------------
 	/// this function will create a basic window when you open the Platinum Engine
-	///---------------------------------------------------------------------------
-	void MainWindow::ShowBasicScene()
+	///--------------------------------------------------------------------------
+	void WindowManager::ShowBasicScene()
 	{
+
+		///-----------------------------------------------------------------------
+		///bools in main menu window list
+		///-----------------------------------------------------------------------
+		static bool show_mainMenu_window_game                 = false;
+		static bool show_mainMenu_window_scene                = false;
+		static bool show_mainMenu_window_inspector            = false;
+		static bool show_mainMenu_window_hierarchy            = false;
+		static bool show_mainMenu_window_project              = false;
+		static bool show_mainMenu_window_animation            = false;
+		static bool show_mainMenu_window_audio                = false;
+		static bool show_mainMenu_window_light                = false;
+
+		///-----------------------------------------------------------------------
+		///bools in main menu GameObject list
+		///-----------------------------------------------------------------------
+		static bool show_mainMenu_gameObject_empty            = false;
+		static bool show_mainMenu_gameObject_emptyChild       = false;
+		static bool show_mainMenu_gameObject_emptyParent      = false;
+		static bool show_mainMenu_gameObject_object_cube      = false;
+		static bool show_mainMenu_gameObject_object_sphere    = false;
+		static bool show_mainMenu_gameObject_object_plane     = false;
+		static bool show_mainMenu_gameObject_object_capsule   = false;
+		static bool show_mainMenu_gameObject_effect_particle  = false;
+		static bool show_mainMenu_gameObject_camera           = false;
+		static bool show_mainMenu_gameObject_light            = false;
+
+		///-----------------------------------------------------------------------
+		///bools in main menu file list
+		///-----------------------------------------------------------------------
+		static bool show_mainMenu_file_newScene               = false;
+		static bool show_mainMenu_file_openScene              = false;
+		static bool show_mainMenu_file_save                   = false;
+		static bool show_mainMenu_file_saveAs                 = false;
+
+		///-----------------------------------------------------------------------
+		///ifs in main menu window list to call the function inside
+		///-----------------------------------------------------------------------
+		if(show_mainMenu_window_game)                ShowWindowGame(&show_mainMenu_window_game);
+		if(show_mainMenu_window_scene)               ShowWindowScene(&show_mainMenu_window_scene);
+		if(show_mainMenu_window_hierarchy)           ShowWindowHierarchy(&show_mainMenu_window_hierarchy);
+		if(show_mainMenu_window_inspector)           ShowWindowInspector(&show_mainMenu_window_inspector);
+		if(show_mainMenu_window_project)             ShowWindowProject(&show_mainMenu_window_project);
+		if(show_mainMenu_window_animation)           ShowWindowAnimation(&show_mainMenu_window_animation);
+		if(show_mainMenu_window_audio)               ShowWindowAudio(&show_mainMenu_window_audio);
+		if(show_mainMenu_window_light)               ShowWindowLight(&show_mainMenu_window_light);
+
+
 		sf::RenderWindow window(sf::VideoMode(1080, 960), "Platinum Engine");
 		window.setFramerateLimit(60);
 		ImGui::SFML::Init(window);
@@ -47,7 +95,7 @@ namespace PlatinumEngine
 				///---------------------------------------------------------------
 				if(ImGui::BeginMenu("File"))
 				{
-					showMenuFile();
+					ShowMenuFile();
 					ImGui::EndMenu();
 				}
 
@@ -56,7 +104,7 @@ namespace PlatinumEngine
 				///---------------------------------------------------------------
 				if(ImGui::BeginMenu("GameObject"))
 				{
-					showMenuGameObject();
+					ShowMenuGameObject();
 					ImGui::EndMenu();
 				}
 
@@ -83,16 +131,15 @@ namespace PlatinumEngine
 			ImGui::SFML::Render(window);
 			window.display();
 		}
-		bool showWindow = true;
-
+		ImGui::ShowDemoWindow();
 		ImGui::SFML::Shutdown();
 	}
 
 	///--------------------------------------------------------------------------
 	/// this function helps to create a list of
 	/// operations of "File" in the menu Bar
-	///---------------------------------------------------------------------------
-	void MainWindow::showMenuFile()
+	///--------------------------------------------------------------------------
+	void WindowManager::ShowMenuFile()
 	{
 		if(ImGui::MenuItem("New Scene"))
 		{
@@ -104,7 +151,7 @@ namespace PlatinumEngine
 			//TODO:
 		}
 
-		if(ImGui::MenuItem("Save"))
+		if(ImGui::MenuItem("Save", "Ctrl+S"))
 		{
 			//TODO:
 		}
@@ -118,8 +165,8 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	/// this function helps to create a list of
 	/// operations of "GameObject" in the menu Bar
-	///---------------------------------------------------------------------------
-	void MainWindow::showMenuGameObject()
+	///--------------------------------------------------------------------------
+	void WindowManager::ShowMenuGameObject()
 	{
 		if(ImGui::MenuItem("Create Empty"))
 		{
@@ -156,9 +203,60 @@ namespace PlatinumEngine
 			//TODO:
 		}
 
-		if(ImGui::MenuItem("Camera"))
+		if(ImGui::MenuItem("Light"))
 		{
 			//TODO:
 		}
 	}
+
+
+	///--------------------------------------------------------------------------
+	///   ---                                                               ---
+	///   | Section: Please implement GUI in the corresponding function below |
+	///   ---                                                               ---
+	///--------------------------------------------------------------------------
+
+	//Please implement Animation Window below
+	void WindowManager::ShowWindowAnimation(bool* p_open)
+	{
+		//TODO:
+	}
+
+	//Please implement Project Window below
+	void WindowManager::ShowWindowProject(bool* p_open)
+	{
+		//TODO:
+	}
+
+	//Please implement Light Window below
+	void WindowManager::ShowWindowLight(bool* p_open)
+	{
+		//TODO:
+	}
+	//Please implement Game Window below
+	void WindowManager::ShowWindowGame(bool* p_open)
+	{
+		//TODO:
+	}
+	//Please implement Scene Window below
+	void WindowManager::ShowWindowScene(bool* p_open)
+	{
+		//TODO:
+	}
+	//Please implement Inspector Window below
+	void WindowManager::ShowWindowInspector(bool* p_open)
+	{
+		//TODO:
+	}
+	//Please implement Audio Window below
+	void WindowManager::ShowWindowAudio(bool* p_open)
+	{
+		//TODO:
+	}
+	//Please implement Hierarchy Window below
+	void WindowManager::ShowWindowHierarchy(bool* p_open)
+	{
+		//TODO:
+	}
+
 }

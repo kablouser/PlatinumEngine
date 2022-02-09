@@ -22,12 +22,11 @@ int main()
 	PlatinumEngine::RasterRenderer rasterRenderer;
 	PlatinumEngine::SceneManager sceneManager;
     PlatinumEngine::WindowManager windowManager;
-	PlatinumEngine::MainWindow mainWindow;
 	Assimp::Importer import;
 	// assimp!
 	const aiScene* scene = import.ReadFile("Test", aiProcess_Triangulate | aiProcess_FlipUVs);
 
-	mainWindow.ShowBasicScene();
+	windowManager.ShowBasicScene();
 	/*
 	// GLM!
 	glm::vec4 Position = glm::vec4(glm::vec3(0.0), 1.0);

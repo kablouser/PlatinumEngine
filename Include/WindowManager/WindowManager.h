@@ -10,23 +10,42 @@ namespace PlatinumEngine
 	class WindowManager
 	{
 	public:
-		void Create();
-		void Delete();
-		void Listen();
+		///-----------------------------------
+		///Main menu bar functions
+		///-----------------------------------
+		static void ShowBasicScene();
+		static void ShowMenuFile();
+		static void ShowMenuGameObject();
+		///-----------------------------------
+		///sub menu item functions to open corresponding window
+		///-----------------------------------
+		static void ShowWindowGame(bool* p_open);
+		static void ShowWindowHierarchy(bool* p_open);
+		static void ShowWindowInspector(bool* p_open);
+		static void ShowWindowScene(bool* p_open);
+		static void ShowWindowProject(bool* p_open);
+		static void ShowWindowAnimation(bool* p_open);
+		static void ShowWindowLight(bool* p_open);
+		static void ShowWindowAudio(bool* p_open);
+
+
 	};
 
+	/*
 	class Window
 	{
 	public:
-		virtual void ShowBasicScene();
+		virtual void showBasicScene();
 	};
 
 	class MainWindow: Window
 	{
 	public:
-		virtual void ShowBasicScene() override;
+		virtual void showBasicScene() override;
 		static void showMenuFile();
 		static void showMenuGameObject();
+		static void showPanel();
 	};
+	 */
 }
 #endif //PLATINUMENGINE_WINDOWMANAGER_H
