@@ -4,6 +4,8 @@
 
 #pragma once
 
+// math library
+
 #include "glm/glm.hpp"
 
 namespace PlatinumEngine
@@ -11,24 +13,35 @@ namespace PlatinumEngine
 	class Camera
 	{
 	public:
+		// VARIABLE
+		glm::mat4 lookAtMatrix4;
+		bool isFirstMousePress = false;
+
 		// FUNCTION
-		void RotateAroundPitch(float angle);
-		void RotateAroundYaw(float angle);
-		void RotateAroundRoll(float angle);
+		/**
+		 * This function calculate the newest lookAt matrix. *ONLY RIGHT_HAND FOR NOW.
+		 * @param eulerAngle
+		 * @param translationValue
+		 */
+		void MoveCamera(glm::vec3 eulerAngle, glm::vec3 translationValue);
+
+		void RotationByMouse(glm::vec2 delta);
+
+		void UpdateInitialMousePosition(glm::vec2 delta);
 
 		// CONSTRUCTOR
 		Camera();
-		Camera(
-				glm::vec3 eyePos,
-				glm::vec3 up,
-				glm::vec3 dir
-				);
+
 
 
 
 	private:
 		// PARAMETER
-		glm::vec3 _eyePosition, _up, _viewDirection;
+		glm::vec3 _eulerAngle;
+		glm::vec3 _translationValue;
+		glm::vec2 _initialMousePosition;
+
+
 	};
 
 }

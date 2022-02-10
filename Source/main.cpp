@@ -20,6 +20,7 @@ int main()
 
 	sf::Clock deltaClock;
 
+
 	while(rasterRenderer.Update(deltaClock))
 	{
 
