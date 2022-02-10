@@ -1,0 +1,1171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="SFML"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\cmake-build-debug\;CMake Files\cmake-build-debug\_deps\;CMake Files\cmake-build-debug\_deps\assimp-src\;CMake Files\cmake-build-debug\_deps\assimp-src\include\;CMake Files\cmake-build-debug\_deps\assimp-src\include\assimp\;CMake Files\cmake-build-debug\_deps\assimp-src\cmake-modules\;CMake Files\cmake-build-debug\_deps\assimp-src\contrib\;CMake Files\cmake-build-debug\_deps\assimp-src\contrib\zlib\;CMake Files\cmake-build-debug\_deps\assimp-src\code\;CMake Files\cmake-build-debug\_deps\assimp-src\tools\;CMake Files\cmake-build-debug\_deps\assimp-src\tools\assimp_cmd\;CMake Files\cmake-build-debug\_deps\catch2-src\;CMake Files\cmake-build-debug\_deps\sfml-src\;CMake Files\cmake-build-debug\_deps\sfml-src\cmake\;CMake Files\cmake-build-debug\_deps\sfml-src\cmake\Modules\;CMake Files\cmake-build-debug\_deps\sfml-src\src\;CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\;CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\System\;CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Main\;CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Window\;CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Network\;CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Graphics\;CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Audio\;CMake Files\cmake-build-debug\_deps\imgui_sfml-src\;CMake Files\cmake-build-debug\_deps\imgui_sfml-src\cmake\;CMake Files\cmake-build-debug\_deps\glm-src\;CMake Files\cmake-build-debug\_deps\glm-src\glm\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sfml-system">
+				<Option output="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/lib/libsfml-system-s-d.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/System"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DSFML_STATIC"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/backward"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include-fixed"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/System/Makefile&quot;  VERBOSE=1 sfml-system"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/System/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/System/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/System/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sfml-system/fast">
+				<Option output="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/lib/libsfml-system-s-d.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/System"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DSFML_STATIC"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/backward"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include-fixed"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/System/Makefile&quot;  VERBOSE=1 sfml-system/fast"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/System/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/System/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/System/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sfml-main">
+				<Option output="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/lib/libsfml-main-d.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Main"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DSFML_STATIC"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/backward"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include-fixed"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Main/Makefile&quot;  VERBOSE=1 sfml-main"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Main/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Main/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Main/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sfml-main/fast">
+				<Option output="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/lib/libsfml-main-d.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Main"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DSFML_STATIC"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/backward"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include-fixed"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Main/Makefile&quot;  VERBOSE=1 sfml-main/fast"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Main/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Main/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Main/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sfml-window">
+				<Option output="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/lib/libsfml-window-s-d.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Window"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DSFML_STATIC"/>
+					<Add option="-DUNICODE"/>
+					<Add option="-D_UNICODE"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/backward"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include-fixed"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Window/Makefile&quot;  VERBOSE=1 sfml-window"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Window/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Window/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Window/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sfml-window/fast">
+				<Option output="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/lib/libsfml-window-s-d.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Window"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DSFML_STATIC"/>
+					<Add option="-DUNICODE"/>
+					<Add option="-D_UNICODE"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/backward"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include-fixed"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Window/Makefile&quot;  VERBOSE=1 sfml-window/fast"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Window/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Window/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Window/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sfml-network">
+				<Option output="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/lib/libsfml-network-s-d.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Network"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DSFML_STATIC"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/backward"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include-fixed"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Network/Makefile&quot;  VERBOSE=1 sfml-network"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Network/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Network/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Network/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sfml-network/fast">
+				<Option output="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/lib/libsfml-network-s-d.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Network"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DSFML_STATIC"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/backward"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include-fixed"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Network/Makefile&quot;  VERBOSE=1 sfml-network/fast"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Network/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Network/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Network/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sfml-graphics">
+				<Option output="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/lib/libsfml-graphics-s-d.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Graphics"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DSFML_STATIC"/>
+					<Add option="-DSTBI_FAILURE_USERMSG"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/extlibs/headers/stb_image"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/extlibs/headers/freetype2"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/backward"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include-fixed"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Graphics/Makefile&quot;  VERBOSE=1 sfml-graphics"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Graphics/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Graphics/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Graphics/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sfml-graphics/fast">
+				<Option output="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/lib/libsfml-graphics-s-d.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Graphics"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DSFML_STATIC"/>
+					<Add option="-DSTBI_FAILURE_USERMSG"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/extlibs/headers/stb_image"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/extlibs/headers/freetype2"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/backward"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include-fixed"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Graphics/Makefile&quot;  VERBOSE=1 sfml-graphics/fast"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Graphics/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Graphics/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Graphics/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sfml-audio">
+				<Option output="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/lib/libsfml-audio-s-d.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Audio"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DSFML_STATIC"/>
+					<Add option="-DOV_EXCLUDE_STATIC_CALLBACKS"/>
+					<Add option="-DFLAC__NO_DLL"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/extlibs/headers/AL"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/extlibs/headers"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/backward"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include-fixed"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Audio/Makefile&quot;  VERBOSE=1 sfml-audio"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Audio/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Audio/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Audio/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sfml-audio/fast">
+				<Option output="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/lib/libsfml-audio-s-d.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Audio"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DSFML_STATIC"/>
+					<Add option="-DOV_EXCLUDE_STATIC_CALLBACKS"/>
+					<Add option="-DFLAC__NO_DLL"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/extlibs/headers/AL"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/extlibs/headers"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/backward"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include-fixed"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Audio/Makefile&quot;  VERBOSE=1 sfml-audio/fast"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Audio/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Audio/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-build/src/SFML/Audio/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/AlResource.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/Export.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/InputSoundFile.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/Listener.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/Music.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/OutputSoundFile.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/Sound.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/SoundBuffer.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/SoundBufferRecorder.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/SoundFileFactory.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/SoundFileFactory.inl">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/SoundFileReader.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/SoundFileWriter.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/SoundRecorder.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/SoundSource.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Audio/SoundStream.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/BlendMode.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/CircleShape.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Color.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/ConvexShape.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Drawable.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Export.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Font.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Glsl.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Glsl.inl">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Glyph.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Image.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/PrimitiveType.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Rect.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Rect.inl">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/RectangleShape.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/RenderStates.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/RenderTarget.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/RenderTexture.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/RenderWindow.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Shader.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Shape.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Sprite.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Text.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Texture.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Transform.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Transformable.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/Vertex.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/VertexArray.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/VertexBuffer.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Graphics/View.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Network/Export.hpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Network/Ftp.hpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Network/Http.hpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Network/IpAddress.hpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Network/Packet.hpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Network/Socket.hpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Network/SocketHandle.hpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Network/SocketSelector.hpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Network/TcpListener.hpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Network/TcpSocket.hpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Network/UdpSocket.hpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/Clock.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/Err.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/Export.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/FileInputStream.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/InputStream.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/Lock.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/MemoryInputStream.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/Mutex.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/NativeActivity.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/NonCopyable.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/Sleep.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/String.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/String.inl">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/Thread.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/Thread.inl">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/ThreadLocal.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/ThreadLocalPtr.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/ThreadLocalPtr.inl">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/Time.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/Utf.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/Utf.inl">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/Vector2.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/Vector2.inl">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/Vector3.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/System/Vector3.inl">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/Clipboard.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/Context.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/ContextSettings.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/Cursor.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/Event.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/Export.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/GlResource.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/Joystick.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/Keyboard.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/Mouse.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/Sensor.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/Touch.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/VideoMode.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/Window.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/WindowHandle.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include/SFML/Window/WindowStyle.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/ALCheck.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/ALCheck.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/AlResource.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/AudioDevice.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/AudioDevice.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/InputSoundFile.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/Listener.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/Music.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/OutputSoundFile.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/Sound.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundBuffer.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundBufferRecorder.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundFileFactory.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundFileReaderFlac.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundFileReaderFlac.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundFileReaderOgg.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundFileReaderOgg.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundFileReaderWav.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundFileReaderWav.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundFileWriterFlac.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundFileWriterFlac.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundFileWriterOgg.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundFileWriterOgg.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundFileWriterWav.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundFileWriterWav.hpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundRecorder.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundSource.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/SoundStream.cpp">
+			<Option target="sfml-audio"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/BlendMode.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/CircleShape.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/Color.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/ConvexShape.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/Font.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/GLCheck.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/GLCheck.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/GLExtensions.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/GLExtensions.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/GLLoader.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/GLLoader.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/Glsl.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/Image.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/ImageLoader.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/ImageLoader.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/RectangleShape.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/RenderStates.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/RenderTarget.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/RenderTexture.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/RenderTextureImpl.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/RenderTextureImpl.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/RenderTextureImplDefault.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/RenderTextureImplDefault.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/RenderTextureImplFBO.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/RenderTextureImplFBO.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/RenderWindow.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/Shader.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/Shape.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/Sprite.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/Text.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/Texture.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/TextureSaver.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/TextureSaver.hpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/Transform.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/Transformable.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/Vertex.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/VertexArray.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/VertexBuffer.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/View.cpp">
+			<Option target="sfml-graphics"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Main/MainWin32.cpp">
+			<Option target="sfml-main"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Network/Ftp.cpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Network/Http.cpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Network/IpAddress.cpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Network/Packet.cpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Network/Socket.cpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Network/SocketImpl.hpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Network/SocketSelector.cpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Network/TcpListener.cpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Network/TcpSocket.cpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Network/UdpSocket.cpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Network/Win32/SocketImpl.cpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Network/Win32/SocketImpl.hpp">
+			<Option target="sfml-network"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Clock.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Err.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/FileInputStream.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Lock.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/MemoryInputStream.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Mutex.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Sleep.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/String.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Thread.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/ThreadLocal.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Time.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Win32/ClockImpl.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Win32/ClockImpl.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Win32/MutexImpl.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Win32/MutexImpl.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Win32/SleepImpl.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Win32/SleepImpl.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Win32/ThreadImpl.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Win32/ThreadImpl.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Win32/ThreadLocalImpl.cpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/Win32/ThreadLocalImpl.hpp">
+			<Option target="sfml-system"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Clipboard.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/ClipboardImpl.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Context.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Cursor.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/CursorImpl.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/GlContext.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/GlContext.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/GlResource.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/InputImpl.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Joystick.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/JoystickImpl.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/JoystickManager.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/JoystickManager.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Keyboard.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Mouse.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Sensor.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/SensorImpl.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/SensorManager.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/SensorManager.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Touch.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/VideoMode.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/VideoModeImpl.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/ClipboardImpl.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/ClipboardImpl.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/CursorImpl.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/CursorImpl.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/InputImpl.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/InputImpl.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/JoystickImpl.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/JoystickImpl.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/SensorImpl.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/SensorImpl.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/VideoModeImpl.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/WglContext.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/WglContext.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/WglExtensions.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/WglExtensions.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/WindowImplWin32.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Win32/WindowImplWin32.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/Window.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/WindowImpl.cpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/WindowImpl.hpp">
+			<Option target="sfml-window"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/assimp.pc.in">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/revision.h.in">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/include/assimp/config.h.in">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\include\assimp\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/cmake-modules/FindPkgMacros.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\cmake-modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/cmake-modules/FindRT.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\cmake-modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/cmake-modules/FindZLIB.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\cmake-modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/cmake-modules/PrecompiledHeader.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\cmake-modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/cmake-modules/assimp-plain-config.cmake.in">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\cmake-modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/cmake-modules/cmake_uninstall.cmake.in">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\cmake-modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/contrib/zlib/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\contrib\zlib\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/contrib/zlib/zconf.h.cmakein">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\contrib\zlib\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/contrib/zlib/zlib.pc.cmakein">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\contrib\zlib\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/code/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\code\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/tools/assimp_cmd/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\tools\assimp_cmd\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/catch2-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\catch2-src\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/cmake/Config.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\cmake\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/cmake/Macros.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\cmake\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/cmake/SFMLConfig.cmake.in">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\cmake\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/cmake/SFMLConfigDependencies.cmake.in">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\cmake\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/cmake/Modules/FindFLAC.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\cmake\Modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/cmake/Modules/FindFreetype.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\cmake\Modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/cmake/Modules/FindVorbis.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\cmake\Modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\System\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Main/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Main\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Window\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Network/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Network\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Graphics\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Audio\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\imgui_sfml-src\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-src/cmake/FindImGui.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\imgui_sfml-src\cmake\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/glm-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\glm-src\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/glm-src/glm/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\glm-src\glm\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
