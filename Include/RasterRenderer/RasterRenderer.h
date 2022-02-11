@@ -7,7 +7,7 @@
 #include <SFML/Graphics.hpp>
 
 // PlatinumEngine lib
-#include "Camera.h"
+#include "EditorCamera.h"
 
 
 namespace PlatinumEngine
@@ -17,7 +17,7 @@ namespace PlatinumEngine
 
 	public:
 		// VARIABLE
-		PlatinumEngine::Camera camera;
+		PlatinumEngine::EditorCamera camera;
 
 
 		// Functions

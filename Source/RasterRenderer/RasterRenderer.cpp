@@ -71,6 +71,8 @@ bool RasterRenderer::Update(const sf::Clock& deltaClock)
 		// if window is closed, stop the loop
 		if(event.type == sf::Event::MouseButtonPressed)
 		{
+
+			// left button for rotation
 			if(event.mouseButton.button == sf::Mouse::Left)
 			{
 				sf::Vector2i newMousePosition =sf::Mouse::getPosition(_window);
@@ -80,15 +82,35 @@ bool RasterRenderer::Update(const sf::Clock& deltaClock)
 
 			}
 
+			// middle button for translation
+			if(event.mouseButton.button == sf::Mouse::Middle)
+			{
+				sf::Vector2i newMousePosition =sf::Mouse::getPosition(_window);
+
+				camera.isFirstMouseWheelPress = true;
+				camera.UpdateInitialMousePosition(glm::vec2(newMousePosition.x, newMousePosition.y));
+
+			}
+
 		}
 		else if(event.type == sf::Event::MouseMoved)
 		{
 
-			if(camera.isFirstMousePress == false)
-				continue;
+			if(camera.isFirstMousePress == true)
+			{
 
-			sf::Vector2i newMousePosition = sf::Mouse::getPosition(_window);
-			camera.RotationByMouse(glm::vec2(newMousePosition.x, newMousePosition.y));
+				sf::Vector2i newMousePosition = sf::Mouse::getPosition(_window);
+				camera.RotationByMouse(glm::vec2(newMousePosition.x, newMousePosition.y), deltaClock);
+
+			}
+
+			if(camera.isFirstMouseWheelPress == true)
+			{
+
+				sf::Vector2i newMousePosition = sf::Mouse::getPosition(_window);
+				camera.TranslationByMouse(glm::vec2(newMousePosition.x, newMousePosition.y), deltaClock);
+
+			}
 
 
 		}
@@ -99,9 +121,46 @@ bool RasterRenderer::Update(const sf::Clock& deltaClock)
 
 				camera.isFirstMousePress = false;
 
+			}
+
+			if(event.mouseButton.button == sf::Mouse::Middle)
+			{
+
+				camera.isFirstMouseWheelPress = false;
 
 			}
+
 		}
+		else if(event.type == sf::Event::KeyPressed)
+		{
+			if(event.key.code == sf::Keyboard::Up)
+			{
+				camera.TranslationByKeyBoard(PlatinumEngine::EditorCamera::up, deltaClock);
+
+			}
+			if(event.key.code == sf::Keyboard::Down)
+			{
+				camera.TranslationByKeyBoard(PlatinumEngine::EditorCamera::down, deltaClock);
+
+			}
+			if(event.key.code == sf::Keyboard::Left)
+			{
+				camera.TranslationByKeyBoard(PlatinumEngine::EditorCamera::left, deltaClock);
+
+			}
+			if(event.key.code == sf::Keyboard::Right)
+			{
+				camera.TranslationByKeyBoard(PlatinumEngine::EditorCamera::right, deltaClock);
+
+			}
+
+
+		}
+		else if(event.type == sf::Event::MouseWheelMoved)
+		{
+			camera.TranslationByMouse(event.mouseWheel.delta, deltaClock);
+		}
+
 		else if(event.type == sf::Event::Closed)
 		{
 
@@ -120,11 +179,12 @@ bool RasterRenderer::Update(const sf::Clock& deltaClock)
 	// opengl
 	_window.clear(sf::Color(18,33,43));
 
+	gluPerspective(90.0, 1, 0.01, 100.0f);
+
 	glBegin(GL_TRIANGLES);
 
 
-	// text camera control
-	camera.MoveCamera(glm::vec3(0.0,0.0,0),glm::vec3(0.0,0.0,0.0));
+
 
 	glm::vec4 vertex0(-0.5f, -0.5f, -0.1f, 1.0);
 	glm::vec4 vertex1(0.5f, -0.5f, -0.1f, 1.0);
@@ -133,9 +193,6 @@ bool RasterRenderer::Update(const sf::Clock& deltaClock)
 	vertex0 = camera.lookAtMatrix4 * vertex0;
 	vertex1 = camera.lookAtMatrix4 * vertex1;
 	vertex2 = camera.lookAtMatrix4 * vertex2;
-
-	std::cout<<vertex2.z<<std::endl;
-
 
 	glVertex3f(vertex0.x/vertex0.w, vertex0.y/vertex0.w, vertex0.z/vertex0.w);
 	glVertex3f(vertex1.x/vertex1.w, vertex1.y/vertex1.w, vertex1.z/vertex1.w);

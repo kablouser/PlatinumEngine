@@ -66,7 +66,7 @@ add_executable(${PROJECT_NAME}
 	Source/main.cpp
 	Source/InputManager/InputManager.cpp
 	Source/RasterRenderer/RasterRenderer.cpp
-	Source/SceneManager/SceneManager.cpp Source/RasterRenderer/Camera.cpp)
+	Source/SceneManager/SceneManager.cpp Source/RasterRenderer/EditorCamera.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
 
