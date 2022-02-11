@@ -7,110 +7,212 @@ ShaderInput::ShaderInput() :
 		_vertexArrayObject(0),
 		_elementBufferObject(0),
 
+		_vertexType(typeid(void)),
+		_indexType(0),
+
 		_verticesSize(0),
 		_indicesSize(0),
 
-		_verticesUsage(Usage::Static),
-		_indicesUsage(Usage::Static)
+		_vertexAttributesSize(0)
 {
 }
 
-ShaderInput::ShaderInput(const ShaderInput& copy)
+ShaderInput::ShaderInput(
+		const std::vector<Vertex>& vertices,
+		const std::vector<GLuint>& indices,
+		GLenum verticesUsage,
+		GLenum indicesUsage) :
+		ShaderInput()
 {
-	DeleteVertices();
-	DeleteIndices();
-}
-
-ShaderInput::ShaderInput(ShaderInput&& moveFrom) noexcept
-{
-	DeleteVertices();
-	DeleteIndices();
+	VertexAttribute x = { GL_FLOAT, 3, offsetof(Vertex, position) };
+	SetVertexAttributes(typeid(Vertex), {
+			{ GL_FLOAT, 3, offsetof(Vertex, position) },
+			{ GL_FLOAT, 3, offsetof(Vertex, normal) },
+			{ GL_FLOAT, 2, offsetof(Vertex, textureCoordinate) }
+	});
+	SetVertices(vertices, verticesUsage);
+	SetIndices(indices, indicesUsage);
 }
 
 ShaderInput::~ShaderInput()
 {
 	DeleteVertices();
+	DeleteVertexAttributes();
 	DeleteIndices();
 }
 
-template<typename T>
-bool ShaderInput::SetVertices(const std::vector<T>& vertices, ShaderInput::Usage usage)
+//--------------------------------------------------------------------------------------------------------------
+// Primary important functions.
+//--------------------------------------------------------------------------------------------------------------
+
+void ShaderInput::SetVertexAttributes(
+		const std::type_info& vertexType,
+		const std::vector<VertexAttribute>& vertexAttributes)
 {
-	return 0;
+	// store the data type in an unique format
+	_vertexType = std::type_index(vertexType);
+
+	if (_vertexArrayObject == 0)
+		// generate if not generated yet
+		glGenVertexArrays(1, &_vertexArrayObject);
+	else
+	{
+		// cleanup old data
+		for (GLuint i = 0; i < _vertexAttributesSize; ++i)
+			glDisableVertexArrayAttrib(_vertexArrayObject, i);
+	}
+
+	// add VBO, EBO to VAO (If VBO == 0 || EBO == 0, VBO/EBO won't be added. This is intentional)
+	glBindVertexArray(_vertexArrayObject);
+	glBindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBufferObject);
+
+	GLsizei stride = 0;
+	for (size_t i = 0; i < vertexAttributes.size(); ++i)
+	{
+		stride += SizeOfGLenum(vertexAttributes[i].elementType) * vertexAttributes[i].numberOfComponents;
+	}
+
+	_vertexAttributesSize = vertexAttributes.size();
+	for (size_t i = 0; i < vertexAttributes.size(); ++i)
+	{
+		glVertexAttribPointer(
+				i,
+				vertexAttributes[i].numberOfComponents,
+				vertexAttributes[i].elementType,
+				GL_FALSE,
+				stride,
+				(GLvoid*)vertexAttributes[i].offset);
+		glEnableVertexAttribArray(i);
+	}
+
+	glBindVertexArray(0);
 }
 
-template<typename T>
-bool ShaderInput::SetIndices(const std::vector<T>& indices, ShaderInput::Usage usage)
+void ShaderInput::Draw(GLenum drawingMode) const
 {
-	return 0;
+	glBindVertexArray(_vertexArrayObject);
+	if (_elementBufferObject != 0)
+		glDrawElements(drawingMode, _indicesSize, _indexType, 0);
+	else if (_vertexBufferObject != 0)
+		glDrawArrays(drawingMode, 0, _verticesSize);
+	glBindVertexArray(0);
 }
 
-bool ShaderInput::DeleteVertices()
+void ShaderInput::SetVertices(GLsizeiptr verticesSize, const void* vertices, size_t sizeOfVertex, GLenum usage)
 {
-	return false;
+	if (_vertexBufferObject == 0)
+		glGenBuffers(1, &_vertexBufferObject);
+
+	// add VBO to VAO (If VAO == 0, VBO won't be added. This is intentional)
+	glBindVertexArray(_vertexArrayObject);
+	glBindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
+	glBufferData(GL_ARRAY_BUFFER, verticesSize * sizeOfVertex, vertices, usage);
+	glBindVertexArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-bool ShaderInput::DeleteIndices()
+void ShaderInput::SetIndices(GLsizeiptr indicesSize, const void* indices, GLenum indexType, GLenum usage)
 {
-	return false;
+	_indexType = indexType;
+
+	if (_elementBufferObject == 0)
+		glGenBuffers(1, &_elementBufferObject);
+
+	// add EBO to VAO (If VAO == 0, EBO won't be added. This is intentional)
+	glBindVertexArray(_vertexArrayObject);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vertexBufferObject);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize * SizeOfGLenum(indexType), indices, usage);
+	glBindVertexArray(0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-std::size_t ShaderInput::GetVerticesSize() const
+//--------------------------------------------------------------------------------------------------------------
+// Get sizes.
+//--------------------------------------------------------------------------------------------------------------
+
+GLsizeiptr ShaderInput::GetVerticesSize() const
 {
-	return 0;
+	return _verticesSize;
 }
 
-std::size_t ShaderInput::GetVIndicesSize() const
+GLuint ShaderInput::GetVertexAttributesSize() const
 {
-	return 0;
+	return _vertexAttributesSize;
 }
 
-void ShaderInput::Bind() const
+GLsizeiptr ShaderInput::GetIndicesSize() const
 {
-
+	return _indicesSize;
 }
 
-void ShaderInput::Draw() const
-{
+//--------------------------------------------------------------------------------------------------------------
+// Has checks
+//--------------------------------------------------------------------------------------------------------------
 
+bool ShaderInput::HasVertices() const
+{
+	return _vertexBufferObject != 0;
 }
 
-template<> GLenum ShaderInput::GetGLenum<GLbyte>()
+bool ShaderInput::HasVertexAttributes() const
 {
-	return GL_BYTE;
+	return _vertexArrayObject != 0;
 }
 
-template<> GLenum ShaderInput::GetGLenum<GLubyte>()
+bool ShaderInput::HasIndices() const
 {
-	return GL_UNSIGNED_BYTE;
+	return _elementBufferObject != 0;
 }
 
-template<> GLenum ShaderInput::GetGLenum<GLshort>()
+//--------------------------------------------------------------------------------------------------------------
+// Deletes
+// These delete functions only work when a valid OpenGL context exists.
+// Hence, ShaderInput : sf::GlResource ensures that.
+//--------------------------------------------------------------------------------------------------------------
+
+void ShaderInput::DeleteVertices()
 {
-	return GL_SHORT;
+	glDeleteBuffers(1, &_vertexBufferObject);
+	// reset fields controlled by vertices data
+	_vertexBufferObject = 0;
+	_verticesSize = 0;
+	_vertexAttributesSize = 0;
 }
 
-template<> GLenum ShaderInput::GetGLenum<GLushort>()
+void ShaderInput::DeleteVertexAttributes()
 {
-	return GL_UNSIGNED_SHORT;
+	glDeleteVertexArrays(1, &_vertexArrayObject);
+	// reset fields controlled by vertex attributes data
+	_vertexArrayObject = 0;
+	_vertexType = std::type_index(typeid(void));
+	_vertexAttributesSize = 0;
 }
 
-template<> GLenum ShaderInput::GetGLenum<GLint>()
+void ShaderInput::DeleteIndices()
 {
-	return GL_INT;
+	glDeleteBuffers(1, &_elementBufferObject);
+	// reset fields controlled by indices data
+	_elementBufferObject = 0;
+	_indexType = 0;
+	_indicesSize = 0;
 }
 
-template<> GLenum ShaderInput::GetGLenum<GLuint>()
-{
-	return GL_UNSIGNED_INT;
-}
+//--------------------------------------------------------------------------------------------------------------
+// Reading operations. For testing purposes.
+//--------------------------------------------------------------------------------------------------------------
 
-template<> GLenum ShaderInput::GetGLenum<GLfloat>()
+ShaderInput::ShaderInputState ShaderInput::ReadState() const
 {
-	return GL_FLOAT;
-}
-
-template<> GLenum ShaderInput::GetGLenum<GLdouble>()
-{
-	return GL_DOUBLE;
+	return {
+			_vertexBufferObject,
+			_vertexArrayObject,
+			_elementBufferObject,
+			_vertexType,
+			_indexType,
+			_verticesSize, _indicesSize,
+			_vertexAttributesSize
+	};
 }
