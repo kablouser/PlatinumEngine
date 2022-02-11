@@ -9,7 +9,7 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 #include "WindowManager/WindowManager.h"
-//#include "D:\GithubDesktop\PlatinumEngine\cmake-build-debug\_deps\imgui-src\imgui_demo.cpp"
+#include <ImGuiFileDialog.h>
 namespace PlatinumEngine
 {
 	///--------------------------------------------------------------------------
