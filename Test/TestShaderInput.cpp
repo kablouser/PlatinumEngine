@@ -1,17 +1,32 @@
 #include <catch2/catch.hpp>
 #include <RasterRenderer/RasterRenderer.h>
 #include <ShaderInput/ShaderInput.h>
+#include <iostream>
 
 // Read the docs
 // https://github.com/catchorg/Catch2/blob/devel/docs/Readme.md
+
+using namespace PlatinumEngine;
+
+struct MyVertex
+{
+	sf::Glsl::Vec3 position;
+	sf::Glsl::Vec3 normal;
+	sf::Glsl::Vec2 textureCoordinate;
+};
+
+struct OtherVertex
+{
+	sf::Glsl::Vec3 position;
+};
 
 TEST_CASE("ShaderInput", "[OpenGL Abstraction]")
 {
 	// curly brackets control when objects are destroyed
 	{
-		PlatinumEngine::RasterRenderer renderer;
+		RasterRenderer renderer;
 		{
-			PlatinumEngine::ShaderInput shaderInput;
+			ShaderInput shaderInput;
 
 			/*
 			struct ShaderInputState
@@ -25,18 +40,143 @@ TEST_CASE("ShaderInput", "[OpenGL Abstraction]")
 				GLuint _vertexAttributesSize;
 			};
 			 */
-
 			auto state = shaderInput.ReadState();
 
 			REQUIRE(state._vertexBufferObject == 0);
 			REQUIRE(state._vertexArrayObject == 0);
 			REQUIRE(state._elementBufferObject == 0);
 
+			REQUIRE(state._vertexType != std::type_index(typeid(MyVertex)));
+			REQUIRE(state._indexType != GL_UNSIGNED_INT);
+
 			REQUIRE(state._verticesSize == 0);
 			REQUIRE(state._indicesSize == 0);
 			REQUIRE(state._vertexAttributesSize == 0);
 
-			// TODO more test cases
+			/*
+			sf::Glsl::Vec3 position;
+			sf::Glsl::Vec3 normal;
+			sf::Glsl::Vec2 textureCoordinate;
+			 */
+			shaderInput.SetVertexAttributes<MyVertex>({
+					{ GL_FLOAT, 3, offsetof(MyVertex, position) },
+					{ GL_FLOAT, 3, offsetof(MyVertex, normal) },
+					{ GL_FLOAT, 2, offsetof(MyVertex, textureCoordinate) }
+			});
+			state = shaderInput.ReadState();
+
+			REQUIRE(state._vertexBufferObject == 0);
+			REQUIRE(state._vertexArrayObject != 0);
+			REQUIRE(state._elementBufferObject == 0);
+
+			REQUIRE(state._vertexType == std::type_index(typeid(MyVertex)));
+			REQUIRE(state._indexType != GL_UNSIGNED_INT);
+
+			REQUIRE(state._verticesSize == 0);
+			REQUIRE(state._indicesSize == 0);
+			REQUIRE(state._vertexAttributesSize == 3);
+
+			std::vector<MyVertex> vertices = {
+					{{ 0, 0, 0 }, { 0, 1, 0 }, { 0, 0 }},
+					{{ 0, 0, 0 }, { 0, 1, 0 }, { 0, 0 }},
+					{{ 0, 0, 0 }, { 0, 1, 0 }, { 0, 0 }}};
+			shaderInput.SetVertices(vertices);
+			state = shaderInput.ReadState();
+
+			REQUIRE(state._vertexBufferObject != 0);
+			REQUIRE(state._vertexArrayObject != 0);
+			REQUIRE(state._elementBufferObject == 0);
+
+			REQUIRE(state._vertexType == std::type_index(typeid(MyVertex)));
+			REQUIRE(state._indexType != GL_FLOAT);
+
+			REQUIRE(state._verticesSize == 3);
+			REQUIRE(state._indicesSize == 0);
+			REQUIRE(state._vertexAttributesSize == 3);
+
+			std::vector<GLuint> indices = { 0, 1, 2 };
+			shaderInput.SetIndices(indices);
+			state = shaderInput.ReadState();
+
+			REQUIRE(state._vertexBufferObject != 0);
+			REQUIRE(state._vertexArrayObject != 0);
+			REQUIRE(state._elementBufferObject != 0);
+
+			REQUIRE(state._vertexType == std::type_index(typeid(MyVertex)));
+			REQUIRE(state._indexType == GL_UNSIGNED_INT);
+
+			REQUIRE(state._verticesSize == 3);
+			REQUIRE(state._indicesSize == 3);
+			REQUIRE(state._vertexAttributesSize == 3);
+
+			shaderInput.SetVertexAttributes<MyVertex>({
+					{ GL_FLOAT, 3, offsetof(MyVertex, position) },
+					{ GL_FLOAT, 3, offsetof(MyVertex, normal) }
+			});
+			state = shaderInput.ReadState();
+
+			REQUIRE(state._vertexBufferObject != 0);
+			REQUIRE(state._vertexArrayObject != 0);
+			REQUIRE(state._elementBufferObject != 0);
+
+			REQUIRE(state._vertexType == std::type_index(typeid(MyVertex)));
+			REQUIRE(state._indexType == GL_UNSIGNED_INT);
+
+			REQUIRE(state._verticesSize == 3);
+			REQUIRE(state._indicesSize == 3);
+			REQUIRE(state._vertexAttributesSize == 2);
+
+			shaderInput.SetVertices<MyVertex>({});
+			shaderInput.SetVertexAttributes<OtherVertex>({});
+			shaderInput.SetIndices<GLubyte>({});
+			state = shaderInput.ReadState();
+
+			REQUIRE(state._vertexBufferObject != 0);
+			REQUIRE(state._vertexArrayObject != 0);
+			REQUIRE(state._elementBufferObject != 0);
+
+			REQUIRE(state._vertexType == std::type_index(typeid(OtherVertex)));
+			REQUIRE(state._indexType == GL_UNSIGNED_BYTE);
+
+			REQUIRE(state._verticesSize == 0);
+			REQUIRE(state._indicesSize == 0);
+			REQUIRE(state._vertexAttributesSize == 0);
+
+			shaderInput.DeleteVertexAttributes();
+			shaderInput.DeleteVertices();
+			shaderInput.DeleteIndices();
+			state = shaderInput.ReadState();
+
+			REQUIRE(state._vertexBufferObject == 0);
+			REQUIRE(state._vertexArrayObject == 0);
+			REQUIRE(state._elementBufferObject == 0);
+
+			REQUIRE(state._vertexType != std::type_index(typeid(MyVertex)));
+			REQUIRE(state._indexType != GL_UNSIGNED_INT);
+
+			REQUIRE(state._verticesSize == 0);
+			REQUIRE(state._indicesSize == 0);
+			REQUIRE(state._vertexAttributesSize == 0);
+		}
+
+		{
+			ShaderInput shaderInput({
+							{{ 0, 0, 0 }, { 0, 1, 0 }, { 0, 0 }},
+							{{ 0, 0, 0 }, { 0, 1, 0 }, { 0, 0 }},
+							{{ 0, 0, 0 }, { 0, 1, 0 }, { 0, 0 }}},
+					{ 0, 1, 2 });
+			auto state = shaderInput.ReadState();
+
+			REQUIRE(state._vertexBufferObject != 0);
+			REQUIRE(state._vertexArrayObject != 0);
+			REQUIRE(state._elementBufferObject != 0);
+
+			REQUIRE(state._vertexType == std::type_index(typeid(ShaderInput::Vertex)));
+			REQUIRE(state._indexType == GL_UNSIGNED_INT);
+
+			REQUIRE(state._verticesSize == 3);
+			REQUIRE(state._indicesSize == 3);
+			REQUIRE(state._vertexAttributesSize == 3);
 		}
 	}
 }

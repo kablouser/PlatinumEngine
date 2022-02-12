@@ -110,6 +110,31 @@ namespace PlatinumEngine
 		//--------------------------------------------------------------------------------------------------------------
 
 		/**
+		 * Configures the vertex structure layout to expect. Example usage:
+		 * @code
+		 * struct Vertex { sf::Glsl::Vec3 position; sf::Glsl::Vec3 normal; sf::Glsl::Vec3 uv; };
+		 *
+		 * SetVertexAttributes<Vertex>({
+		 * 		{GL_FLOAT, 3, offsetof(Vertex,position)},
+		 * 		{GL_FLOAT, 3, offsetof(Vertex,normal)},
+		 * 		{GL_FLOAT, 2, offsetof(Vertex,uv)}
+		 * });
+		 * @endcode
+		 * Pay very close attention to the field types you're using. Make sure it's the same size as OpenGL types.
+		 * And never call this when there are vertices data already on the GPU.
+		 * @tparam T Must be plain old data (POD) struct/class
+		 * @param vertexAttributes List of attributes in vertexType
+		 */
+		template<typename T>
+		void SetVertexAttributes(const std::vector<VertexAttribute>& vertexAttributes)
+		{
+			// You shouldn't change vertex type while there are vertices on the GPU
+			// First clear/delete them by either: SetVertices(std::vector<T>()); or DeleteVertices();
+			assert(_vertexType == std::type_index(typeid(T)) || _verticesSize == 0);
+			SetVertexAttributes(std::type_index(typeid(T)), sizeof(T), vertexAttributes);
+		}
+
+		/**
 		 * You must call SetVertexAttributes at least once before calling this function.
 		 *
 		 * Send new data to the GPU. Usually vertex positions, normals, uvs.
@@ -150,28 +175,8 @@ namespace PlatinumEngine
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-		// Primary important functions.
+		// Draw calls.
 		//--------------------------------------------------------------------------------------------------------------
-
-		/**
-		 * Configures the vertex structure layout to expect. Example usage:
-		 * @code
-		 * struct Vertex { sf::Glsl::Vec3 position; sf::Glsl::Vec3 normal; sf::Glsl::Vec3 uv; };
-		 *
-		 * SetVertexAttributes(typeid(Vertex),
-		 * {
-		 * 		{GL_FLOAT, 3, offsetof(Vertex,position)},
-		 * 		{GL_FLOAT, 3, offsetof(Vertex,normal)},
-		 * 		{GL_FLOAT, 2, offsetof(Vertex,uv)}
-		 * });
-		 * @endcode
-		 * Pay very close attention to the type you're using. Make sure it's the same size as OpenGL types.
-		 * @param vertexType Must be plain old data (POD), obtained from typeid function
-		 * @param vertexAttributes List of attributes in vertexType
-		 */
-		void SetVertexAttributes(
-				const std::type_info& vertexType,
-				const std::vector<VertexAttribute>& vertexAttributes);
 
 		/**
 		 * Calls the appropriate drawing function,
@@ -284,6 +289,28 @@ namespace PlatinumEngine
 		//--------------------------------------------------------------------------------------------------------------
 		// Primary important functions. Unlikely you'd need to call these functions directly.
 		//--------------------------------------------------------------------------------------------------------------
+
+		/**
+		 * Configures the vertex structure layout to expect. Example usage:
+		 * @code
+		 * struct Vertex { sf::Glsl::Vec3 position; sf::Glsl::Vec3 normal; sf::Glsl::Vec3 uv; };
+		 *
+		 * SetVertexAttributes<Vertex>({
+		 * 		{GL_FLOAT, 3, offsetof(Vertex,position)},
+		 * 		{GL_FLOAT, 3, offsetof(Vertex,normal)},
+		 * 		{GL_FLOAT, 2, offsetof(Vertex,uv)}
+		 * });
+		 * @endcode
+		 * Pay very close attention to the field types you're using. Make sure it's the same size as OpenGL types.
+		 * And never call this when there are vertices data already on the GPU.
+		 * @param typeOfVertex type index of Vertex, obtained through std::type_index(typeinfo(T))
+		 * @param sizeOfVertex number of bytes of Vertex, obtained through sizeof(T)
+		 * @param vertexAttributes List of attributes in vertexType
+		 */
+		void SetVertexAttributes(
+				std::type_index typeOfVertex,
+				size_t sizeOfVertex,
+				const std::vector<VertexAttribute>& vertexAttributes);
 
 		/**
 		 * Send new data to the GPU. Usually vertex positions, normals, uvs.

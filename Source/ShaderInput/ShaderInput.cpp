@@ -1,3 +1,4 @@
+#include <SFML/Graphics/GLCheck.hpp>
 #include <ShaderInput/ShaderInput.h>
 
 using namespace PlatinumEngine;
@@ -25,7 +26,7 @@ ShaderInput::ShaderInput(
 		ShaderInput()
 {
 	VertexAttribute x = { GL_FLOAT, 3, offsetof(Vertex, position) };
-	SetVertexAttributes(typeid(Vertex), {
+	SetVertexAttributes<Vertex>({
 			{ GL_FLOAT, 3, offsetof(Vertex, position) },
 			{ GL_FLOAT, 3, offsetof(Vertex, normal) },
 			{ GL_FLOAT, 2, offsetof(Vertex, textureCoordinate) }
@@ -45,12 +46,21 @@ ShaderInput::~ShaderInput()
 // Primary important functions.
 //--------------------------------------------------------------------------------------------------------------
 
-void ShaderInput::SetVertexAttributes(
-		const std::type_info& vertexType,
+void ShaderInput::Draw(GLenum drawingMode) const
+{
+	glBindVertexArray(_vertexArrayObject);
+	if (_elementBufferObject != 0)
+		glDrawElements(drawingMode, _indicesSize, _indexType, 0);
+	else if (_vertexBufferObject != 0)
+		glDrawArrays(drawingMode, 0, _verticesSize);
+	glBindVertexArray(0);
+}
+
+void ShaderInput::SetVertexAttributes(std::type_index typeOfVertex, size_t sizeOfVertex,
 		const std::vector<VertexAttribute>& vertexAttributes)
 {
 	// store the data type in an unique format
-	_vertexType = std::type_index(vertexType);
+	_vertexType = typeOfVertex;
 
 	if (_vertexArrayObject == 0)
 		// generate if not generated yet
@@ -67,12 +77,6 @@ void ShaderInput::SetVertexAttributes(
 	glBindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBufferObject);
 
-	GLsizei stride = 0;
-	for (size_t i = 0; i < vertexAttributes.size(); ++i)
-	{
-		stride += SizeOfGLenum(vertexAttributes[i].elementType) * vertexAttributes[i].numberOfComponents;
-	}
-
 	_vertexAttributesSize = vertexAttributes.size();
 	for (size_t i = 0; i < vertexAttributes.size(); ++i)
 	{
@@ -81,7 +85,7 @@ void ShaderInput::SetVertexAttributes(
 				vertexAttributes[i].numberOfComponents,
 				vertexAttributes[i].elementType,
 				GL_FALSE,
-				stride,
+				(GLsizei)sizeOfVertex,
 				(GLvoid*)vertexAttributes[i].offset);
 		glEnableVertexAttribArray(i);
 	}
@@ -89,18 +93,10 @@ void ShaderInput::SetVertexAttributes(
 	glBindVertexArray(0);
 }
 
-void ShaderInput::Draw(GLenum drawingMode) const
-{
-	glBindVertexArray(_vertexArrayObject);
-	if (_elementBufferObject != 0)
-		glDrawElements(drawingMode, _indicesSize, _indexType, 0);
-	else if (_vertexBufferObject != 0)
-		glDrawArrays(drawingMode, 0, _verticesSize);
-	glBindVertexArray(0);
-}
-
 void ShaderInput::SetVertices(GLsizeiptr verticesSize, const void* vertices, size_t sizeOfVertex, GLenum usage)
 {
+	_verticesSize = verticesSize;
+
 	if (_vertexBufferObject == 0)
 		glGenBuffers(1, &_vertexBufferObject);
 
@@ -116,6 +112,7 @@ void ShaderInput::SetVertices(GLsizeiptr verticesSize, const void* vertices, siz
 void ShaderInput::SetIndices(GLsizeiptr indicesSize, const void* indices, GLenum indexType, GLenum usage)
 {
 	_indexType = indexType;
+	_indicesSize = indicesSize;
 
 	if (_elementBufferObject == 0)
 		glGenBuffers(1, &_elementBufferObject);
