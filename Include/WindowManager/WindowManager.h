@@ -17,6 +17,7 @@ namespace PlatinumEngine
 		void ShowMenuFile();
 		void ShowMenuGameObject();
 		void SetUpMainMenu();
+        void DrawGui();
 		///-----------------------------------
 		///sub menu item functions to open corresponding window
 		///-----------------------------------

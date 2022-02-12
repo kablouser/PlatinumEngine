@@ -26,8 +26,8 @@ FetchContent_MakeAvailable(imgui)
 include_directories(${CMAKE_BINARY_DIR}/_deps/imgui-src)
 #-----------------------------
 #ImGuiFileDialog
-FetchContent_Declare(ImGuiFileDialog GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog.git GIT_TAG v0.6.3)
-FetchContent_MakeAvailable(ImGuiFileDialog)
+FetchContent_Declare(imguifiledialog GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog.git GIT_TAG v0.6.3)
+FetchContent_MakeAvailable(imguifiledialog)
 include_directories(${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src)
 #-----------------------------
 # imgui-SFML
@@ -69,7 +69,8 @@ add_executable(${PROJECT_NAME}
 	Source/InputManager/InputManager.cpp
 	Source/RasterRenderer/RasterRenderer.cpp
 	Source/SceneManager/SceneManager.cpp
-	Source/WindowManager/WindowManager.cpp )
+	Source/WindowManager/WindowManager.cpp
+	cmake-build-debug/_deps/imguifiledialog-src/ImGuiFileDialog.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
 
@@ -91,7 +92,6 @@ set(PROJECT_LIBRARIES
 	# good luck trying to find these names and trying to match them
 	# CMake is so stupid
 	"sfml-audio;sfml-graphics;sfml-system;sfml-window;"
-	"ImGuiFileDialog"
 	"ImGui-SFML;"
 	"glm;"
 	"assimp;")
