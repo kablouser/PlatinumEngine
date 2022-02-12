@@ -5,6 +5,9 @@
 #include "imgui.h"
 #include "stdio.h"
 #include "iostream"
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Mouse.hpp"
+#include "SFML/Window/Joystick.hpp"
 #include <imgui-SFML.h>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
@@ -20,9 +23,20 @@ namespace PlatinumEngine
 	{
 		//May need a better way to properly allow user defined axes???
 		Axis a;
-		a.Name="Horizontal";
-		a.positiveKey = KeyCode::D;
-		a.negativeKey = KeyCode::A;
+		a.name="Horizontal";
+		a.positiveKey = sf::Keyboard::D;
+		a.negativeKey = sf::Keyboard::A;
+		a.type = TYPE_KEYBOARD_MOUSE_BUTTON;
+		Axes.push_back(a);
+		a.name="Vertical";
+		a.positiveKey = sf::Keyboard::W;
+		a.negativeKey = sf::Keyboard::S;
+		a.type = TYPE_KEYBOARD_MOUSE_BUTTON;
+		Axes.push_back(a);
+		a.name="Submit";
+		a.positiveKey = sf::Keyboard::Enter;
+		a.negativeKey = sf::Keyboard::Unknown;
+		a.type = TYPE_KEYBOARD_MOUSE_BUTTON;
 		Axes.push_back(a);
 
 		sf::RenderWindow window(sf::VideoMode(1080, 960), "Platinum Engine");
@@ -33,6 +47,7 @@ namespace PlatinumEngine
 
 		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
 		while (window.isOpen())
 		{
@@ -51,15 +66,30 @@ namespace PlatinumEngine
 			//TESTING HERE
 			int kd = -1;
 			for(int k=0;k<512;k++) if(ImGui::IsKeyDown(k)) kd=k;
+			float jx = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::X);
+			float jy = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::Y);
+			float jz = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::Z);
+			float jr = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::R);
+			float ju = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::U);
+			float jv = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::V);
+			float jpx = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::PovX);
+			float jpy = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::PovY);
+			ImGui::Text("JoyStick Axis : x=%f, y=%f, z=%f, r=%f, u=%f, v=%f, px=%f, py=%f", jx,jy,jz,jr,ju,jv,jpx,jpy);
+
 			ImVec2 mousePos = GetMousePosition();
+			sf::Joystick::Identification id = sf::Joystick::getIdentification(0);
+			ImGui::Text("JoyStick Connected : %d", sf::Joystick::isConnected(0));
+			ImGui::Text("JoyStick: %d, %d",id.productId, id.vendorId);
+			ImGui::Text("JoyStick: %s",id.name.toAnsiString().c_str());
 			ImGui::Text("Position: %f, %f", mousePos.x, mousePos.y);
 			ImGui::Text("Left Mouse Down: %d", IsMouseDown(0));
-			ImGui::Text("Up Arrow Key Down: %d", ImGui::IsKeyDown(KeyCode::UpArrow));
+			ImGui::Text("Up Arrow Key Down: %d", ImGui::IsKeyDown(sf::Keyboard::Up));
 			ImGui::Text("Key Down (ID): %d", kd);
 			ImGui::Text("Axis: %f", GetAxis("Horizontal"));
 
 			sf::Vector2i winpos = window.getPosition();
-			winpos.x += GetAxis("Horizontal");
+			winpos.x += GetAxis("Horizontal") + jx;
+			winpos.y -= GetAxis("Vertical") - jy;
 			window.setPosition(winpos);
 
 			//ImGui::ShowDemoWindow();
@@ -135,15 +165,24 @@ namespace PlatinumEngine
 	}
 
 	//Returns value of the Axis defined by AxisName
-	float InputManager::GetAxis(std::string AxisName)
+	float InputManager::GetAxis(std::string AxisName, int joyid)
 	{
 		for(Axis axis: Axes)
 		{
-			if(axis.Name.compare(AxisName) == 0)
+			if(axis.name.compare(AxisName) == 0)
 			{
-				if(IsKeyDown(axis.positiveKey)) axis.SetValue(1.f);
-				else if(IsKeyDown(axis.negativeKey)) axis.SetValue(-1.f);
-				return axis.GetValue();
+				if(axis.type == TYPE_KEYBOARD_MOUSE_BUTTON)
+				{
+					if (IsKeyDown(axis.positiveKey)) return 1.f;
+					else if (IsKeyDown(axis.negativeKey)) return -1.f;
+				}
+				else if(axis.type == TYPE_JOYSTICK_AXIS)
+				{
+					if(axis.joyID == joyid)
+					{
+						return sf::Joystick::getAxisPosition(joyid,axis.axis);
+					}
+				}
 			}
 		}
 		return 0;
