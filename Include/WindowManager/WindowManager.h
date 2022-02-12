@@ -18,6 +18,7 @@ namespace PlatinumEngine
 		void ShowMenuGameObject();
 		void SetUpMainMenu();
         void DrawGui();
+		void EventTrigger(sf::Event e);
 		///-----------------------------------
 		///sub menu item functions to open corresponding window
 		///-----------------------------------

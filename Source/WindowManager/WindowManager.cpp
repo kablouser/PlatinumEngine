@@ -5,6 +5,7 @@
 #include "imgui.h"
 #include "stdio.h"
 #include <imgui-SFML.h>
+#include <iostream>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
@@ -35,6 +36,8 @@ namespace PlatinumEngine
 				{
 					window.close();
 				}
+
+				EventTrigger(event);
 			}
 			ImGui::SFML::Update(window, deltaClock.restart());
 
@@ -258,4 +261,18 @@ namespace PlatinumEngine
 		//TODO:
 	}
 
+
+	// sfml event trigger
+	void WindowManager::EventTrigger(sf::Event e)
+	{
+		switch (e.type)
+		{
+		case sf::Event::KeyPressed:
+			if(e.key.control && e.key.code == sf::Keyboard::Num6)
+			{
+				show_mainMenu_window_animation = true;
+				break;
+			}
+		}
+	}
 }
