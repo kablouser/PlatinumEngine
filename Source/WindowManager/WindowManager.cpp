@@ -116,25 +116,10 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	void WindowManager::ShowMenuFile()
 	{
-		if(ImGui::MenuItem("New Scene"))
-		{
-			//TODO:
-		}
-
-		if(ImGui::MenuItem("Open Scene", "", &show_mainMenu_file_openScene))
-		{
-			//TODO:
-		}
-
-		if(ImGui::MenuItem("Save", "Ctrl+S", &show_mainMenu_file_save))
-		{
-			//TODO:
-		}
-
-		if(ImGui::MenuItem("Save as"))
-		{
-			//TODO:
-		}
+		if(ImGui::MenuItem("New Scene")) {}
+		if(ImGui::MenuItem("Open Scene", "", &show_mainMenu_file_openScene)) {}
+		if(ImGui::MenuItem("Save", "Ctrl+S", &show_mainMenu_file_save)) {}
+		if(ImGui::MenuItem("Save as")) {}
 	}
 
 	///--------------------------------------------------------------------------
@@ -163,6 +148,18 @@ namespace PlatinumEngine
 		if(ImGui::MenuItem("Light")) {}
 	}
 
+    ///--------------------------------------------------------------------------
+    /// this function helps to create a list of
+    /// operations of "Edit" in the menu Bar
+    ///--------------------------------------------------------------------------
+    void WindowManager::ShowMenuEdit()
+    {
+        if(ImGui::MenuItem("Undo", "Ctrl+Z")) {}
+        if(ImGui::MenuItem("Redo", "Shift+Ctrl+Z")) {}
+        if(ImGui::MenuItem("Cut", "Ctrl+X")) {}
+        if(ImGui::MenuItem("Copy", "Ctrl+C")) {}
+        if(ImGui::MenuItem("Paste", "Ctrl+V")) {}
+    }
 	///--------------------------------------------------------------------------
 	/// Set up the main menu for basic Window
 	///--------------------------------------------------------------------------
@@ -178,7 +175,14 @@ namespace PlatinumEngine
 				ShowMenuFile();
 				ImGui::EndMenu();
 			}
-
+            ///---------------------------------------------------------------
+            /// File component
+            ///---------------------------------------------------------------
+            if(ImGui::BeginMenu("Edit"))
+            {
+                ShowMenuEdit();
+                ImGui::EndMenu();
+            }
 			///---------------------------------------------------------------
 			/// GameObject component
 			///---------------------------------------------------------------

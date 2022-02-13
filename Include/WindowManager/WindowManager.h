@@ -17,6 +17,7 @@ namespace PlatinumEngine
 		void ShowBasicScene();
 		void ShowMenuFile();
 		void ShowMenuGameObject();
+        void ShowMenuEdit();
 		void SetUpMainMenu();
 
         //file section

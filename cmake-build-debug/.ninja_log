@@ -253,3 +253,6 @@
 1613	2568	1644759231861881226	PlatinumEngine	ece5c2880c9cbd2d
 70	1736	1644759757378480211	CMakeFiles/PlatinumEngine.dir/Source/WindowManager/WindowManager.cpp.o	96eb66be14dc27eb
 1736	2487	1644759758130802798	PlatinumEngine	ece5c2880c9cbd2d
+182	1875	1644770751595949159	CMakeFiles/PlatinumEngine.dir/Source/main.cpp.o	182e2db8bd23c3bc
+186	1891	1644770751614949653	CMakeFiles/PlatinumEngine.dir/Source/WindowManager/WindowManager.cpp.o	96eb66be14dc27eb
+1891	3033	1644770752754748640	PlatinumEngine	ece5c2880c9cbd2d
