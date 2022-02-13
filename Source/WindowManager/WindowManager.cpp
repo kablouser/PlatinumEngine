@@ -3,12 +3,12 @@
 //
 
 #include "imgui.h"
-#include "stdio.h"
 #include <imgui-SFML.h>
 #include <iostream>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/Keyboard.hpp>
 #include "WindowManager/WindowManager.h"
 #include "ImGuiFileDialog.h"
 namespace PlatinumEngine
@@ -26,7 +26,6 @@ namespace PlatinumEngine
 		sf::Clock deltaClock;
 		while (window.isOpen())
 		{
-
 			sf::Event event;
 			while (window.pollEvent(event))
 			{
@@ -36,14 +35,14 @@ namespace PlatinumEngine
 				{
 					window.close();
 				}
-
-				EventTrigger(event);
+				DoShortCut(event);
 			}
 			ImGui::SFML::Update(window, deltaClock.restart());
 
 			///-----------------------------------------------------------------------
 			///ifs in main menu window list to call the function inside
 			///-----------------------------------------------------------------------
+			//window section
 			if(show_mainMenu_window_game)                ShowWindowGame(&show_mainMenu_window_game);
 			if(show_mainMenu_window_scene)               ShowWindowScene(&show_mainMenu_window_scene);
 			if(show_mainMenu_window_hierarchy)           ShowWindowHierarchy(&show_mainMenu_window_hierarchy);
@@ -53,11 +52,14 @@ namespace PlatinumEngine
 			if(show_mainMenu_window_audio)               ShowWindowAudio(&show_mainMenu_window_audio);
 			if(show_mainMenu_window_light)               ShowWindowLight(&show_mainMenu_window_light);
 
+            if(show_mainMenu_file_openScene)             DrawOpenScene(&show_mainMenu_file_openScene);
+            if(show_mainMenu_file_save)                  DrawSaveScene(&show_mainMenu_file_save);
+
 			///-------------------------------------------------------------------
 			/// set up the main menu bar
 			///-------------------------------------------------------------------
             SetUpMainMenu();
-            DrawGui();
+           // DrawGui();
 			//ImGui::ShowDemoWindow();
 			window.clear();
 			ImGui::SFML::Render(window);
@@ -66,38 +68,12 @@ namespace PlatinumEngine
 		ImGui::SFML::Shutdown();
 	}
 
-	///--------------------------------------------------------------------------
-	/// this function helps to create a list of
-	/// operations of "File" in the menu Bar
-	///--------------------------------------------------------------------------
-	void WindowManager::ShowMenuFile()
-	{
-		if(ImGui::MenuItem("New Scene"))
-		{
-			//TODO:
-		}
-
-		if(ImGui::MenuItem("Open Scene"))
-		{
-			//TODO:
-		}
-
-		if(ImGui::MenuItem("Save", "Ctrl+S"))
-		{
-			//TODO:
-		}
-
-		if(ImGui::MenuItem("Save as"))
-		{
-			//TODO:
-		}
-	}
-
-    void WindowManager::DrawGui()
+    ///--------------------------------------------------------------------------
+    /// This section is for main menu bar "file" part file dialog showing
+    ///--------------------------------------------------------------------------
+    void WindowManager::DrawSaveScene(bool* p_open)
     {
-        // open Dialog Simple
-        if (ImGui::Button("Open File Dialog"))
-            ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".cpp,.h,.hpp", ".");
+        ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Save Scene", ".scene", ".");
 
         // display
         if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
@@ -115,51 +91,76 @@ namespace PlatinumEngine
         }
     }
 
+    void WindowManager::DrawOpenScene(bool *p_open)
+    {
+        ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Open Scene", ".scene", ".");
+
+        // display
+        if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+        {
+            // action if OK
+            if (ImGuiFileDialog::Instance()->IsOk())
+            {
+                std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+                std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+                // action
+            }
+
+            // close
+            ImGuiFileDialog::Instance()->Close();
+        }
+    }
+	///--------------------------------------------------------------------------
+	/// this function helps to create a list of
+	/// operations of "File" in the menu Bar
+	///--------------------------------------------------------------------------
+	void WindowManager::ShowMenuFile()
+	{
+		if(ImGui::MenuItem("New Scene"))
+		{
+			//TODO:
+		}
+
+		if(ImGui::MenuItem("Open Scene", "", &show_mainMenu_file_openScene))
+		{
+			//TODO:
+		}
+
+		if(ImGui::MenuItem("Save", "Ctrl+S", &show_mainMenu_file_save))
+		{
+			//TODO:
+		}
+
+		if(ImGui::MenuItem("Save as"))
+		{
+			//TODO:
+		}
+	}
+
 	///--------------------------------------------------------------------------
 	/// this function helps to create a list of
 	/// operations of "GameObject" in the menu Bar
 	///--------------------------------------------------------------------------
 	void WindowManager::ShowMenuGameObject()
 	{
-		if(ImGui::MenuItem("Create Empty"))
-		{
-			//TODO:
-		}
-
-		if(ImGui::MenuItem("Create Empty Child"))
-		{
-			//TODO:
-		}
-
-		if(ImGui::MenuItem("Create Empty Parent"))
-		{
-			//TODO:
-		}
-
+		if(ImGui::MenuItem("Create Empty")) {}
+		if(ImGui::MenuItem("Create Empty Child")) {}
+		if(ImGui::MenuItem("Create Empty Parent")) {}
 		if(ImGui::BeginMenu("3D Object"))
 		{
-			if(ImGui::MenuItem("Cube")){/*TODO:*/}
-			if(ImGui::MenuItem("Sphere")){/*TODO:*/}
-			if(ImGui::MenuItem("Capsule")){/*TODO:*/}
-			if(ImGui::MenuItem("Plane")){/*TODO:*/}
+			if(ImGui::MenuItem("Cube")) {}
+			if(ImGui::MenuItem("Sphere")) {}
+			if(ImGui::MenuItem("Capsule")) {}
+			if(ImGui::MenuItem("Plane")) {}
 			ImGui::EndMenu();
 		}
-
-		if(ImGui::BeginMenu("Effect"))//maybe we will have a particle system
+		if(ImGui::BeginMenu("Effect"))
 		{
-			if(ImGui::MenuItem("Particle System")){/*TODO:*/}
+			if(ImGui::MenuItem("Particle System")) {}
 			ImGui::EndMenu();
 		}
-
-		if(ImGui::MenuItem("Camera"))
-		{
-			//TODO:
-		}
-
-		if(ImGui::MenuItem("Light"))
-		{
-			//TODO:
-		}
+		if(ImGui::MenuItem("Camera")) {}
+		if(ImGui::MenuItem("Light")) {}
 	}
 
 	///--------------------------------------------------------------------------
@@ -214,7 +215,6 @@ namespace PlatinumEngine
 	//Please implement Animation Window below
 	void WindowManager::ShowWindowAnimation(bool* p_open)
 	{
-
 		if(!ImGui::Begin("Animation", p_open))
 		{
 			ImGui::Text("ABOUT THIS DEMO:");
@@ -235,44 +235,92 @@ namespace PlatinumEngine
 	{
 		//TODO:
 	}
-	//Please implement Game Window below
+
+    //Please implement Game Window below
 	void WindowManager::ShowWindowGame(bool* p_open)
 	{
 		//TODO:
 	}
-	//Please implement Scene Window below
+
+    //Please implement Scene Window below
 	void WindowManager::ShowWindowScene(bool* p_open)
 	{
 		//TODO:
 	}
-	//Please implement Inspector Window below
+
+    //Please implement Inspector Window below
 	void WindowManager::ShowWindowInspector(bool* p_open)
 	{
 		//TODO:
 	}
-	//Please implement Audio Window below
+
+    //Please implement Audio Window below
 	void WindowManager::ShowWindowAudio(bool* p_open)
 	{
 		//TODO:
 	}
-	//Please implement Hierarchy Window below
+
+    //Please implement Hierarchy Window below
 	void WindowManager::ShowWindowHierarchy(bool* p_open)
 	{
 		//TODO:
 	}
 
 
-	// sfml event trigger
-	void WindowManager::EventTrigger(sf::Event e)
+    ///--------------------------------------------------------------------------
+    /// This section implements the short cuts for main menu bar
+    ///--------------------------------------------------------------------------
+	// sfml event trigger for shortcuts
+	void WindowManager::DoShortCut(sf::Event e)
 	{
 		switch (e.type)
 		{
 		case sf::Event::KeyPressed:
-			if(e.key.control && e.key.code == sf::Keyboard::Num6)
-			{
-				show_mainMenu_window_animation = true;
-				break;
-			}
+            if(e.key.control && e.key.code == sf::Keyboard::S)
+            {
+                show_mainMenu_file_save = true;
+                break;
+            }
+            else if(e.key.control && e.key.code == sf::Keyboard::Num1)
+            {
+                show_mainMenu_window_game = true;
+                break;
+            }
+            else if(e.key.control && e.key.code == sf::Keyboard::Num2)
+            {
+                show_mainMenu_window_hierarchy = true;
+                break;
+            }
+            else if(e.key.control && e.key.code == sf::Keyboard::Num3)
+            {
+                show_mainMenu_window_inspector = true;
+                break;
+            }
+            else if(e.key.control && e.key.code == sf::Keyboard::Num4)
+            {
+                show_mainMenu_window_project = true;
+                break;
+            }
+            else if(e.key.control && e.key.code == sf::Keyboard::Num5)
+            {
+                show_mainMenu_window_scene = true;
+                break;
+            }
+            else if(e.key.control && e.key.code == sf::Keyboard::Num6)
+            {
+            show_mainMenu_window_animation = true;
+            break;
+            }
+            else if(e.key.control && e.key.code == sf::Keyboard::Num7)
+            {
+                show_mainMenu_window_audio = true;
+                break;
+            }
+            else if(e.key.control && e.key.code == sf::Keyboard::Num8)
+            {
+                show_mainMenu_window_light = true;
+                break;
+            }
 		}
 	}
 }

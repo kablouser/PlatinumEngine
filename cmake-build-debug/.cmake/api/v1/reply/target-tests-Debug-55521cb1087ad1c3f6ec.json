@@ -144,6 +144,10 @@
 	[
 		{
 			"backtrace" : 2,
+			"id" : "Catch2WithMain::@3e93893dc0618e684ae7"
+		},
+		{
+			"backtrace" : 2,
 			"id" : "sfml-system::@8cb1db2982443611e568"
 		},
 		{
@@ -165,10 +169,6 @@
 		{
 			"backtrace" : 2,
 			"id" : "assimp::@b1ea6f5c2178ebc90389"
-		},
-		{
-			"backtrace" : 2,
-			"id" : "Catch2WithMain::@3e93893dc0618e684ae7"
 		}
 	],
 	"id" : "tests::@6890427a1f51a3e7e1df",

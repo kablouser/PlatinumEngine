@@ -13,12 +13,18 @@ namespace PlatinumEngine
 		///-----------------------------------
 		///Main menu bar functions
 		///-----------------------------------
+		//window section
 		void ShowBasicScene();
 		void ShowMenuFile();
 		void ShowMenuGameObject();
 		void SetUpMainMenu();
-        void DrawGui();
-		void EventTrigger(sf::Event e);
+
+        //file section
+        void DrawSaveScene(bool* p_open);
+        void DrawOpenScene(bool* p_open);
+
+        //shortcuts for main menu bars
+		void DoShortCut(sf::Event e);
 		///-----------------------------------
 		///sub menu item functions to open corresponding window
 		///-----------------------------------
