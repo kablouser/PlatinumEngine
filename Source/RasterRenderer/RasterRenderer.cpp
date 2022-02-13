@@ -8,108 +8,111 @@
 #include <imgui.h>
 // glew.h replaces gl.h. So don't #include <SFML/OpenGL.hpp>
 #include <GL/glew.h>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 // std
 #include <iostream>
 
-using namespace PlatinumEngine;
 
-RasterRenderer::RasterRenderer(
-		unsigned int depthBits,
-		unsigned int stencilBits,
-		unsigned int antialiasingLevel,
-		unsigned int width,
-		unsigned int height
-		):
-		_window(sf::VideoMode(width, height),
-				"OpenGL",
-				sf::Style::Default,
-				sf::ContextSettings(depthBits, stencilBits, antialiasingLevel))
+namespace PlatinumEngine
 {
-	_window.setVerticalSyncEnabled(true);
-
-	// Debug
-	sf::ContextSettings settings = _window.getSettings();
-	std::cout << "depth bits:" << settings.depthBits << std::endl;
-	std::cout << "stencil bits:" << settings.stencilBits << std::endl;
-	std::cout << "antialiasing level:" << settings.antialiasingLevel << std::endl;
-	std::cout << "version:" << settings.majorVersion << "." << settings.minorVersion << std::endl;
-
-	// Enable ImGui in SFML
-	ImGui::SFML::Init(_window);
-
-	// glew imports all OpenGL extension methods
-	GLenum errorCode = glewInit();
-	if (errorCode != GLEW_OK)
-		std::cerr << glewGetErrorString(errorCode) << std::endl;
-}
-
-
-RasterRenderer::~RasterRenderer()
-{
-	ImGui::SFML::Shutdown(_window);
-}
-
-
-bool RasterRenderer::Update(const sf::Clock& deltaClock)
-{
-	// if window is not open, return false
-	if (!_window.isOpen())
-		return false;
-
-	// handle event
-	sf::Event event;
-
-	// loop through the events in the stacks
-	while(_window.pollEvent(event))
+	RasterRenderer::RasterRenderer(
+			unsigned int depthBits,
+			unsigned int stencilBits,
+			unsigned int antialiasingLevel,
+			unsigned int width,
+			unsigned int height
+	) :
+			_window(sf::VideoMode(width, height),
+					"OpenGL",
+					sf::Style::Default,
+					sf::ContextSettings(depthBits, stencilBits, antialiasingLevel))
 	{
-		ImGui::SFML::ProcessEvent(event);
+		_window.setVerticalSyncEnabled(true);
 
-		// if window is closed, stop the loop
-		if(event.type == sf::Event::Closed)
-		{
-			_window.close();
-			return false;
-		}
+		// Debug
+		sf::ContextSettings settings = _window.getSettings();
+		std::cout << "depth bits:" << settings.depthBits << std::endl;
+		std::cout << "stencil bits:" << settings.stencilBits << std::endl;
+		std::cout << "antialiasing level:" << settings.antialiasingLevel << std::endl;
+		std::cout << "version:" << settings.majorVersion << "." << settings.minorVersion << std::endl;
+
+		// Enable ImGui in SFML
+		ImGui::SFML::Init(_window);
+
+		// glew imports all OpenGL extension methods
+		GLenum errorCode = glewInit();
+		if (errorCode != GLEW_OK)
+			std::cerr << glewGetErrorString(errorCode) << std::endl;
 	}
 
-	// update imgui window
-	ImGui::SFML::Update(_window, deltaClock.getElapsedTime());
 
-	ImGui::Begin("Window title");
-	ImGui::End();
-
-	// opengl
-	_window.clear(sf::Color(18,33,43));
-
-	glBegin(GL_TRIANGLES);
-	glVertex3f(-0.5f, -0.5f, 0.0f);
-	glVertex3f(0.5f, -0.5f, 0.0f);
-	glVertex3f(0.0f, 0.0f, 0.0f);
-
-	glEnd();
+	RasterRenderer::~RasterRenderer()
+	{
+		// This causes an error sometimes
+		// "An internal OpenGL call failed in Texture.cpp(117)."
+		// Ignore it for now...
+		ImGui::SFML::Shutdown(_window);
+	}
 
 
-	// display window
-	ImGui::SFML::Render(_window);
+	bool RasterRenderer::Update(const sf::Clock& deltaClock)
+	{
+		// if window is not open, return false
+		if (!_window.isOpen())
+			return false;
 
-	_window.display();
-	return true;
+		// handle event
+		sf::Event event;
 
-}
+		// loop through the events in the stacks
+		while (_window.pollEvent(event))
+		{
+			ImGui::SFML::ProcessEvent(event);
 
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
-
-
-void RasterRenderer::CreateShader()
-{
-	auto x = glm::quat(glm::vec3(10,10,10));
-	GLfloat vertices[]=
+			// if window is closed, stop the loop
+			if (event.type == sf::Event::Closed)
 			{
-			-0.5f, -0.5f, 0.0f,
-			0.5f, -0.5f, 0.0f,
-			0.0f, 0.0f, 0.0f
+				_window.close();
+				return false;
+			}
+		}
 
-			};
+		// update imgui window
+		ImGui::SFML::Update(_window, deltaClock.getElapsedTime());
+
+		ImGui::Begin("Window title");
+		ImGui::End();
+
+		// opengl
+		_window.clear(sf::Color(18, 33, 43));
+
+		glBegin(GL_TRIANGLES);
+		glVertex3f(-0.5f, -0.5f, 0.0f);
+		glVertex3f(0.5f, -0.5f, 0.0f);
+		glVertex3f(0.0f, 0.0f, 0.0f);
+
+		glEnd();
+
+
+		// display window
+		ImGui::SFML::Render(_window);
+
+		_window.display();
+		return true;
+
+	}
+
+	void RasterRenderer::CreateShader()
+	{
+		auto x = glm::quat(glm::vec3(10, 10, 10));
+		GLfloat vertices[] =
+				{
+						-0.5f, -0.5f, 0.0f,
+						0.5f, -0.5f, 0.0f,
+						0.0f, 0.0f, 0.0f
+
+				};
+	}
 }

@@ -67,14 +67,17 @@ add_executable(${PROJECT_NAME}
 	Source/InputManager/InputManager.cpp
 	Source/RasterRenderer/RasterRenderer.cpp
 	Source/SceneManager/SceneManager.cpp
-	Source/ShaderInput/ShaderInput.cpp)
+	Source/OpenGL/ShaderInput.cpp
+	Source/OpenGL/GLEnumInfo.cpp
+	Source/OpenGL/GLCheck.cpp)
 # New place to put all your source code files into:
 set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/InputManager/InputManager.cpp;"
 	"Source/RasterRenderer/RasterRenderer.cpp;"
 	"Source/SceneManager/SceneManager.cpp;"
-	"Source/ShaderInput/ShaderInput.cpp;"
-	"Source/ShaderInput/GL_Utility.cpp;")
+	"Source/OpenGL/ShaderInput.cpp;"
+	"Source/OpenGL/GLEnumInfo.cpp;"
+	"Source/OpenGL/GLCheck.cpp;")
 # Future thing to uncomment
 # add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")

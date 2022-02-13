@@ -7,8 +7,8 @@
 #include <SFML/Graphics/Glsl.hpp>
 // OpenGL types
 #include <GL/glew.h>
-#include "GL_Utility.h"
-// Following, for catching errors, not strictly necessary
+#include <OpenGL/GLEnumInfo.h>
+// Catching errors, not strictly necessary
 #include <type_traits>
 #include <typeindex>
 #include <cassert>
@@ -110,6 +110,23 @@ namespace PlatinumEngine
 		//--------------------------------------------------------------------------------------------------------------
 
 		/**
+		 * Send new data to the GPU. Usually vertex positions, normals, uvs.
+		 * If SetIndices is never used, then data is iterated in order of input vertices.
+		 * Must call this before calling SetVertexAttributes for the first time.
+		 * @tparam T Must be plain old data (POD) struct/class
+		 * @param vertices Generic data to send
+		 * @param usage How this data is being used, must be one of {GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY,
+		 * GL_STATIC_DRAW, GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY}
+		 */
+		template<typename T>
+		void SetVertices(const std::vector<T>& vertices, GLenum usage = GL_STATIC_DRAW)
+		{
+			SetVertices(vertices.size(), vertices.data(), std::type_index(typeid(T)), sizeof(T), usage);
+		}
+
+		/**
+		 * You must call SetVertices at least once before this function.\n
+		 *
 		 * Configures the vertex structure layout to expect. Example usage:
 		 * @code
 		 * struct Vertex { sf::Glsl::Vec3 position; sf::Glsl::Vec3 normal; sf::Glsl::Vec3 uv; };
@@ -121,8 +138,7 @@ namespace PlatinumEngine
 		 * });
 		 * @endcode
 		 * Pay very close attention to the field types you're using. Make sure it's the same size as OpenGL types.
-		 * And never call this when there are vertices data already on the GPU.
-		 * @tparam T Must be plain old data (POD) struct/class
+		 * @tparam T Must be the same type used in call to SetVertices
 		 * @param vertexAttributes List of attributes in vertexType
 		 */
 		template<typename T>
@@ -130,27 +146,8 @@ namespace PlatinumEngine
 		{
 			// You shouldn't change vertex type while there are vertices on the GPU
 			// First clear/delete them by either: SetVertices(std::vector<T>()); or DeleteVertices();
-			assert(_vertexType == std::type_index(typeid(T)) || _verticesSize == 0);
-			SetVertexAttributes(std::type_index(typeid(T)), sizeof(T), vertexAttributes);
-		}
-
-		/**
-		 * You must call SetVertexAttributes at least once before calling this function.
-		 *
-		 * Send new data to the GPU. Usually vertex positions, normals, uvs.
-		 * If SetIndices is never used, then data is iterated in order of input vertices.
-		 * @tparam T Must be the same type used in call to SetAttribute
-		 * @param vertices Generic data to send
-		 * @param usage How this data is being used, must be one of {GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY,
-		 * GL_STATIC_DRAW, GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY}
-		 */
-		template<typename T>
-		void SetVertices(const std::vector<T>& vertices, GLenum usage = GL_STATIC_DRAW)
-		{
-			// Compile-time check.
-			// This will fail iff a different type was used in the last call to SetAttribute
-			assert(std::type_index(typeid(T)) == _vertexType);
-			SetVertices(vertices.size(), vertices.data(), sizeof(T), usage);
+			assert(_vertexType == std::type_index(typeid(T)));
+			SetVertexAttributes(sizeof(T), vertexAttributes);
 		}
 
 		/**
@@ -291,38 +288,30 @@ namespace PlatinumEngine
 		//--------------------------------------------------------------------------------------------------------------
 
 		/**
-		 * Configures the vertex structure layout to expect. Example usage:
-		 * @code
-		 * struct Vertex { sf::Glsl::Vec3 position; sf::Glsl::Vec3 normal; sf::Glsl::Vec3 uv; };
-		 *
-		 * SetVertexAttributes<Vertex>({
-		 * 		{GL_FLOAT, 3, offsetof(Vertex,position)},
-		 * 		{GL_FLOAT, 3, offsetof(Vertex,normal)},
-		 * 		{GL_FLOAT, 2, offsetof(Vertex,uv)}
-		 * });
-		 * @endcode
-		 * Pay very close attention to the field types you're using. Make sure it's the same size as OpenGL types.
-		 * And never call this when there are vertices data already on the GPU.
-		 * @param typeOfVertex type index of Vertex, obtained through std::type_index(typeinfo(T))
-		 * @param sizeOfVertex number of bytes of Vertex, obtained through sizeof(T)
-		 * @param vertexAttributes List of attributes in vertexType
-		 */
-		void SetVertexAttributes(
-				std::type_index typeOfVertex,
-				size_t sizeOfVertex,
-				const std::vector<VertexAttribute>& vertexAttributes);
-
-		/**
 		 * Send new data to the GPU. Usually vertex positions, normals, uvs.
 		 * If SetIndices is never used, then data is iterated in order of input vertices.
 		 * @param verticesSize Number of elements in the vertices array
 		 * @param vertices Start of the vertices array
+		 * @param typeOfVertex type index of Vertex, obtained through std::type_index(typeinfo(T))
 		 * @param sizeOfVertex Size of vertex data structure
 		 * @param usage How this data is being used, must be one of {GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY,
 		 * GL_STATIC_DRAW, GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY}
 		 */
-		void SetVertices(GLsizeiptr verticesSize, const void* vertices, size_t sizeOfVertex,
+		void SetVertices(
+				GLsizeiptr verticesSize,
+				const void* vertices,
+				std::type_index typeOfVertex,
+				size_t sizeOfVertex,
 				GLenum usage = GL_STATIC_DRAW);
+
+		/**
+		 * Configures the vertex structure layout on GPU.
+		 * @param sizeOfVertex number of bytes of Vertex, obtained through sizeof(T)
+		 * @param vertexAttributes List of attributes in vertexType
+		 */
+		void SetVertexAttributes(
+				size_t sizeOfVertex,
+				const std::vector<VertexAttribute>& vertexAttributes);
 
 		/**
 		 * Send new indexing data to the GPU.
@@ -334,7 +323,10 @@ namespace PlatinumEngine
 		 * @param usage How this data is being used, must be one of {GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY,
 		 * GL_STATIC_DRAW, GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_DYNAMIC_COPY}
 		 */
-		void SetIndices(GLsizeiptr indicesSize, const void* indices, GLenum indexType = GL_UNSIGNED_INT,
+		void SetIndices(
+				GLsizeiptr indicesSize,
+				const void* indices,
+				GLenum indexType = GL_UNSIGNED_INT,
 				GLenum usage = GL_STATIC_DRAW);
 	};
 }

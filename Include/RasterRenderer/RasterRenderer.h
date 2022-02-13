@@ -7,10 +7,9 @@
 #include <SFML/Graphics.hpp>
 
 
-
 namespace PlatinumEngine
 {
-	class RasterRenderer
+	class RasterRenderer : sf::GlResource
 	{
 
 	public:
@@ -37,6 +36,7 @@ namespace PlatinumEngine
 				);
 
 		~RasterRenderer();
+
 	private:
 		// Parameters
 		sf::RenderWindow _window;
