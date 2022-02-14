@@ -59,22 +59,27 @@ FetchContent_MakeAvailable(Catch2)
 # Add more libraries from git repos here:
 #-----------------------------
 # glew
-set(glew-cmake_BUILD_SHARED  OFF)
-set(USE_GLU "Use GLU"  ON)
+set(glew-cmake_BUILD_SHARED OFF)
+set(USE_GLU "Use GLU" ON)
 FetchContent_Declare(glew GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git GIT_TAG glew-cmake-2.2.0)
 FetchContent_MakeAvailable(glew)
 
 #-----------------------------
 # IMPORTANT SECTION! Source code
 #-----------------------------
-# Add source code files below:
-add_executable(${PROJECT_NAME}
-	Source/main.cpp
-	Source/InputManager/InputManager.cpp
-	Source/RasterRenderer/RasterRenderer.cpp
-	Source/SceneManager/SceneManager.cpp Source/RasterRenderer/EditorCamera.cpp
-	Source/SceneManager/SceneManager.cpp
-	Source/WindowManager/WindowManager.cpp)
+# New place to put all your source code files into:
+set(PROJECT_SOURCES_WITHOUT_MAIN
+	"Source/InputManager/InputManager.cpp;"
+	"Source/RasterRenderer/RasterRenderer.cpp;"
+	"Source/SceneManager/SceneManager.cpp;"
+	"Source/OpenGL/ShaderInput.cpp;"
+	"Source/OpenGL/GLEnumInfo.cpp;"
+	"Source/OpenGL/GLCheck.cpp;"
+  "Source/SceneManager/SceneManager.cpp;"
+  "Source/RasterRenderer/EditorCamera.cpp;"
+	"Source/SceneManager/SceneManager.cpp;"
+	"Source/WindowManager/WindowManager.cpp;")
+add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
 
@@ -84,7 +89,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/In
 #-----------------------------
 # Add unit tests here:
 add_executable(tests
-	Test/TestTemplate.cpp)
+	${PROJECT_SOURCES_WITHOUT_MAIN}
+	Test/TestTemplate.cpp
+	)
+target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
 
 

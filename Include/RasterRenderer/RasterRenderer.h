@@ -5,14 +5,14 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <OpenGL/ShaderInput.h>
 
 // PlatinumEngine lib
 #include "EditorCamera.h"
 
-
 namespace PlatinumEngine
 {
-	class RasterRenderer
+	class RasterRenderer : sf::GlResource
 	{
 
 	public:
@@ -21,6 +21,7 @@ namespace PlatinumEngine
 
 
 		// Functions
+
 		/**
 		 * Update()
 		 * update content inside the window.
@@ -29,13 +30,6 @@ namespace PlatinumEngine
 		 * false: if window is not open or cannot display content.
 		 */
 		bool Update(const sf::Clock& deltaClock);
-		/**
-		 * CreateShader()
-		 * test with glew lib. have no valid code yet
-		 * @return
-		 * void
-		 */
-		void CreateShader();
 
 		// Constructors
 		RasterRenderer(
@@ -47,9 +41,15 @@ namespace PlatinumEngine
 				);
 
 		~RasterRenderer();
-	private:
-		// Parameters
-		sf::RenderWindow _window;
 
+	private:
+
+		// Parameters
+		sf::RenderWindow _renderWindow;
+
+		// true iff all init steps were successful
+		bool _isInitGood;
+		sf::Shader _unlitShader;
+		ShaderInput _unlitShaderInput;
 	};
 }

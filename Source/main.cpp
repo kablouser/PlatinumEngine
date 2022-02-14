@@ -21,11 +21,12 @@ int main()
 	PlatinumEngine::InputManager inputManager;
 	PlatinumEngine::RasterRenderer rasterRenderer;
 	PlatinumEngine::SceneManager sceneManager;
-    PlatinumEngine::WindowManager windowManager;
+
+  PlatinumEngine::WindowManager windowManager;
 	Assimp::Importer import;
 	// assimp!
 	const aiScene* scene = import.ReadFile("Test", aiProcess_Triangulate | aiProcess_FlipUVs);
-
+  
 	// GLM!
 	glm::vec4 Position = glm::vec4(glm::vec3(0.0), 1.0);
 	glm::mat4 Model = glm::mat4(1.0);
@@ -87,6 +88,6 @@ int main()
 	}
 
 	ImGui::SFML::Shutdown();
-
+  
 	return 0;
 }
