@@ -13,7 +13,7 @@
 #include "InputManager/InputManager.h"
 #include "RasterRenderer/RasterRenderer.h"
 #include "SceneManager/SceneManager.h"
-
+#include "WindowManager/WindowManager.h"
 int main()
 {
 	// TODO
@@ -22,10 +22,11 @@ int main()
 	PlatinumEngine::RasterRenderer rasterRenderer;
 	PlatinumEngine::SceneManager sceneManager;
 
-	// assimp!
+  PlatinumEngine::WindowManager windowManager;
 	Assimp::Importer import;
+	// assimp!
 	const aiScene* scene = import.ReadFile("Test", aiProcess_Triangulate | aiProcess_FlipUVs);
-
+  
 	// GLM!
 	glm::vec4 Position = glm::vec4(glm::vec3(0.0), 1.0);
 	glm::mat4 Model = glm::mat4(1.0);
@@ -87,5 +88,6 @@ int main()
 	}
 
 	ImGui::SFML::Shutdown();
+  
 	return 0;
 }

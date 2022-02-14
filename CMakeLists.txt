@@ -23,6 +23,12 @@ FetchContent_MakeAvailable(sfml)
 # Dear ImGui
 FetchContent_Declare(imgui GIT_REPOSITORY https://github.com/ocornut/imgui.git GIT_TAG v1.86)
 FetchContent_MakeAvailable(imgui)
+include_directories(${CMAKE_BINARY_DIR}/_deps/imgui-src)
+#-----------------------------
+#ImGuiFileDialog
+FetchContent_Declare(imguifiledialog GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog.git GIT_TAG v0.6.3)
+FetchContent_MakeAvailable(imguifiledialog)
+include_directories(${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src)
 #-----------------------------
 # imgui-SFML
 # This was so painful to figure out! Never forget.
@@ -61,15 +67,6 @@ FetchContent_MakeAvailable(glew)
 #-----------------------------
 # IMPORTANT SECTION! Source code
 #-----------------------------
-# Add source code files below:
-add_executable(${PROJECT_NAME}
-	Source/main.cpp
-	Source/InputManager/InputManager.cpp
-	Source/RasterRenderer/RasterRenderer.cpp
-	Source/SceneManager/SceneManager.cpp
-	Source/OpenGL/ShaderInput.cpp
-	Source/OpenGL/GLEnumInfo.cpp
-	Source/OpenGL/GLCheck.cpp)
 # New place to put all your source code files into:
 set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/InputManager/InputManager.cpp;"
@@ -77,9 +74,12 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/SceneManager/SceneManager.cpp;"
 	"Source/OpenGL/ShaderInput.cpp;"
 	"Source/OpenGL/GLEnumInfo.cpp;"
-	"Source/OpenGL/GLCheck.cpp;")
-# Future thing to uncomment
-# add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
+	"Source/OpenGL/GLCheck.cpp;"
+  "Source/SceneManager/SceneManager.cpp;"
+  "Source/RasterRenderer/EditorCamera.cpp;"
+	"Source/SceneManager/SceneManager.cpp;"
+	"Source/WindowManager/WindowManager.cpp;")
+add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
 

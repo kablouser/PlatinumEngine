@@ -38,5 +38,11 @@
     <mapping directory="$PROJECT_DIR$/ReleaseBuild/_deps/imgui-src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ReleaseBuild/_deps/imgui_sfml-src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ReleaseBuild/_deps/sfml-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/assimp-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/catch2-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/glm-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/imgui-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/imgui_sfml-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/sfml-src" vcs="Git" />
   </component>
 </project>

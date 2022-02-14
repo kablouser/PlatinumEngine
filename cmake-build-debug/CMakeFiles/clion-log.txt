@@ -1,0 +1,25 @@
+"F:\PREDATOR\JetBrains\CLion 2021.3.2\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" F:\PREDATOR\GitHub\PlatinumEngine
+CMake Warning (dev) at F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/cmake/win/share/cmake-3.21/Modules/FindPackageHandleStandardArgs.cmake:438 (message):
+  The package name passed to `find_package_handle_standard_args` (VORBIS)
+  does not match the name of the calling package (Vorbis).  This can lead to
+  problems in calling code that expects `find_package` result variables
+  (e.g., `_FOUND`) to follow a certain pattern.
+Call Stack (most recent call first):
+  cmake-build-debug/_deps/sfml-src/cmake/Modules/FindVorbis.cmake:25 (find_package_handle_standard_args)
+  cmake-build-debug/_deps/sfml-src/cmake/Macros.cmake:279 (find_package)
+  cmake-build-debug/_deps/sfml-src/src/SFML/Audio/CMakeLists.txt:70 (sfml_find_package)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Found ImGui v1.86 in F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui-src
+-- Shared libraries disabled
+-- Looking for ZLIB...
+-- Could NOT find PkgConfig (missing: PKG_CONFIG_EXECUTABLE) 
+-- Could not locate ZLIB
+-- compiling zlib from sources
+-- Build an import-only version of Assimp.
+-- Applying MinGW StepFileGen1.cpp Debug Workaround
+-- Enabled importer formats: OBJ BLEND FBX
+-- Disabled importer formats: AMF 3DS AC ASE ASSBIN B3D BVH COLLADA DXF CSM HMP IRRMESH IQM IRR LWO LWS M3D MD2 MD3 MD5 MDC MDL NFF NDO OFF OGRE OPENGEX PLY MS3D COB IFC XGL Q3D Q3BSP RAW SIB SMD STL TERRAGEN 3D X X3D GLTF 3MF MMD
+-- Configuring done
+-- Generating done
+-- Build files have been written to: F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug

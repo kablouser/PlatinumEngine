@@ -106,7 +106,7 @@ namespace PlatinumEngine
 
 		_isInitGood = true;
 	}
-
+  
 	RasterRenderer::~RasterRenderer()
 	{
 		ImGui::SFML::Shutdown(_renderWindow);

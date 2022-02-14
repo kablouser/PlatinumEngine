@@ -1,0 +1,89 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install",
+			"INSTALL"
+		],
+		"files" : 
+		[
+			"cmake-build-debug/_deps/assimp-src/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 449,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 455,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 717,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "libassimp5.2.0-dev",
+			"destination" : "lib/cmake/assimp-5.2",
+			"paths" : 
+			[
+				"cmake-build-debug/_deps/assimp-build/generated/assimpConfig.cmake",
+				"cmake-build-debug/_deps/assimp-build/generated/assimpConfigVersion.cmake"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "libassimp5.2.0-dev",
+			"destination" : "lib/cmake/assimp-5.2",
+			"exportName" : "assimpTargets",
+			"exportTargets" : 
+			[
+				{
+					"id" : "zlibstatic::@7fd99959cf8fe87d223a",
+					"index" : 13
+				},
+				{
+					"id" : "assimp::@b1ea6f5c2178ebc90389",
+					"index" : 3
+				}
+			],
+			"paths" : 
+			[
+				"_deps/assimp-build/CMakeFiles/Export/lib/cmake/assimp-5.2/assimpTargets.cmake"
+			],
+			"type" : "export"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "libassimp5.2.0-dev",
+			"destination" : "lib/pkgconfig",
+			"paths" : 
+			[
+				"cmake-build-debug/_deps/assimp-build/assimp.pc"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "_deps/assimp-build",
+		"source" : "cmake-build-debug/_deps/assimp-src"
+	}
+}

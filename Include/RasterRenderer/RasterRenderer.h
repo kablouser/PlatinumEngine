@@ -7,12 +7,19 @@
 #include <SFML/Graphics.hpp>
 #include <OpenGL/ShaderInput.h>
 
+// PlatinumEngine lib
+#include "EditorCamera.h"
+
 namespace PlatinumEngine
 {
 	class RasterRenderer : sf::GlResource
 	{
 
 	public:
+		// VARIABLE
+		PlatinumEngine::EditorCamera camera;
+
+
 		// Functions
 
 		/**

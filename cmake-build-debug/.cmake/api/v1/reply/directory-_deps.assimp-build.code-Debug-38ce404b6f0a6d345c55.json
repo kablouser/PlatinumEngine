@@ -1,0 +1,162 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"INSTALL"
+		],
+		"files" : 
+		[
+			"cmake-build-debug/_deps/assimp-src/code/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 1316,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 1325,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 1326,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"_deps/assimp-build/lib/libassimpd.a"
+			],
+			"targetId" : "assimp::@b1ea6f5c2178ebc90389",
+			"targetIndex" : 3,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "assimp-dev",
+			"destination" : "include/assimp",
+			"paths" : 
+			[
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/anim.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/aabb.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/ai_assert.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/camera.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/color4.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/color4.inl",
+				"cmake-build-debug/_deps/assimp-build/code/../include/assimp/config.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/ColladaMetaData.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/commonMetaData.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/defs.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/cfileio.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/light.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/material.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/material.inl",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/matrix3x3.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/matrix3x3.inl",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/matrix4x4.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/matrix4x4.inl",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/mesh.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/pbrmaterial.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/GltfMaterial.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/postprocess.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/quaternion.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/quaternion.inl",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/scene.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/metadata.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/texture.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/types.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/vector2.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/vector2.inl",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/vector3.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/vector3.inl",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/version.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/cimport.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/importerdesc.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/Importer.hpp",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/DefaultLogger.hpp",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/ProgressHandler.hpp",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/IOStream.hpp",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/IOSystem.hpp",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/Logger.hpp",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/LogStream.hpp",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/NullLogger.hpp",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/cexport.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/Exporter.hpp",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/DefaultIOStream.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/DefaultIOSystem.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/ZipArchiveIOSystem.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/SceneCombiner.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/fast_atof.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/qnan.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/BaseImporter.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/Hash.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/MemoryIOWrapper.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/ParsingUtils.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/StreamReader.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/StreamWriter.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/StringComparison.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/StringUtils.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/SGSpatialSort.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/GenericProperty.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/SpatialSort.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/SkeletonMeshBuilder.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/SmallVector.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/SmoothingGroups.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/SmoothingGroups.inl",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/StandardShapes.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/RemoveComments.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/Subdivision.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/Vertex.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/LineSplitter.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/TinyFormatter.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/Profiler.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/LogAux.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/Bitmap.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/XMLTools.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/IOStreamBuffer.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/CreateAnimMesh.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/XmlParser.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/BlobIOSystem.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/MathFunctions.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/Exceptional.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/ByteSwapper.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/Base64.hpp"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "assimp-dev",
+			"destination" : "include/assimp/Compiler",
+			"paths" : 
+			[
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/Compiler/pushpack1.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/Compiler/poppack1.h",
+				"cmake-build-debug/_deps/assimp-src/code/../include/assimp/Compiler/pstdint.h"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "_deps/assimp-build/code",
+		"source" : "cmake-build-debug/_deps/assimp-src/code"
+	}
+}
