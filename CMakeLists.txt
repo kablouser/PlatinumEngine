@@ -23,6 +23,12 @@ FetchContent_MakeAvailable(sfml)
 # Dear ImGui
 FetchContent_Declare(imgui GIT_REPOSITORY https://github.com/ocornut/imgui.git GIT_TAG v1.86)
 FetchContent_MakeAvailable(imgui)
+include_directories(${CMAKE_BINARY_DIR}/_deps/imgui-src)
+#-----------------------------
+#ImGuiFileDialog
+FetchContent_Declare(imguifiledialog GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog.git GIT_TAG v0.6.3)
+FetchContent_MakeAvailable(imguifiledialog)
+include_directories(${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src)
 #-----------------------------
 # imgui-SFML
 # This was so painful to figure out! Never forget.
@@ -66,7 +72,9 @@ add_executable(${PROJECT_NAME}
 	Source/main.cpp
 	Source/InputManager/InputManager.cpp
 	Source/RasterRenderer/RasterRenderer.cpp
-	Source/SceneManager/SceneManager.cpp Source/RasterRenderer/EditorCamera.cpp)
+	Source/SceneManager/SceneManager.cpp Source/RasterRenderer/EditorCamera.cpp
+	Source/SceneManager/SceneManager.cpp
+	Source/WindowManager/WindowManager.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
 

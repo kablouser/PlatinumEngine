@@ -33,3 +33,9 @@ cmake-build-debug/
 *.exe
 *.out
 *.app
+cmake-build-debug/_deps/assimp-src/
+cmake-build-debug/_deps/catch2-src/
+cmake-build-debug/_deps/glm-src/
+cmake-build-debug/_deps/imgui-src/
+cmake-build-debug/_deps/imgui_sfml-src/
+cmake-build-debug/_deps/sfml-src/
