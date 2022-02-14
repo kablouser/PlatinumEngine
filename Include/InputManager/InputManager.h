@@ -20,7 +20,7 @@ namespace PlatinumEngine
 	{
 	public:
 		void InputScene();
-		
+
 		//General functions to handle Mouse or Keyboard inputs
 		bool IsMouseClicked(int button);
 		bool IsMouseDown(int button);
