@@ -1,0 +1,3 @@
+"F:\PREDATOR\JetBrains\CLion 2021.3.2\bin\cmake\win\bin\cmake.exe" -E rm -f CMakeFiles\tests.dir/objects.a
+"F:\PREDATOR\JetBrains\CLion 2021.3.2\bin\mingw\bin\ar.exe" qc CMakeFiles\tests.dir/objects.a @CMakeFiles\tests.dir\objects1.rsp
+"F:\PREDATOR\JetBrains\CLion 2021.3.2\bin\mingw\bin\g++.exe" -g -Wl,--whole-archive CMakeFiles\tests.dir/objects.a -Wl,--no-whole-archive -o tests.exe -Wl,--out-implib,libtests.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\tests.dir\linklibs.rsp

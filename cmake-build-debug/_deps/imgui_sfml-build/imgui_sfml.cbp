@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="imgui_sfml"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\cmake-build-debug\;CMake Files\cmake-build-debug\_deps\;CMake Files\cmake-build-debug\_deps\assimp-src\;CMake Files\cmake-build-debug\_deps\assimp-src\include\;CMake Files\cmake-build-debug\_deps\assimp-src\include\assimp\;CMake Files\cmake-build-debug\_deps\assimp-src\cmake-modules\;CMake Files\cmake-build-debug\_deps\assimp-src\contrib\;CMake Files\cmake-build-debug\_deps\assimp-src\contrib\zlib\;CMake Files\cmake-build-debug\_deps\assimp-src\code\;CMake Files\cmake-build-debug\_deps\assimp-src\tools\;CMake Files\cmake-build-debug\_deps\assimp-src\tools\assimp_cmd\;CMake Files\cmake-build-debug\_deps\catch2-src\;CMake Files\cmake-build-debug\_deps\sfml-src\;CMake Files\cmake-build-debug\_deps\sfml-src\cmake\;CMake Files\cmake-build-debug\_deps\sfml-src\cmake\Modules\;CMake Files\cmake-build-debug\_deps\sfml-src\src\;CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\;CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\System\;CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Main\;CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Window\;CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Network\;CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Graphics\;CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Audio\;CMake Files\cmake-build-debug\_deps\imgui_sfml-src\;CMake Files\cmake-build-debug\_deps\imgui_sfml-src\cmake\;CMake Files\cmake-build-debug\_deps\glm-src\;CMake Files\cmake-build-debug\_deps\glm-src\glm\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="ImGui-SFML">
+				<Option output="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build/libImGui-SFMLd.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DIMGUI_USER_CONFIG=&quot;imconfig-SFML.h&quot;"/>
+					<Add option="-DSFML_STATIC"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui-src"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-src"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/backward"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include-fixed"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build/Makefile&quot;  VERBOSE=1 ImGui-SFML"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="ImGui-SFML/fast">
+				<Option output="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build/libImGui-SFMLd.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DIMGUI_USER_CONFIG=&quot;imconfig-SFML.h&quot;"/>
+					<Add option="-DSFML_STATIC"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui-src"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-src"/>
+					<Add directory="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/backward"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../include"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/include-fixed"/>
+					<Add directory="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/11.2.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build/Makefile&quot;  VERBOSE=1 ImGui-SFML/fast"/>
+					<CompileFile command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="F:/PREDATOR/JetBrains/CLion 2021.3.2/bin/mingw/bin/mingw32-make.exe -f &quot;F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-build/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui-src/imgui.cpp">
+			<Option target="ImGui-SFML"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui-src/imgui.h">
+			<Option target="ImGui-SFML"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui-src/imgui_draw.cpp">
+			<Option target="ImGui-SFML"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui-src/imgui_tables.cpp">
+			<Option target="ImGui-SFML"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui-src/imgui_widgets.cpp">
+			<Option target="ImGui-SFML"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui-src/misc/cpp/imgui_stdlib.cpp">
+			<Option target="ImGui-SFML"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui-src/misc/cpp/imgui_stdlib.h">
+			<Option target="ImGui-SFML"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-src/imgui-SFML.cpp">
+			<Option target="ImGui-SFML"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-src/imgui-SFML.h">
+			<Option target="ImGui-SFML"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/assimp.pc.in">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/revision.h.in">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/include/assimp/config.h.in">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\include\assimp\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/cmake-modules/FindPkgMacros.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\cmake-modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/cmake-modules/FindRT.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\cmake-modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/cmake-modules/FindZLIB.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\cmake-modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/cmake-modules/PrecompiledHeader.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\cmake-modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/cmake-modules/assimp-plain-config.cmake.in">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\cmake-modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/cmake-modules/cmake_uninstall.cmake.in">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\cmake-modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/contrib/zlib/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\contrib\zlib\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/contrib/zlib/zconf.h.cmakein">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\contrib\zlib\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/contrib/zlib/zlib.pc.cmakein">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\contrib\zlib\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/code/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\code\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-src/tools/assimp_cmd/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\assimp-src\tools\assimp_cmd\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/catch2-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\catch2-src\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/cmake/Config.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\cmake\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/cmake/Macros.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\cmake\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/cmake/SFMLConfig.cmake.in">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\cmake\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/cmake/SFMLConfigDependencies.cmake.in">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\cmake\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/cmake/Modules/FindFLAC.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\cmake\Modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/cmake/Modules/FindFreetype.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\cmake\Modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/cmake/Modules/FindVorbis.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\cmake\Modules\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/System/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\System\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Main/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Main\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Window/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Window\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Network/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Network\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Graphics/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Graphics\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/sfml-src/src/SFML/Audio/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\sfml-src\src\SFML\Audio\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\imgui_sfml-src\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/imgui_sfml-src/cmake/FindImGui.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\imgui_sfml-src\cmake\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/glm-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\glm-src\"/>
+		</Unit>
+		<Unit filename="F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/glm-src/glm/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\glm-src\glm\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

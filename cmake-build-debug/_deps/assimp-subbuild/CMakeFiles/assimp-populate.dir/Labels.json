@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-subbuild/CMakeFiles/assimp-populate"
+		},
+		{
+			"file" : "F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-subbuild/CMakeFiles/assimp-populate.rule"
+		},
+		{
+			"file" : "F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-subbuild/CMakeFiles/assimp-populate-complete.rule"
+		},
+		{
+			"file" : "F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-subbuild/assimp-populate-prefix/src/assimp-populate-stamp/assimp-populate-build.rule"
+		},
+		{
+			"file" : "F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-subbuild/assimp-populate-prefix/src/assimp-populate-stamp/assimp-populate-configure.rule"
+		},
+		{
+			"file" : "F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-subbuild/assimp-populate-prefix/src/assimp-populate-stamp/assimp-populate-download.rule"
+		},
+		{
+			"file" : "F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-subbuild/assimp-populate-prefix/src/assimp-populate-stamp/assimp-populate-install.rule"
+		},
+		{
+			"file" : "F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-subbuild/assimp-populate-prefix/src/assimp-populate-stamp/assimp-populate-mkdir.rule"
+		},
+		{
+			"file" : "F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-subbuild/assimp-populate-prefix/src/assimp-populate-stamp/assimp-populate-patch.rule"
+		},
+		{
+			"file" : "F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-subbuild/assimp-populate-prefix/src/assimp-populate-stamp/assimp-populate-test.rule"
+		},
+		{
+			"file" : "F:/PREDATOR/GitHub/PlatinumEngine/cmake-build-debug/_deps/assimp-subbuild/assimp-populate-prefix/src/assimp-populate-stamp/assimp-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"assimp-populate"
+		],
+		"name" : "assimp-populate"
+	}
+}
