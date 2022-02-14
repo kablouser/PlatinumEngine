@@ -91,7 +91,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/In
 add_executable(tests
 	${PROJECT_SOURCES_WITHOUT_MAIN}
 	Test/TestTemplate.cpp
-	Test/TestShaderInput.cpp)
+	)
 target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
 

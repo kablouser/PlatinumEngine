@@ -5,7 +5,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-
+#include <OpenGL/ShaderInput.h>
 
 namespace PlatinumEngine
 {
@@ -14,6 +14,7 @@ namespace PlatinumEngine
 
 	public:
 		// Functions
+
 		/**
 		 * Update()
 		 * update content inside the window.
@@ -22,9 +23,6 @@ namespace PlatinumEngine
 		 * false: if window is not open or cannot display content.
 		 */
 		bool Update(const sf::Clock& deltaClock);
-
-		void CreateShader();
-
 
 		// Constructors
 		RasterRenderer(
@@ -38,8 +36,13 @@ namespace PlatinumEngine
 		~RasterRenderer();
 
 	private:
-		// Parameters
-		sf::RenderWindow _window;
 
+		// Parameters
+		sf::RenderWindow _renderWindow;
+
+		// true iff all init steps were successful
+		bool _isInitGood;
+		sf::Shader _unlitShader;
+		ShaderInput _unlitShaderInput;
 	};
 }

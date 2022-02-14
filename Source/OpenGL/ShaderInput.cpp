@@ -4,101 +4,141 @@
 
 namespace PlatinumEngine
 {
+	//------------------------------------------------------------------------------------------------------------------
+	// Constructors/Destructors
+	//------------------------------------------------------------------------------------------------------------------
+
 	ShaderInput::ShaderInput() :
-			_vertexBufferObject(0),
 			_vertexArrayObject(0),
+			_vertexBufferObject(0),
 			_elementBufferObject(0),
 
-			_vertexType(typeid(void)),
-			_indexType(0),
-
-			_verticesSize(0),
-			_indicesSize(0),
-
-			_vertexAttributesSize(0)
+			_typeOfIndex(0),
+			_vertexAttributesLength(0),
+			_drawLength(0)
 	{
 	}
 
 	ShaderInput::ShaderInput(
-			const std::vector<Vertex>& vertices,
-			const std::vector<GLuint>& indices,
-			GLenum verticesUsage,
-			GLenum indicesUsage) :
-			ShaderInput()
+			const std::vector<DefaultVertex>& vertices,
+			const std::vector<GLuint>& indices)
+			: ShaderInput()
 	{
-		VertexAttribute x = { GL_FLOAT, 3, offsetof(Vertex, position) };
-		SetVertices(vertices, verticesUsage);
-		SetVertexAttributes<Vertex>({
-				{ GL_FLOAT, 3, offsetof(Vertex, position) },
-				{ GL_FLOAT, 3, offsetof(Vertex, normal) },
-				{ GL_FLOAT, 2, offsetof(Vertex, textureCoordinate) }
-		});
-		SetIndices(indices, indicesUsage);
+		Set(vertices, indices);
+	}
+
+	ShaderInput::ShaderInput(ShaderInput&& other) noexcept
+	{
+		*this = std::move(other);
+	}
+
+	ShaderInput& ShaderInput::operator=(ShaderInput&& other) noexcept
+	{
+		if (this != &other)
+		{
+			Clear();
+
+			_vertexArrayObject = other._vertexArrayObject;
+			_vertexBufferObject = other._vertexBufferObject;
+			_elementBufferObject = other._elementBufferObject;
+			_typeOfIndex = other._typeOfIndex;
+			_vertexAttributesLength = other._vertexAttributesLength;
+			_drawLength = other._drawLength;
+
+			other._vertexArrayObject = 0;
+			other._vertexBufferObject = 0;
+			other._elementBufferObject = 0;
+			other._typeOfIndex = 0;
+			other._vertexAttributesLength = 0;
+			other._drawLength = 0;
+		}
+		return *this;
 	}
 
 	ShaderInput::~ShaderInput()
 	{
-		DeleteVertices();
-		DeleteVertexAttributes();
-		DeleteIndices();
+		Clear();
 	}
 
-	//--------------------------------------------------------------------------------------------------------------
-	// Primary important functions.
-	//--------------------------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------------------------------
+	// Public functions.
+	//------------------------------------------------------------------------------------------------------------------
+
+	void ShaderInput::Set(const std::vector<DefaultVertex>& vertices, const std::vector<GLuint>& indices)
+	{
+		SetGeneric<DefaultVertex, GLuint>({
+						{ GL_FLOAT, 3, offsetof(DefaultVertex, position) },
+						{ GL_FLOAT, 3, offsetof(DefaultVertex, normal) },
+						{ GL_FLOAT, 2, offsetof(DefaultVertex, textureCoordinate) }},
+				vertices, indices);
+	}
+
+	void ShaderInput::Clear()
+	{
+		GL_CHECK(glGenVertexArrays(1, &_vertexArrayObject));
+		GL_CHECK(glDeleteBuffers(1, &_vertexBufferObject));
+		GL_CHECK(glDeleteBuffers(1, &_elementBufferObject));
+
+		_vertexArrayObject =
+		_vertexBufferObject =
+		_elementBufferObject =
+		_typeOfIndex =
+		_vertexAttributesLength =
+		_drawLength = 0;
+	}
 
 	void ShaderInput::Draw(GLenum drawingMode) const
 	{
 		GL_CHECK(glBindVertexArray(_vertexArrayObject));
-		if (_elementBufferObject != 0)
-			GL_CHECK(glDrawElements(drawingMode, _indicesSize, _indexType, 0));
-		else if (_vertexBufferObject != 0)
-			GL_CHECK(glDrawArrays(drawingMode, 0, _verticesSize));
+		GL_CHECK(glDrawElements(drawingMode, _drawLength, _typeOfIndex, 0));
+		// Alternative direct drawing without indexing
+		// GL_CHECK(glDrawArrays(drawingMode, 0, _verticesSize));
 		GL_CHECK(glBindVertexArray(0));
 	}
 
-	void ShaderInput::SetVertices(
-			GLsizeiptr verticesSize,
-			const void* vertices,
-			std::type_index typeOfVertex,
+	bool ShaderInput::IsCreated() const
+	{
+		return _vertexBufferObject != 0;
+	}
+
+	void ShaderInput::Set(
+			const std::vector<VertexAttribute>& vertexAttributes,
+
 			size_t sizeOfVertex,
+			size_t verticesLength,
+			const void* vertices,
+
+			GLenum typeOfIndex,
+			size_t sizeOfIndex,
+			size_t indicesLength,
+			const void* indices,
+
 			GLenum usage)
 	{
-		_verticesSize = verticesSize;
-		_vertexType = typeOfVertex;
-
-		if (_vertexBufferObject == 0)
-			GL_CHECK(glGenBuffers(1, &_vertexBufferObject));
-
-		// add VBO to VAO (If VAO == 0, VBO won't be added. This is intentional)
-		GL_CHECK(glBindVertexArray(_vertexArrayObject));
-		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject));
-		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, verticesSize * sizeOfVertex, vertices, usage));
-		GL_CHECK(glBindVertexArray(0));
-
-		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	}
-
-	void ShaderInput::SetVertexAttributes(
-			size_t sizeOfVertex,
-			const std::vector<VertexAttribute>& vertexAttributes)
-	{
 		if (_vertexArrayObject == 0)
-			// generate if not generated yet
 			GL_CHECK(glGenVertexArrays(1, &_vertexArrayObject));
 		else
 		{
-			// cleanup old data
-			for (GLuint i = 0; i < _vertexAttributesSize; ++i)
+			// cleanup old state data
+			for (GLuint i = 0; i < _vertexAttributesLength; ++i)
 				GL_CHECK(glDisableVertexArrayAttrib(_vertexArrayObject, i));
 		}
 
-		// add VBO, EBO to VAO (If VBO == 0 || EBO == 0, VBO/EBO won't be added. This is intentional)
-		GL_CHECK(glBindVertexArray(_vertexArrayObject));
-		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject));
-		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBufferObject));
+		if (_vertexBufferObject == 0)
+			GL_CHECK(glGenBuffers(1, &_vertexBufferObject));
+		if (_elementBufferObject == 0)
+			GL_CHECK(glGenBuffers(1, &_elementBufferObject));
 
-		_vertexAttributesSize = vertexAttributes.size();
+		// Bind VAO
+		GL_CHECK(glBindVertexArray(_vertexArrayObject));
+		// Bind VBO and allocate vertices
+		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject));
+		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeOfVertex * verticesLength, vertices, usage));
+		// Bind EBO and allocate indices
+		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBufferObject));
+		GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeOfIndex * indicesLength, indices, usage));
+
+		_vertexAttributesLength = vertexAttributes.size();
 		for (size_t i = 0; i < vertexAttributes.size(); ++i)
 		{
 			GL_CHECK(glVertexAttribPointer(
@@ -111,111 +151,12 @@ namespace PlatinumEngine
 			GL_CHECK(glEnableVertexAttribArray(i));
 		}
 
+		// undo global state changes
 		GL_CHECK(glBindVertexArray(0));
-	}
-
-	void ShaderInput::SetIndices(GLsizeiptr indicesSize, const void* indices, GLenum indexType, GLenum usage)
-	{
-		_indexType = indexType;
-		_indicesSize = indicesSize;
-
-		if (_elementBufferObject == 0)
-			GL_CHECK(glGenBuffers(1, &_elementBufferObject));
-
-		// add EBO to VAO (If VAO == 0, EBO won't be added. This is intentional)
-		GL_CHECK(glBindVertexArray(_vertexArrayObject));
-		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vertexBufferObject));
-		GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize * SizeOfGLenum(indexType), indices, usage));
-		GL_CHECK(glBindVertexArray(0));
-
+		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-	}
 
-	//--------------------------------------------------------------------------------------------------------------
-	// Get sizes.
-	//--------------------------------------------------------------------------------------------------------------
-
-	GLsizeiptr ShaderInput::GetVerticesSize() const
-	{
-		return _verticesSize;
-	}
-
-	GLuint ShaderInput::GetVertexAttributesSize() const
-	{
-		return _vertexAttributesSize;
-	}
-
-	GLsizeiptr ShaderInput::GetIndicesSize() const
-	{
-		return _indicesSize;
-	}
-
-	//--------------------------------------------------------------------------------------------------------------
-	// Has checks
-	//--------------------------------------------------------------------------------------------------------------
-
-	bool ShaderInput::HasVertices() const
-	{
-		return _vertexBufferObject != 0;
-	}
-
-	bool ShaderInput::HasVertexAttributes() const
-	{
-		return _vertexArrayObject != 0;
-	}
-
-	bool ShaderInput::HasIndices() const
-	{
-		return _elementBufferObject != 0;
-	}
-
-	//--------------------------------------------------------------------------------------------------------------
-	// Deletes
-	// These delete functions only work when a valid OpenGL context exists.
-	// Hence, ShaderInput : sf::GlResource ensures that.
-	//--------------------------------------------------------------------------------------------------------------
-
-	void ShaderInput::DeleteVertices()
-	{
-		GL_CHECK(glDeleteBuffers(1, &_vertexBufferObject));
-		// reset fields controlled by vertices data
-		_vertexBufferObject = 0;
-		_verticesSize = 0;
-		_vertexAttributesSize = 0;
-	}
-
-	void ShaderInput::DeleteVertexAttributes()
-	{
-		GL_CHECK(glDeleteVertexArrays(1, &_vertexArrayObject));
-		// reset fields controlled by vertex attributes data
-		_vertexArrayObject = 0;
-		_vertexType = std::type_index(typeid(void));
-		_vertexAttributesSize = 0;
-	}
-
-	void ShaderInput::DeleteIndices()
-	{
-		GL_CHECK(glDeleteBuffers(1, &_elementBufferObject));
-		// reset fields controlled by indices data
-		_elementBufferObject = 0;
-		_indexType = 0;
-		_indicesSize = 0;
-	}
-
-	//--------------------------------------------------------------------------------------------------------------
-	// Reading operations. For testing purposes.
-	//--------------------------------------------------------------------------------------------------------------
-
-	ShaderInput::ShaderInputState ShaderInput::ReadState() const
-	{
-		return {
-				_vertexBufferObject,
-				_vertexArrayObject,
-				_elementBufferObject,
-				_vertexType,
-				_indexType,
-				_verticesSize, _indicesSize,
-				_vertexAttributesSize
-		};
+		_typeOfIndex = typeOfIndex;
+		_drawLength = indicesLength;
 	}
 }

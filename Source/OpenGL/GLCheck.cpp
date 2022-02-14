@@ -9,10 +9,18 @@
 #include <string>
 #include <iostream>
 
+// for checking OpenGL context
+#include <SFML/Window/Context.hpp>
+
 namespace PlatinumEngine
 {
 	void GLCheckError(const char* file, unsigned int line, const char* expression, bool isAfterExpression)
 	{
+		// if there's no current context, glGetError produces infinite loop
+		// (good job OpenGL, couldn't think of a special error code for this scenario)
+		if(sf::Context::getActiveContext() == nullptr)
+			return;
+
 		GLenum errorCode;
 		// How many errors are we up to currently?
 		int errorCount = 0;
