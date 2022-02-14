@@ -2,7 +2,7 @@
 # Initialising stuff
 #-----------------------------
 cmake_minimum_required(VERSION 3.21)
-project(PlatinumEngine LANGUAGES CXX VERSION 0.0.1)
+project(PlatinumEngine VERSION 0.0.1)
 set(CMAKE_CXX_STANDARD 14)
 # static libraries please
 set(BUILD_SHARED_LIBS FALSE)
@@ -58,7 +58,11 @@ FetchContent_MakeAvailable(Catch2)
 #-----------------------------
 # Add more libraries from git repos here:
 #-----------------------------
-
+# glew
+set(glew-cmake_BUILD_SHARED  OFF)
+set(USE_GLU "Use GLU"  ON)
+FetchContent_Declare(glew GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git GIT_TAG glew-cmake-2.2.0)
+FetchContent_MakeAvailable(glew)
 
 #-----------------------------
 # IMPORTANT SECTION! Source code
@@ -68,9 +72,9 @@ add_executable(${PROJECT_NAME}
 	Source/main.cpp
 	Source/InputManager/InputManager.cpp
 	Source/RasterRenderer/RasterRenderer.cpp
+	Source/SceneManager/SceneManager.cpp Source/RasterRenderer/EditorCamera.cpp
 	Source/SceneManager/SceneManager.cpp
-	Source/WindowManager/WindowManager.cpp
-	cmake-build-debug/_deps/imguifiledialog-src/ImGuiFileDialog.cpp)
+	Source/WindowManager/WindowManager.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
 
@@ -94,7 +98,8 @@ set(PROJECT_LIBRARIES
 	"sfml-audio;sfml-graphics;sfml-system;sfml-window;"
 	"ImGui-SFML;"
 	"glm;"
-	"assimp;")
+	"assimp;"
+	"libglew_static;")
 # different targets
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_LIBRARIES})
 target_link_libraries(tests PRIVATE ${PROJECT_LIBRARIES} Catch2::Catch2WithMain)

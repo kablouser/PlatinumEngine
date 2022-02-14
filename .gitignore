@@ -1,5 +1,6 @@
 # Output folder (aka binaries)
 Build/
+cmake-build-debug/
 
 # Prerequisites
 *.d
