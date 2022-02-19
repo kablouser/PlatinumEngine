@@ -1,3 +1,0 @@
-repository='https://github.com/assimp/assimp.git'
-module=''
-tag='origin'

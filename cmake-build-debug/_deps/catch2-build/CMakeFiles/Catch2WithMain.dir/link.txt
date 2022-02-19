@@ -1,2 +1,0 @@
-"F:\PREDATOR\JetBrains\CLion 2021.3.2\bin\mingw\bin\ar.exe" qc libCatch2WithMaind.a CMakeFiles/Catch2WithMain.dir/src/catch_with_main.cpp.obj
-"F:\PREDATOR\JetBrains\CLion 2021.3.2\bin\mingw\bin\ranlib.exe" libCatch2WithMaind.a

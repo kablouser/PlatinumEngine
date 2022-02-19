@@ -1,3 +1,0 @@
-repository='https://github.com/SFML/SFML.git'
-module=''
-tag='origin'
