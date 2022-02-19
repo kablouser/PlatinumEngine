@@ -2,8 +2,7 @@
 // Created by shawn on 2022/2/7.
 //
 
-#ifndef PLATINUMENGINE_WINDOWMANAGER_H
-#define PLATINUMENGINE_WINDOWMANAGER_H
+#pragma once
 
 namespace PlatinumEngine
 {
@@ -21,75 +20,57 @@ namespace PlatinumEngine
 		void SetUpMainMenu();
 
         //file section
-        void DrawSaveScene(bool* p_open);
-        void DrawOpenScene(bool* p_open);
+        void DrawSaveScene(bool* outIsOpen);
+        void DrawOpenScene(bool* outIsOpen);
 
         //shortcuts for main menu bars
-		void DoShortCut(sf::Event e);
+		void DoShortCut(sf::Event event);
 		///-----------------------------------
 		///sub menu item functions to open corresponding window
 		///-----------------------------------
-		static void ShowWindowGame(bool* p_open);
-		static void ShowWindowHierarchy(bool* p_open);
-		static void ShowWindowInspector(bool* p_open);
-		static void ShowWindowScene(bool* p_open);
-		static void ShowWindowProject(bool* p_open);
-		static void ShowWindowAnimation(bool* p_open);
-		static void ShowWindowLight(bool* p_open);
-		static void ShowWindowAudio(bool* p_open);
+		static void ShowWindowGame(bool* outIsOpen);
+		static void ShowWindowHierarchy(bool* outIsOpen);
+		static void ShowWindowInspector(bool* outIsOpen);
+		static void ShowWindowScene(bool* outIsOpen);
+		static void ShowWindowProject(bool* outIsOpen);
+		static void ShowWindowAnimation(bool* outIsOpen);
+		static void ShowWindowLight(bool* outIsOpen);
+		static void ShowWindowAudio(bool* outIsOpen);
 
 	public:
 		///-----------------------------------------------------------------------
 		///bools in main menu window list
 		///-----------------------------------------------------------------------
-		bool show_mainMenu_window_game                 = false;
-		bool show_mainMenu_window_scene                = false;
-		bool show_mainMenu_window_inspector            = false;
-		bool show_mainMenu_window_hierarchy            = false;
-		bool show_mainMenu_window_project              = false;
-		bool show_mainMenu_window_animation            = false;
-		bool show_mainMenu_window_audio                = false;
-		bool show_mainMenu_window_light                = false;
+		bool _showWindowGame                 = false;
+		bool _showWindowScene                = false;
+		bool _showWindowInspector            = false;
+		bool _showWindowHierarchy            = false;
+		bool _showWindowProject              = false;
+		bool _showWindowAnimation            = false;
+		bool _showWindowAudio                = false;
+		bool _showWindowLight                = false;
 
 		///-----------------------------------------------------------------------
 		///bools in main menu GameObject list
 		///-----------------------------------------------------------------------
-		bool show_mainMenu_gameObject_empty            = false;
-		bool show_mainMenu_gameObject_emptyChild       = false;
-		bool show_mainMenu_gameObject_emptyParent      = false;
-		bool show_mainMenu_gameObject_object_cube      = false;
-		bool show_mainMenu_gameObject_object_sphere    = false;
-		bool show_mainMenu_gameObject_object_plane     = false;
-		bool show_mainMenu_gameObject_object_capsule   = false;
-		bool show_mainMenu_gameObject_effect_particle  = false;
-		bool show_mainMenu_gameObject_camera           = false;
-		bool show_mainMenu_gameObject_light            = false;
+		bool _showGameObjectEmpty            = false;
+		bool _showGameObjectEmptyChild       = false;
+		bool _showGameObjectEmptyParent      = false;
+		bool _showGameObjectCube      = false;
+		bool _showGameObjectSphere    = false;
+		bool _showGameObjectPlane     = false;
+		bool _showGameObjectCapsule   = false;
+		bool _showGameObjectParticleEffect  = false;
+		bool _showGameObjectCamera           = false;
+		bool _showGameObjectLight            = false;
 
 		///-----------------------------------------------------------------------
 		///bools in main menu file list
 		///-----------------------------------------------------------------------
-	    bool show_mainMenu_file_newScene               = false;
-	    bool show_mainMenu_file_openScene              = false;
-	    bool show_mainMenu_file_save                   = false;
-	    bool show_mainMenu_file_saveAs                 = false;
+	    bool showFileNewScene               = false;
+	    bool showFileOpenScene              = false;
+	    bool showFileSave                   = false;
+	    bool showFileSaveAs                 = false;
 
 	};
-
-	/*
-	class Window
-	{
-	public:
-		virtual void showBasicScene();
-	};
-
-	class MainWindow: Window
-	{
-	public:
-		virtual void showBasicScene() override;
-		static void showMenuFile();
-		static void showMenuGameObject();
-		static void showPanel();
-	};
-	 */
 }
-#endif //PLATINUMENGINE_WINDOWMANAGER_H

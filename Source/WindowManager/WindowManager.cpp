@@ -43,17 +43,17 @@ namespace PlatinumEngine
 			///ifs in main menu window list to call the function inside
 			///-----------------------------------------------------------------------
 			//window section
-			if(show_mainMenu_window_game)                ShowWindowGame(&show_mainMenu_window_game);
-			if(show_mainMenu_window_scene)               ShowWindowScene(&show_mainMenu_window_scene);
-			if(show_mainMenu_window_hierarchy)           ShowWindowHierarchy(&show_mainMenu_window_hierarchy);
-			if(show_mainMenu_window_inspector)           ShowWindowInspector(&show_mainMenu_window_inspector);
-			if(show_mainMenu_window_project)             ShowWindowProject(&show_mainMenu_window_project);
-			if(show_mainMenu_window_animation)           ShowWindowAnimation(&show_mainMenu_window_animation);
-			if(show_mainMenu_window_audio)               ShowWindowAudio(&show_mainMenu_window_audio);
-			if(show_mainMenu_window_light)               ShowWindowLight(&show_mainMenu_window_light);
+			if(_showWindowGame)                ShowWindowGame(&_showWindowGame);
+			if(_showWindowScene)               ShowWindowScene(&_showWindowScene);
+			if(_showWindowHierarchy)           ShowWindowHierarchy(&_showWindowHierarchy);
+			if(_showWindowInspector)           ShowWindowInspector(&_showWindowInspector);
+			if(_showWindowProject)             ShowWindowProject(&_showWindowProject);
+			if(_showWindowAnimation)           ShowWindowAnimation(&_showWindowAnimation);
+			if(_showWindowAudio)               ShowWindowAudio(&_showWindowAudio);
+			if(_showWindowLight)               ShowWindowLight(&_showWindowLight);
 
-            if(show_mainMenu_file_openScene)             DrawOpenScene(&show_mainMenu_file_openScene);
-            if(show_mainMenu_file_save)                  DrawSaveScene(&show_mainMenu_file_save);
+            if(showFileOpenScene)             DrawOpenScene(&showFileOpenScene);
+            if(showFileSave)                  DrawSaveScene(&showFileSave);
 
 			///-------------------------------------------------------------------
 			/// set up the main menu bar
@@ -71,7 +71,7 @@ namespace PlatinumEngine
     ///--------------------------------------------------------------------------
     /// This section is for main menu bar "file" part file dialog showing
     ///--------------------------------------------------------------------------
-    void WindowManager::DrawSaveScene(bool* p_open)
+    void WindowManager::DrawSaveScene(bool* outIsOpen)
     {
         ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Save Scene", ".scene", ".");
 
@@ -91,7 +91,7 @@ namespace PlatinumEngine
         }
     }
 
-    void WindowManager::DrawOpenScene(bool *p_open)
+    void WindowManager::DrawOpenScene(bool *outIsOpen)
     {
         ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Open Scene", ".scene", ".");
 
@@ -117,8 +117,8 @@ namespace PlatinumEngine
 	void WindowManager::ShowMenuFile()
 	{
 		if(ImGui::MenuItem("New Scene")) {}
-		if(ImGui::MenuItem("Open Scene", "", &show_mainMenu_file_openScene)) {}
-		if(ImGui::MenuItem("Save", "Ctrl+S", &show_mainMenu_file_save)) {}
+		if(ImGui::MenuItem("Open Scene", "", &showFileOpenScene)) {}
+		if(ImGui::MenuItem("Save", "Ctrl+S", &showFileSave)) {}
 		if(ImGui::MenuItem("Save as")) {}
 	}
 
@@ -197,14 +197,14 @@ namespace PlatinumEngine
 			///---------------------------------------------------------------
 			if(ImGui::BeginMenu("Window"))
 			{
-				if(ImGui::MenuItem("Game", "Ctrl+1", &show_mainMenu_window_game)){}
-				if(ImGui::MenuItem("Hierarchy","Ctrl+2", &show_mainMenu_window_hierarchy)){}
-				if(ImGui::MenuItem("Inspector","Ctrl+3", &show_mainMenu_window_inspector)){}
-				if(ImGui::MenuItem("Project","Ctrl+4",&show_mainMenu_window_project)){}
-				if(ImGui::MenuItem("Scene", "Ctrl+5", &show_mainMenu_window_scene)){}
-				if(ImGui::MenuItem("Animation", "Ctrl+6", &show_mainMenu_window_animation)){}
-				if(ImGui::MenuItem("Audio","Ctrl+7", &show_mainMenu_window_audio)){}
-				if(ImGui::MenuItem("Lighting","Ctrl+8", &show_mainMenu_window_light)){}
+				if(ImGui::MenuItem("Game", "Ctrl+1", &_showWindowGame)){}
+				if(ImGui::MenuItem("Hierarchy","Ctrl+2", &_showWindowHierarchy)){}
+				if(ImGui::MenuItem("Inspector","Ctrl+3", &_showWindowInspector)){}
+				if(ImGui::MenuItem("Project","Ctrl+4",&_showWindowProject)){}
+				if(ImGui::MenuItem("Scene", "Ctrl+5", &_showWindowScene)){}
+				if(ImGui::MenuItem("Animation", "Ctrl+6", &_showWindowAnimation)){}
+				if(ImGui::MenuItem("Audio","Ctrl+7", &_showWindowAudio)){}
+				if(ImGui::MenuItem("Lighting","Ctrl+8", &_showWindowLight)){}
 				ImGui::EndMenu();
 			}
 			ImGui::EndMainMenuBar();
@@ -217,9 +217,9 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 
 	//Please implement Animation Window below
-	void WindowManager::ShowWindowAnimation(bool* p_open)
+	void WindowManager::ShowWindowAnimation(bool* outIsOpen)
 	{
-		if(!ImGui::Begin("Animation", p_open))
+		if(!ImGui::Begin("Animation", outIsOpen))
 		{
 			ImGui::Text("ABOUT THIS DEMO:");
 			ImGui::End();
@@ -229,43 +229,43 @@ namespace PlatinumEngine
 	}
 
 	//Please implement Project Window below
-	void WindowManager::ShowWindowProject(bool* p_open)
+	void WindowManager::ShowWindowProject(bool* outIsOpen)
 	{
 		//TODO:
 	}
 
 	//Please implement Light Window below
-	void WindowManager::ShowWindowLight(bool* p_open)
+	void WindowManager::ShowWindowLight(bool* outIsOpen)
 	{
 		//TODO:
 	}
 
     //Please implement Game Window below
-	void WindowManager::ShowWindowGame(bool* p_open)
+	void WindowManager::ShowWindowGame(bool* outIsOpen)
 	{
 		//TODO:
 	}
 
     //Please implement Scene Window below
-	void WindowManager::ShowWindowScene(bool* p_open)
+	void WindowManager::ShowWindowScene(bool* outIsOpen)
 	{
 		//TODO:
 	}
 
     //Please implement Inspector Window below
-	void WindowManager::ShowWindowInspector(bool* p_open)
+	void WindowManager::ShowWindowInspector(bool* outIsOpen)
 	{
 		//TODO:
 	}
 
     //Please implement Audio Window below
-	void WindowManager::ShowWindowAudio(bool* p_open)
+	void WindowManager::ShowWindowAudio(bool* outIsOpen)
 	{
 		//TODO:
 	}
 
     //Please implement Hierarchy Window below
-	void WindowManager::ShowWindowHierarchy(bool* p_open)
+	void WindowManager::ShowWindowHierarchy(bool* outIsOpen)
 	{
 		//TODO:
 	}
@@ -275,54 +275,54 @@ namespace PlatinumEngine
     /// This section implements the short cuts for main menu bar
     ///--------------------------------------------------------------------------
 	// sfml event trigger for shortcuts
-	void WindowManager::DoShortCut(sf::Event e)
+	void WindowManager::DoShortCut(sf::Event event)
 	{
-		switch (e.type)
+		switch (event.type)
 		{
 		case sf::Event::KeyPressed:
-            if(e.key.control && e.key.code == sf::Keyboard::S)
+            if(event.key.control && event.key.code == sf::Keyboard::S)
             {
-                show_mainMenu_file_save = true;
+				showFileSave = true;
                 break;
             }
-            else if(e.key.control && e.key.code == sf::Keyboard::Num1)
+            else if(event.key.control && event.key.code == sf::Keyboard::Num1)
             {
-                show_mainMenu_window_game = true;
+				_showWindowGame = true;
                 break;
             }
-            else if(e.key.control && e.key.code == sf::Keyboard::Num2)
+            else if(event.key.control && event.key.code == sf::Keyboard::Num2)
             {
-                show_mainMenu_window_hierarchy = true;
+				_showWindowHierarchy = true;
                 break;
             }
-            else if(e.key.control && e.key.code == sf::Keyboard::Num3)
+            else if(event.key.control && event.key.code == sf::Keyboard::Num3)
             {
-                show_mainMenu_window_inspector = true;
+				_showWindowInspector = true;
                 break;
             }
-            else if(e.key.control && e.key.code == sf::Keyboard::Num4)
+            else if(event.key.control && event.key.code == sf::Keyboard::Num4)
             {
-                show_mainMenu_window_project = true;
+				_showWindowProject = true;
                 break;
             }
-            else if(e.key.control && e.key.code == sf::Keyboard::Num5)
+            else if(event.key.control && event.key.code == sf::Keyboard::Num5)
             {
-                show_mainMenu_window_scene = true;
+				_showWindowScene = true;
                 break;
             }
-            else if(e.key.control && e.key.code == sf::Keyboard::Num6)
+            else if(event.key.control && event.key.code == sf::Keyboard::Num6)
             {
-            show_mainMenu_window_animation = true;
+				_showWindowAnimation = true;
             break;
             }
-            else if(e.key.control && e.key.code == sf::Keyboard::Num7)
+            else if(event.key.control && event.key.code == sf::Keyboard::Num7)
             {
-                show_mainMenu_window_audio = true;
+				_showWindowAudio = true;
                 break;
             }
-            else if(e.key.control && e.key.code == sf::Keyboard::Num8)
+            else if(event.key.control && event.key.code == sf::Keyboard::Num8)
             {
-                show_mainMenu_window_light = true;
+				_showWindowLight = true;
                 break;
             }
 		}

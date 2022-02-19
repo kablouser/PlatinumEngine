@@ -20,7 +20,10 @@ namespace PlatinumEngine
 		glm::mat4 lookAtMatrix4;
 		bool isFirstMousePress = false;
 		bool isFirstMouseWheelPress = false;
-		enum keyType{up,down,left,right};
+		enum KeyType
+		{
+			up, down, left, right
+		};
 
 
 		// FUNCTION
@@ -58,7 +61,7 @@ namespace PlatinumEngine
 		 * based on the mouse wheel delta value.
 		 * @param type
 		 */
-		void TranslationByKeyBoard(keyType type, const sf::Clock deltaClock);
+		void TranslationByKeyBoard(KeyType type, const sf::Clock deltaClock);
 
 		/**
 		 * Update the initial mouse position.

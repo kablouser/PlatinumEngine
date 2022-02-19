@@ -83,31 +83,29 @@ void EditorCamera::TranslationByMouse( float wheelDelta, const sf::Clock deltaCl
 
 }
 
-void EditorCamera::TranslationByKeyBoard(keyType type, const sf::Clock deltaClock)
+void EditorCamera::TranslationByKeyBoard(KeyType type, const sf::Clock deltaClock)
 {
 
 	// move along forward direction
 
 	// get forward direction
-	if(type == down)
+	switch(type)
 	{
+	case KeyType::down:
 		_translationValue += GetForwardDirection() * _translationSpeed * 5.f ;//* deltaClock.getElapsedTime().asSeconds();
-	}
-	else if(type == up)
-	{
+		break;
+
+	case KeyType::up:
 		_translationValue += GetForwardDirection() * (-_translationSpeed) * 5.f ;//* deltaClock.getElapsedTime().asSeconds();
-	}
+		break;
 
-	// move along right direction
-	else if(type == left)
-	{
+	case KeyType::left:
 		_translationValue += GetRightDirection() * _translationSpeed * 5.f;// * deltaClock.getElapsedTime().asSeconds();
-	}
-	else if(type == right)
-	{
+		break;
 
+	case KeyType::right:
 		_translationValue += GetRightDirection() * (-_translationSpeed) * 5.f;// * deltaClock.getElapsedTime().asSeconds();
-
+		break;
 	}
 
 	// update view matrix

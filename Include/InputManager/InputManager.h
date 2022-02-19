@@ -1,24 +1,34 @@
 //
 // Created by Jason on 07/02/2022.
 //
-
-#ifndef PLATINUMENGINE_INPUTMANAGER_H
-#define PLATINUMENGINE_INPUTMANAGER_H
+#pragma once
 
 namespace PlatinumEngine
 {
-	//Defining Axis structure to theoretically handle mouse/keyboard/joystick inputs
-	//Also will need to allow support for alternate inputs???
-	struct Axis
-	{
-	public:
-		std::string name;
-		int positiveKey, negativeKey, type, joyID;
-		sf::Joystick::Axis axis;
-	};
 	class InputManager
 	{
 	public:
+
+		enum class AxisType
+		{
+			keyboardMouseButton,
+			mouseMovement,
+			joystickAxis
+		};
+
+		//Defining Axis structure to theoretically handle mouse/keyboard/joystick inputs
+		//Also will need to allow support for alternate inputs???
+		struct Axis
+		{
+			std::string name;
+			AxisType type;
+			int
+					positiveKey,
+					negativeKey,
+					joystickID;
+			sf::Joystick::Axis joystickAxis;
+		};
+
 		void InputScene();
 
 		//General functions to handle Mouse or Keyboard inputs
@@ -31,16 +41,9 @@ namespace PlatinumEngine
 		bool IsKeyReleased(int key);
 
 		//Specific function that will handle Axis related inputs
-		float GetAxis(std::string Axis, int joyid = 0);
+		float GetAxis(std::string axisName, int joystickID = 0);
 
-	public:
-		//Constants for Input types
-		int TYPE_KEYBOARD_MOUSE_BUTTON=0;
-		int TYPE_MOUSE_MOVEMENT=1;
-		int TYPE_JOYSTICK_AXIS=2;
 	private:
-		std::vector<Axis> Axes;
+		std::vector<Axis> _axes;
 	};
 }
-
-#endif
