@@ -8,7 +8,7 @@
 #include <OpenGL/ShaderInput.h>
 
 // PlatinumEngine lib
-#include "EditorCamera.h"
+#include <RasterRenderer/EditorCamera.h>
 
 namespace PlatinumEngine
 {
@@ -16,39 +16,32 @@ namespace PlatinumEngine
 	{
 
 	public:
+
 		// VARIABLE
 		PlatinumEngine::EditorCamera camera;
 
-
-		// Functions
-
-		/**
-		 * Update()
-		 * update content inside the window.
-		 * @return
-		 * true:  if window is open and display successfully
-		 * false: if window is not open or cannot display content.
-		 */
-		bool Update(const sf::Clock& deltaClock);
-
 		// Constructors
 		RasterRenderer(
+				const sf::Window& parentWindow,
 				unsigned int depthBits = 24,
 				unsigned int stencilBits =8,
-				unsigned int antialiasingLevel=4,
-				unsigned int width =800,
-				unsigned int height=600
+				unsigned int antiAliasingLevel=4
 				);
 
 		~RasterRenderer();
 
-	private:
+		void ShowGUIWindow(bool* outIsOpen);
 
-		// Parameters
-		sf::RenderWindow _renderWindow;
+	private:
 
 		// true iff all init steps were successful
 		bool _isInitGood;
+
+		// settings for rendering OpenGL
+		sf::ContextSettings _contextSettings;
+		// intermediate output of OpenGL rendering
+		sf::RenderTexture _renderTexture;
+
 		sf::Shader _unlitShader;
 		ShaderInput _unlitShaderInput;
 	};

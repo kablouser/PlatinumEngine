@@ -1,12 +1,10 @@
 #include <RasterRenderer/RasterRenderer.h>
 #include <OpenGL/GLCheck.h>
-#include <imgui-SFML.h>
 #include <imgui.h>
+#include <imgui-SFML.h>
 // glew.h replaces gl.h. So don't #include <SFML/OpenGL.hpp>
 #include <GL/glew.h>
 #include <SFML/Graphics/Glsl.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
 
 // std
 #include <iostream>
@@ -23,30 +21,21 @@ const std::string UNLIT_FRAGMENT_SHADER =
 namespace PlatinumEngine
 {
 	RasterRenderer::RasterRenderer(
+			const sf::Window& parentWindow,
 			unsigned int depthBits,
 			unsigned int stencilBits,
-			unsigned int antialiasingLevel,
-			unsigned int width,
-			unsigned int height
+			unsigned int antiAliasingLevel
 	) :
-			_renderWindow(
-					sf::VideoMode(width, height),
-					"OpenGL",
-					sf::Style::Default,
-					sf::ContextSettings(depthBits, stencilBits, antialiasingLevel)),
-			_isInitGood(false)
+			_isInitGood(false),
+			_contextSettings(depthBits, stencilBits, antiAliasingLevel)
 	{
-		_renderWindow.setVerticalSyncEnabled(true);
+		sf::ContextSettings contextSettings = parentWindow.getSettings();
+		std::cout << "OpenGL version:" << contextSettings.majorVersion << "." << contextSettings.minorVersion << std::endl;
+		// TODO
+		// check if version meets minimum requirements here
 
-		// debug OpenGL settings
-		sf::ContextSettings settings = _renderWindow.getSettings();
-		std::cout << "depth bits:" << settings.depthBits << std::endl;
-		std::cout << "stencil bits:" << settings.stencilBits << std::endl;
-		std::cout << "antialiasing level:" << settings.antialiasingLevel << std::endl;
-		std::cout << "version:" << settings.majorVersion << "." << settings.minorVersion << std::endl;
-
-		// Enable ImGui in SFML
-		ImGui::SFML::Init(_renderWindow);
+		auto windowSize = parentWindow.getSize();
+		_renderTexture.create(windowSize.x,windowSize.y,_contextSettings);
 
 		// glew imports all OpenGL extension methods
 		GLenum errorCode = glewInit();
@@ -102,82 +91,61 @@ namespace PlatinumEngine
 						0, 1, 2
 				});
 
-		GL_CHECK(glViewport(0, 0, _renderWindow.getSize().x, _renderWindow.getSize().y));
-
 		_isInitGood = true;
 	}
-  
+
 	RasterRenderer::~RasterRenderer()
 	{
-		ImGui::SFML::Shutdown(_renderWindow);
+		// nothing to do
 	}
 
-	bool RasterRenderer::Update(const sf::Clock& deltaClock)
+	void RasterRenderer::ShowGUIWindow(bool* outIsOpen)
 	{
-		// stop rendering if window is closed OR init was bad
-		if (!_renderWindow.isOpen() || !_isInitGood)
-			return false;
-
-		// handle events
-		sf::Event event;
-		while (_renderWindow.pollEvent(event))
+		if(ImGui::Begin("Raster Renderer", outIsOpen) &&
+			// when init is bad, don't render anything
+			_isInitGood)
 		{
-			ImGui::SFML::ProcessEvent(event);
+			assert(_renderTexture.setActive(true));
 
-			if (event.type == sf::Event::Closed)
+			// check window size
+			auto targetSize = ImGui::GetContentRegionAvail();
+			auto textureSize = _renderTexture.getSize();
+			if(targetSize.x != textureSize.x || targetSize.y != textureSize.y)
 			{
-				// if window is closed, stop the loop
-				_renderWindow.close();
-				return false;
+				_renderTexture.create(targetSize.x, targetSize.y, _contextSettings);
+				GL_CHECK(glViewport(0, 0, targetSize.x, targetSize.y));
 			}
-			else if(event.type == sf::Event::Resized)
+
+			// first, clear OpenGL target. same as glClear
+			_renderTexture.clear(sf::Color(18, 33, 43));
+
 			{
-				// resize should change OpenGL viewport
-				GL_CHECK(glViewport(0, 0, event.size.width, event.size.height));
+				// bind any shader
+				sf::Shader::bind(&_unlitShader);
+
+				// opengl draw calls
+				_unlitShaderInput.Draw();
+
+				// this still works, but don't use it. because the input layout could be wrong.
+				// glBegin(GL_TRIANGLES);
+				// glVertex3f(-1.0f, -0.5f, 0.0f);
+				// glVertex3f(-0.3f, -0.5f, 0.0f);
+				// glVertex3f(-0.65f, +0.5f, 0.0f);
+				// glEnd();
 			}
+
+			// regularly check for any uncaught OpenGL errors
+			GL_CHECK();
+
+			// undo global state changes
+			sf::Shader::bind(nullptr);
+			assert(_renderTexture.setActive(false));
+
+			// apply drawings onto the target
+			_renderTexture.display();
+			// put target into GUI window
+			ImGui::Image(_renderTexture, targetSize);
 		}
-
-		// first, clear window. equal to glClear
-		_renderWindow.clear(sf::Color(18, 33, 43));
-
-		// set _renderWindow to the current target for any shaders
-		assert(_renderWindow.setActive(true));
-		{
-			// bind any shader
-			sf::Shader::bind(&_unlitShader);
-
-			// opengl draw calls
-			_unlitShaderInput.Draw();
-
-//	 		this still works, but don't use it. because the input layout could be wrong.
-//			glBegin(GL_TRIANGLES);
-//			glVertex3f(-1.0f, -0.5f, 0.0f);
-//			glVertex3f(-0.3f, -0.5f, 0.0f);
-//			glVertex3f(-0.65f, +0.5f, 0.0f);
-//			glEnd();
-		}
-		// undo global state changes
-		sf::Shader::bind(nullptr);
-		assert(_renderWindow.setActive(false));
-
-		// update imgui last, so imgui draws on top of OpenGL
-		ImGui::SFML::Update(_renderWindow, deltaClock.getElapsedTime());
-
-		ImGui::SetNextWindowBgAlpha(0.2f);
-		ImGui::Begin("Window title");
 		ImGui::End();
-		ImGui::SetNextWindowBgAlpha(0.2f);
-		ImGui::Begin("Window title2");
-		ImGui::End();
-
-		ImGui::SFML::Render(_renderWindow);
-
-		// display window
-		_renderWindow.display();
-
-		// regularly check for any uncaught OpenGL errors
-		GL_CHECK();
-
-		return true;
 	}
 }

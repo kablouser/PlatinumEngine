@@ -16,56 +16,28 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	/// this function will create a basic window when you open the Platinum Engine
 	///--------------------------------------------------------------------------
-	void WindowManager::ShowBasicScene()
+	void WindowManager::ShowGUI()
 	{
+		///-----------------------------------------------------------------------
+		///ifs in main menu window list to call the function inside
+		///-----------------------------------------------------------------------
+		//window section
+		if(_showWindowGame)                ShowWindowGame(&_showWindowGame);
+		if(_showWindowScene)               ShowWindowScene(&_showWindowScene);
+		if(_showWindowHierarchy)           ShowWindowHierarchy(&_showWindowHierarchy);
+		if(_showWindowInspector)           ShowWindowInspector(&_showWindowInspector);
+		if(_showWindowProject)             ShowWindowProject(&_showWindowProject);
+		if(_showWindowAnimation)           ShowWindowAnimation(&_showWindowAnimation);
+		if(_showWindowAudio)               ShowWindowAudio(&_showWindowAudio);
+		if(_showWindowLight)               ShowWindowLight(&_showWindowLight);
 
-		sf::RenderWindow window(sf::VideoMode(1080, 960), "Platinum Engine");
-		window.setFramerateLimit(60);
-		ImGui::SFML::Init(window);
+		if(showFileOpenScene)             DrawOpenScene(&showFileOpenScene);
+		if(showFileSave)                  DrawSaveScene(&showFileSave);
 
-		sf::Clock deltaClock;
-		while (window.isOpen())
-		{
-			sf::Event event;
-			while (window.pollEvent(event))
-			{
-				ImGui::SFML::ProcessEvent(window, event);
-
-				if (event.type == sf::Event::Closed)
-				{
-					window.close();
-				}
-				DoShortCut(event);
-			}
-			ImGui::SFML::Update(window, deltaClock.restart());
-
-			///-----------------------------------------------------------------------
-			///ifs in main menu window list to call the function inside
-			///-----------------------------------------------------------------------
-			//window section
-			if(_showWindowGame)                ShowWindowGame(&_showWindowGame);
-			if(_showWindowScene)               ShowWindowScene(&_showWindowScene);
-			if(_showWindowHierarchy)           ShowWindowHierarchy(&_showWindowHierarchy);
-			if(_showWindowInspector)           ShowWindowInspector(&_showWindowInspector);
-			if(_showWindowProject)             ShowWindowProject(&_showWindowProject);
-			if(_showWindowAnimation)           ShowWindowAnimation(&_showWindowAnimation);
-			if(_showWindowAudio)               ShowWindowAudio(&_showWindowAudio);
-			if(_showWindowLight)               ShowWindowLight(&_showWindowLight);
-
-            if(showFileOpenScene)             DrawOpenScene(&showFileOpenScene);
-            if(showFileSave)                  DrawSaveScene(&showFileSave);
-
-			///-------------------------------------------------------------------
-			/// set up the main menu bar
-			///-------------------------------------------------------------------
-            SetUpMainMenu();
-           // DrawGui();
-			//ImGui::ShowDemoWindow();
-			window.clear();
-			ImGui::SFML::Render(window);
-			window.display();
-		}
-		ImGui::SFML::Shutdown();
+		///-------------------------------------------------------------------
+		/// set up the main menu bar
+		///-------------------------------------------------------------------
+		SetUpMainMenu();
 	}
 
     ///--------------------------------------------------------------------------

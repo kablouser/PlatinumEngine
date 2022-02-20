@@ -13,7 +13,7 @@ namespace PlatinumEngine
 		///Main menu bar functions
 		///-----------------------------------
 		//window section
-		void ShowBasicScene();
+		void ShowGUI();
 		void ShowMenuFile();
 		void ShowMenuGameObject();
         void ShowMenuEdit();

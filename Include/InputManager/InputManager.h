@@ -29,7 +29,9 @@ namespace PlatinumEngine
 			sf::Joystick::Axis joystickAxis;
 		};
 
-		void InputScene();
+		InputManager();
+
+		void ShowGUIWindow(bool* outIsOpen);
 
 		//General functions to handle Mouse or Keyboard inputs
 		bool IsMouseClicked(int button);

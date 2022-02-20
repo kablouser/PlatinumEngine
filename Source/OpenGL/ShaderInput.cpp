@@ -75,7 +75,7 @@ namespace PlatinumEngine
 
 	void ShaderInput::Clear()
 	{
-		GL_CHECK(glGenVertexArrays(1, &_vertexArrayObject));
+		GL_CHECK(glDeleteVertexArrays(1, &_vertexArrayObject));
 		GL_CHECK(glDeleteBuffers(1, &_vertexBufferObject));
 		GL_CHECK(glDeleteBuffers(1, &_elementBufferObject));
 

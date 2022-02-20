@@ -16,11 +16,14 @@
 
 namespace PlatinumEngine
 {
-	///--------------------------------------------------------------------------
-	/// Test Scene for Inputs (WILL NEED TO REMOVE THIS LATER)
-	///--------------------------------------------------------------------------
-	void InputManager::InputScene()
+
+
+
+	InputManager::InputManager()
 	{
+		///--------------------------------------------------------------------------
+		/// Test Axes for Inputs (WILL NEED TO REMOVE THIS LATER)
+		///--------------------------------------------------------------------------
 		//May need a better way to properly allow user defined axes???
 		Axis axis;
 		axis.name="Horizontal";
@@ -39,66 +42,51 @@ namespace PlatinumEngine
 		axis.type = AxisType::keyboardMouseButton;
 		_axes.push_back(axis);
 
-		sf::RenderWindow window(sf::VideoMode(1080, 960), "Platinum Engine");
-		window.setFramerateLimit(60);
-		ImGui::SFML::Init(window);
 
-		sf::Clock deltaClock;
+	}
 
-		ImGuiIO& io = ImGui::GetIO();
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-
-		while (window.isOpen())
+	void InputManager::ShowGUIWindow(bool* outIsOpen)
+	{
+		///--------------------------------------------------------------------------
+		/// Test Window for Inputs (WILL NEED TO REMOVE THIS LATER)
+		///--------------------------------------------------------------------------
+		if(ImGui::Begin("Input Test", outIsOpen))
 		{
-			sf::Event event;
-			while (window.pollEvent(event))
-			{
-				ImGui::SFML::ProcessEvent(window, event);
-
-				if (event.type == sf::Event::Closed)
-				{
-					window.close();
-				}
-			}
-			ImGui::SFML::Update(window, deltaClock.restart());
+			ImGuiIO& io = ImGui::GetIO();
+			io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+			io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
 			//TESTING HERE
 			int keyDown = -1;
-			for(int key=0; key < 512; key++) if(ImGui::IsKeyDown(key)) keyDown=key;
-			float joystickX = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::X);
-			float joystickY = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::Y);
-			float joystickZ = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::Z);
-			float joystickR = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::R);
-			float joystickU = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::U);
-			float joystickV = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::V);
-			float joystickPovX = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::PovX);
-			float joystickPovY = sf::Joystick::getAxisPosition(0,sf::Joystick::Axis::PovY);
+			for (int key = 0; key < 512; key++) if (ImGui::IsKeyDown(key)) keyDown = key;
+			float joystickX = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
+			float joystickY = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y);
+			float joystickZ = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Z);
+			float joystickR = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
+			float joystickU = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::U);
+			float joystickV = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::V);
+			float joystickPovX = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::PovX);
+			float joystickPovY = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::PovY);
 			ImGui::Text("JoyStick Axis : x=%f, y=%f, z=%f, r=%f, u=%f, v=%f, povX=%f, povY=%f",
-					joystickX,joystickY,joystickZ,joystickR,joystickU,joystickV,joystickPovX,joystickPovY);
+					joystickX, joystickY, joystickZ, joystickR, joystickU, joystickV, joystickPovX, joystickPovY);
 
 			ImVec2 mousePos = GetMousePosition();
 			sf::Joystick::Identification id = sf::Joystick::getIdentification(0);
 			ImGui::Text("JoyStick Connected : %d", sf::Joystick::isConnected(0));
-			ImGui::Text("JoyStick: %d, %d",id.productId, id.vendorId);
-			ImGui::Text("JoyStick: %s",id.name.toAnsiString().c_str());
+			ImGui::Text("JoyStick: %d, %d", id.productId, id.vendorId);
+			ImGui::Text("JoyStick: %s", id.name.toAnsiString().c_str());
 			ImGui::Text("Position: %f, %f", mousePos.x, mousePos.y);
 			ImGui::Text("Left Mouse Down: %d", IsMouseDown(0));
 			ImGui::Text("Up Arrow Key Down: %d", ImGui::IsKeyDown(sf::Keyboard::Up));
 			ImGui::Text("Key Down (ID): %d", keyDown);
 			ImGui::Text("Axis: %f", GetAxis("Horizontal"));
 
-			sf::Vector2i windowPosition = window.getPosition();
+			sf::Vector2i windowPosition = ImGui::GetWindowPos();
 			windowPosition.x += GetAxis("Horizontal") + joystickX;
 			windowPosition.y -= GetAxis("Vertical") - joystickY;
-			window.setPosition(windowPosition);
-
-			//ImGui::ShowDemoWindow();
-			window.clear();
-			ImGui::SFML::Render(window);
-			window.display();
+			ImGui::SetWindowPos(windowPosition);
 		}
-		ImGui::SFML::Shutdown();
+		ImGui::End();
 	}
 
 	//Checks for Mouse Click Action
