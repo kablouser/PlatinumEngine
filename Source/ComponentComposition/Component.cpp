@@ -6,6 +6,7 @@ namespace PlatinumEngine
 	{}
 
 
+
 	Component::Component(bool isEnabled) : _isEnabled(isEnabled)
 	{}
 
@@ -16,6 +17,7 @@ namespace PlatinumEngine
 
 	void Component::SetEnabled(bool isEnabled, bool areEventsTriggered)
 	{
+
 		// don't trigger event's if enabled state is not changed
 		if(_isEnabled == isEnabled)
 			return;
@@ -52,6 +54,5 @@ namespace PlatinumEngine
 
 
 	void Component::OnUpdate(float)
-
 	{}
 }

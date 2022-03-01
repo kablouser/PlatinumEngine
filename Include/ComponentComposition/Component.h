@@ -16,6 +16,7 @@ namespace PlatinumEngine
 
 		explicit Component(bool isEnabled);
 
+
 		bool IsEnabled() const;
 
 		/**
@@ -24,6 +25,7 @@ namespace PlatinumEngine
 		 * @param areEventsTriggered are relevant triggers upon state changes
 		 */
 		void SetEnabled(bool isEnabled, bool areEventsTriggered = true);
+
 
 		/**
 		 * Gets the GameObject this component is attached to. Could be null.
@@ -61,10 +63,12 @@ namespace PlatinumEngine
 		 */
 		virtual void OnUpdate(float deltaTime);
 
+
 		/**
 		 * Event triggered every render frame. Could render when the game is not running (i.e. in the scene editor).
 		 */
 		// virtual void OnRender(Renderer& renderer)
+
 
 	private:
 		bool _isEnabled;
