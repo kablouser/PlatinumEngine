@@ -2,6 +2,7 @@
 
 namespace PlatinumEngine
 {
+
 	/**
 	 * Compositional thing that can be attached to GameObjects and updated during the game loop.
 	 */
@@ -68,5 +69,6 @@ namespace PlatinumEngine
 	private:
 		bool _isEnabled;
 		// GameObject* gameObject;
+
 	};
 }

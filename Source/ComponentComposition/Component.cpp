@@ -30,6 +30,7 @@ namespace PlatinumEngine
 			OnDisable();
 	}
 
+
 	//------------------------------------------------------------------------------------------------------------------
 	// Default empty implementations of events.
 	//------------------------------------------------------------------------------------------------------------------
@@ -45,6 +46,7 @@ namespace PlatinumEngine
 
 	void Component::OnDisable()
 	{}
+
 
 	void Component::OnUpdate(float)
 	{}
