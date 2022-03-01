@@ -79,6 +79,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
   	"Source/RasterRenderer/EditorCamera.cpp;"
 	"Source/SceneManager/SceneManager.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
+	"Source/ComponentComposition/Component.cpp;"
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;")
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
