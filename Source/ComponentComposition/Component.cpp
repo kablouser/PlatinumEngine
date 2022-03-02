@@ -8,7 +8,7 @@ namespace PlatinumEngine
 	Component::Component(bool isEnabled) : _isEnabled(isEnabled)
 	{}
 
-	bool Component::GetIsEnabled() const
+	bool Component::IsEnabled() const
 	{
 		return _isEnabled;
 	}
