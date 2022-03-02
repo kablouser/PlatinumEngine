@@ -15,7 +15,7 @@ namespace PlatinumEngine
 
 		explicit Component(bool isEnabled);
 
-		bool GetIsEnabled() const;
+		bool IsEnabled() const;
 
 		/**
 		 * Sets _isEnabled state and triggers events (OnEnable, OnDisable)
