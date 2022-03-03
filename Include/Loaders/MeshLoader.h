@@ -24,16 +24,20 @@ namespace PlatinumEngine
 		/**
 		 * Loads a mesh file into positions, normals
 		 * @param filePath : location of file
-		 * @param positions : where positions are stored
-		 * @param normals  : where normals are stored
+		 * @param outPositions : where positions are stored
+		 * @param outNormals  : where normals are stored
+		 * @param outTextureCoords : where texture coords are stored
 		 */
-		void LoadMesh(const std::string &filePath, std::vector<glm::vec3> &positions, std::vector<glm::vec3> &normals, std::vector<glm::vec2> &textureCoords);
+		void LoadMesh(const std::string &filePath, std::vector<glm::vec3> &outPositions, std::vector<glm::vec3> &outNormals, std::vector<glm::vec2> &outTextureCoords);
 
 		/**
-		 * Converts a mesh into positions, normals
-		 * @param mesh
+		 * Convert an assimp mesh to individual positon, normal, texture coord vectors
+		 * @param mesh : assimp mesh of data
+		 * @param outPositions : positions of vertices from mesh
+		 * @param outNormals : normals of vertices from mesh
+		 * @param outTextureCoords : texture coords of vertices from mesh
 		 */
-		void ConvertMesh(aiMesh *mesh, std::vector<glm::vec3> &positions, std::vector<glm::vec3> &normals, std::vector<glm::vec2> &textureCoords);
+		void ConvertMesh(aiMesh *mesh, std::vector<glm::vec3> &outPositions, std::vector<glm::vec3> &outNormals, std::vector<glm::vec2> &outTextureCoords);
 	}
 }
 

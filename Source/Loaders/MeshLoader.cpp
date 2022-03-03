@@ -8,7 +8,7 @@ namespace PlatinumEngine
 {
 	namespace Loaders
 	{
-		void LoadMesh(const std::string &filePath, std::vector<glm::vec3> &positions, std::vector<glm::vec3> &normals, std::vector<glm::vec2> &textureCoords)
+		void LoadMesh(const std::string &filePath, std::vector<glm::vec3> &outPositions, std::vector<glm::vec3> &outNormals, std::vector<glm::vec2> &outTextureCoords)
 		{
 			// First check if the file is okay
 			if (!ExtensionAllowed(GetExtension(filePath)))
@@ -31,23 +31,23 @@ namespace PlatinumEngine
 			}
 
 			// For now, take first mesh and dump into vectors
-			ConvertMesh(scene->mMeshes[0], positions, normals, textureCoords);
+			ConvertMesh(scene->mMeshes[0], outPositions, outNormals, outTextureCoords);
 		}
 
-		void ConvertMesh(aiMesh *mesh, std::vector<glm::vec3> &positions, std::vector<glm::vec3> &normals, std::vector<glm::vec2> &textureCoords)
+		void ConvertMesh(aiMesh *mesh, std::vector<glm::vec3> &outPositions, std::vector<glm::vec3> &outNormals, std::vector<glm::vec2> &outTextureCoords)
 		{
 			// Loop vertices
 			for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
 			{
-				positions.emplace_back(glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
-				normals.emplace_back(glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z));
+				outPositions.emplace_back(glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
+				outNormals.emplace_back(glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z));
 				if (mesh->mTextureCoords[0])
 				{
-					textureCoords.emplace_back(glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y));
+					outTextureCoords.emplace_back(glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y));
 				}
 				else
 				{
-					textureCoords.emplace_back(glm::vec2(0.0f, 0.0f));
+					outTextureCoords.emplace_back(glm::vec2(0.0f, 0.0f));
 				}
 			}
 		}
