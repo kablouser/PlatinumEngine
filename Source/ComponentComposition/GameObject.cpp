@@ -1,3 +1,4 @@
+
 #include <ComponentComposition/GameObject.h>
 namespace PlatinumEngine
 {
@@ -93,5 +94,6 @@ namespace PlatinumEngine
 		int index = GetChildIndex(child);
 		if(index>=0)
 			_children.erase(_children.begin()+index);
+
 	}
 }

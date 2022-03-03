@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <string>
@@ -6,7 +7,6 @@
 #include "ComponentComposition/Component.h"
 
 #include "iostream"
-
 
 namespace PlatinumEngine
 {
@@ -18,6 +18,7 @@ namespace PlatinumEngine
 	public:
 		GameObject();
 		GameObject(std::string name);
+
 		~GameObject();
 
 		bool IsEnabled();
@@ -84,3 +85,4 @@ namespace PlatinumEngine
 		std::vector<Component*> _components;
 	};
 }
+
