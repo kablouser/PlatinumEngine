@@ -28,7 +28,7 @@ namespace PlatinumEngine
 		 * @param positions : where positions are stored
 		 * @param normals  : where normals are stored
 		 */
-		void LoadMesh(const std::string &filePath, std::vector<glm::vec3> &positions, std::vector<glm::vec3> &normals);
+		void LoadMesh(const std::string &filePath, std::vector<glm::vec3> &positions, std::vector<glm::vec3> &normals, std::vector<glm::vec2> &textureCoords);
 
 		/**
 		 * Returns the extensions of the given filepath
@@ -48,6 +48,6 @@ namespace PlatinumEngine
 		 * Converts a mesh into positions, normals
 		 * @param mesh
 		 */
-		void ConvertMesh(aiMesh *mesh, std::vector<glm::vec3> &positions, std::vector<glm::vec3> &normals);
+		void ConvertMesh(aiMesh *mesh, std::vector<glm::vec3> &positions, std::vector<glm::vec3> &normals, std::vector<glm::vec2> &textureCoords);
 	}
 }
