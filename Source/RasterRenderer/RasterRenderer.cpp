@@ -1,6 +1,6 @@
 #include <RasterRenderer/RasterRenderer.h>
 #include <OpenGL/GLCheck.h>
-#include <imgui.h>
+// #include <imgui.h>
 #include <imgui-SFML.h>
 // glew.h replaces gl.h. So don't #include <SFML/OpenGL.hpp>
 #include <GL/glew.h>
@@ -31,11 +31,13 @@ namespace PlatinumEngine
 	{
 		sf::ContextSettings contextSettings = parentWindow.getSettings();
 		std::cout << "OpenGL version:" << contextSettings.majorVersion << "." << contextSettings.minorVersion << std::endl;
+
+
 		// TODO
 		// check if version meets minimum requirements here
 
-		auto windowSize = parentWindow.getSize();
-		_renderTexture.create(windowSize.x,windowSize.y,_contextSettings);
+		// auto windowSize = parentWindow.getSize();
+		// _renderTexture.create(windowSize.x,windowSize.y,_contextSettings);
 
 		// glew imports all OpenGL extension methods
 		GLenum errorCode = glewInit();
@@ -99,25 +101,47 @@ namespace PlatinumEngine
 		// nothing to do
 	}
 
-	void RasterRenderer::ShowGUIWindow(bool* outIsOpen)
+
+
+
+	void RasterRenderer::RenderObjects(sf::RenderTexture& renderTexture, ImVec2 targetSize)
 	{
-		if(ImGui::Begin("Raster Renderer", outIsOpen) &&
-			// when init is bad, don't render anything
-			_isInitGood)
+		// when init is bad, don't render anything
+		if(_isInitGood)
+
 		{
-			assert(_renderTexture.setActive(true));
+			assert(renderTexture.setActive(true));
 
 			// check window size
-			auto targetSize = ImGui::GetContentRegionAvail();
-			auto textureSize = _renderTexture.getSize();
+			//auto targetSize = ImGui::GetContentRegionAvail();
+			auto textureSize = renderTexture.getSize();
+
 			if(targetSize.x != textureSize.x || targetSize.y != textureSize.y)
 			{
-				_renderTexture.create(targetSize.x, targetSize.y, _contextSettings);
+
+				renderTexture.create(targetSize.x, targetSize.y, _contextSettings);
 				GL_CHECK(glViewport(0, 0, targetSize.x, targetSize.y));
+
+
+				// prevent the window size to be negative
+				targetSize.x = std::max(0.f, targetSize.x);
+				targetSize.y = std::max(0.f, targetSize.y);
+
+				// prevent creating rendertexture with x or y == 0,
+				// which will cause warning
+				if(targetSize.y != 0 && targetSize.x != 0){
+
+					renderTexture.create(targetSize.x, targetSize.y, _contextSettings);
+					GL_CHECK(glViewport(0, 0, targetSize.x, targetSize.y));
+
+				}
+
+
+
 			}
 
 			// first, clear OpenGL target. same as glClear
-			_renderTexture.clear(sf::Color(18, 33, 43));
+			renderTexture.clear(sf::Color(18, 33, 43));
 
 			{
 				// bind any shader
@@ -139,13 +163,16 @@ namespace PlatinumEngine
 
 			// undo global state changes
 			sf::Shader::bind(nullptr);
-			assert(_renderTexture.setActive(false));
+			assert(renderTexture.setActive(false));
 
 			// apply drawings onto the target
-			_renderTexture.display();
+			renderTexture.display();
 			// put target into GUI window
-			ImGui::Image(_renderTexture, targetSize);
+			//ImGui::Image(_renderTexture, targetSize);
 		}
-		ImGui::End();
+		//ImGui::End();
 	}
+
+
+
 }

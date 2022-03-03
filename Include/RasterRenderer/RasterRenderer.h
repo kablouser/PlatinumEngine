@@ -6,9 +6,10 @@
 
 #include <SFML/Graphics.hpp>
 #include <OpenGL/ShaderInput.h>
+#include <imgui.h>
 
 // PlatinumEngine lib
-#include <RasterRenderer/EditorCamera.h>
+#include <SceneEditor/EditorCamera.h>
 
 namespace PlatinumEngine
 {
@@ -18,6 +19,8 @@ namespace PlatinumEngine
 	public:
 
 		// VARIABLE
+
+		// Editor camera
 		PlatinumEngine::EditorCamera camera;
 
 		// Constructors
@@ -30,19 +33,16 @@ namespace PlatinumEngine
 
 		~RasterRenderer();
 
-		void ShowGUIWindow(bool* outIsOpen);
+		void RenderObjects(sf::RenderTexture& renderTexture, ImVec2 targetSize);
 
 	private:
 
 		// true iff all init steps were successful
 		bool _isInitGood;
-
 		// settings for rendering OpenGL
 		sf::ContextSettings _contextSettings;
-		// intermediate output of OpenGL rendering
-		sf::RenderTexture _renderTexture;
-
 		sf::Shader _unlitShader;
 		ShaderInput _unlitShaderInput;
+
 	};
 }

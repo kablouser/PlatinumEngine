@@ -12,7 +12,7 @@
 
 #include <InputManager/InputManager.h>
 #include <RasterRenderer/RasterRenderer.h>
-#include <SceneManager/SceneManager.h>
+#include <SceneEditor/SceneEditor.h>
 #include <WindowManager/WindowManager.h>
 
 int main()
@@ -54,8 +54,8 @@ int main()
 		//--------------------------------------------------------------------------------------------------------------
 		// GUI HERE
 		//--------------------------------------------------------------------------------------------------------------
-		if(isRasterRendererOpen)
-			rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
+//		if(isRasterRendererOpen)
+//			rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
 		if(isInputWindowOpen)
 			inputManager.ShowGUIWindow(&isInputWindowOpen);
 

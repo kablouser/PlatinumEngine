@@ -71,13 +71,11 @@ FetchContent_MakeAvailable(glew)
 set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/InputManager/InputManager.cpp;"
 	"Source/RasterRenderer/RasterRenderer.cpp;"
-	"Source/SceneManager/SceneManager.cpp;"
 	"Source/OpenGL/ShaderInput.cpp;"
 	"Source/OpenGL/GLEnumInfo.cpp;"
 	"Source/OpenGL/GLCheck.cpp;"
-  	"Source/SceneManager/SceneManager.cpp;"
-  	"Source/RasterRenderer/EditorCamera.cpp;"
-	"Source/SceneManager/SceneManager.cpp;"
+  	"Source/SceneEditor/SceneEditor.cpp;"
+  	"Source/SceneEditor/EditorCamera.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;")
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
