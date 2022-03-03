@@ -16,6 +16,7 @@ namespace PlatinumEngine
 	GameObject::~GameObject()
 	{}
 
+
 	bool GameObject::IsEnabled()
 	{
 		return _isEnabled;
@@ -23,19 +24,23 @@ namespace PlatinumEngine
 
 	//Enable/Disable the GameObject
 	void GameObject::SetEnabled(bool enableFlag)
+
 	{
 		_isEnabled = enableFlag;
 	}
 
 	//Gets the parent of the current GameObject
 	GameObject* GameObject::GetParent()
+
 	{
 		return _parent;
 	}
 
+
 	//Sets the parent of the current GameObject
 	//Removes it from old parent, updates the parent and then add to new parent
 	void GameObject::SetParent(GameObject* parent)
+
 	{
 		if(_parent == parent)
 			return;
@@ -54,14 +59,18 @@ namespace PlatinumEngine
 		}
 	}
 
+
 	//Returns children count
 	int GameObject::GetChildrenCount()
+
 	{
 		return _children.size();
 	}
 
+
 	//Returns child at index
 	GameObject* GameObject::GetChild(int index)
+
 	{
 		return _children[index];
 	}
