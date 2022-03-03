@@ -2,11 +2,11 @@
 // Created by Matt on 03/03/2022.
 //
 
-#include "Common/Load.h"
+#include "Loaders/MeshLoader.h"
 
 namespace PlatinumEngine
 {
-	namespace Common
+	namespace Loaders
 	{
 		void LoadMesh(const std::string &filePath, std::vector<glm::vec3> &positions, std::vector<glm::vec3> &normals, std::vector<glm::vec2> &textureCoords)
 		{
@@ -32,26 +32,6 @@ namespace PlatinumEngine
 
 			// For now, take first mesh and dump into vectors
 			ConvertMesh(scene->mMeshes[0], positions, normals, textureCoords);
-		}
-
-		std::string GetExtension(const std::string &filePath)
-		{
-			return filePath.substr(filePath.find_last_of(".") + 1);
-		}
-
-		bool ExtensionAllowed(const std::string &extension)
-		{
-			std::cout << extension << std::endl;
-			bool isAllowed = false;
-			for (unsigned int i = 0; i < ALLOWED_EXTENSIONS.size(); ++i)
-			{
-				if (ALLOWED_EXTENSIONS[i] == extension)
-				{
-					isAllowed = true;
-					break;
-				}
-			}
-			return isAllowed;
 		}
 
 		void ConvertMesh(aiMesh *mesh, std::vector<glm::vec3> &positions, std::vector<glm::vec3> &normals, std::vector<glm::vec2> &textureCoords)
