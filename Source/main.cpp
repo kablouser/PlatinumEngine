@@ -22,10 +22,18 @@ int main()
 	ImGui::SFML::Init(window);
 
 	PlatinumEngine::RasterRenderer rasterRenderer(window);
+	PlatinumEngine::SceneEditor sceneEditor;
+
 	bool isRasterRendererOpen = true;
+
+
+
+
 	PlatinumEngine::InputManager inputManager;
 	bool isInputWindowOpen = true;
 	PlatinumEngine::WindowManager windowManager;
+
+
 
 	sf::Clock deltaClock;
 	while (window.isOpen())
@@ -54,8 +62,9 @@ int main()
 		//--------------------------------------------------------------------------------------------------------------
 		// GUI HERE
 		//--------------------------------------------------------------------------------------------------------------
-//		if(isRasterRendererOpen)
-//			rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
+		if(isRasterRendererOpen)
+			sceneEditor.ShowGUIWindow(&isRasterRendererOpen, rasterRenderer);
+		//rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
 		if(isInputWindowOpen)
 			inputManager.ShowGUIWindow(&isInputWindowOpen);
 
