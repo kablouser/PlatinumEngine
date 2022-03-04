@@ -33,7 +33,11 @@ namespace PlatinumEngine
 
 		~RasterRenderer();
 
+		// Render objects
 		void RenderObjects(sf::RenderTexture& renderTexture, ImVec2 targetSize);
+
+		// TODO receive light properties from scene editor
+		void SetLightProperties();
 
 	private:
 
@@ -44,5 +48,11 @@ namespace PlatinumEngine
 		sf::Shader _unlitShader;
 		ShaderInput _unlitShaderInput;
 
+		// these two parameters are creating for testing the effect of Blinn-Phong-Shading
+		sf::Clock clock;
+		sf::Time time;
+
+		// create a cube object to test for this module. I will delete after finishing the scene module.
+		void CubeTest();
 	};
 }

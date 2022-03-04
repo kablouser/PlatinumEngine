@@ -63,36 +63,6 @@ namespace PlatinumEngine
 			return;
 		}
 
-		/*
-		Shader uniform variables:
-
-		uniform mat4 modelToProjection; // projection * view * model
-		uniform vec3 color = vec3(1.0, 1.0, 1.0);
-		uniform bool isTextureEnabled = false;
-		uniform sampler2D sampleTexture;
-		 */
-		float matrixArray[16] = {
-				1, 0, 0, 0,
-				0, 1, 0, 0,
-				0, 0, 1, 0,
-				0, 0, 0, 1
-		};
-		sf::Glsl::Mat4 matrix(matrixArray);
-
-		_unlitShader.setUniform("modelToProjection",matrix);
-		_unlitShader.setUniform("color",sf::Glsl::Vec3(1,0,0));
-		_unlitShader.setUniform("isTextureEnabled",false);
-
-		// in variables
-		_unlitShaderInput.Set({
-						{{ -0.5f, -0.5f, 0.0f }, { 0, 0, 1 }, { 0, 0 }},
-						{{ 0.5f,  -0.5f, 0.0f }, { 0, 0, 1 }, { 0, 0 }},
-						{{ 0.0f,  0.5f,  0.0f }, { 0, 0, 1 }, { 0, 0 }}
-				},
-				{
-						0, 1, 2
-				});
-
 		_isInitGood = true;
 	}
 
@@ -102,14 +72,16 @@ namespace PlatinumEngine
 	}
 
 
-
+	//--------------------------------------------------------------------------------------------------------------
+	// Public functions implementation.
+	//--------------------------------------------------------------------------------------------------------------
 
 	void RasterRenderer::RenderObjects(sf::RenderTexture& renderTexture, ImVec2 targetSize)
 	{
 		// when init is bad, don't render anything
 		if(_isInitGood)
-
 		{
+			CubeTest();
 			assert(renderTexture.setActive(true));
 
 			// check window size
@@ -135,9 +107,6 @@ namespace PlatinumEngine
 					GL_CHECK(glViewport(0, 0, targetSize.x, targetSize.y));
 
 				}
-
-
-
 			}
 
 			// first, clear OpenGL target. same as glClear
@@ -172,6 +141,119 @@ namespace PlatinumEngine
 		}
 		//ImGui::End();
 	}
+
+
+	//--------------------------------------------------------------------------------------------------------------
+	// Private functions implementation.
+	//--------------------------------------------------------------------------------------------------------------
+	void RasterRenderer::CubeTest()
+	{
+		/*
+		Shader uniform variables:
+
+		uniform mat4 modelToProjection; // projection * view * model
+		uniform vec3 color = vec3(1.0, 1.0, 1.0);
+		uniform bool isTextureEnabled = false;
+		uniform sampler2D sampleTexture;
+		 */
+		float matrixArray[16] = {
+				1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 1, 0,
+				0, 0, 0, 1
+		};
+		sf::Glsl::Mat4 matrix(matrixArray);
+
+		_unlitShader.setUniform("modelToProjection",matrix);
+
+		// set basic properties
+		_unlitShader.setUniform("objectColour",sf::Glsl::Vec3(1.0f,0.5f,0.31f));
+		_unlitShader.setUniform("isTextureEnabled",false);
+		time = clock.getElapsedTime();
+
+		_unlitShader.setUniform("lightPosition", sf::Glsl::Vec3(0.9f * std::sin(time.asSeconds()),0.9f * std::sin(time.asSeconds()),0.9f));
+		_unlitShader.setUniform("lightColour", sf::Glsl::Vec3(1.0f,1.0f,1.0f));
+		_unlitShader.setUniform("viewPosition", sf::Glsl::Vec3(0.0f,0.0f,1.0f));
+
+		// in variables
+		_unlitShaderInput.Set({
+						{{ -0.5f, -0.5f, -0.5f  }, {  0.0f,  0.0f, -1.0f }, { 0, 0 }},
+						{{ 0.5f, -0.5f, -0.5f   }, { 0.0f,  0.0f, -1.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f, -0.5f   }, { 0.0f,  0.0f, -1.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f, -0.5f   }, { 0.0f,  0.0f, -1.0f  }, { 0, 0 }},
+						{{ -0.5f,  0.5f, -0.5f  }, {  0.0f,  0.0f, -1.0f }, { 0, 0 }},
+						{{ -0.5f, -0.5f, -0.5f  }, {  0.0f,  0.0f, -1.0f }, { 0, 0 }},
+						{{ -0.5f, -0.5f,  0.5f  }, {  0.0f,  0.0f,  1.0f }, { 0, 0 }},
+						{{ 0.5f, -0.5f,  0.5f   }, { 0.0f,  0.0f,  1.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  0.0f,  1.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  0.0f,  1.0f  }, { 0, 0 }},
+						{{ -0.5f,  0.5f,  0.5f  }, {  0.0f,  0.0f,  1.0f }, { 0, 0 }},
+						{{ -0.5f, -0.5f,  0.5f  }, {  0.0f,  0.0f,  1.0f }, { 0, 0 }},
+						{{ -0.5f,  0.5f,  0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f,  0.5f, -0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f, -0.5f, -0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f, -0.5f, -0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f, -0.5f,  0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f,  0.5f,  0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
+						{{ 0.5f,  0.5f,  0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f, -0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f, -0.5f, -0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f, -0.5f, -0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f, -0.5f,  0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f,  0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
+						{{ -0.5f, -0.5f, -0.5f  }, {  0.0f, -1.0f,  0.0f }, { 0, 0 }},
+						{{ 0.5f, -0.5f, -0.5f   }, { 0.0f, -1.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f, -0.5f,  0.5f   }, { 0.0f, -1.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f, -0.5f,  0.5f   }, { 0.0f, -1.0f,  0.0f  }, { 0, 0 }},
+						{{ -0.5f, -0.5f,  0.5f  }, {  0.0f, -1.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f, -0.5f, -0.5f  }, {  0.0f, -1.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f,  0.5f, -0.5f  }, {  0.0f,  1.0f,  0.0f }, { 0, 0 }},
+						{{ 0.5f,  0.5f, -0.5f   }, { 0.0f,  1.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  1.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  1.0f,  0.0f  }, { 0, 0 }},
+						{{ -0.5f,  0.5f,  0.5f  }, {  0.0f,  1.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f,  0.5f, -0.5f  }, {  0.0f,  1.0f,  0.0  }, { 0, 0 }},
+				},
+				{
+						0,   1,   2,
+						3,   4,   5,
+						6,   7,   8,
+						9,   10,  11,
+						12,  13,  14,
+						15,  16,  17,
+						18,  19,  20,
+						21,  22,  23,
+						24,  25,  26,
+						27,  28,  29,
+						30,  31,  32,
+						33,  34,  35,
+						36,  37,  38,
+						39,  40,  41,
+						42,  43,  44,
+						45,  46,  47,
+						48,  49,  50,
+						51,  52,  53,
+						54,  55,  56,
+						57,  59,  59,
+						60,  61,  62,
+						63,  64,  65,
+						66,  67,  68,
+						69,  70,  71,
+						72,  73,  74,
+						75,  76,  77,
+						78,  79,  80,
+						81,  82,  83,
+						84,  85,  86,
+						87,  88,  89,
+						90,  91,  92,
+						93,  94,  95,
+						96,  97,  98,
+						99,  100, 101,
+						102, 103, 104,
+						105, 106, 107
+				});
+	}
+
 
 
 
