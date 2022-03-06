@@ -3,22 +3,19 @@
  */
 
 #include <OpenGL/GLCheck.h>
-// glew.h replaces gl.h. So don't #include <SFML/OpenGL.hpp>
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 #include <string>
 #include <iostream>
-
-// for checking OpenGL context
-#include <SFML/Window/Context.hpp>
 
 namespace PlatinumEngine
 {
 	void GLCheckError(const char* file, unsigned int line, const char* expression, bool isAfterExpression)
 	{
-		// if there's no current context, glGetError produces infinite loop
+		// if there's no OpenGL context, glGetError produces infinitely GL_INVALID_OPERATION
 		// (good job OpenGL, couldn't think of a special error code for this scenario)
-		if(sf::Context::getActiveContext() == nullptr)
+		if(glfwGetCurrentContext() == nullptr)
 			return;
 
 		GLenum errorCode;

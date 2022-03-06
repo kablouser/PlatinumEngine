@@ -1,12 +1,11 @@
 #include <RasterRenderer/RasterRenderer.h>
+// checking errors
 #include <OpenGL/GLCheck.h>
+// gui
 #include <imgui.h>
-#include <imgui-SFML.h>
-// glew.h replaces gl.h. So don't #include <SFML/OpenGL.hpp>
+// OpenGL extensions
 #include <GL/glew.h>
-#include <SFML/Graphics/Glsl.hpp>
-
-// std
+// printing errors
 #include <iostream>
 
 // shaders
@@ -20,22 +19,28 @@ const std::string UNLIT_FRAGMENT_SHADER =
 
 namespace PlatinumEngine
 {
-	RasterRenderer::RasterRenderer(
-			const sf::Window& parentWindow,
-			unsigned int depthBits,
-			unsigned int stencilBits,
-			unsigned int antiAliasingLevel
-	) :
+	RasterRenderer::RasterRenderer(bool printOpenGLInfo) :
 			_isInitGood(false),
-			_contextSettings(depthBits, stencilBits, antiAliasingLevel)
+			_framebufferWidth(0),
+			_framebufferHeight(0)
 	{
-		sf::ContextSettings contextSettings = parentWindow.getSettings();
-		std::cout << "OpenGL version:" << contextSettings.majorVersion << "." << contextSettings.minorVersion << std::endl;
-		// TODO
-		// check if version meets minimum requirements here
+// 		TODO seperated OpenGL context for cleaner global state
+//		glfwDefaultWindowHints
+//		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+//		GLFWwindow* offscreen_context = glfwCreateWindow(640, 480, "", NULL, NULL);
 
-		auto windowSize = parentWindow.getSize();
-		_renderTexture.create(windowSize.x,windowSize.y,_contextSettings);
+		if (printOpenGLInfo)
+		{
+			std::cout <<
+					  "OpenGL context info" << std::endl <<
+					  "Vendor: " << glGetString(GL_VENDOR) << std::endl <<
+					  "Renderer: " << glGetString(GL_RENDERER) << std::endl <<
+					  "OpenGL version: " << glGetString(GL_VERSION) << std::endl <<
+					  "GLSL version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+			// TODO
+			// check if version meets minimum requirements here
+			// need to parse string
+		}
 
 		// glew imports all OpenGL extension methods
 		GLenum errorCode = glewInit();
@@ -46,40 +51,8 @@ namespace PlatinumEngine
 			return;
 		}
 
-		GLuint test = 0;
-		GL_CHECK(glDeleteBuffers(1, &test));
-
-		if (!_unlitShader.isAvailable())
-		{
-			std::cerr << "OpenGL shaders are not supported on this device!" << std::endl;
+		if (!_shaderProgram.Compile(UNLIT_VERTEX_SHADER, UNLIT_FRAGMENT_SHADER))
 			return;
-		}
-
-		if (!_unlitShader.loadFromMemory(UNLIT_VERTEX_SHADER, UNLIT_FRAGMENT_SHADER))
-		{
-			std::cerr << "Shaders compilation failed!" << std::endl;
-			return;
-		}
-
-		/*
-		Shader uniform variables:
-
-		uniform mat4 modelToProjection; // projection * view * model
-		uniform vec3 color = vec3(1.0, 1.0, 1.0);
-		uniform bool isTextureEnabled = false;
-		uniform sampler2D sampleTexture;
-		 */
-		float matrixArray[16] = {
-				1, 0, 0, 0,
-				0, 1, 0, 0,
-				0, 0, 1, 0,
-				0, 0, 0, 1
-		};
-		sf::Glsl::Mat4 matrix(matrixArray);
-
-		_unlitShader.setUniform("modelToProjection",matrix);
-		_unlitShader.setUniform("color",sf::Glsl::Vec3(1,0,0));
-		_unlitShader.setUniform("isTextureEnabled",false);
 
 		// in variables
 		_unlitShaderInput.Set({
@@ -90,6 +63,14 @@ namespace PlatinumEngine
 				{
 						0, 1, 2
 				});
+
+		_framebufferWidth = 1;
+		_framebufferHeight = 1;
+		if (!_framebuffer.Create(_framebufferWidth, _framebufferHeight))
+			return;
+
+		// check for uncaught errors
+		GL_CHECK();
 
 		_isInitGood = true;
 	}
@@ -105,47 +86,36 @@ namespace PlatinumEngine
 			// when init is bad, don't render anything
 			_isInitGood)
 		{
-			assert(_renderTexture.setActive(true));
-
-			// check window size
-			auto targetSize = ImGui::GetContentRegionAvail();
-			auto textureSize = _renderTexture.getSize();
-			if(targetSize.x != textureSize.x || targetSize.y != textureSize.y)
+			// check ImGui's window size, can't render when area=0
+			ImVec2 targetSize = ImGui::GetContentRegionAvail();
+			if(1.0f < targetSize.x && 1.0f < targetSize.y)
 			{
-				_renderTexture.create(targetSize.x, targetSize.y, _contextSettings);
+				// resize framebuffer if necessary
+				if (_framebufferWidth != (int)targetSize.x || _framebufferHeight != (int)targetSize.y)
+				{
+					_framebufferWidth = (int)targetSize.x;
+					_framebufferHeight = (int)targetSize.y;
+					_framebuffer.Create(_framebufferWidth, _framebufferHeight);
+				}
+
+				_framebuffer.Bind();
+
 				GL_CHECK(glViewport(0, 0, targetSize.x, targetSize.y));
-			}
+				GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+				GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
-			// first, clear OpenGL target. same as glClear
-			_renderTexture.clear(sf::Color(18, 33, 43));
-
-			{
-				// bind any shader
-				sf::Shader::bind(&_unlitShader);
-
-				// opengl draw calls
+				_shaderProgram.Bind();
 				_unlitShaderInput.Draw();
+				_shaderProgram.Unbind();
 
-				// this still works, but don't use it. because the input layout could be wrong.
-				// glBegin(GL_TRIANGLES);
-				// glVertex3f(-1.0f, -0.5f, 0.0f);
-				// glVertex3f(-0.3f, -0.5f, 0.0f);
-				// glVertex3f(-0.65f, +0.5f, 0.0f);
-				// glEnd();
+				_framebuffer.Unbind();
+
+				ImGui::Image(_framebuffer.GetColorTexture().GetImGuiHandle(), targetSize);
+
+				GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 			}
-
-			// regularly check for any uncaught OpenGL errors
-			GL_CHECK();
-
-			// undo global state changes
-			sf::Shader::bind(nullptr);
-			assert(_renderTexture.setActive(false));
-
-			// apply drawings onto the target
-			_renderTexture.display();
-			// put target into GUI window
-			ImGui::Image(_renderTexture, targetSize);
 		}
+
 		ImGui::End();
 	}
 }

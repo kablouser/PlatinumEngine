@@ -1,32 +1,25 @@
-//
-// Created by Jason on 07/02/2022.
-//
-
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <OpenGL/ShaderInput.h>
-
 // PlatinumEngine lib
-#include <RasterRenderer/EditorCamera.h>
+#include <OpenGL/ShaderInput.h>
+#include <OpenGL/ShaderProgram.h>
+#include <OpenGL/Framebuffer.h>
+//#include <RasterRenderer/EditorCamera.h>
+
+#include <GLFW/glfw3.h>
 
 namespace PlatinumEngine
 {
-	class RasterRenderer : sf::GlResource
+	class RasterRenderer
 	{
 
 	public:
 
 		// VARIABLE
-		PlatinumEngine::EditorCamera camera;
+		//PlatinumEngine::EditorCamera camera;
 
 		// Constructors
-		RasterRenderer(
-				const sf::Window& parentWindow,
-				unsigned int depthBits = 24,
-				unsigned int stencilBits =8,
-				unsigned int antiAliasingLevel=4
-				);
+		RasterRenderer(bool printOpenGLInfo = true);
 
 		~RasterRenderer();
 
@@ -37,12 +30,16 @@ namespace PlatinumEngine
 		// true iff all init steps were successful
 		bool _isInitGood;
 
-		// settings for rendering OpenGL
-		sf::ContextSettings _contextSettings;
-		// intermediate output of OpenGL rendering
-		sf::RenderTexture _renderTexture;
+//		settings for rendering OpenGL
+//		sf::ContextSettings _contextSettings;
+//		// intermediate output of OpenGL rendering
+//		sf::RenderTexture _renderTexture;
 
-		sf::Shader _unlitShader;
+		ShaderProgram _shaderProgram;
 		ShaderInput _unlitShaderInput;
+
+		Framebuffer _framebuffer;
+		int _framebufferWidth;
+		int _framebufferHeight;
 	};
 }
