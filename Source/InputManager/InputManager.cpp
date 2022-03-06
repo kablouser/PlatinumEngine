@@ -2,17 +2,12 @@
 // Created by Jason on 07/02/2022.
 //
 
-#include "imgui.h"
-#include "stdio.h"
-#include "iostream"
-#include "SFML/Window/Keyboard.hpp"
-#include "SFML/Window/Mouse.hpp"
-#include "SFML/Window/Joystick.hpp"
-#include <imgui-SFML.h>
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/System/Clock.hpp>
-#include <SFML/Window/Event.hpp>
-#include "InputManager/InputManager.h"
+#include <InputManager/InputManager.h>
+#include <imgui.h>
+#include <stdio.h>
+#include <iostream>
+
+#include <GLFW/glfw3.h>
 
 namespace PlatinumEngine
 {
@@ -27,18 +22,18 @@ namespace PlatinumEngine
 		//May need a better way to properly allow user defined axes???
 		Axis axis;
 		axis.name="Horizontal";
-		axis.positiveKey = sf::Keyboard::D;
-		axis.negativeKey = sf::Keyboard::A;
+		axis.positiveKey = GLFW_KEY_D;
+		axis.negativeKey = GLFW_KEY_A;
 		axis.type = AxisType::keyboardMouseButton;
 		_axes.push_back(axis);
 		axis.name="Vertical";
-		axis.positiveKey = sf::Keyboard::W;
-		axis.negativeKey = sf::Keyboard::S;
+		axis.positiveKey = GLFW_KEY_W;
+		axis.negativeKey = GLFW_KEY_S;
 		axis.type = AxisType::keyboardMouseButton;
 		_axes.push_back(axis);
 		axis.name="Submit";
-		axis.positiveKey = sf::Keyboard::Enter;
-		axis.negativeKey = sf::Keyboard::Unknown;
+		axis.positiveKey = GLFW_KEY_ENTER;
+		axis.negativeKey = GLFW_KEY_UNKNOWN;
 		axis.type = AxisType::keyboardMouseButton;
 		_axes.push_back(axis);
 
@@ -59,31 +54,28 @@ namespace PlatinumEngine
 			//TESTING HERE
 			int keyDown = -1;
 			for (int key = 0; key < 512; key++) if (ImGui::IsKeyDown(key)) keyDown = key;
-			float joystickX = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
-			float joystickY = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y);
-			float joystickZ = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Z);
-			float joystickR = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
-			float joystickU = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::U);
-			float joystickV = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::V);
-			float joystickPovX = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::PovX);
-			float joystickPovY = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::PovY);
-			ImGui::Text("JoyStick Axis : x=%f, y=%f, z=%f, r=%f, u=%f, v=%f, povX=%f, povY=%f",
-					joystickX, joystickY, joystickZ, joystickR, joystickU, joystickV, joystickPovX, joystickPovY);
+			float leftX = GetGamepadAxis(0, GLFW_GAMEPAD_AXIS_LEFT_X);
+			float leftY = GetGamepadAxis(0, GLFW_GAMEPAD_AXIS_LEFT_Y);
+			float rightX = GetGamepadAxis(0, GLFW_GAMEPAD_AXIS_RIGHT_X);
+			float rightY = GetGamepadAxis(0, GLFW_GAMEPAD_AXIS_RIGHT_Y);
+			float leftTrigger = GetGamepadAxis(0, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER);
+			float rightTrigger = GetGamepadAxis(0, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER);
+			ImGui::Text("JoyStick Axis : left x=%f, left y=%f, right x=%f, right y=%f, left trigger=%f, right trigger=%f",
+					leftX, leftY, rightX, rightY, leftTrigger, rightTrigger);
 
 			ImVec2 mousePos = GetMousePosition();
-			sf::Joystick::Identification id = sf::Joystick::getIdentification(0);
-			ImGui::Text("JoyStick Connected : %d", sf::Joystick::isConnected(0));
-			ImGui::Text("JoyStick: %d, %d", id.productId, id.vendorId);
-			ImGui::Text("JoyStick: %s", id.name.toAnsiString().c_str());
+			int id = glfwJoystickPresent(0);
+			ImGui::Text("JoyStick Connected : %d", id);
+			ImGui::Text("JoyStick Name: %s", glfwGetJoystickName(id));
 			ImGui::Text("Position: %f, %f", mousePos.x, mousePos.y);
 			ImGui::Text("Left Mouse Down: %d", IsMouseDown(0));
-			ImGui::Text("Up Arrow Key Down: %d", ImGui::IsKeyDown(sf::Keyboard::Up));
+			ImGui::Text("Up Arrow Key Down: %d", ImGui::IsKeyDown(GLFW_KEY_UP));
 			ImGui::Text("Key Down (ID): %d", keyDown);
 			ImGui::Text("Axis: %f", GetAxis("Horizontal"));
 
-			sf::Vector2i windowPosition = ImGui::GetWindowPos();
-			windowPosition.x += GetAxis("Horizontal") + joystickX;
-			windowPosition.y -= GetAxis("Vertical") - joystickY;
+			ImVec2 windowPosition = ImGui::GetWindowPos();
+			windowPosition.x += GetAxis("Horizontal");// + joystickX;
+			windowPosition.y -= GetAxis("Vertical");// - joystickY;
 			ImGui::SetWindowPos(windowPosition);
 		}
 		ImGui::End();
@@ -153,8 +145,32 @@ namespace PlatinumEngine
 		return ImGui::IsKeyReleased(key);
 	}
 
+	float InputManager::GetGamepadAxis(int gamepadID, int axis)
+	{
+		GLFWgamepadstate state;
+		if (glfwGetGamepadState(gamepadID, &state))
+			return state.axes[axis];
+
+		std::cerr <<
+			"InputManager::GetGamepadAxis has invalid input, gamepadID " <<
+			gamepadID << " is not a gamepad." << std::endl;
+		return 0.0f;
+	}
+
+	bool InputManager::IsGamepadButtonDown(int gamepadID, int button)
+	{
+		GLFWgamepadstate state;
+		if (glfwGetGamepadState(gamepadID, &state))
+			return state.buttons[button] == GLFW_PRESS;
+
+		std::cerr <<
+				  "InputManager::GetGamepadAxis has invalid input, gamepadID " <<
+				  gamepadID << " is not a gamepad." << std::endl;
+		return 0.0f;
+	}
+
 	//Returns value of the Axis defined by AxisName
-	float InputManager::GetAxis(std::string axisName, int joystickID)
+	float InputManager::GetAxis(std::string axisName)
 	{
 		for (Axis axis: _axes)
 		{
@@ -165,14 +181,15 @@ namespace PlatinumEngine
 				case AxisType::keyboardMouseButton:
 					if (IsKeyDown(axis.positiveKey)) return 1.f;
 					else if (IsKeyDown(axis.negativeKey)) return -1.f;
-					break;
+					return 0.f;
 
-				case AxisType::joystickAxis:
-					if (axis.joystickID == joystickID)
-					{
-						return sf::Joystick::getAxisPosition(joystickID, axis.joystickAxis);
-					}
-					break;
+				case AxisType::gamepadAxis:
+					return GetGamepadAxis(axis.gamepadID, axis.gamepadAxis);
+
+				case AxisType::gamepadButton:
+					if (IsGamepadButtonDown(axis.gamepadID, axis.gamepadPositiveButton)) return 1.f;
+					else if (IsGamepadButtonDown(axis.gamepadID, axis.gamepadNegativeButton)) return -1.f;
+					return 0.f;
 
 				default:
 					// produce warning/error here

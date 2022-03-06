@@ -65,16 +65,14 @@ FetchContent_MakeAvailable(glew)
 #-----------------------------
 # New place to put all your source code files into:
 set(PROJECT_SOURCES_WITHOUT_MAIN
-	#"Source/InputManager/InputManager.cpp;"
+	"Source/InputManager/InputManager.cpp;"
 	"Source/RasterRenderer/RasterRenderer.cpp;"
-#	"Source/SceneManager/SceneManager.cpp;"
 	"Source/OpenGL/ShaderInput.cpp;"
 	"Source/OpenGL/GLEnumInfo.cpp;"
 	"Source/OpenGL/GLCheck.cpp;"
 #  	"Source/SceneManager/SceneManager.cpp;"
-#  	"Source/RasterRenderer/EditorCamera.cpp;"
-#	"Source/SceneManager/SceneManager.cpp;"
-#	"Source/WindowManager/WindowManager.cpp;"
+  	"Source/RasterRenderer/EditorCamera.cpp;"
+	"Source/WindowManager/WindowManager.cpp;"
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
 	"Source/OpenGL/ShaderProgram.cpp;"
 	"Source/OpenGL/Texture.cpp;"
