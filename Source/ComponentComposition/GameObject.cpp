@@ -3,6 +3,7 @@
 namespace PlatinumEngine
 {
 	GameObject::GameObject()
+
 	{
 		_parent = nullptr;
 		_isEnabled = true;
@@ -15,6 +16,7 @@ namespace PlatinumEngine
 
 	GameObject::~GameObject()
 	{}
+
 
 
 	bool GameObject::IsEnabled()
@@ -57,6 +59,7 @@ namespace PlatinumEngine
 			if(_parent)
 				_parent->_children.push_back(this);
 		}
+
 	}
 
 

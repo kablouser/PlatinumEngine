@@ -19,6 +19,7 @@ namespace PlatinumEngine
 		GameObject();
 		GameObject(std::string name);
 
+
 		~GameObject();
 
 		bool IsEnabled();
