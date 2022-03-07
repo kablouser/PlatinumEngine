@@ -89,6 +89,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/GLCheck.cpp;"
 	"Source/OpenGL/GLEnumInfo.cpp;"
 	"Source/OpenGL/Mesh.cpp;"
+
 	"Source/OpenGL/ShaderInput.cpp;"
 	"Source/OpenGL/ShaderProgram.cpp;"
 	"Source/OpenGL/Texture.cpp;"
