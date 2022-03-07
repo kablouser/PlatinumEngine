@@ -3,6 +3,11 @@
 //
 #pragma once
 
+#include <imgui.h>
+
+#include <string>
+#include <vector>
+
 namespace PlatinumEngine
 {
 	class InputManager
@@ -13,7 +18,8 @@ namespace PlatinumEngine
 		{
 			keyboardMouseButton,
 			mouseMovement,
-			joystickAxis
+			gamepadAxis,
+			gamepadButton
 		};
 
 		//Defining Axis structure to theoretically handle mouse/keyboard/joystick inputs
@@ -22,11 +28,13 @@ namespace PlatinumEngine
 		{
 			std::string name;
 			AxisType type;
-			int
-					positiveKey,
-					negativeKey,
-					joystickID;
-			sf::Joystick::Axis joystickAxis;
+			int	positiveKey;
+			int	negativeKey;
+
+			int gamepadID; // same as joystick ID
+			int gamepadAxis;
+			int gamepadPositiveButton;
+			int gamepadNegativeButton;
 		};
 
 		InputManager();
@@ -42,10 +50,17 @@ namespace PlatinumEngine
 		bool IsKeyDown(int key);
 		bool IsKeyReleased(int key);
 
+		float GetGamepadAxis(int gamepadID, int axis);
+		bool IsGamepadButtonDown(int gamepadID, int button);
+
 		//Specific function that will handle Axis related inputs
-		float GetAxis(std::string axisName, int joystickID = 0);
+		float GetAxis(std::string axisName);
+
+		// Todo
+		// Handle button events and modulation keys
 
 	private:
+
 		std::vector<Axis> _axes;
 	};
 }

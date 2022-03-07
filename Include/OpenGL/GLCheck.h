@@ -24,7 +24,9 @@ namespace PlatinumEngine
 	 * This checks for OpenGL error codes before AND after the code statement.
 	 * Any error codes found will be printed in std::cerr.
 	 *
-	 * The do-while loop is needed so that glCheck can be used as a single statement in if/else branches.
+	 * The do-while loop is needed so that glCheck can be used as a single statement in if/else branches:
+	 * if (true)
+	 *     GL_CHECK(glEnable(GL_DEPTH_TEST));
 	 */
 #define GL_CHECK(expression) \
 do  \

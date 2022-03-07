@@ -24,7 +24,7 @@ namespace PlatinumEngine
         void DrawOpenScene(bool* outIsOpen);
 
         //shortcuts for main menu bars
-		void DoShortCut(sf::Event event);
+//		void DoShortCut(sf::Event event);
 		///-----------------------------------
 		///sub menu item functions to open corresponding window
 		///-----------------------------------

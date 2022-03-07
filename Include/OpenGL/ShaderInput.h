@@ -1,10 +1,7 @@
 #pragma once
 
 #include <vector>
-// SFML uses some global state to track its GlResources
-#include <SFML/Window/GlResource.hpp>
-// OpenGL compatible structs
-#include <SFML/Graphics/Glsl.hpp>
+#include <glm/glm.hpp>
 // OpenGL types
 #include <GL/glew.h>
 #include <OpenGL/GLEnumInfo.h>
@@ -21,7 +18,7 @@ namespace PlatinumEngine
 	 *
 	 * Inherits from sf::GlResource to help SFML with OpenGL context cleanup.
 	 */
-	class ShaderInput : sf::GlResource
+	class ShaderInput
 	{
 	public:
 
@@ -60,9 +57,9 @@ namespace PlatinumEngine
 		 */
 		struct DefaultVertex
 		{
-			sf::Glsl::Vec3 position;
-			sf::Glsl::Vec3 normal;
-			sf::Glsl::Vec2 textureCoordinate;
+			glm::vec3 position;
+			glm::vec3 normal;
+			glm::vec2 textureCoordinate;
 		};
 
 		//--------------------------------------------------------------------------------------------------------------

@@ -33,7 +33,7 @@ EditorCamera::EditorCamera()
 }
 
 
-void EditorCamera::RotationByMouse(glm::vec2 newMousePosition, const sf::Clock deltaClock)
+void EditorCamera::RotationByMouse(glm::vec2 newMousePosition)
 {
 
 	// calculate the movement of mouse
@@ -50,7 +50,7 @@ void EditorCamera::RotationByMouse(glm::vec2 newMousePosition, const sf::Clock d
 
 }
 
-void EditorCamera::TranslationByMouse(glm::vec2 newMousePosition, const sf::Clock deltaClock)
+void EditorCamera::TranslationByMouse(glm::vec2 newMousePosition)
 {
 
 	// calculate the movement of mouse
@@ -71,7 +71,7 @@ void EditorCamera::TranslationByMouse(glm::vec2 newMousePosition, const sf::Cloc
 
 }
 
-void EditorCamera::TranslationByMouse( float wheelDelta, const sf::Clock deltaClock)
+void EditorCamera::TranslationByMouse( float wheelDelta)
 {
 
 	if(wheelDelta > 0)
@@ -83,7 +83,7 @@ void EditorCamera::TranslationByMouse( float wheelDelta, const sf::Clock deltaCl
 
 }
 
-void EditorCamera::TranslationByKeyBoard(KeyType type, const sf::Clock deltaClock)
+void EditorCamera::TranslationByKeyBoard(KeyType type)
 {
 
 	// move along forward direction

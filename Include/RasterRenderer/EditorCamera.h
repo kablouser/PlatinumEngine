@@ -5,10 +5,7 @@
 #pragma once
 
 // math library
-#include "glm/gtc/quaternion.hpp"
-
-// sfml
-#include <SFML/System/Clock.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 
 namespace PlatinumEngine
@@ -39,7 +36,7 @@ namespace PlatinumEngine
 		 * Accept mouse input and rotate camera based on the mouse position.
 		 * @param delta
 		 */
-		void RotationByMouse(glm::vec2 delta, const sf::Clock deltaClock);
+		void RotationByMouse(glm::vec2 delta);
 
 
 		/**
@@ -47,21 +44,21 @@ namespace PlatinumEngine
 		 * based on the mouse position.
 		 * @param newMousePosition
 		 */
-		void TranslationByMouse(glm::vec2 newMousePosition, const sf::Clock deltaClock);
+		void TranslationByMouse(glm::vec2 newMousePosition);
 
 		/**
 		 * Accept mouse input and translate camera (forward or backward)
 		 * based on the mouse wheel delta value.
 		 * @param wheelDelta
 		 */
-		void TranslationByMouse(float wheelDelta, const sf::Clock deltaClock);
+		void TranslationByMouse(float wheelDelta);
 
 		/**
 		 * Accept keyboard input and translate camera
 		 * based on the mouse wheel delta value.
 		 * @param type
 		 */
-		void TranslationByKeyBoard(KeyType type, const sf::Clock deltaClock);
+		void TranslationByKeyBoard(KeyType type);
 
 		/**
 		 * Update the initial mouse position.
