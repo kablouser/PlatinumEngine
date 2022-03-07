@@ -1,38 +1,69 @@
 #include "ComponentComposition/GameObject.h"
 namespace PlatinumEngine
 {
-	GameObject::GameObject() : _hasComponent(false)
+	GameObject::GameObject()
 	{}
 
-	GameObject::GameObject(std::string name): name(name), _hasComponent(false)
+	GameObject::GameObject(std::string name): name(name)
 	{}
 
-	//Gets whatever component and assign it. Also set flag to true
-	void GameObject::AddComponent(Component component)
+	bool GameObject::IsEnabled()
 	{
-		_component = component;
-		_hasComponent = true;
+		return _isEnabled;
 	}
 
-	//Will just return flag's state. Makes things easier
+	//Enable/Disable child objects as well
+	void GameObject::SetEnabled(bool enableFlag)
+	{
+		_isEnabled = enableFlag;
+		for(GameObject* child:_children)
+			child->SetEnabled(enableFlag);
+	}
+
+	GameObject* GameObject::GetParent()
+	{
+		return _parent;
+	}
+
+	void GameObject::SetParent(GameObject* parent)
+	{
+		_parent = parent;
+	}
+
+	int GameObject::GetChildrenCount()
+	{
+		return _children.size();
+	}
+
+	GameObject* GameObject::GetChild(int index)
+	{
+		return _children[index];
+	}
+
+	//Just push on the new component
+	//Although, may need to do check to prevent same component being added
+	void GameObject::AddComponent(Component* component)
+	{
+		_components.push_back(component);
+	}
+
+	//Searches for component based on name or type
 	bool GameObject::HasComponent()
 	{
-		return _hasComponent;
+		return !_components.empty();
 	}
 
-	//Just returns whatever component is there
 	//Will need to decide on Components to support different types
-	Component GameObject::GetComponent()
+	//Will search for component based on name or type.
+	Component* GameObject::GetComponent(int index)
 	{
-		return _component;
+		return _components[index];
 	}
 
-	//Sets the pointer to NULL although setting flag to false should suffice
-	void GameObject::RemoveComponent()
+	//Need to iterate and remove from Components vector
+	void GameObject::RemoveComponent(int index)
 	{
-		Component *ptr = &_component;
-		ptr = NULL;
-		_hasComponent = false;
+		_components.erase(_components.begin()+index);
 	}
 
 	// Will need to probably decide how different Components are created
