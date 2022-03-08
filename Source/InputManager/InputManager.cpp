@@ -151,9 +151,9 @@ namespace PlatinumEngine
 		if (glfwGetGamepadState(gamepadID, &state))
 			return state.axes[axis];
 
-		std::cerr <<
-			"InputManager::GetGamepadAxis has invalid input, gamepadID " <<
-			gamepadID << " is not a gamepad." << std::endl;
+//		std::cerr <<
+//			"InputManager::GetGamepadAxis has invalid input, gamepadID " <<
+//			gamepadID << " is not a gamepad." << std::endl;
 		return 0.0f;
 	}
 
@@ -163,9 +163,9 @@ namespace PlatinumEngine
 		if (glfwGetGamepadState(gamepadID, &state))
 			return state.buttons[button] == GLFW_PRESS;
 
-		std::cerr <<
-				  "InputManager::GetGamepadAxis has invalid input, gamepadID " <<
-				  gamepadID << " is not a gamepad." << std::endl;
+//		std::cerr <<
+//				  "InputManager::GetGamepadAxis has invalid input, gamepadID " <<
+//				  gamepadID << " is not a gamepad." << std::endl;
 		return 0.0f;
 	}
 

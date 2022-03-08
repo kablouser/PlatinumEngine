@@ -77,6 +77,7 @@ namespace PlatinumEngine
 			// when init is bad, don't render anything
 			_isInitGood)
 		{
+
 			// check ImGui's window size, can't render when area=0
 			ImVec2 targetSize = ImGui::GetContentRegionAvail();
 			if(1.0f < targetSize.x && 1.0f < targetSize.y)
@@ -110,10 +111,13 @@ namespace PlatinumEngine
 		ImGui::End();
 	}
 
-	void RasterRenderer::LoadMesh(std::vector<>)
-	{
+//	void RasterRenderer::LoadMesh(std::vector<>)
+//	{
+//
+//	}
 
-	}
+	// void SetMesh(Mesh)
+	//		 _unlitShaderInput.Set(mesh.getvertices, mesh.getindices)
 
 	//--------------------------------------------------------------------------------------------------------------
 	// Private functions implementation.
@@ -148,7 +152,18 @@ namespace PlatinumEngine
 		_shaderProgram.SetUniform("lightColour", glm::vec3(1.0f,1.0f,1.0f));
 		_shaderProgram.SetUniform("viewPosition", glm::vec3(0.0f,0.0f,1.0f));
 
+		// Gameobject obj
+		// Mesh mesh = loadMesh(filepath)
+		// MeshComponent meshComp(mesh)
+		// obj.addcomponent(meshcomp)
+		// Component* comp = obj.getComponent(MESH) where MESH is type index of Mesh class
+		// comp.render()
+
 		// in variables
+		// vector of vertices
+		// vector of normals
+		// Mesh mesh(vertices, normals)
+		// _unlitShaderInput.Set(mesh.getvertices, mesh.getindices)
 		_unlitShaderInput.Set({
 						{{ -0.5f, -0.5f, -0.5f  }, {  0.0f,  0.0f, -1.0f }, { 0, 0 }},
 						{{ 0.5f, -0.5f, -0.5f   }, { 0.0f,  0.0f, -1.0f  }, { 0, 0 }},
@@ -231,4 +246,4 @@ namespace PlatinumEngine
 
 
 }
-}
+//}

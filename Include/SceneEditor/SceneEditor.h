@@ -5,7 +5,7 @@
 #pragma once
 
 
-#include <SFML/Graphics.hpp>
+//#include <SFML/Graphics.hpp>
 #include "RasterRenderer/RasterRenderer.h"
 
 namespace PlatinumEngine
@@ -38,10 +38,10 @@ namespace PlatinumEngine
 
 	private:
 		// settings for rendering OpenGL
-		sf::ContextSettings _contextSettings;
+//		sf::ContextSettings _contextSettings;
 
 		// intermediate output of OpenGL rendering
-		sf::RenderTexture _renderTexture;
+//		sf::RenderTexture _renderTexture;
 
 	};
 }

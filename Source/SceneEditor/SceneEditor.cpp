@@ -4,7 +4,7 @@
 
 #include "SceneEditor/SceneEditor.h"
 #include <imgui.h>
-#include <imgui-SFML.h>
+//#include <imgui-SFML.h>
 
 
 using namespace PlatinumEngine;
@@ -12,12 +12,11 @@ using namespace PlatinumEngine;
 SceneEditor::SceneEditor(
 		unsigned int depthBits,
 		unsigned int stencilBits,
-		unsigned int antiAliasingLevel):
-		_contextSettings(depthBits, stencilBits, antiAliasingLevel)
+		unsigned int antiAliasingLevel)
 {
 
 	// use a random number instead
-	_renderTexture.create(1.f,1.f,_contextSettings);
+//	_renderTexture.create(1.f,1.f,_contextSettings);
 
 }
 
@@ -31,10 +30,10 @@ void SceneEditor::ShowGUIWindow(bool* outIsOpen, RasterRenderer& rasterRenderer)
 		auto targetSize = ImGui::GetContentRegionAvail();
 
 		// get rendering result from Renderer
-		rasterRenderer.RenderObjects(_renderTexture, targetSize);
+//		rasterRenderer.RenderObjects(_renderTexture, targetSize);
 
 		// put target into GUI window
-		ImGui::Image(_renderTexture, targetSize);
+//		ImGui::Image(_renderTexture, targetSize);
 	}
 	ImGui::End();
 }

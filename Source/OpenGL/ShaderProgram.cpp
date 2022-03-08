@@ -2,7 +2,7 @@
 // for printing errors
 #include <iostream>
 #include <OpenGL/GLCheck.h>
-#include <
+
 namespace PlatinumEngine
 {
 	ShaderProgram::ShaderProgram() :
