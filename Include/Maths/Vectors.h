@@ -1,0 +1,8 @@
+//
+// Created by Matt on 08/03/2022.
+//
+
+#ifndef PLATINUMENGINE_VECTORS_H
+#define PLATINUMENGINE_VECTORS_H
+
+#endif //PLATINUMENGINE_VECTORS_H
