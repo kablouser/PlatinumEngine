@@ -66,6 +66,7 @@ FetchContent_MakeAvailable(glew)
 # New place to put all your source code files into:
 set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/InputManager/InputManager.cpp;"
+	"Source/Maths/Vectors.cpp;"
 	"Source/RasterRenderer/RasterRenderer.cpp;"
 	"Source/OpenGL/ShaderInput.cpp;"
 	"Source/OpenGL/GLEnumInfo.cpp;"
