@@ -2,7 +2,7 @@
 // for printing errors
 #include <iostream>
 #include <OpenGL/GLCheck.h>
-
+#include <
 namespace PlatinumEngine
 {
 	ShaderProgram::ShaderProgram() :
@@ -84,5 +84,68 @@ namespace PlatinumEngine
 		}
 
 		return true;
+	}
+
+	// utility uniform functions implemented here
+	void ShaderProgram::SetUniform(const std::string& name, bool value) const
+	{
+		GL_CHECK(glUniform1i(glGetUniformLocation(_shaderProgramHandle, name.c_str()), (int)value));
+	}
+
+	void ShaderProgram::SetUniform(const std::string& name, int value) const
+	{
+		GL_CHECK(glUniform1i(glGetUniformLocation(_shaderProgramHandle, name.c_str()), value));
+	}
+
+	void ShaderProgram::SetUniform(const std::string &name, float value) const
+	{
+		GL_CHECK(glUniform1f(glGetUniformLocation(_shaderProgramHandle, name.c_str()), value));
+	}
+
+
+	void ShaderProgram::SetUniform(const std::string &name, float x, float y) const
+	{
+		GL_CHECK(glUniform2f(glGetUniformLocation(_shaderProgramHandle, name.c_str()), x, y));
+	}
+
+	void ShaderProgram::SetUniform(const std::string &name, float x, float y, float z) const
+	{
+		GL_CHECK(glUniform3f(glGetUniformLocation(_shaderProgramHandle, name.c_str()), x, y, z));
+	}
+
+
+	void ShaderProgram::SetUniform(const std::string &name, float x, float y, float z, float w) const
+	{
+		GL_CHECK(glUniform4f(glGetUniformLocation(_shaderProgramHandle, name.c_str()), x, y, z, w));
+	}
+
+	void ShaderProgram::SetUniform(const std::string &name, const glm::vec2 &value) const
+	{
+		GL_CHECK(glUniform2fv(glGetUniformLocation(_shaderProgramHandle, name.c_str()), 1, &value[0]));
+	}
+
+	void ShaderProgram::SetUniform(const std::string &name, const glm::vec3 &value) const
+	{
+		GL_CHECK(glUniform3fv(glGetUniformLocation(_shaderProgramHandle, name.c_str()), 1, &value[0]));
+	}
+
+	void ShaderProgram::SetUniform(const std::string &name, const glm::vec4 &value) const
+	{
+		GL_CHECK(glUniform4fv(glGetUniformLocation(_shaderProgramHandle, name.c_str()), 1, &value[0]));
+	}
+
+	void ShaderProgram::SetUniform(const std::string &name, const glm::mat2 &value) const
+	{
+		GL_CHECK(glUniformMatrix2fv(glGetUniformLocation(_shaderProgramHandle, name.c_str()), 1, GL_FALSE, &value[0][0]));
+	}
+
+	void ShaderProgram::SetUniform(const std::string &name, const glm::mat3 &value) const
+	{
+		GL_CHECK(glUniformMatrix3fv(glGetUniformLocation(_shaderProgramHandle, name.c_str()), 1, GL_FALSE, &value[0][0]));
+	}
+
+	void ShaderProgram::SetUniform(const std::string &name, const glm::mat4 &value) const
+	{
+		GL_CHECK(glUniformMatrix4fv(glGetUniformLocation(_shaderProgramHandle, name.c_str()), 1, GL_FALSE, &value[0][0]));
 	}
 }
