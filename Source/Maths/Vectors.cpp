@@ -6,12 +6,62 @@
 
 using namespace PlatinumEngine::Maths;
 
-/* === Vector3 === */
-// Constructors
-Vector3::Vector3() : x(0.0f), y(0.0f), z(0.0f) {}
-Vector3::Vector3(const float _x, const float _y, const float _z) : x(_x), y(_y), z(_z) {}
+Vec4::Vec4() : x(0.0f), y(0.0f), z(0.0f), w(0.0f) {}
+Vec4::Vec4(const float x, const float y, const float z) :
+	x(x), y(y), z(z), w(0.0f) {}
+Vec4::Vec4(const float x, const float y, const float z, const float w) :
+	x(x), y(y), z(z), w(w) {}
 
-Vector3& Vector3::operator+=(const Vector3& v)
+// Vec4 overloaders
+float Vec4::operator*(const Vec4 &v)
+{
+	return x*v.x + y*v.y + z*v.z + w*v.w;
+}
+
+Vec4 Vec4::operator-() const
+{
+	return Vec4(-x, -y, -z, -w);
+}
+
+Vec4& Vec4::operator+=(const Vec4 &v)
+{
+	x += v.x;
+	y += v.y;
+	z += v.z;
+	w += v.w;
+	return *this;
+}
+
+Vec4& Vec4::operator*=(const float t)
+{
+	x *= t;
+	y *= t;
+	z *= t;
+	w *= t;
+	return *this;
+}
+
+Vec4& Vec4::operator/=(const float t)
+{
+	return *this *= 1.0f/t;
+}
+
+// Vec3 constructors
+Vec3::Vec3() : x(0.0f), y(0.0f), z(0.0f) {}
+Vec3::Vec3(const float x, const float y, const float z) : x(x), y(y), z(z) {}
+
+// Vec3 overloaders
+float Vec3::operator*(const Vec3 &v)
+{
+	return x*v.x + y*v.y + z*v.z;
+}
+
+Vec3 Vec3::operator-() const
+{
+	return Vec3(-x, -y, -z);
+}
+
+Vec3& Vec3::operator+=(const Vec3 &v)
 {
 	x += v.x;
 	y += v.y;
@@ -19,7 +69,7 @@ Vector3& Vector3::operator+=(const Vector3& v)
 	return *this;
 }
 
-Vector3& Vector3::operator*=(const float t)
+Vec3& Vec3::operator*=(const float t)
 {
 	x *= t;
 	y *= t;
@@ -27,80 +77,42 @@ Vector3& Vector3::operator*=(const float t)
 	return *this;
 }
 
-Vector3& Vector3::operator/=(const float t)
+Vec3& Vec3::operator/=(const float t)
 {
 	return *this *= 1.0f/t;
 }
 
-Vector3 Vector3::operator-() const
+// Vec2 constructors
+Vec2::Vec2() : x(0.0f), y(0.0f) {}
+Vec2::Vec2(const float x, const float y) : x(x), y(y) {}
+
+// Vec2 overloaders
+float Vec2::operator*(const Vec2 &v)
 {
-	return Vector3(-x, -y, -z);
+	return x*v.x + y*v.y;
 }
 
-float Vector3::Length() const
+Vec2 Vec2::operator-() const
 {
-	return std::sqrt(LengthSquared());
+	return Vec2(-x, -y);
 }
 
-float Vector3::LengthSquared() const
+Vec2& Vec2::operator+=(const Vec2 &v)
 {
-	return x*x + y*y + z*z;
+	x += v.x;
+	y += v.y;
+	return *this;
 }
 
-Vector3 Vector3::Unit() const
+Vec2& Vec2::operator*=(const float t)
 {
-	float length = Length();
-	return Vector3(x/length, y/length, z/length);
+	x *= t;
+	y *= t;
+	return *this;
 }
 
-float Vector3::Dot(const Vector3& v) const
+Vec2& Vec2::operator/=(const float t)
 {
-	return x*v.x + y*v.y + z*v.z;
+	return *this *= 1.0f/t;
 }
 
-Vector3 Vector3::Cross(const Vector3& v) const
-{
-	return Vector3(
-				y*v.z - z*v.y,
-				z*v.x - x*v.z,
-				x*v.y - y*v.x
-			);
-}
-
-Vector3 operator*(float t, const Vector3& v)
-{
-	return Vector3(t*v.x, t*v.y, t*v.z);
-}
-
-Vector3 operator*(const Vector3 &v, float t)
-{
-	return Vector3(t*v.x, t*v.y, t*v.z);
-}
-
-Vector3 operator*(const Vector3 &u, const Vector3 &v)
-{
-	Vector3(u.x*v.x, u.y*v.y, u.z*v.z);
-}
-
-Vector3 operator/(const Vector3 &v, float t)
-{
-	return Vector3(1.0f/t *v.x, 1.0f/t *v.y, 1.0f/t *v.z);
-}
-
-Vector3 operator+(const Vector3 &u, const Vector3 &v)
-{
-	return Vector3(u.x+v.x, u.y+v.y, u.z+v.z);
-}
-
-Vector3 operator-(const Vector3 &u, const Vector3 &v)
-{
-	return Vector3(u.x-v.x, u.y-v.y, u.z-v.z);
-
-}
-
-std::ostream& operator<<(std::ostream& out, const Vector3& v)
-{
-	return out << v.x << ' ' << v.y << ' ' << v.z;
-}
-
-/* === Vector3 end === */
