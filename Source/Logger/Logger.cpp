@@ -99,12 +99,10 @@ namespace PlatinumEngine
 
 	void Logger::LogError(const char* message, const char* file, unsigned int line)
 	{
-
 		LogInConsole("{ERROR}", message, file, line, LogType::error);
 	}
 
 	Logger::Logger() : _scrollToBottom(true)
-
 	{
 		allLoggers.push_back(this);
 	}
@@ -126,7 +124,6 @@ namespace PlatinumEngine
 	{
 		ImGui::Begin("Logger", isOpen);
 
-
 		if (ImGui::Button("Clear"))
 			savedLogs.clear();
 		ImGui::SameLine();
@@ -146,7 +143,6 @@ namespace PlatinumEngine
 					&savedLogs[i].message[0],
 					savedLogs[i].message.size() + 1,
 					ImGuiInputTextFlags_ReadOnly);
-
 		// check if user tried to scroll, but not when checkbox is clicked
 		if(ImGui::GetScrollY() != ImGui::GetScrollMaxY() && !isCheckboxClicked)
 			// let user scroll around
