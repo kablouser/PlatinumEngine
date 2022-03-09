@@ -10,6 +10,7 @@
 #include <InputManager/InputManager.h>
 #include <RasterRenderer/RasterRenderer.h>
 #include <WindowManager/WindowManager.h>
+#include <Logger/Logger.h>
 
 #include <OpenGL/GLCheck.h>
 
@@ -63,6 +64,16 @@ int main(int, char**)
 		bool isInputWindowOpen = true;
 		PlatinumEngine::InputManager inputManager;
 
+		bool isLoggerOpen = true;
+		PlatinumEngine::Logger logger;
+
+		for(int i = 0; i < 20; ++i)
+		{
+			PLATINUM_INFO("Hello");
+			PLATINUM_WARNING("BLAHR");
+			PLATINUM_ERROR("EH ERH");
+		}
+
 		PlatinumEngine::WindowManager windowManager;
 
 		// Main loop
@@ -82,6 +93,8 @@ int main(int, char**)
 				rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);
+			if(isLoggerOpen)
+				logger.ShowGUIWindow(&isLoggerOpen);
 			windowManager.ShowGUI();
 			//--------------------------------------------------------------------------------------------------------------
 			// END OF GUI

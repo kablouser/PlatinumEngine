@@ -76,7 +76,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
 	"Source/OpenGL/ShaderProgram.cpp;"
 	"Source/OpenGL/Texture.cpp;"
-	"Source/OpenGL/Framebuffer.cpp;")
+	"Source/OpenGL/Framebuffer.cpp;"
+	"Source/Logger/Logger.cpp;")
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
