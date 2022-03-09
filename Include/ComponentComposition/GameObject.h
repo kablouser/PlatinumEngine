@@ -5,11 +5,15 @@
 #include <typeinfo>
 #include "ComponentComposition/Component.h"
 
+#include "iostream"
+#include <SceneManager/Scene.h>
+
 namespace PlatinumEngine
 {
 	class GameObject
 	{
 	public:
+		friend class Scene;
 		std::string name;
 	public:
 		GameObject();
