@@ -8,13 +8,19 @@ namespace PlatinumEngine
 #define PLATINUM_WARNING(expression) PlatinumEngine::Logger::LogWarning(expression, __FILE__, __LINE__)
 #define PLATINUM_ERROR(expression) PlatinumEngine::Logger::LogError(expression, __FILE__, __LINE__)
 
-#define PLATINUM_INFO_SAME_LINE(expression) PlatinumEngine::Logger::LogInfo(expression, __FILE__, __LINE__)
-#define PLATINUM_WARNING_SAME_LINE(expression) PlatinumEngine::Logger::LogWarning(expression, __FILE__, __LINE__)
-#define PLATINUM_ERROR_SAME_LINE(expression) PlatinumEngine::Logger::LogError(expression, __FILE__, __LINE__)
-
 	class Logger
 	{
 	public:
+
+		enum class LogType {info, warning, error};
+
+		class Log
+		{
+		public:
+			std::string uniqueID;
+			LogType type;
+			std::string message;
+		};
 
 		static void LogInfo(const std::string& message, const char* file = nullptr, unsigned int line = 0);
 		static void LogWarning(const std::string& message, const char* file = nullptr, unsigned int line = 0);
@@ -24,7 +30,7 @@ namespace PlatinumEngine
 		static void LogWarning(const char* message, const char* file = nullptr, unsigned int line = 0);
 		static void LogError(const char* message, const char* file = nullptr, unsigned int line = 0);
 
-		std::vector<std::string> savedLogs;
+		std::vector<Log> savedLogs;
 
 		/*
 		 * starts saving all logged messages inside of this object
@@ -39,5 +45,12 @@ namespace PlatinumEngine
 		Logger(Logger&&) = delete;
 
 		void ShowGUIWindow(bool* isOpen);
+
+		void SaveLog(LogType type, const std::string& message);
+
+	private:
+
+		unsigned int _nextUniqueID;
+		bool _scrollToBottom;
 	};
 }
