@@ -97,6 +97,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 
 	"Source/OpenGL/ShaderInput.cpp;"
 	"Source/OpenGL/ShaderProgram.cpp;"
+
 	"Source/OpenGL/Texture.cpp;"
 
 	"Source/Renderer/Renderer.cpp;"
@@ -107,6 +108,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/SceneManager/Scene.cpp;"
 	
 	"Source/WindowManager/WindowManager.cpp;"
+	
+	"Source/SceneManager/Scene.cpp;"
 	
 	"Source/WindowManager/Filedialog.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
@@ -124,6 +127,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/In
 # IMPORTANT SECTION! Unit testing
 #-----------------------------
 # Add unit tests here:
+
 
 set(UNIT_TESTS
 	"Test/TestTemplate.cpp;"
