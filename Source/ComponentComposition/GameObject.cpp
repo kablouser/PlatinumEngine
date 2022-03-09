@@ -1,4 +1,5 @@
 
+
 #include <ComponentComposition/GameObject.h>
 namespace PlatinumEngine
 {
@@ -7,6 +8,7 @@ namespace PlatinumEngine
 	{
 		_parent = nullptr;
 		_isEnabled = true;
+
 	}
 
 	GameObject::GameObject(std::string name): name(name)
@@ -16,6 +18,7 @@ namespace PlatinumEngine
 
 	GameObject::~GameObject()
 	{}
+
 
 
 
@@ -71,8 +74,10 @@ namespace PlatinumEngine
 	}
 
 
+
 	//Returns child at index
 	GameObject* GameObject::GetChild(int index)
+
 
 	{
 		return _children[index];
@@ -83,6 +88,7 @@ namespace PlatinumEngine
 	{
 		_components.erase(_components.begin()+index);
 	}
+
 
 	//Current component count
 	int GameObject::GetComponentCount()
@@ -106,6 +112,7 @@ namespace PlatinumEngine
 		int index = GetChildIndex(child);
 		if(index>=0)
 			_children.erase(_children.begin()+index);
+
 
 	}
 }

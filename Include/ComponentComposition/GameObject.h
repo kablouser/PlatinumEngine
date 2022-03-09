@@ -8,8 +8,14 @@
 
 #include "iostream"
 
+
 namespace PlatinumEngine
 {
+	static std::map<std::type_index, std::string> typeToStringMap = {
+			{std::type_index(typeid(Component)), "Component" },
+			{std::type_index(typeid(MeshComponent)), "MeshComponent"},
+			{std::type_index(typeid(LightComponent)), "LightComponent"}};
+
 	class GameObject
 	{
 	public:
@@ -78,6 +84,7 @@ namespace PlatinumEngine
 			if(index>=0)
 				RemoveComponent(index);
 		}
+
 
 	private:
 		bool _isEnabled;
