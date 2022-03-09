@@ -15,6 +15,9 @@ namespace PlatinumEngine::Maths
 {
 
 
+
+
+
 	//-----------------------------------------------
 	//  Matrix template class and its helper class
 	//-----------------------------------------------
@@ -315,4 +318,44 @@ namespace PlatinumEngine::Maths
 	}
 
 
+
+
+
 }
+
+
+//------------------------------
+// Test Function
+//------------------------------
+/*
+namespace PlatinumEngine::Maths
+{
+
+
+	int TestFunc()
+	{
+
+		PlatinumEngine::Maths::Mat4 test1(2.f);
+		PlatinumEngine::Maths::Mat4 test2(4.f);
+		PlatinumEngine::Maths::Vec4 test3(1.f,2.f,3.f,4.f);
+
+
+
+		test3 = test1 * test3;
+
+		test1.SetRotationMatrix(PlatinumEngine::Maths::Vec3(0,0,3.14 /3));
+
+		for(int y =0;y<4;y++)
+		{
+			for (int x = 0; x < 4; x++)
+			{
+				std::cout << test1[y][x] << " ";
+			}
+			std::cout<<std::endl;
+		}
+
+		std::cout<<test3;
+	}
+
+}
+ */
