@@ -26,6 +26,5 @@ namespace PlatinumEngine {
 	private:
 		std::vector<Vertex> _vertices;
 		std::vector<unsigned int> _indices;
-//		Texture *_texture;
 	};
 }

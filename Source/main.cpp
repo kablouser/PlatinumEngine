@@ -8,7 +8,7 @@
 #include <GLFW/glfw3.h>
 
 #include <InputManager/InputManager.h>
-#include <RasterRenderer/RasterRenderer.h>
+#include "RasterRenderer/Renderer.h"
 #include <WindowManager/WindowManager.h>
 
 #include <OpenGL/GLCheck.h>
@@ -58,7 +58,7 @@ int main(int, char**)
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
 		bool isRasterRendererOpen = true;
-		PlatinumEngine::RasterRenderer rasterRenderer;
+		PlatinumEngine::Renderer rasterRenderer;
 
 		bool isInputWindowOpen = true;
 		PlatinumEngine::InputManager inputManager;
@@ -79,7 +79,7 @@ int main(int, char**)
 			// GUI HERE
 			//--------------------------------------------------------------------------------------------------------------
 			if (isRasterRendererOpen)
-				rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
+				rasterRenderer.Render(&isRasterRendererOpen);
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);
 			windowManager.ShowGUI();

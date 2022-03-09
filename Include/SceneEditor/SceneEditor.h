@@ -6,7 +6,7 @@
 
 
 //#include <SFML/Graphics.hpp>
-#include "RasterRenderer/RasterRenderer.h"
+#include "RasterRenderer/Renderer.h"
 
 namespace PlatinumEngine
 {
@@ -22,7 +22,7 @@ namespace PlatinumEngine
 
 		/// Show scene editor window
 		/// \param outIsOpen: flag for showing this window or not
-		void ShowGUIWindow(bool* outIsOpen, RasterRenderer& rasterRenderer);
+		void ShowGUIWindow(bool* outIsOpen, Renderer& rasterRenderer);
 
 
 

@@ -20,7 +20,7 @@ SceneEditor::SceneEditor(
 
 }
 
-void SceneEditor::ShowGUIWindow(bool* outIsOpen, RasterRenderer& rasterRenderer)
+void SceneEditor::ShowGUIWindow(bool* outIsOpen, Renderer& rasterRenderer)
 {
 
 	// begin the ImGui window
