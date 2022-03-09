@@ -21,12 +21,10 @@ namespace PlatinumEngine
 		return _isEnabled;
 	}
 
-	//Enable/Disable child objects as well
+	//Enable/Disable the GameObject
 	void GameObject::SetEnabled(bool enableFlag)
 	{
 		_isEnabled = enableFlag;
-		for(GameObject* child:_children)
-			child->SetEnabled(enableFlag);
 	}
 
 	//Gets the parent of the current GameObject
@@ -36,10 +34,12 @@ namespace PlatinumEngine
 	}
 
 	//Sets the parent of the current GameObject
-	//Essentially can be used to remove a child object also
+	//Removes it from old parent, updates the parent and then add to new parent
 	void GameObject::SetParent(GameObject* parent)
 	{
+		_parent->RemoveChild(this->name);
 		_parent = parent;
+		_parent->_children.push_back(this);
 	}
 
 	//Returns children count
@@ -64,5 +64,23 @@ namespace PlatinumEngine
 	int GameObject::GetComponentCount()
 	{
 		return _components.size();
+	}
+
+	//Returns index of child based on their name
+	//-1 if it doesn't exist
+	int GameObject::GetChildIndex(std::string childName)
+	{
+		for(int i=0;i<_children.size();i++)
+			if(_children[i]->name==childName)
+				return i;
+		return -1;
+	}
+
+	//Deletes child on the basis of their name
+	void GameObject::RemoveChild(std::string childName)
+	{
+		int index = GetChildIndex(childName);
+		if(index>=0)
+			_children.erase(_children.begin()+index);
 	}
 }
