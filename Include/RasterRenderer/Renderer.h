@@ -27,8 +27,13 @@ namespace PlatinumEngine
 
 		~Renderer();
 
+		// basic render function, will be improved in the future
 		void Render(bool* outIsOpen);
 
+		/**
+		 * mesh component can call this function to input mesh data into shader
+		 * @param mesh
+		 */
 		void LoadMesh(const Mesh &mesh);
 
 	private:
