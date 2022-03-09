@@ -70,6 +70,16 @@ int main(int, char**)
 		bool isInputWindowOpen = true;
 		PlatinumEngine::InputManager inputManager;
 
+		bool isLoggerOpen = true;
+		PlatinumEngine::Logger logger;
+
+		for(int i = 0; i < 20; ++i)
+		{
+			PLATINUM_INFO("Hello");
+			PLATINUM_WARNING("BLAHR");
+			PLATINUM_ERROR("EH ERH");
+		}
+
 		PlatinumEngine::WindowManager windowManager;
 
 		// Main loop

@@ -57,6 +57,7 @@ namespace PlatinumEngine
 		static void LogWarning(const char* message, const char* file = nullptr, unsigned int line = 0);
 		static void LogError(const char* message, const char* file = nullptr, unsigned int line = 0);
 
+
 		/**
 		 * Logs saved during the lifetime of this Logger object.
 		 */
