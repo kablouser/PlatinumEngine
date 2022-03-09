@@ -50,7 +50,8 @@ namespace PlatinumEngine {
 		{
 			return {u.x-v.x, u.y-v.y, u.z-v.z, u.w-v.w};
 		}
-		inline std::ostream& operator<<(std::ostream &out, const Vec4 &v) {
+		inline std::ostream& operator<<(std::ostream &out, const Vec4 &v)
+		{
 			return out << v.x << ' ' << v.y << ' ' << v.z << ' ' << v.w;
 		}
 
@@ -94,7 +95,8 @@ namespace PlatinumEngine {
 		{
 			return {u.x - v.x, u.y - v.y, u.z - v.z};
 		}
-		inline std::ostream& operator<<(std::ostream &out, const Vec3 &v) {
+		inline std::ostream& operator<<(std::ostream &out, const Vec3 &v)
+		{
 			return out << v.x << ' ' << v.y << ' ' << v.z;
 		}
 
@@ -151,7 +153,8 @@ namespace PlatinumEngine {
 		{
 			return {u.x - v.x, u.y - v.y};
 		}
-		inline std::ostream& operator<<(std::ostream &out, const Vec2 &v) {
+		inline std::ostream& operator<<(std::ostream &out, const Vec2 &v)
+		{
 			return out << v.x << ' ' << v.y;
 		}
 
