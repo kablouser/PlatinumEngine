@@ -22,11 +22,13 @@ namespace PlatinumEngine
 		GLuint vertexShader, fragmentShader;
 		GL_CHECK(vertexShader = glCreateShader(GL_VERTEX_SHADER));
 		GL_CHECK(fragmentShader = glCreateShader(GL_FRAGMENT_SHADER));
+
 		if (CompileShaderSource(vertexShader, vertexShaderSource.c_str(), "vertex") &&
 			CompileShaderSource(fragmentShader, fragmentShaderSource.c_str(), "fragment"))
 		{
 			if (_shaderProgramHandle == 0)
 				GL_CHECK(_shaderProgramHandle = glCreateProgram());
+
 			GL_CHECK(glAttachShader(_shaderProgramHandle, vertexShader));
 			GL_CHECK(glAttachShader(_shaderProgramHandle, fragmentShader));
 			GL_CHECK(glLinkProgram(_shaderProgramHandle));
