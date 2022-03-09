@@ -34,9 +34,11 @@ namespace PlatinumEngine
 	 * Global functions allow logging from any place without a reference to a logger.
 	 * A logger instance will then save any logs during its lifetime. And display those logs in a ImGui window.
 	 */
+
 	class Logger
 	{
 	public:
+
 
 		enum class LogType {info, warning, error};
 
@@ -65,6 +67,7 @@ namespace PlatinumEngine
 
 		/*
 		 * Starts saving logs inside of this object
+
 		 */
 		Logger();
 
@@ -92,6 +95,7 @@ namespace PlatinumEngine
 		unsigned int _nextUniqueID;
 		// should this window scroll to the bottom of the logs?
 		bool _scrollToBottom;
+
 	};
 
 	/**

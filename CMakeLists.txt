@@ -93,7 +93,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/ShaderInput.cpp;"
 	"Source/OpenGL/ShaderProgram.cpp;"
 	"Source/OpenGL/Texture.cpp;"
-	
+
 	"Source/Renderer/Renderer.cpp;"
 	
 	"Source/SceneEditor/SceneEditor.cpp;"
@@ -106,6 +106,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/WindowManager/Filedialog.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
 	)
+
 
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 
