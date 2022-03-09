@@ -37,6 +37,7 @@ namespace PlatinumEngine
 		int GetChildrenCount();
 		GameObject* GetChild(int index);
 
+
 		void RemoveComponent(int index);
 		int GetComponentCount();
 

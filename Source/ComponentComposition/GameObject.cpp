@@ -92,6 +92,7 @@ namespace PlatinumEngine
 
 	//Current component count
 	int GameObject::GetComponentCount()
+
 	{
 		return _components.size();
 	}
