@@ -1,16 +1,19 @@
 #include "ComponentComposition/GameObject.h"
-
-#include "iostream"
 namespace PlatinumEngine
 {
 	GameObject::GameObject()
-	{
-
-	}
+	{}
 
 	GameObject::GameObject(std::string name): name(name)
 	{
 		GameObject();
+	}
+	GameObject::~GameObject()
+	{
+		_components.clear();
+		for(auto* child:_children)
+			child->SetParent(NULL);
+		_children.clear();
 	}
 
 	bool GameObject::IsEnabled()
@@ -26,39 +29,38 @@ namespace PlatinumEngine
 			child->SetEnabled(enableFlag);
 	}
 
+	//Gets the parent of the current GameObject
 	GameObject* GameObject::GetParent()
 	{
 		return _parent;
 	}
 
+	//Sets the parent of the current GameObject
+	//Essentially can be used to remove a child object also
 	void GameObject::SetParent(GameObject* parent)
 	{
 		_parent = parent;
 	}
 
+	//Returns children count
 	int GameObject::GetChildrenCount()
 	{
 		return _children.size();
 	}
 
+	//Returns child at index
 	GameObject* GameObject::GetChild(int index)
 	{
 		return _children[index];
 	}
 
-	//Will need to decide on Components to support different types
-	//Will search for component based on name or type.
-	Component* GameObject::GetComponent(int index)
-	{
-		return _components[index];
-	}
-
-	//Need to iterate and remove from Components vector
+	//Removes component at index
 	void GameObject::RemoveComponent(int index)
 	{
 		_components.erase(_components.begin()+index);
 	}
 
+	//Current component count
 	int GameObject::GetComponentCount()
 	{
 		return _components.size();
