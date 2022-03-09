@@ -3,11 +3,11 @@
 //
 #pragma once
 
-#include <vector>
 #include <assert.h>
 #include <glm/glm.hpp>
-#include <iostream>
 #include <string.h>
+#include <Maths/Vectors.h>
+
 //------------------------
 //  Template Class
 //------------------------
@@ -83,6 +83,8 @@ namespace PlatinumEngine::Maths
 		Matrix(); // create empty matrix
 		Matrix(T valueForPacking); // fill the matrix (the std::vector) with valueForPacking
 
+
+
 		//___VARIABLE___
 		T matrix[numberOfRow * numberOfColumn];
 
@@ -129,14 +131,18 @@ class Mat4 : public Matrix<4,4,float>
 
 		//___FUNCTION___
 		Mat4 operator *(Mat4 anotherMat4);
-		Mat4 operator *(Vec4 homogeneousVector);
+		Vec4 operator *(Vec4 homogeneousVector);
 
-		void ConvertFromGLM(glm::mat4x4 glmMat4);
+		void ConvertFromArray(float* arrayMat4);
 
 		void SetIdentityMatrix();
-		void SetTranslationMatrix();
-		void SetRotationMatrix();
-		void SetScaleMatrix();
+		void SetTranslationMatrix(Vec3 translationDirection);
+		void SetRotationMatrix(Vec3 eulerAngle);
+		void SetScaleMatrix(float scale);
+		void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
+		void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far);
+		void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
+
 
 		//___CONSTRUCTOR___
 		using Matrix<4,4,float>::Matrix;
@@ -200,6 +206,7 @@ namespace PlatinumEngine::Maths
 		return MatrixHelper<numberOfRow, numberOfColumn, T>(*this, row);
 	}
 
+
 	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
 	Matrix<numberOfRow, numberOfColumn, T> Matrix<numberOfRow, numberOfColumn, T>
 			::operator +(Matrix<numberOfRow, numberOfColumn, T> otherMatrix)
@@ -221,6 +228,7 @@ namespace PlatinumEngine::Maths
 
 	}
 
+
 	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
 	Matrix<numberOfRow, numberOfColumn, T> Matrix<numberOfRow, numberOfColumn, T>
 			::operator -(Matrix<numberOfRow, numberOfColumn, T> otherMatrix)
@@ -241,6 +249,7 @@ namespace PlatinumEngine::Maths
 		return result;
 
 	}
+
 
 	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
 	Matrix<numberOfRow, numberOfColumn, T> Matrix<numberOfRow, numberOfColumn, T>
