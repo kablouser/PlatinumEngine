@@ -1,11 +1,17 @@
 #include "ComponentComposition/GameObject.h"
+
+#include "iostream"
 namespace PlatinumEngine
 {
 	GameObject::GameObject()
-	{}
+	{
+
+	}
 
 	GameObject::GameObject(std::string name): name(name)
-	{}
+	{
+		GameObject();
+	}
 
 	bool GameObject::IsEnabled()
 	{
@@ -47,12 +53,6 @@ namespace PlatinumEngine
 		_components.push_back(component);
 	}
 
-	//Searches for component based on name or type
-	bool GameObject::HasComponent()
-	{
-		return !_components.empty();
-	}
-
 	//Will need to decide on Components to support different types
 	//Will search for component based on name or type.
 	Component* GameObject::GetComponent(int index)
@@ -66,14 +66,8 @@ namespace PlatinumEngine
 		_components.erase(_components.begin()+index);
 	}
 
-	// Will need to probably decide how different Components are created
-	bool GameObject::HasLightComponent()
+	int GameObject::GetComponentCount()
 	{
-
-	}
-
-	bool GameObject::HasCameraComponent()
-	{
-
+		return _components.size();
 	}
 }
