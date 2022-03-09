@@ -13,12 +13,43 @@
 
 #include <OpenGL/GLCheck.h>
 
+
+#include <Maths/Vectors.h>
+#include <Maths/Matrices.h>
+
+int main()
+{
+
+	PlatinumEngine::Maths::Mat4 test1(2.f);
+	PlatinumEngine::Maths::Mat4 test2(4.f);
+	PlatinumEngine::Maths::Vec4 test3(1.f,2.f,3.f,4.f);
+
+
+
+	test3 = test1 * test3;
+
+	test1.SetRotationMatrix(PlatinumEngine::Maths::Vec3(0,0,3.14 /3));
+
+	for(int y =0;y<4;y++)
+	{
+		for (int x = 0; x < 4; x++)
+		{
+			std::cout << test1[y][x] << " ";
+		}
+		std::cout<<std::endl;
+	}
+
+	std::cout<<test3;
+}
+
+
+
 static void GlfwErrorCallback(int error, const char* description)
 {
 	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
 }
 
-int main(int, char**)
+int main2(int, char**)
 {
 	// Setup window
 	glfwSetErrorCallback(GlfwErrorCallback);
