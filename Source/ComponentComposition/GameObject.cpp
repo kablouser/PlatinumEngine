@@ -46,13 +46,6 @@ namespace PlatinumEngine
 		return _children[index];
 	}
 
-	//Just push on the new component
-	//Although, may need to do check to prevent same component being added
-	void GameObject::AddComponent(Component* component)
-	{
-		_components.push_back(component);
-	}
-
 	//Will need to decide on Components to support different types
 	//Will search for component based on name or type.
 	Component* GameObject::GetComponent(int index)

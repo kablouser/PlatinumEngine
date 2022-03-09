@@ -34,14 +34,14 @@ namespace PlatinumEngine
 		int GetChildrenCount();
 		GameObject* GetChild(int index);
 
-		void AddComponent(Component* component);
 		Component* GetComponent(int index);
 		void RemoveComponent(int index);
 		int GetComponentCount();
 
 		template <class T> void AddComponent (T *component)
 		{
-			_components.emplace_back(component);
+			if(!HasComponent<T>())
+				_components.emplace_back(component);
 		}
 
 		template<class T> bool HasComponent()
