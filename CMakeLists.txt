@@ -92,6 +92,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/ShaderInput.cpp;"
 	"Source/OpenGL/ShaderProgram.cpp;"
 	"Source/OpenGL/Texture.cpp;"
+
 	"Source/Renderer/Renderer.cpp;"
 	
 	"Source/SceneEditor/SceneEditor.cpp;"

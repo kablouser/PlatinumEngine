@@ -99,10 +99,12 @@ namespace PlatinumEngine
 
 	void Logger::LogError(const char* message, const char* file, unsigned int line)
 	{
+
 		LogInConsole("{ERROR}", message, file, line, LogType::error);
 	}
 
 	Logger::Logger() : _scrollToBottom(true)
+
 	{
 		allLoggers.push_back(this);
 	}
