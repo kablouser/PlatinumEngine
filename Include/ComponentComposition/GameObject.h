@@ -78,6 +78,10 @@ namespace PlatinumEngine
 		GameObject* _parent;
 		std::vector<GameObject*> _children;
 		std::vector<Component*> _components;
+
+	private:
+		int GetChildIndex(std::string childName);
+		void RemoveChild(std::string childName);
 	};
 }
 #endif //PLATINUMENGINE_GAMEOBJECT_H
