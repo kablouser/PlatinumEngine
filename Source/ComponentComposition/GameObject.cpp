@@ -11,9 +11,17 @@ namespace PlatinumEngine
 
 	}
 
+
 	GameObject::GameObject(std::string name): name(name)
 	{
 		GameObject();
+	}
+	GameObject::~GameObject()
+	{
+		_components.clear();
+		for(auto* child:_children)
+			child->SetParent(NULL);
+		_children.clear();
 	}
 
 	GameObject::~GameObject()
@@ -44,6 +52,7 @@ namespace PlatinumEngine
 
 	//Sets the parent of the current GameObject
 	//Removes it from old parent, updates the parent and then add to new parent
+
 	void GameObject::SetParent(GameObject* parent)
 
 	{
@@ -74,14 +83,13 @@ namespace PlatinumEngine
 	}
 
 
-
 	//Returns child at index
 	GameObject* GameObject::GetChild(int index)
-
 
 	{
 		return _children[index];
 	}
+
 
 	//Removes component at index
 	void GameObject::RemoveComponent(int index)

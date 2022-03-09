@@ -8,14 +8,8 @@
 
 #include "iostream"
 
-
 namespace PlatinumEngine
 {
-	static std::map<std::type_index, std::string> typeToStringMap = {
-			{std::type_index(typeid(Component)), "Component" },
-			{std::type_index(typeid(MeshComponent)), "MeshComponent"},
-			{std::type_index(typeid(LightComponent)), "LightComponent"}};
-
 	class GameObject
 	{
 	public:
@@ -24,6 +18,7 @@ namespace PlatinumEngine
 	public:
 		GameObject();
 		GameObject(std::string name);
+		~GameObject();
 
 
 		~GameObject();
@@ -44,6 +39,7 @@ namespace PlatinumEngine
 		int GetChildIndex(GameObject* child);
 		void RemoveChild(GameObject* child);
 
+
 		//Adds a component
 		template <class T> void AddComponent (T *component)
 		{
@@ -60,13 +56,17 @@ namespace PlatinumEngine
 			return false;
 		}
 
+
 		//Returns existing component or nullptr if it doesn't exist
+
 		template<class T> T* GetComponent()
 		{
 			for(auto& c:_components)
 				if(typeid(*c)==typeid(T))
 					return dynamic_cast<T*>(c);
+
 			return nullptr;
+
 		}
 
 		//Removes component
@@ -85,7 +85,6 @@ namespace PlatinumEngine
 			if(index>=0)
 				RemoveComponent(index);
 		}
-
 
 	private:
 		bool _isEnabled;
