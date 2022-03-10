@@ -15,7 +15,7 @@
 // Want to apply delta time but fails
 //------------------------------------------------------
 
-#include "RasterRenderer/EditorCamera.h"
+#include "SceneEditor/EditorCamera.h"
 
 #include <iostream> // TODO remove later
 

@@ -5,6 +5,7 @@
 // OpenGL types
 #include <GL/glew.h>
 #include <OpenGL/GLEnumInfo.h>
+#include <OpenGL/Mesh.h>
 // Catching errors, not strictly necessary
 #include <type_traits>
 #include <cassert>
@@ -52,16 +53,6 @@ namespace PlatinumEngine
 			unsigned long long int offset;
 		};
 
-		/**
-		 * A common vertex structure
-		 */
-		struct DefaultVertex
-		{
-			glm::vec3 position;
-			glm::vec3 normal;
-			glm::vec2 textureCoordinate;
-		};
-
 		//--------------------------------------------------------------------------------------------------------------
 		// Constructors/Destructors
 		//--------------------------------------------------------------------------------------------------------------
@@ -77,7 +68,7 @@ namespace PlatinumEngine
 		 * @param indices
 		 */
 		ShaderInput(
-				const std::vector<DefaultVertex>& vertices,
+				const std::vector<Vertex>& vertices,
 				const std::vector<GLuint>& indices);
 
 		// Move-only object, no copying
@@ -141,7 +132,7 @@ namespace PlatinumEngine
 		 * @param vertices
 		 * @param indices
 		 */
-		void Set(const std::vector<DefaultVertex>& vertices, const std::vector<GLuint>& indices);
+		void Set(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices);
 
 		/**
 		 * Delete data sent to the GPU

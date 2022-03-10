@@ -1,4 +1,4 @@
-#include <RasterRenderer/RasterRenderer.h>
+#include <RasterRenderer/Renderer.h>
 // checking errors
 #include <OpenGL/GLCheck.h>
 // gui
@@ -19,7 +19,7 @@ const std::string UNLIT_FRAGMENT_SHADER =
 
 namespace PlatinumEngine
 {
-	RasterRenderer::RasterRenderer(bool printOpenGLInfo) :
+	Renderer::Renderer(bool printOpenGLInfo) :
 			_isInitGood(false),
 			_framebufferWidth(0),
 			_framebufferHeight(0)
@@ -54,15 +54,6 @@ namespace PlatinumEngine
 		if (!_shaderProgram.Compile(UNLIT_VERTEX_SHADER, UNLIT_FRAGMENT_SHADER))
 			return;
 
-		// in variables
-		_unlitShaderInput.Set({
-						{{ -0.5f, -0.5f, 0.0f }, { 0, 0, 1 }, { 0, 0 }},
-						{{ 0.5f,  -0.5f, 0.0f }, { 0, 0, 1 }, { 0, 0 }},
-						{{ 0.0f,  0.5f,  0.0f }, { 0, 0, 1 }, { 0, 0 }}
-				},
-				{
-						0, 1, 2
-				});
 
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
@@ -75,17 +66,18 @@ namespace PlatinumEngine
 		_isInitGood = true;
 	}
 
-	RasterRenderer::~RasterRenderer()
+	Renderer::~Renderer()
 	{
 		// nothing to do
 	}
 
-	void RasterRenderer::ShowGUIWindow(bool* outIsOpen)
+	void Renderer::Render(bool* outIsOpen)
 	{
 		if(ImGui::Begin("Raster Renderer", outIsOpen) &&
 			// when init is bad, don't render anything
 			_isInitGood)
 		{
+
 			// check ImGui's window size, can't render when area=0
 			ImVec2 targetSize = ImGui::GetContentRegionAvail();
 			if(1.0f < targetSize.x && 1.0f < targetSize.y)
@@ -118,4 +110,36 @@ namespace PlatinumEngine
 
 		ImGui::End();
 	}
+
+	void Renderer::LoadMesh(const Mesh &mesh)
+	{
+		_unlitShaderInput.Set(mesh.GetVertices(), mesh.GetIndices());
+		SetShaderProperties();
+	}
+
+	//--------------------------------------------------------------------------------------------------------------
+	// Private functions implementation.
+	//--------------------------------------------------------------------------------------------------------------
+	void Renderer::SetShaderProperties()
+	{
+		_shaderProgram.Bind();
+		glm::mat4 matrix = glm::mat4(1.0f);
+
+
+		_shaderProgram.SetUniform("modelToProjection", matrix);
+		_shaderProgram.SetUniform("modelToProjection", matrix);
+
+		// set basic properties
+		_shaderProgram.SetUniform("objectColour", glm::vec3(1.0f,0.5f,0.31f));
+		_shaderProgram.SetUniform("isTextureEnabled",false);
+
+		_shaderProgram.SetUniform("lightPosition", glm::vec3(0.9f * std::cos(glfwGetTime()),0.9f * std::sin(glfwGetTime()),0.9f));
+		_shaderProgram.SetUniform("lightColour", glm::vec3(1.0f,1.0f,1.0f));
+		_shaderProgram.SetUniform("viewPosition", glm::vec3(0.0f,0.0f,1.0f));
+	}
+
+
+
+
 }
+//}
