@@ -3,7 +3,7 @@ namespace PlatinumEngine
 {
 	GameObject::GameObject()
 	{
-		_parent = NULL;
+		_parent = nullptr;
 		_isEnabled = true;
 	}
 
@@ -11,6 +11,7 @@ namespace PlatinumEngine
 	{
 		GameObject();
 	}
+
 	GameObject::~GameObject()
 	{}
 
@@ -35,6 +36,8 @@ namespace PlatinumEngine
 	//Removes it from old parent, updates the parent and then add to new parent
 	void GameObject::SetParent(GameObject* parent)
 	{
+		if(parent->IsChildOf(this))
+			return;
 		if(_parent)
 		{
 			_parent->RemoveChild(this);
@@ -48,7 +51,6 @@ namespace PlatinumEngine
 			if(_parent)
 				_parent->_children.push_back(this);
 		}
-
 	}
 
 	//Returns children count
@@ -91,5 +93,14 @@ namespace PlatinumEngine
 		int index = GetChildIndex(child);
 		if(index>=0)
 			_children.erase(_children.begin()+index);
+	}
+
+	//Checks if current GameObject is child of another GameObject
+	bool GameObject::IsChildOf(GameObject* parent)
+	{
+		for(int i=0;i<parent->GetChildrenCount();i++)
+			if(parent->GetChild(i)==this)
+				return true;
+		return false;
 	}
 }
