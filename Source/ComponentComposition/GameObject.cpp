@@ -17,6 +17,7 @@ namespace PlatinumEngine
 	{
 		GameObject();
 	}
+
 	GameObject::~GameObject()
 	{}
 
@@ -53,8 +54,10 @@ namespace PlatinumEngine
 
 	{
 
+
 		if(_parent == parent)
 			return;
+
 
 		if(_parent)
 		{
@@ -69,7 +72,6 @@ namespace PlatinumEngine
 			if(_parent)
 				_parent->_children.push_back(this);
 		}
-
 
 	}
 
@@ -126,5 +128,14 @@ namespace PlatinumEngine
 
 
 
+	}
+
+	//Checks if current GameObject is child of another GameObject
+	bool GameObject::IsChildOf(GameObject* parent)
+	{
+		for(int i=0;i<parent->GetChildrenCount();i++)
+			if(parent->GetChild(i)==this)
+				return true;
+		return false;
 	}
 }

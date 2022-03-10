@@ -57,7 +57,9 @@ namespace PlatinumEngine
 		}
 
 
+
 		//Returns existing component or nullptr if it doesn't exist
+
 
 		template<class T> T* GetComponent()
 		{
@@ -66,6 +68,7 @@ namespace PlatinumEngine
 					return dynamic_cast<T*>(c);
 
 			return nullptr;
+
 
 		}
 
@@ -95,6 +98,7 @@ namespace PlatinumEngine
 	private:
 		int GetChildIndex(GameObject* child);
 		void RemoveChild(GameObject* child);
+		bool IsChildOf(GameObject* parent);
 	};
 }
 
