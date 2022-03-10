@@ -12,17 +12,13 @@ namespace PlatinumEngine
 	}
 
 
+
 	GameObject::GameObject(std::string name): name(name)
 	{
 		GameObject();
 	}
 	GameObject::~GameObject()
-	{
-		_components.clear();
-		for(auto* child:_children)
-			child->SetParent(NULL);
-		_children.clear();
-	}
+	{}
 
 	GameObject::~GameObject()
 	{}
@@ -59,6 +55,7 @@ namespace PlatinumEngine
 
 		if(_parent == parent)
 			return;
+
 		if(_parent)
 		{
 			_parent->RemoveChild(this);

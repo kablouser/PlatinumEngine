@@ -93,8 +93,8 @@ namespace PlatinumEngine
 		std::vector<Component*> _components;
 
 	private:
-		int GetChildIndex(std::string childName);
-		void RemoveChild(std::string childName);
+		int GetChildIndex(GameObject* child);
+		void RemoveChild(GameObject* child);
 	};
 }
 
