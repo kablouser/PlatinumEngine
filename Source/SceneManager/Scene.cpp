@@ -78,7 +78,7 @@ namespace PlatinumEngine
 	void Scene::StartComponents(GameObject* gameObject)
 	{
 
-		for(auto iterator:gameObject->_components)
+		for(auto &iterator:gameObject->_components)
 		{
 			iterator->OnStart();
 		}
@@ -95,7 +95,7 @@ namespace PlatinumEngine
 	void Scene::EndComponents(GameObject* gameObject)
 	{
 
-		for(auto iterator:gameObject->_components)
+		for(auto &iterator:gameObject->_components)
 		{
 			iterator->OnEnd();
 		}
@@ -112,7 +112,7 @@ namespace PlatinumEngine
 
 	void Scene::UpdateComponents(GameObject* gameObject, float deltaTime)
 	{
-		for(auto iterator:gameObject->_components)
+		for(auto &iterator:gameObject->_components)
 		{
 
 			if(iterator->IsEnabled())
@@ -120,7 +120,7 @@ namespace PlatinumEngine
 		}
 
 
-		for(auto iterator:gameObject->_children)
+		for(auto &iterator:gameObject->_children)
 		{
 			if(iterator->IsEnabled())
 				UpdateComponents(iterator, deltaTime);
@@ -133,7 +133,7 @@ namespace PlatinumEngine
 	void Scene::Start()
 	{
 
-		for(auto iterator : _rootGameObjects)
+		for(auto &iterator : _rootGameObjects)
 		{
 
 			StartComponents(iterator);
@@ -146,7 +146,7 @@ namespace PlatinumEngine
 
 	void Scene::End()
 	{
-		for(auto iterator : _rootGameObjects)
+		for(auto &iterator : _rootGameObjects)
 		{
 
 			EndComponents(iterator);
@@ -160,7 +160,7 @@ namespace PlatinumEngine
 	void Scene::Update(float deltaTime)
 	{
 
-		for(auto iterator : _rootGameObjects)
+		for(auto &iterator : _rootGameObjects)
 		{
 			if(iterator->IsEnabled())
 				UpdateComponents(iterator, deltaTime);
