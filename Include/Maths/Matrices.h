@@ -11,12 +11,10 @@
 //------------------------
 //  Template Class
 //------------------------
-namespace PlatinumEngine::Maths
+namespace PlatinumEngine
 {
-
-
-
-
+namespace Maths
+{
 
 	//-----------------------------------------------
 	//  Matrix template class and its helper class
@@ -25,9 +23,8 @@ namespace PlatinumEngine::Maths
 	// ___class MatrixHelper___
 	// Declare Matrix helper class (help with rewriting operator [] to make "matrix[y][x]" works)
 
-	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T> class MatrixHelper;
-
-
+	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+	class MatrixHelper;
 
 
 	// ___class Matrix___
@@ -76,10 +73,7 @@ namespace PlatinumEngine::Maths
 		 * Overloading operator- function. For scaling the matrix.
 		 * @param otherMatrix
 		 */
-		void operator = (Matrix<numberOfRow, numberOfColumn, T> otherMatrix);
-
-
-
+		void operator=(Matrix<numberOfRow, numberOfColumn, T> otherMatrix);
 
 
 		//___CONSTRUCTOR___
@@ -97,24 +91,26 @@ namespace PlatinumEngine::Maths
 	};
 
 
-
 	// ___class MatrixHelper___
 	// Implementation of MatrixHelper class
 	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-	class MatrixHelper{
+	class MatrixHelper
+	{
 
 	public:
-		T& operator [](unsigned int column);
+		T& operator[](unsigned int column);
 
 
 	private:
-		friend class Matrix<numberOfRow,numberOfColumn,T>;
-		Matrix<numberOfRow,numberOfColumn,T>& _matrix;
+		friend class Matrix<numberOfRow, numberOfColumn, T>;
+
+		Matrix<numberOfRow, numberOfColumn, T>& _matrix;
 		unsigned int _currentRow;
-		MatrixHelper(Matrix<numberOfRow,numberOfColumn,T>& matrix, unsigned int currentRow);
+
+		MatrixHelper(Matrix<numberOfRow, numberOfColumn, T>& matrix, unsigned int currentRow);
 	};
 
-
+}
 }
 
 
@@ -124,31 +120,39 @@ namespace PlatinumEngine::Maths
 //  Matrix Class
 //------------------------
 
-namespace PlatinumEngine::Maths
+namespace PlatinumEngine
+{
+namespace Maths
 {
 
-
-class Mat4 : public Matrix<4,4,float>
+	class Mat4 : public Matrix<4, 4, float>
 	{
 	public:
 
 		//___FUNCTION___
-		Mat4 operator *(Mat4 anotherMat4);
-		Vec4 operator *(Vec4 homogeneousVector);
+		Mat4 operator*(Mat4 anotherMat4);
+
+		Vec4 operator*(Vec4 homogeneousVector);
 
 		void ConvertFromArray(float* arrayMat4);
 
 		void SetIdentityMatrix();
+
 		void SetTranslationMatrix(Vec3 translationDirection);
+
 		void SetRotationMatrix(Vec3 eulerAngle);
+
 		void SetScaleMatrix(float scale);
+
 		void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
+
 		void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far);
+
 		void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
 
 
 		//___CONSTRUCTOR___
-		using Matrix<4,4,float>::Matrix;
+		using Matrix<4, 4, float>::Matrix;
 
 
 		//___VARIABLE___
@@ -164,8 +168,7 @@ class Mat4 : public Matrix<4,4,float>
 	};
 
 
-
-
+}
 }
 
 
@@ -174,153 +177,154 @@ class Mat4 : public Matrix<4,4,float>
 // Implementation of template classes
 //--------------------------------------
 
-namespace PlatinumEngine::Maths
+namespace PlatinumEngine
 {
-
-
-	//--------------------------------------
-	// template function for matrix class
-	//--------------------------------------
-
-	// ___CONSTRUCTORS___
-	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-	Matrix<numberOfRow, numberOfColumn, T>::Matrix()
+	namespace Maths
 	{
 
-		memset(this->matrix, 0, sizeof(this->matrix));
 
-	}
+		//--------------------------------------
+		// template function for matrix class
+		//--------------------------------------
 
-	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-	Matrix<numberOfRow, numberOfColumn, T>::Matrix(T valueForPacking)
-	{
-		int matrixArrayLength = numberOfRow*numberOfColumn;
-
-		for(int i =0 ; i < matrixArrayLength;i++)
-			this->matrix[i] = valueForPacking;
-	}
-
-
-	// ___OVERLOADING FUNCTIONS___
-	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-	MatrixHelper<numberOfRow, numberOfColumn, T> Matrix<numberOfRow, numberOfColumn, T>
-			::operator [](const int row)
-	{
-		return MatrixHelper<numberOfRow, numberOfColumn, T>(*this, row);
-	}
-
-
-	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-	Matrix<numberOfRow, numberOfColumn, T> Matrix<numberOfRow, numberOfColumn, T>
-			::operator +(Matrix<numberOfRow, numberOfColumn, T> otherMatrix)
-	{
-
-		Matrix<numberOfRow, numberOfColumn, T> result;
-
-		for(int y = 0; y < numberOfRow; y++)
+		// ___CONSTRUCTORS___
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		Matrix<numberOfRow, numberOfColumn, T>::Matrix()
 		{
-			for(int x = 0; x < numberOfColumn; x++)
-			{
 
-				result[y][x] = (*this)[y][x] + otherMatrix[y][x];
+			memset(this->matrix, 0, sizeof(this->matrix));
 
-			}
 		}
 
-		return result;
-
-	}
-
-
-	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-	Matrix<numberOfRow, numberOfColumn, T> Matrix<numberOfRow, numberOfColumn, T>
-			::operator -(Matrix<numberOfRow, numberOfColumn, T> otherMatrix)
-	{
-
-		Matrix<numberOfRow, numberOfColumn, T> result;
-
-		for(int y = 0; y < numberOfRow; y++)
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		Matrix<numberOfRow, numberOfColumn, T>::Matrix(T valueForPacking)
 		{
-			for(int x = 0; x < numberOfColumn; x++)
-			{
+			int matrixArrayLength = numberOfRow * numberOfColumn;
 
-				result[y][x] = (*this)[y][x] - otherMatrix[y][x];
-
-			}
-		}
-
-		return result;
-
-	}
-
-
-	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-	Matrix<numberOfRow, numberOfColumn, T> Matrix<numberOfRow, numberOfColumn, T>
-			::operator *(float scale)
-	{
-
-		Matrix<numberOfRow, numberOfColumn, T> result;
-
-		for(int y = 0; y < numberOfRow; y++)
-		{
-			for(int x = 0; x < numberOfColumn; x++)
-			{
-
-				result[y][x] = (*this)[y][x] * scale;
-
-			}
-		}
-
-		return result;
-
-	}
-
-
-	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-	void Matrix<numberOfRow, numberOfColumn, T>
-	        ::operator =(Matrix<numberOfRow, numberOfColumn, T> otherMatrix)
-	{
-
-		for(int y =0 ; y < numberOfRow; y++)
-		{
-			for(int x =0 ; x < numberOfColumn; x++)
-			{
-
-				(*this)[y][x] = otherMatrix[y][x];
-
-			}
+			for (int i = 0; i < matrixArrayLength; i++)
+				this->matrix[i] = valueForPacking;
 		}
 
 
+		// ___OVERLOADING FUNCTIONS___
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		MatrixHelper<numberOfRow, numberOfColumn, T> Matrix<numberOfRow, numberOfColumn, T>
+		::operator[](const int row)
+		{
+			return MatrixHelper<numberOfRow, numberOfColumn, T>(*this, row);
+		}
+
+
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		Matrix<numberOfRow, numberOfColumn, T> Matrix<numberOfRow, numberOfColumn, T>
+		::operator+(Matrix<numberOfRow, numberOfColumn, T> otherMatrix)
+		{
+
+			Matrix<numberOfRow, numberOfColumn, T> result;
+
+			for (int y = 0; y < numberOfRow; y++)
+			{
+				for (int x = 0; x < numberOfColumn; x++)
+				{
+
+					result[y][x] = (*this)[y][x] + otherMatrix[y][x];
+
+				}
+			}
+
+			return result;
+
+		}
+
+
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		Matrix<numberOfRow, numberOfColumn, T> Matrix<numberOfRow, numberOfColumn, T>
+		::operator-(Matrix<numberOfRow, numberOfColumn, T> otherMatrix)
+		{
+
+			Matrix<numberOfRow, numberOfColumn, T> result;
+
+			for (int y = 0; y < numberOfRow; y++)
+			{
+				for (int x = 0; x < numberOfColumn; x++)
+				{
+
+					result[y][x] = (*this)[y][x] - otherMatrix[y][x];
+
+				}
+			}
+
+			return result;
+
+		}
+
+
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		Matrix<numberOfRow, numberOfColumn, T> Matrix<numberOfRow, numberOfColumn, T>
+		::operator*(float scale)
+		{
+
+			Matrix<numberOfRow, numberOfColumn, T> result;
+
+			for (int y = 0; y < numberOfRow; y++)
+			{
+				for (int x = 0; x < numberOfColumn; x++)
+				{
+
+					result[y][x] = (*this)[y][x] * scale;
+
+				}
+			}
+
+			return result;
+
+		}
+
+
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		void Matrix<numberOfRow, numberOfColumn, T>
+		::operator=(Matrix<numberOfRow, numberOfColumn, T> otherMatrix)
+		{
+
+			for (int y = 0; y < numberOfRow; y++)
+			{
+				for (int x = 0; x < numberOfColumn; x++)
+				{
+
+					(*this)[y][x] = otherMatrix[y][x];
+
+				}
+			}
+
+
+		}
+
+		//-------------------------------------------
+		// template function for matrix helper class
+		//-------------------------------------------
+
+		// ___CONSTRUCTOR___
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		MatrixHelper<numberOfRow, numberOfColumn, T>
+		::MatrixHelper(Matrix<numberOfRow, numberOfColumn, T>& matrix, unsigned int currentRow)
+				:_matrix(matrix), _currentRow(currentRow)
+		{
+		}
+
+
+		// ___OVERLOADING FUNCTION___
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		T& MatrixHelper<numberOfRow, numberOfColumn, T>
+		::operator[](unsigned int column)
+		{
+
+			assert(numberOfRow > _currentRow || numberOfColumn > column);
+
+			return _matrix.matrix[_currentRow * numberOfColumn + column];
+
+		}
+
 	}
-
-	//-------------------------------------------
-	// template function for matrix helper class
-	//-------------------------------------------
-
-	// ___CONSTRUCTOR___
-	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-	MatrixHelper<numberOfRow, numberOfColumn, T>
-			::MatrixHelper(Matrix<numberOfRow,numberOfColumn,T>& matrix, unsigned int currentRow)
-			:_matrix(matrix),_currentRow(currentRow){}
-
-
-	// ___OVERLOADING FUNCTION___
-	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-	T& MatrixHelper<numberOfRow, numberOfColumn, T>
-			::operator [](unsigned int column)
-	{
-
-		assert(numberOfRow > _currentRow || numberOfColumn > column);
-
-		return _matrix.matrix[_currentRow * numberOfColumn + column];
-
-	}
-
-
-
-
-
 }
 
 
