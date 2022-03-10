@@ -30,13 +30,10 @@ namespace PlatinumEngine
 	 */
 #define PLATINUM_ERROR(expression) PlatinumEngine::Logger::LogError(expression, __FILE__, __LINE__)
 
-
 	/**
 	 * Global functions allow logging from any place without a reference to a logger.
 	 * A logger instance will then save any logs during its lifetime. And display those logs in a ImGui window.
 	 */
-
-
 	class Logger
 	{
 	public:
@@ -54,7 +51,6 @@ namespace PlatinumEngine
 			std::string message;
 		};
 
-
 		// You shouldn't use these functions directly, use the macros instead.
 
 		static void LogInfo(const std::string& message, const char* file = nullptr, unsigned int line = 0);
@@ -65,7 +61,6 @@ namespace PlatinumEngine
 		static void LogError(const char* message, const char* file = nullptr, unsigned int line = 0);
 
 
-
 		/**
 		 * Logs saved during the lifetime of this Logger object.
 		 */
@@ -74,7 +69,6 @@ namespace PlatinumEngine
 
 		/*
 		 * Starts saving logs inside of this object
-
 		 */
 		Logger();
 
@@ -91,15 +85,12 @@ namespace PlatinumEngine
 		 */
 		void ShowGUIWindow(bool* isOpen);
 
-
 		/**
 		 * Save a new log into this object instance. You shouldn't use this function directly.
 		 */
-
 		void SaveLog(LogType type, const std::string& message);
 
 	private:
-
 
 		// next available ID that's *probably* unique, loops back when numbers run out
 		unsigned int _nextUniqueID;
