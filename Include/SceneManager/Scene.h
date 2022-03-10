@@ -16,7 +16,7 @@ namespace PlatinumEngine
 	{
 
 	public:
-
+		///___FUNCTIONS___
 		GameObject* AddGameObject(GameObject* parent, std::string name);
 
 		void RemoveGameObject(GameObject*);
@@ -39,15 +39,17 @@ namespace PlatinumEngine
 
 		void StartComponents(GameObject* gameObject);
 
-		void Start();
+		void EndComponents(GameObject* gameObject);
 
-		void StopComponents(GameObject* gameObject);
+		void UpdateComponents(GameObject* gameObject, float deltaTime);
+
+		void Start();
 
 		void End();
 
 		void Update(float deltaTime);
 
-		void Render(RasterRenderer* renderer);
+		//void Render(RasterRenderer* renderer);
 
 		std::vector<GameObject*> _gameObjects;
 		std::vector<GameObject*> _rootGameObjects;

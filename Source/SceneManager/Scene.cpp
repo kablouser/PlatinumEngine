@@ -75,6 +75,60 @@ namespace PlatinumEngine
 
 	}
 
+	void Scene::StartComponents(GameObject* gameObject)
+	{
+
+		for(auto iterator:gameObject->_components)
+		{
+			iterator->OnStart();
+		}
+
+
+		for(int i =0; i < gameObject->GetChildrenCount();i++)
+		{
+
+			StartComponents(gameObject->GetChild(i));
+		}
+
+	}
+
+	void Scene::EndComponents(GameObject* gameObject)
+	{
+
+		for(auto iterator:gameObject->_components)
+		{
+			iterator->OnEnd();
+		}
+
+
+		for(int i =0; i < gameObject->GetChildrenCount();i++)
+		{
+			EndComponents(gameObject->GetChild(i));
+		}
+
+	}
+
+
+
+	void Scene::UpdateComponents(GameObject* gameObject, float deltaTime)
+	{
+		for(auto iterator:gameObject->_components)
+		{
+
+			if(iterator->IsEnabled())
+				iterator->OnUpdate(deltaTime);
+		}
+
+
+		for(auto iterator:gameObject->_children)
+		{
+			if(iterator->IsEnabled())
+				UpdateComponents(iterator, deltaTime);
+		}
+
+	}
+
+
 
 	void Scene::Start()
 	{
@@ -82,72 +136,43 @@ namespace PlatinumEngine
 		for(auto iterator : _rootGameObjects)
 		{
 
-			if(iterator->IsEnabled())
-			{
-
-				StartComponents(iterator);
-
-			}
+			StartComponents(iterator);
 
 		}
 
 	}
+
+
 
 	void Scene::End()
 	{
 		for(auto iterator : _rootGameObjects)
 		{
 
-			if(!iterator->IsEnabled())
-			{
-
-				StopComponents(iterator);
-
-			}
+			EndComponents(iterator);
 
 		}
 
 	}
 
 
-	void Scene::StartComponents(GameObject* gameObject)
+
+	void Scene::Update(float deltaTime)
 	{
 
-		for(auto iterator:gameObject->_components)
+		for(auto iterator : _rootGameObjects)
 		{
 			if(iterator->IsEnabled())
-				iterator->OnStart();
-		}
+				UpdateComponents(iterator, deltaTime);
 
-
-		for(int i =0; i < gameObject->GetChildrenCount();i++)
-		{
-			GameObject* child = gameObject->GetChild(i);
-
-			if(child->IsEnabled())
-				StartComponents(child);
 		}
 
 	}
 
-	void Scene::StopComponents(GameObject* gameObject)
+
+/*	void Scene::Render(RasterRenderer* renderer)
 	{
 
-		for(auto iterator:gameObject->_components)
-		{
-			if(!iterator->IsEnabled())
-				iterator->OnEnd();
-		}
-
-
-		for(int i =0; i < gameObject->GetChildrenCount();i++)
-		{
-			GameObject* child = gameObject->GetChild(i);
-
-			if(!child->IsEnabled())
-				StopComponents(child);
-		}
-
-	}
+	}*/
 
 }
