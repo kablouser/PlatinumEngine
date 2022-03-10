@@ -20,6 +20,7 @@ static void GlfwErrorCallback(int error, const char* description)
 	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
 }
 
+
 int main(int, char**)
 {
 	// Setup window
