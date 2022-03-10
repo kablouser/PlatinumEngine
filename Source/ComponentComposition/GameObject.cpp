@@ -2,19 +2,17 @@
 namespace PlatinumEngine
 {
 	GameObject::GameObject()
-	{}
+	{
+		_parent = NULL;
+		_isEnabled = true;
+	}
 
 	GameObject::GameObject(std::string name): name(name)
 	{
 		GameObject();
 	}
 	GameObject::~GameObject()
-	{
-		_components.clear();
-		for(auto* child:_children)
-			child->SetParent(NULL);
-		_children.clear();
-	}
+	{}
 
 	bool GameObject::IsEnabled()
 	{
@@ -37,9 +35,20 @@ namespace PlatinumEngine
 	//Removes it from old parent, updates the parent and then add to new parent
 	void GameObject::SetParent(GameObject* parent)
 	{
-		_parent->RemoveChild(this->name);
-		_parent = parent;
-		_parent->_children.push_back(this);
+		if(_parent)
+		{
+			_parent->RemoveChild(this);
+			_parent = parent;
+			if(_parent)
+				_parent->_children.push_back(this);
+		}
+		else
+		{
+			_parent = parent;
+			if(_parent)
+				_parent->_children.push_back(this);
+		}
+
 	}
 
 	//Returns children count
@@ -68,18 +77,18 @@ namespace PlatinumEngine
 
 	//Returns index of child based on their name
 	//-1 if it doesn't exist
-	int GameObject::GetChildIndex(std::string childName)
+	int GameObject::GetChildIndex(GameObject* child)
 	{
 		for(int i=0;i<_children.size();i++)
-			if(_children[i]->name==childName)
+			if(_children[i]==child)
 				return i;
 		return -1;
 	}
 
 	//Deletes child on the basis of their name
-	void GameObject::RemoveChild(std::string childName)
+	void GameObject::RemoveChild(GameObject* child)
 	{
-		int index = GetChildIndex(childName);
+		int index = GetChildIndex(child);
 		if(index>=0)
 			_children.erase(_children.begin()+index);
 	}
