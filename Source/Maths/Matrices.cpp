@@ -87,13 +87,13 @@ void Mat4::SetRotationMatrix(Vec3 eulerAngle)
 {
 
 	// get rotation matrix (quaternion)
-	glm::quat quaternionPitch(glm::vec3( 0, 0 , eulerAngle.z));
+	glm::quat quaternionX(glm::vec3( eulerAngle.x, 0 , 0));
 
-	glm::quat quaternionRoll(glm::vec3(eulerAngle.x, 0, 0));
+	glm::quat quaternionY(glm::vec3(0, eulerAngle.y, 0));
 
-	glm::quat quaternionYaw(glm::vec3( 0, eulerAngle.y, 0));
+	glm::quat quaternionZ(glm::vec3( 0, 0, eulerAngle.z));
 
-	glm::mat4x4 rotationMat4 = glm::mat4_cast(quaternionPitch) * glm::mat4_cast(quaternionRoll) * glm::mat4_cast(quaternionYaw) ;
+	glm::mat4x4 rotationMat4 = glm::mat4_cast(quaternionY) * glm::mat4_cast(quaternionX) * glm::mat4_cast(quaternionZ) ;
 
 
 	// convert glm::mat4 into Mat4
