@@ -3,10 +3,7 @@
 #include <string>
 #include <vector>
 #include <typeinfo>
-#include <typeindex>
 #include "ComponentComposition/Component.h"
-#include "iostream"
-
 
 namespace PlatinumEngine
 {
@@ -47,13 +44,13 @@ namespace PlatinumEngine
 			return false;
 		}
 
-		//Returns existing component or NULL if it doesn't exist
+		//Returns existing component or nullptr if it doesn't exist
 		template<class T> T* GetComponent()
 		{
 			for(auto& c:_components)
 				if(typeid(*c)==typeid(T))
 					return dynamic_cast<T*>(c);
-			return NULL;
+			return nullptr;
 		}
 
 		//Removes component
@@ -82,6 +79,7 @@ namespace PlatinumEngine
 	private:
 		int GetChildIndex(GameObject* child);
 		void RemoveChild(GameObject* child);
+		bool IsChildOf(GameObject* parent);
 	};
 }
 #endif //PLATINUMENGINE_GAMEOBJECT_H
