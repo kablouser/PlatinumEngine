@@ -18,17 +18,17 @@ namespace PlatinumEngine
 		///ifs in main menu window list to call the function inside
 		///-----------------------------------------------------------------------
 		//window section
-		if (_showWindowGame) ShowWindowGame(&_showWindowGame);
-		if (_showWindowScene) ShowWindowScene(&_showWindowScene);
-		if (_showWindowHierarchy) ShowWindowHierarchy(&_showWindowHierarchy);
-		if (_showWindowInspector) ShowWindowInspector(&_showWindowInspector);
-		if (_showWindowProject) ShowWindowProject(&_showWindowProject);
-		if (_showWindowAnimation) ShowWindowAnimation(&_showWindowAnimation);
-		if (_showWindowAudio) ShowWindowAudio(&_showWindowAudio);
-		if (_showWindowLight) ShowWindowLight(&_showWindowLight);
+		if (_showWindowGame) 			ShowWindowGame(&_showWindowGame);
+		if (_showWindowScene) 			ShowWindowScene(&_showWindowScene);
+		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy);
+		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector);
+		if (_showWindowProject) 		ShowWindowProject(&_showWindowProject);
+		if (_showWindowAnimation) 		ShowWindowAnimation(&_showWindowAnimation);
+		if (_showWindowAudio) 			ShowWindowAudio(&_showWindowAudio);
+		if (_showWindowLight) 			ShowWindowLight(&_showWindowLight);
 
-		if (showFileOpenScene) DrawOpenScene(&showFileOpenScene);
-		if (showFileSave) DrawSaveScene(&showFileSave);
+		if (_showFileLoad) 				LoadFile();
+		if (_showFileSave) 				SaveFile();
 
 		///-------------------------------------------------------------------
 		/// set up the main menu bar
@@ -39,44 +39,17 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	/// This section is for main menu bar "file" part file dialog showing
 	///--------------------------------------------------------------------------
-	void WindowManager::DrawSaveScene(bool* outIsOpen)
+	void WindowManager::LoadFile()
 	{
-		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Save Scene", ".scene", ".");
-
-		// display
-		if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
-		{
-			// action if OK
-			if (ImGuiFileDialog::Instance()->IsOk())
-			{
-				std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-				std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
-				// action
-			}
-
-			// close
-			ImGuiFileDialog::Instance()->Close();
-		}
+		std::string x;
+		x = PlatinumEngine::fileDialog::LoadFile();
+		std::cout << x << std::endl;
 	}
-
-	void WindowManager::DrawOpenScene(bool* outIsOpen)
+	void WindowManager::SaveFile()
 	{
-		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Open Scene", ".scene", ".");
-
-		// display
-		if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
-		{
-			// action if OK
-			if (ImGuiFileDialog::Instance()->IsOk())
-			{
-				std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-				std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
-				// action
-			}
-
-			// close
-			ImGuiFileDialog::Instance()->Close();
-		}
+		std::string x;
+		x = PlatinumEngine::fileDialog::SaveFile();
+		std::cout << x << std::endl;
 	}
 
 	///--------------------------------------------------------------------------
@@ -85,14 +58,16 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	void WindowManager::ShowMenuFile()
 	{
-		if (ImGui::MenuItem("New Scene"))
-		{}
-		if (ImGui::MenuItem("Open Scene", "", &showFileOpenScene))
-		{}
-		if (ImGui::MenuItem("Save", "Ctrl+S", &showFileSave))
-		{}
-		if (ImGui::MenuItem("Save as"))
-		{}
+
+		if (ImGui::MenuItem("Load", "", &_showFileLoad))
+		{
+			ImGuiFileDialog::Instance()->OpenDialog("LoadFileKey","Load File",".*",".");
+		}
+		if (ImGui::MenuItem("Save", "Ctrl+S", &_showFileSave))
+		{
+			ImGuiFileDialog::Instance()->OpenDialog("SaveFileKey","Save File",".*",".");
+		}
+
 	}
 
 	///--------------------------------------------------------------------------

@@ -1,10 +1,14 @@
 #pragma once
-
 // OpenGL data types
 #include <GL/glew.h>
 // for handling glsl shader source code
 #include <string>
-
+// gui
+#include <imgui.h>
+// glm
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 namespace PlatinumEngine
 {
 	class ShaderProgram
@@ -21,6 +25,33 @@ namespace PlatinumEngine
 		void Unbind() const;
 
 		GLuint GetHandle() const;
+
+		// utility uniform functions
+		void SetUniform(const std::string &name, bool value) const;
+
+		void SetUniform(const std::string &name, int value) const;
+
+		void SetUniform(const std::string &name, float value) const;
+
+		void SetUniform(const std::string &name, float x, float y) const;
+
+		void SetUniform(const std::string &name, float x, float y, float z) const;
+
+		void SetUniform(const std::string &name, float x, float y, float z, float w) const;
+
+		void SetUniform(const std::string &name, const glm::vec2 &value) const;
+
+		void SetUniform(const std::string &name, const glm::vec3 &value) const;
+
+		void SetUniform(const std::string &name, const glm::vec4 &value) const;
+
+		void SetUniform(const std::string &name, const glm::mat2 &value) const;
+
+		void SetUniform(const std::string &name, const glm::mat3 &value) const;
+
+		void SetUniform(const std::string &name, const glm::mat4 &value) const;
+
+
 
 	private:
 
