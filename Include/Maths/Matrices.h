@@ -1,6 +1,11 @@
 //
 // Created by Shihua on 08/03/2022.
 //
+/// Warning:
+/// 1. Matrix class are using column-major array like glm.
+/// 2. Use Matrix[y/row][x/column] to access every elements.
+
+
 #pragma once
 
 #include <assert.h>
@@ -98,15 +103,25 @@ namespace Maths
 	{
 
 	public:
+		/***
+		 * Return the reference of a specific value Matrix[y/row][x/column] in matrix array.
+		 * @param column
+		 * @return
+		 */
 		T& operator[](unsigned int column);
 
 
 	private:
+
+		//___DECLAIRE FRIEND CLASS___
 		friend class Matrix<numberOfRow, numberOfColumn, T>;
 
+
+		//___PARAMETERS___
 		Matrix<numberOfRow, numberOfColumn, T>& _matrix;
 		unsigned int _currentRow;
 
+		//___CONSTRUCTOR___
 		MatrixHelper(Matrix<numberOfRow, numberOfColumn, T>& matrix, unsigned int currentRow);
 	};
 
@@ -150,6 +165,8 @@ namespace Maths
 
 		void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
 
+		void PrintMatrix();
+
 
 		//___CONSTRUCTOR___
 		using Matrix<4, 4, float>::Matrix;
@@ -158,13 +175,35 @@ namespace Maths
 		//___VARIABLE___
 
 
-	private:
+	};
+
+
+	class Mat3 : public Matrix<3, 3, float>
+	{
+	public:
 
 		//___FUNCTION___
+		Mat3 operator*(Mat3 anotherMat4);
+
+		Vec3 operator*(Vec3 homogeneousVector);
+
+		void ConvertFromArray(float* arrayMat3);
+
+		void SetIdentityMatrix();
+
+		void SetRotationMatrix(Vec3 eulerAngle);
+
+		void SetScaleMatrix(float scale);
+
+		void PrintMatrix();
 
 		//___CONSTRUCTOR___
+		using Matrix<3, 3, float>::Matrix;
+
 
 		//___VARIABLE___
+
+
 	};
 
 
@@ -320,9 +359,11 @@ namespace PlatinumEngine
 
 			assert(numberOfRow > _currentRow || numberOfColumn > column);
 
-			return _matrix.matrix[_currentRow * numberOfColumn + column];
+			return _matrix.matrix[column * numberOfRow + _currentRow];
 
 		}
+
+
 
 	}
 }
