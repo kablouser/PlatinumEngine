@@ -55,12 +55,21 @@ namespace PlatinumEngine
 
 		//Specific function that will handle Axis related inputs
 		float GetAxis(std::string axisName);
+		void CreateAxis(std::string axisName);
+		void SetAxisType(std::string axisName, AxisType axisType);
+		void SetAxisPositiveKey(std::string axisName, int posKey);
+		void SetAxisNegativeKey(std::string axisName, int negKey);
+		void SetAxisGamepadID(std::string axisName, int id);
+		void SetAxisGamepadAxis(std::string axisName, int padAxis);
+		void SetAxisGamepadPositiveButton(std::string axisName, int padposKey);
+		void SetAxisGamepadNegativeButton(std::string axisName, int padnegKey);
 
 		// Todo
 		// Handle button events and modulation keys
 
 	private:
-
 		std::vector<Axis> _axes;
+	private:
+		int GetAxisIndex(std::string axisName);
 	};
 }

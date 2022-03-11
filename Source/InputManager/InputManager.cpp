@@ -11,9 +11,6 @@
 
 namespace PlatinumEngine
 {
-
-
-
 	InputManager::InputManager()
 	{
 		///--------------------------------------------------------------------------
@@ -36,8 +33,6 @@ namespace PlatinumEngine
 		axis.negativeKey = GLFW_KEY_UNKNOWN;
 		axis.type = AxisType::keyboardMouseButton;
 		_axes.push_back(axis);
-
-
 	}
 
 	void InputManager::ShowGUIWindow(bool* outIsOpen)
@@ -204,5 +199,54 @@ namespace PlatinumEngine
 		// produce warning/error here
 		return 0.0f;
 		//NEED MORE REFINEMENT AND IMPROVEMENT
+	}
+
+	void InputManager::CreateAxis(std::string axisName)
+	{
+		Axis newAxis;
+		newAxis.name = axisName;
+		_axes.push_back(newAxis);
+	}
+	void InputManager::SetAxisType(std::string axisName, AxisType axisType)
+	{
+		_axes[GetAxisIndex(axisName)].type = axisType;
+	}
+
+	void InputManager::SetAxisPositiveKey(std::string axisName, int posKey)
+	{
+		_axes[GetAxisIndex(axisName)].positiveKey = posKey;
+	}
+
+	void InputManager::SetAxisNegativeKey(std::string axisName, int negKey)
+	{
+		_axes[GetAxisIndex(axisName)].negativeKey = negKey;
+	}
+
+	void InputManager::SetAxisGamepadID(std::string axisName, int id)
+	{
+		_axes[GetAxisIndex(axisName)].gamepadID = id;
+	}
+
+	void InputManager::SetAxisGamepadAxis(std::string axisName, int padAxis)
+	{
+		_axes[GetAxisIndex(axisName)].gamepadAxis = padAxis;
+	}
+
+	void InputManager::SetAxisGamepadPositiveButton(std::string axisName, int padposKey)
+	{
+		_axes[GetAxisIndex(axisName)].gamepadPositiveButton = padposKey;
+	}
+
+	void InputManager::SetAxisGamepadNegativeButton(std::string axisName, int padnegKey)
+	{
+		_axes[GetAxisIndex(axisName)].gamepadNegativeButton = padnegKey;
+	}
+
+	int InputManager::GetAxisIndex(std::string axisName)
+	{
+		for(int i=0;i<_axes.size();i++)
+			if(_axes[i].name==axisName)
+				return i;
+		return -1;
 	}
 }
