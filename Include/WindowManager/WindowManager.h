@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+#include <WindowManager/Filedialog.h>
 namespace PlatinumEngine
 {
 	class WindowManager
@@ -20,11 +20,11 @@ namespace PlatinumEngine
 		void SetUpMainMenu();
 
         //file section
-        void DrawSaveScene(bool* outIsOpen);
-        void DrawOpenScene(bool* outIsOpen);
+        void LoadFile();
+        void SaveFile();
 
         //shortcuts for main menu bars
-		void DoShortCut(sf::Event event);
+//		void DoShortCut(sf::Event event);
 		///-----------------------------------
 		///sub menu item functions to open corresponding window
 		///-----------------------------------
@@ -56,21 +56,20 @@ namespace PlatinumEngine
 		bool _showGameObjectEmpty            = false;
 		bool _showGameObjectEmptyChild       = false;
 		bool _showGameObjectEmptyParent      = false;
-		bool _showGameObjectCube      = false;
-		bool _showGameObjectSphere    = false;
-		bool _showGameObjectPlane     = false;
-		bool _showGameObjectCapsule   = false;
-		bool _showGameObjectParticleEffect  = false;
+		bool _showGameObjectCube      		 = false;
+		bool _showGameObjectSphere  		 = false;
+		bool _showGameObjectPlane   		 = false;
+		bool _showGameObjectCapsule   		 = false;
+		bool _showGameObjectParticleEffect   = false;
 		bool _showGameObjectCamera           = false;
 		bool _showGameObjectLight            = false;
 
 		///-----------------------------------------------------------------------
 		///bools in main menu file list
 		///-----------------------------------------------------------------------
-	    bool showFileNewScene               = false;
-	    bool showFileOpenScene              = false;
-	    bool showFileSave                   = false;
-	    bool showFileSaveAs                 = false;
+	    bool _showFileLoad          		 = false;
+	    bool _showFileSave                   = false;
+
 
 	};
 }
