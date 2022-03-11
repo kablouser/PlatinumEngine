@@ -53,14 +53,12 @@ namespace PlatinumEngine
 		// update projection matrix in shader
 		void SetProjectionMatrix(Maths::Mat4 mat = Maths::Mat4(1.0));
 
-		// basic render function, will be improved in the future
-		void Render();
 
-		void ShowGUIWindow(bool* outIsOpen);
+		// basic render function, will be improved in the future
+		void Render(bool* outIsOpen);
 
 		/**
-		 * mesh component can call this function to input mesh data into shader, if you want to test a mesh renderer,
-		 * use this function
+		 * mesh component can call this function to input mesh data into shader
 		 * @param mesh
 		 */
 		void LoadMesh(const Mesh &mesh);
@@ -70,7 +68,7 @@ namespace PlatinumEngine
 		// true iff all init steps were successful
 		bool _isInitGood;
 
-		ShaderProgram _meshShader, _lightShader;
+		ShaderProgram _shaderProgram;
 		ShaderInput _unlitShaderInput;
 
 		Framebuffer _framebuffer;
@@ -79,6 +77,7 @@ namespace PlatinumEngine
 
 
 		void SetLightProperties();
+
 
 
 	};
