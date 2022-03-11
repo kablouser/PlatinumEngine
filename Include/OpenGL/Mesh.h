@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
 #include <vector>
 #include <OpenGL/Vertex.h>
 #include <OpenGL/Texture.h>
