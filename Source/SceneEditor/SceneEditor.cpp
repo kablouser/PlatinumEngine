@@ -13,10 +13,10 @@ namespace PlatinumEngine{
 
 	// ___CONSTRUCTOR___
 
-	SceneEditor::SceneEditor(InputManagerExtend* inputManager, Scene* scene):
+	SceneEditor::SceneEditor(InputManagerExtend* inputManager)://, Scene* scene):
 			_ifCameraSettingWindowOpen(false),
-			_camera(), _fov(0), _near(0.4), _far(10000),_inputManager(inputManager), _scene(scene)
-			,_mouseMoveDelta(0, 0) ,_mouseButtonType(InputManagerExtend::MouseButtonType::none),
+			_camera(), _fov(0), _near(0.4), _far(10000),_inputManager(inputManager),//, _scene(scene)
+			_mouseMoveDelta(0, 0) ,_mouseButtonType(InputManagerExtend::MouseButtonType::none),
 			_wheelValueDelta(0)
 
 	{
@@ -56,7 +56,7 @@ namespace PlatinumEngine{
 
 				_inputManager->GetMouseMoveVector(_mouseMoveDelta,_mouseButtonType);
 
-				_wheelValueDelta = _inputManager.GetMouseWheelDeltaValue();
+				_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
 
 
 				ImGui::Text("Wheel shift value: %.1f", _wheelValueDelta);

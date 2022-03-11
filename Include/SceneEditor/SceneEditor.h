@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Renderer/Renderer.h>
-#include "RasterRenderer/Renderer.h"
+#include "Renderer/Renderer.h"
 #include "EditorCamera.h"
 #include "SceneEditor/InputManagerExtend.h"
 
@@ -36,7 +36,7 @@ namespace PlatinumEngine
 
 
 		// ___CONSTRUCTOR___
-		SceneEditor(InputManagerExtend* inputManager, Scene* scene);
+		SceneEditor(InputManagerExtend* inputManager);//, Scene* scene);
 
 
 
@@ -52,7 +52,7 @@ namespace PlatinumEngine
 
 		// Input Manager
 		InputManagerExtend* _inputManager;
-		Scene* _scene;
+		//Scene* _scene;
 
 		// Values for Camera
 		EditorCamera _camera;

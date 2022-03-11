@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 
 #include <InputManager/InputManager.h>
+#include <SceneEditor/InputManagerExtend.h>
 #include <Renderer/Renderer.h>
 #include <WindowManager/WindowManager.h>
 #include <Logger/Logger.h>
@@ -72,7 +73,8 @@ int main(int, char**)
 
 
 		bool isSceneEditorOpen = true;
-		PlatinumEngine::SceneEditor sceneEditor;
+		PlatinumEngine::InputManagerExtend inputManagerExtend;
+		PlatinumEngine::SceneEditor sceneEditor(&inputManagerExtend);
 
 		bool isInputWindowOpen = true;
 		PlatinumEngine::InputManager inputManager;
