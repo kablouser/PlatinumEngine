@@ -89,6 +89,8 @@ namespace PlatinumEngine
 
 	void ShaderInput::Draw(GLenum drawingMode) const
 	{
+		if(_drawLength == 0)
+			return;
 		GL_CHECK(glBindVertexArray(_vertexArrayObject));
 		GL_CHECK(glDrawElements(drawingMode, _drawLength, _typeOfIndex, 0));
 		// Alternative direct drawing without indexing
