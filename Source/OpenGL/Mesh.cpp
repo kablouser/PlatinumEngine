@@ -2,8 +2,6 @@
 // Created by Matt & Jinyaun on 08/03/2022.
 //
 
-#pragma once
-
 #include <OpenGL/Mesh.h>
 
 using namespace PlatinumEngine;
