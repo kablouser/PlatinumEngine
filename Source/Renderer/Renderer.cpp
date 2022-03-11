@@ -1,4 +1,4 @@
-#include <RasterRenderer/Renderer.h>
+#include <Renderer/Renderer.h>
 // checking errors
 #include <OpenGL/GLCheck.h>
 // gui
@@ -6,7 +6,7 @@
 // OpenGL extensions
 #include <GL/glew.h>
 // printing errors
-#include <iostream>
+#include <Logger/Logger.h>
 
 // shaders
 // DON'T FORMAT THESE LINES, OTHERWISE IT BREAKS
@@ -31,12 +31,11 @@ namespace PlatinumEngine
 
 		if (printOpenGLInfo)
 		{
-			std::cout <<
-					  "OpenGL context info" << std::endl <<
-					  "Vendor: " << glGetString(GL_VENDOR) << std::endl <<
-					  "Renderer: " << glGetString(GL_RENDERER) << std::endl <<
-					  "OpenGL version: " << glGetString(GL_VERSION) << std::endl <<
-					  "GLSL version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+			PLATINUM_INFO("OpenGL context info");
+			PLATINUM_INFO("Vendor: "+std::string((char*)glGetString(GL_VENDOR)));
+			PLATINUM_INFO("Renderer: "+std::string((char*)glGetString(GL_RENDERER)));
+			PLATINUM_INFO("OpenGL version: "+std::string((char*)glGetString(GL_VERSION)));
+			PLATINUM_INFO("GLSL version: "+std::string((char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
 			// TODO
 			// check if version meets minimum requirements here
 			// need to parse string
@@ -46,7 +45,7 @@ namespace PlatinumEngine
 		GLenum errorCode = glewInit();
 		if (errorCode != GLEW_OK)
 		{
-			std::cerr << "GLEW initialisation error. " << glewGetErrorString(errorCode) << std::endl;
+			PLATINUM_ERROR(std::string("GLEW initialisation error. ") + std::string((char*)glewGetErrorString(errorCode)));
 			// without GLEW, seg faults will happen
 			return;
 		}

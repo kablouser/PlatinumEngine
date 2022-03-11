@@ -8,7 +8,7 @@
 #include <GLFW/glfw3.h>
 
 #include <InputManager/InputManager.h>
-#include "RasterRenderer/Renderer.h"
+#include <Renderer/Renderer.h>
 #include <WindowManager/WindowManager.h>
 #include <Logger/Logger.h>
 
@@ -59,21 +59,15 @@ int main(int, char**)
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
+		// construct logger before everything to save all logs
+		bool isLoggerOpen = true;
+		PlatinumEngine::Logger logger;
+
 		bool isRasterRendererOpen = true;
 		PlatinumEngine::Renderer rasterRenderer;
 
 		bool isInputWindowOpen = true;
 		PlatinumEngine::InputManager inputManager;
-
-		bool isLoggerOpen = true;
-		PlatinumEngine::Logger logger;
-
-		for(int i = 0; i < 20; ++i)
-		{
-			PLATINUM_INFO("Hello");
-			PLATINUM_WARNING("BLAHR");
-			PLATINUM_ERROR("EH ERH");
-		}
 
 		PlatinumEngine::WindowManager windowManager;
 

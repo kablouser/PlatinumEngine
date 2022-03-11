@@ -3,11 +3,11 @@
  */
 
 #include <OpenGL/GLCheck.h>
+#include <Logger/Logger.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include <string>
-#include <iostream>
 
 namespace PlatinumEngine
 {
@@ -16,19 +16,19 @@ namespace PlatinumEngine
 		// if there's no OpenGL context, glGetError produces infinitely GL_INVALID_OPERATION
 		// (good job OpenGL, couldn't think of a special error code for this scenario)
 		if(glfwGetCurrentContext() == nullptr)
+		{
+			// only print once per macro
+			if(!isAfterExpression)
+				Logger::LogError("GL_CHECK used outside of a OpenGL context", file, line);
 			return;
+		}
 
 		GLenum errorCode;
-		// How many errors are we up to currently?
-		int errorCount = 0;
 
 		// There could be multiple errors
 		// Loop through errors stack
 		while ((errorCode = glGetError()) != GL_NO_ERROR)
 		{
-			++errorCount;
-
-			std::string fileString = file;
 			std::string error = "Unknown error";
 
 			switch (errorCode)
@@ -62,37 +62,13 @@ namespace PlatinumEngine
 				break;
 			}
 
+			std::string errorMessage;
 			if(isAfterExpression)
-			{
-				// expression caused the errors
-				if (errorCount == 1)
-				{
-					// Only print the file and expression once
-					std::cerr << "Internal OpenGL error(s) on "
-							  << fileString.substr(fileString.find_last_of("\\/") + 1) << "(" << line << ")."
-							  << std::endl
-					          << "    " << expression << std::endl;
-				}
-				std::cerr << "    " << error << std::endl;
-			}
+				errorMessage = "OpenGL error. ";
 			else
-			{
-				// expression did NOT cause the errors
-				if (errorCount == 1)
-				{
-					// Only print the file once
-					std::cerr << "Internal OpenGL error(s) was not caught until now "
-							  << fileString.substr(fileString.find_last_of("\\/") + 1) << "(" << line << ")."
-							  << std::endl;
-				}
-				std::cerr << "    " << error << std::endl;
-			}
-		}
+				errorMessage = "OpenGL error was not caught until now. ";
 
-		if(0 < errorCount)
-		{
-			// make multi-line output more tidy
-			std::cerr << std::endl;
+			Logger::LogError(errorMessage + error, file, line);
 		}
 	}
 }
