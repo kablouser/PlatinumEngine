@@ -1,13 +1,12 @@
 //
-// Created by LEGION on 09/03/2022.
+// Created by Shihua on 09/03/2022.
 //
 
 #pragma once
 
-
-#include <ComponentComposition/GameObject.h>
-#include <ComponentComposition/Component.h>
-#include <RasterRenderer/RasterRenderer.h>
+#include "ComponentComposition/GameObject.h"
+//#include "ComponentComposition/Component.h"
+#include "Renderer/Renderer.h"
 
 namespace PlatinumEngine
 {

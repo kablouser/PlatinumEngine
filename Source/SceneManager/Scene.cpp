@@ -45,9 +45,10 @@ namespace PlatinumEngine
 			std::remove(parent->_children.begin(), parent->_children.end(), gameObject);
 		}
 
+		std::remove(_gameObjects.begin(), _gameObjects.end(), gameObject);
+
 		delete gameObject;
 
-		std::remove(_gameObjects.begin(), _gameObjects.end(), gameObject);
 
 	}
 
@@ -69,9 +70,10 @@ namespace PlatinumEngine
 	void Scene::RemoveComponent(Component* component)
 	{
 
+		std::remove(_components.begin(), _components.end(), component);
+
 		delete component;
 
-		std::remove(_components.begin(), _components.end(), component);
 
 	}
 
