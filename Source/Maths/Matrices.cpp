@@ -155,16 +155,6 @@ namespace PlatinumEngine
 		}
 
 
-		void Mat4::PrintMatrix()
-		{
-			printf("Matrix 4x4: \n %.1f, %.1f, %.1f, %.1f \n %.1f, %.1f, %.1f, %.1f \n %.1f, %.1f, %.1f, %.1f \n %.1f, %.1f, %.1f, %.1f \n\n",
-					(*this)[0][0],(*this)[0][1], (*this)[0][2],(*this)[0][3],
-					(*this)[1][0],(*this)[1][1], (*this)[1][2],(*this)[1][3],
-					(*this)[2][0],(*this)[2][1], (*this)[2][2],(*this)[2][3],
-					(*this)[3][0],(*this)[3][1], (*this)[3][2],(*this)[3][3]
-			);
-
-		}
 
 
 		void Mat3::ConvertFromArray(float* arrayMatrix)
@@ -248,8 +238,8 @@ namespace PlatinumEngine
 		{
 			float vectorArray[] = { vector.x, vector.y, vector.z};
 
-			glm::mat3x3 leftMatrix = glm::make_mat4(this->matrix);
-			glm::vec3 rightVector = glm::make_vec4(vectorArray);
+			glm::mat3x3 leftMatrix = glm::make_mat3(this->matrix);
+			glm::vec3 rightVector = glm::make_vec3(vectorArray);
 			glm::vec3 result = leftMatrix * rightVector;
 
 			Vec3 resultVec3;
@@ -264,15 +254,7 @@ namespace PlatinumEngine
 		}
 
 
-		void Mat3::PrintMatrix()
-		{
-			printf("Matrix 3x3: \n %.1f, %.1f, %.1f \n %.1f, %.1f, %.1f\n %.1f, %.1f, %.1f \n\n",
-					(*this)[0][0],(*this)[0][1], (*this)[0][2],
-					(*this)[1][0],(*this)[1][1], (*this)[1][2],
-					(*this)[2][0],(*this)[2][1], (*this)[2][2]
-			);
 
-		}
 
 	}
 }

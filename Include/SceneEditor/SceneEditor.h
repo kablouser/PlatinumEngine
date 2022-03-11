@@ -36,9 +36,7 @@ namespace PlatinumEngine
 
 
 		// ___CONSTRUCTOR___
-		SceneEditor(unsigned int depthBits = 24,
-					unsigned int stencilBits =8,
-					unsigned int antiAliasingLevel=4);
+		SceneEditor(InputManagerExtend* inputManager, Scene* scene);
 
 
 
@@ -53,7 +51,8 @@ namespace PlatinumEngine
 		bool _ifCameraSettingWindowOpen;
 
 		// Input Manager
-		InputManagerExtend _inputManager;
+		InputManagerExtend* _inputManager;
+		Scene* _scene;
 
 		// Values for Camera
 		EditorCamera _camera;
@@ -61,10 +60,9 @@ namespace PlatinumEngine
 		int _near;
 		int _far;
 
-
-
-		// settings for rendering OpenGL
-		// sf::ContextSettings _contextSettings;
+		ImVec2 _mouseMoveDelta;
+		InputManagerExtend::MouseButtonType _mouseButtonType;
+		float _wheelValueDelta;
 
 		// intermediate output of OpenGL rendering
 		// sf::RenderTexture _renderTexture;

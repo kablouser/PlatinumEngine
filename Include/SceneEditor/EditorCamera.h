@@ -20,11 +20,7 @@ namespace PlatinumEngine
 		// Flags
 		bool isOrthogonal;
 
-		// Input type
-		enum KeyType
-		{
-			up, down, left, right
-		};
+		enum AxisType{horizontalAxis, verticalAxis};
 
 
 		// FUNCTION
@@ -41,7 +37,7 @@ namespace PlatinumEngine
 		 * Accept mouse input and rotate camera based on the mouse position.
 		 * @param delta
 		 */
-		void RotationByMouse(glm::vec2 delta);
+		void RotationByMouse(Maths::Vec2 delta);
 
 
 		/**
@@ -49,7 +45,7 @@ namespace PlatinumEngine
 		 * based on the mouse position.
 		 * @param newMousePosition
 		 */
-		void TranslationByMouse(glm::vec2 newMousePosition);
+		void TranslationByMouse(Maths::Vec2 newMousePosition);
 
 		/**
 		 * Accept mouse input and translate camera (forward or backward)
@@ -63,13 +59,8 @@ namespace PlatinumEngine
 		 * based on the mouse wheel delta value.
 		 * @param type
 		 */
-		void TranslationByKeyBoard(KeyType type);
+		void TranslationByKeyBoard(float x, float y);
 
-		/**
-		 * Update the initial mouse position.
-		 * @param delta
-		 */
-		void UpdateInitialMousePosition(glm::vec2 delta);
 
 		/**
 		 * The three functions are to calculate new up/forward/right
@@ -105,7 +96,6 @@ namespace PlatinumEngine
 		Maths::Vec3 _translationValue;
 
 		// device input data
-		glm::vec2 _initialMousePosition;
 		float _translationSpeed = 0.005;
 		float _rotationSpeed = 0.005;
 

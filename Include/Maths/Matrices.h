@@ -165,8 +165,6 @@ namespace Maths
 
 		void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
 
-		void PrintMatrix();
-
 
 		//___CONSTRUCTOR___
 		using Matrix<4, 4, float>::Matrix;
@@ -194,8 +192,6 @@ namespace Maths
 		void SetRotationMatrix(Vec3 eulerAngle);
 
 		void SetScaleMatrix(float scale);
-
-		void PrintMatrix();
 
 		//___CONSTRUCTOR___
 		using Matrix<3, 3, float>::Matrix;
@@ -364,6 +360,25 @@ namespace PlatinumEngine
 		}
 
 
+
+		//-------------------------------------------
+		// overloading << operator
+		//-------------------------------------------
+
+		inline std::ostream& operator<<(std::ostream &out, Mat4 &m)
+		{
+			return out <<m[0][0]<<" "<<m[0][1]<<" "<<m[0][2]<<" "<<m[0][3]<<"\n"<<
+					m[1][0]<<" "<<m[1][1]<<" "<<m[1][2]<<" "<<m[1][3]<<"\n"<<
+					m[2][0]<<" "<<m[2][1]<<" "<<m[2][2]<<" "<<m[2][3]<<"\n"<<
+					m[3][0]<<" "<<m[3][1]<<" "<<m[3][2]<<" "<<m[3][3];
+		}
+
+		inline std::ostream& operator<<(std::ostream &out, Mat3 &m)
+		{
+			return out <<m[0][0]<<" "<<m[0][1]<<" "<<m[0][2]<<"\n"<<
+					   m[1][0]<<" "<<m[1][1]<<" "<<m[1][2]<<"\n"<<
+					   m[2][0]<<" "<<m[2][1]<<" "<<m[2][2]<<"\n";
+		}
 
 	}
 }
