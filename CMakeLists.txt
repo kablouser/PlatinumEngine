@@ -67,7 +67,7 @@ FetchContent_MakeAvailable(glew)
 set(PROJECT_SOURCES_WITHOUT_MAIN
 	# order by folder structure
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
-  
+
 	"Source/ComponentComposition/Component.cpp;"
 	"Source/ComponentComposition/ComponentType.cpp;"
 	"Source/ComponentComposition/GameObject.cpp;"
@@ -93,7 +93,6 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/ShaderInput.cpp;"
 	"Source/OpenGL/ShaderProgram.cpp;"
 	"Source/OpenGL/Texture.cpp;"
-
 	"Source/Renderer/Renderer.cpp;"
 	
 	"Source/SceneEditor/SceneEditor.cpp;"
