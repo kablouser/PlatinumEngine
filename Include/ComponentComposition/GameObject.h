@@ -39,7 +39,6 @@ namespace PlatinumEngine
 		int GetChildIndex(GameObject* child);
 		void RemoveChild(GameObject* child);
 
-
 		//Adds a component
 		template <class T> void AddComponent (T *component)
 		{
@@ -94,11 +93,7 @@ namespace PlatinumEngine
 		GameObject* _parent;
 		std::vector<GameObject*> _children;
 		std::vector<Component*> _components;
-
-	private:
-		int GetChildIndex(GameObject* child);
-		void RemoveChild(GameObject* child);
-		bool IsChildOf(GameObject* parent);
 	};
+
 }
 

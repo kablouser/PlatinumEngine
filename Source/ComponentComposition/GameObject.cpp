@@ -1,5 +1,4 @@
 
-
 #include <ComponentComposition/GameObject.h>
 namespace PlatinumEngine
 {
@@ -53,7 +52,6 @@ namespace PlatinumEngine
 	void GameObject::SetParent(GameObject* parent)
 
 	{
-
 
 		if(_parent == parent)
 			return;
@@ -128,14 +126,5 @@ namespace PlatinumEngine
 
 
 
-	}
-
-	//Checks if current GameObject is child of another GameObject
-	bool GameObject::IsChildOf(GameObject* parent)
-	{
-		for(int i=0;i<parent->GetChildrenCount();i++)
-			if(parent->GetChild(i)==this)
-				return true;
-		return false;
 	}
 }
