@@ -1,4 +1,4 @@
-#include "ComponentComposition/GameObject.h"
+#include <ComponentComposition/GameObject.h>
 namespace PlatinumEngine
 {
 	GameObject::GameObject()
@@ -36,7 +36,7 @@ namespace PlatinumEngine
 	//Removes it from old parent, updates the parent and then add to new parent
 	void GameObject::SetParent(GameObject* parent)
 	{
-		if(parent->IsChildOf(this))
+		if(_parent == parent)
 			return;
 		if(_parent)
 		{
@@ -93,14 +93,5 @@ namespace PlatinumEngine
 		int index = GetChildIndex(child);
 		if(index>=0)
 			_children.erase(_children.begin()+index);
-	}
-
-	//Checks if current GameObject is child of another GameObject
-	bool GameObject::IsChildOf(GameObject* parent)
-	{
-		for(int i=0;i<parent->GetChildrenCount();i++)
-			if(parent->GetChild(i)==this)
-				return true;
-		return false;
 	}
 }
