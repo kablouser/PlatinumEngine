@@ -111,6 +111,10 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	
 	"Source/SceneManager/Scene.cpp;"
 	
+	"Source/SceneEditor/EditorCamera.cpp;"
+	"Source/SceneEditor/SceneEditor.cpp;"
+	"Source/SceneManager/Scene.cpp;"
+	
 	"Source/WindowManager/Filedialog.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
 	)
