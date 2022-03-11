@@ -66,6 +66,7 @@ FetchContent_MakeAvailable(glew)
 # New place to put all your source code files into:
 set(PROJECT_SOURCES_WITHOUT_MAIN
 	# order by folder structure
+
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
 
 
@@ -98,6 +99,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/ShaderInput.cpp;"
 	"Source/OpenGL/ShaderProgram.cpp;"
 
+
 	"Source/OpenGL/Texture.cpp;"
 
 	"Source/Renderer/Renderer.cpp;"
@@ -112,12 +114,14 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/SceneManager/Scene.cpp;"
 	
 	"Source/SceneEditor/EditorCamera.cpp;"
+
 	"Source/SceneEditor/SceneEditor.cpp;"
+	"Source/SceneEditor/EditorCamera.cpp;"
 	"Source/SceneManager/Scene.cpp;"
-	
 	"Source/WindowManager/Filedialog.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
 	)
+
 
 
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
