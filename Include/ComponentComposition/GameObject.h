@@ -6,7 +6,7 @@
 #include "ComponentComposition/Component.h"
 
 #include "iostream"
-#include <SceneManager/Scene.h>
+
 
 namespace PlatinumEngine
 {

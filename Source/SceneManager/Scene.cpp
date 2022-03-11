@@ -3,7 +3,7 @@
 //
 
 #include <SceneManager/Scene.h>
-
+#include <algorithm>
 
 namespace PlatinumEngine
 {

@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "ComponentComposition/GameObject.h"
-//#include "ComponentComposition/Component.h"
-#include "Renderer/Renderer.h"
+// Platinum lib
+#include <ComponentComposition/GameObject.h>
+#include <Renderer/Renderer.h>
 
 namespace PlatinumEngine
 {
@@ -16,6 +16,7 @@ namespace PlatinumEngine
 
 	public:
 		///___FUNCTIONS___
+
 		GameObject* AddGameObject(GameObject* parent, std::string name);
 
 		void RemoveGameObject(GameObject*);
