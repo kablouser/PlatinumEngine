@@ -1,5 +1,5 @@
-#ifndef PLATINUMENGINE_GAMEOBJECT_H
-#define PLATINUMENGINE_GAMEOBJECT_H
+#pragma once
+
 #include <string>
 #include <vector>
 #include <typeinfo>
@@ -27,6 +27,9 @@ namespace PlatinumEngine
 
 		void RemoveComponent(int index);
 		int GetComponentCount();
+
+		int GetChildIndex(GameObject* child);
+		void RemoveChild(GameObject* child);
 
 		//Adds a component
 		template <class T> void AddComponent (T *component)
@@ -75,11 +78,5 @@ namespace PlatinumEngine
 		GameObject* _parent;
 		std::vector<GameObject*> _children;
 		std::vector<Component*> _components;
-
-	private:
-		int GetChildIndex(GameObject* child);
-		void RemoveChild(GameObject* child);
-		bool IsChildOf(GameObject* parent);
 	};
 }
-#endif //PLATINUMENGINE_GAMEOBJECT_H
