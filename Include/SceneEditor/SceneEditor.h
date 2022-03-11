@@ -4,9 +4,10 @@
 
 #pragma once
 
-
-//#include <SFML/Graphics.hpp>
 #include <Renderer/Renderer.h>
+#include "RasterRenderer/Renderer.h"
+#include "EditorCamera.h"
+#include "SceneEditor/InputManagerExtend.h"
 
 namespace PlatinumEngine
 {
@@ -17,12 +18,20 @@ namespace PlatinumEngine
 
 
 
-
 		// ___FUNCTION___
 
-		/// Show scene editor window
-		/// \param outIsOpen: flag for showing this window or not
+		/**
+		 * Show scene editor window
+		 * @param outIsOpen : flag for showing this window or not
+		 * @param rasterRenderer :  Reference of the engine renderer
+		 */
 		void ShowGUIWindow(bool* outIsOpen, Renderer& rasterRenderer);
+
+		/**
+		 * Update data in Scene Editor
+		 */
+		void Update();
+
 
 
 
@@ -37,11 +46,30 @@ namespace PlatinumEngine
 		//~SceneEditor();
 
 	private:
+
+		// ___PARAMETERS___
+
+		// Flags
+		bool _ifCameraSettingWindowOpen;
+
+		// Input Manager
+		InputManagerExtend _inputManager;
+
+		// Values for Camera
+		EditorCamera _camera;
+		int _fov;
+		int _near;
+		int _far;
+
+
+
 		// settings for rendering OpenGL
-//		sf::ContextSettings _contextSettings;
+		// sf::ContextSettings _contextSettings;
 
 		// intermediate output of OpenGL rendering
-//		sf::RenderTexture _renderTexture;
+		// sf::RenderTexture _renderTexture;
+
+
 
 	};
 }

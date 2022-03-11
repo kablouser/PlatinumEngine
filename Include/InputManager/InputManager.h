@@ -68,7 +68,11 @@ namespace PlatinumEngine
 
 	private:
 		std::vector<Axis> _axes;
+
 	private:
 		int GetAxisIndex(std::string axisName);
+
+
+
 	};
 }

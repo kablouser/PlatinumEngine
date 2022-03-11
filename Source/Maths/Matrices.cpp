@@ -222,6 +222,7 @@ namespace PlatinumEngine
 
 		}
 
+
 		Mat3 Mat3::operator*(float scale)
 		{
 
@@ -275,6 +276,7 @@ namespace PlatinumEngine
 
 			glm::mat3x3 leftMatrix = glm::make_mat3(this->matrix);
 			glm::vec3 rightVector = glm::make_vec3(vectorArray);
+
 			glm::vec3 result = leftMatrix * rightVector;
 
 			Vec3 resultVec3;
@@ -287,6 +289,7 @@ namespace PlatinumEngine
 
 
 		}
+
 
 		Mat3 Mat3::operator+(Mat3 otherMatrix)
 		{
@@ -386,6 +389,7 @@ namespace PlatinumEngine
 			this->ConvertFromArray(scaleMatrix);
 
 		}
+
 
 	}
 }

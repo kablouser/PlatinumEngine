@@ -11,6 +11,8 @@
 #include <Renderer/Renderer.h>
 #include <WindowManager/WindowManager.h>
 #include <Logger/Logger.h>
+#include <SceneEditor/SceneEditor.h>
+
 
 #include <OpenGL/GLCheck.h>
 
@@ -68,6 +70,10 @@ int main(int, char**)
 		bool isRasterRendererOpen = true;
 		PlatinumEngine::Renderer rasterRenderer;
 
+
+		bool isSceneEditorOpen = true;
+		PlatinumEngine::SceneEditor sceneEditor;
+
 		bool isInputWindowOpen = true;
 		PlatinumEngine::InputManager inputManager;
 
@@ -86,11 +92,24 @@ int main(int, char**)
 			// GUI HERE
 			//--------------------------------------------------------------------------------------------------------------
 			if (isRasterRendererOpen)
+			{
 				rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
+				
+			}
+
+			if (isSceneEditorOpen)
+			{
+				sceneEditor.ShowGUIWindow(&isSceneEditorOpen, rasterRenderer);
+			}
+
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);
+
 			if(isLoggerOpen)
 				logger.ShowGUIWindow(&isLoggerOpen);
+
+
+
 			windowManager.ShowGUI();
 			//--------------------------------------------------------------------------------------------------------------
 			// END OF GUI

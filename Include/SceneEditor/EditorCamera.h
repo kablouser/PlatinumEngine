@@ -4,9 +4,7 @@
 
 #pragma once
 
-// math library
-#include <glm/gtc/quaternion.hpp>
-
+#include "Maths/Matrices.h"
 
 namespace PlatinumEngine
 {
@@ -14,9 +12,15 @@ namespace PlatinumEngine
 	{
 	public:
 		// VARIABLE
-		glm::mat4 lookAtMatrix4;
-		bool isFirstMousePress = false;
-		bool isFirstMouseWheelPress = false;
+
+		// Camera relative Matrix
+		Maths::Mat4 viewMatrix4;
+		Maths::Mat4 projectionMatrix4;
+
+		// Flags
+		bool isOrthogonal;
+
+		// Input type
 		enum KeyType
 		{
 			up, down, left, right
@@ -29,7 +33,8 @@ namespace PlatinumEngine
 		 * @param eulerAngle
 		 * @param translationValue
 		 */
-		void MoveCamera(glm::vec3 eulerAngle, glm::vec3 translationValue);
+		void MoveCamera(Maths::Vec3 eulerAngle,
+				Maths::Vec3 translationValue);
 
 
 		/**
@@ -71,9 +76,20 @@ namespace PlatinumEngine
 		 * direction by the newest view matrix
 		 * @return glm::vec3 is the new up/forward/right direction
 		 */
-		glm::vec3 GetUpDirection();
-		glm::vec3 GetForwardDirection();
-		glm::vec3 GetRightDirection();
+		Maths::Vec3 GetUpDirection();
+		Maths::Vec3 GetForwardDirection();
+		Maths::Vec3 GetRightDirection();
+
+
+
+		/// Functions for projection matrix
+
+		void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far);
+		void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
+		void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
+
+
+
 
 
 
@@ -85,8 +101,8 @@ namespace PlatinumEngine
 		// PARAMETER
 
 		// transformation
-		glm::vec3 _eulerAngle;
-		glm::vec3 _translationValue;
+		Maths::Vec3 _eulerAngle;
+		Maths::Vec3 _translationValue;
 
 		// device input data
 		glm::vec2 _initialMousePosition;
