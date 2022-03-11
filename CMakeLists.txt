@@ -75,6 +75,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/SceneEditor/SceneEditor.cpp;"
   	"Source/SceneEditor/EditorCamera.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
+	"Source/WindowManager/Filedialog.cpp;"
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
 	"Source/OpenGL/ShaderProgram.cpp;"
 	"Source/OpenGL/Texture.cpp;"
@@ -92,7 +93,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/In
 add_executable(tests
 	${PROJECT_SOURCES_WITHOUT_MAIN}
 	Test/TestTemplate.cpp
-	)
+	Source/WindowManager/Filedialog.cpp Include/WindowManager/Filedialog.h)
 target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
 
