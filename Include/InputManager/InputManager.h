@@ -46,6 +46,7 @@ namespace PlatinumEngine
 		bool IsMouseDown(int button);
 		bool IsMouseReleased(int button);
 		ImVec2 GetMousePosition();
+		int GetMouseDown();
 		bool IsKeyPressed(int key);
 		bool IsKeyDown(int key);
 		bool IsKeyReleased(int key);
@@ -56,6 +57,7 @@ namespace PlatinumEngine
 		//Specific function that will handle Axis related inputs
 		float GetAxis(std::string axisName);
 		void CreateAxis(std::string axisName);
+		void CreateAxis(std::string axisName, int positiveKey, int negativeKey, AxisType inputType);
 		void SetAxisType(std::string axisName, AxisType axisType);
 		void SetAxisPositiveKey(std::string axisName, int posKey);
 		void SetAxisNegativeKey(std::string axisName, int negKey);
@@ -64,11 +66,16 @@ namespace PlatinumEngine
 		void SetAxisGamepadPositiveButton(std::string axisName, int padposKey);
 		void SetAxisGamepadNegativeButton(std::string axisName, int padnegKey);
 
+		ImVec2 GetMouseMoveVector();
+		float GetMouseWheelDeltaValue();
+
 		// Todo
 		// Handle button events and modulation keys
 
 	private:
 		std::vector<Axis> _axes;
+		int _clickedMouseButton;
+		ImVec2 _previousMousePosition;
 	private:
 		int GetAxisIndex(std::string axisName);
 	};

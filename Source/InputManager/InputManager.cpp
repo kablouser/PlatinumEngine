@@ -125,6 +125,15 @@ namespace PlatinumEngine
 		//Relative to the current screen (might need to change this)
 	}
 
+	//Returns the current mouse button being pressed
+	int InputManager::GetMouseDown()
+	{
+		if(ImGui::IsMouseDown(ImGuiMouseButton_Left)) return 0;
+		else if(ImGui::IsMouseDown(ImGuiMouseButton_Right)) return 1;
+		else if(ImGui::IsMouseDown(ImGuiMouseButton_Middle)) return 2;
+		else return -1;
+	}
+
 	//Checks for Key Press Action
 	bool InputManager::IsKeyPressed(int key)
 	{
@@ -201,12 +210,25 @@ namespace PlatinumEngine
 		//NEED MORE REFINEMENT AND IMPROVEMENT
 	}
 
+	//Creates an empty axis with a name
 	void InputManager::CreateAxis(std::string axisName)
 	{
 		Axis newAxis;
 		newAxis.name = axisName;
 		_axes.push_back(newAxis);
 	}
+
+	//Creates an axis with a name and some initial values
+	void InputManager::CreateAxis(std::string axisName, int positiveKey, int negativeKey, AxisType inputType)
+	{
+		Axis axis;
+		axis.name=axisName;
+		axis.positiveKey = positiveKey;
+		axis.negativeKey = negativeKey;
+		axis.type = inputType;
+		_axes.push_back(axis);
+	}
+
 	void InputManager::SetAxisType(std::string axisName, AxisType axisType)
 	{
 		_axes[GetAxisIndex(axisName)].type = axisType;
@@ -240,6 +262,37 @@ namespace PlatinumEngine
 	void InputManager::SetAxisGamepadNegativeButton(std::string axisName, int padnegKey)
 	{
 		_axes[GetAxisIndex(axisName)].gamepadNegativeButton = padnegKey;
+	}
+
+	ImVec2 InputManager::GetMouseMoveVector()
+	{
+		int pressedMouseButton = GetMouseDown();
+		ImVec2 delta = ImVec2(0.f,0.f);
+		if(_clickedMouseButton != pressedMouseButton)
+		{
+			// update previous position
+			_previousMousePosition = GetMousePosition();
+		}
+			// if the key is pressed before
+		else if(pressedMouseButton != -1)
+		{
+			// get current position
+			ImVec2 currentPosition = GetMousePosition();
+			// calculate delta (distance and direction)
+			delta.x = currentPosition.x - _previousMousePosition.x;
+			delta.y = currentPosition.y - _previousMousePosition.y;
+			// update previous position
+			_previousMousePosition = GetMousePosition();
+		}
+		_clickedMouseButton = pressedMouseButton;
+		return delta;
+	}
+
+	float InputManager::GetMouseWheelDeltaValue()
+	{
+		float currentWheelValue = ImGui::GetIO().MouseWheel;
+		float delta = currentWheelValue - 0;
+		return delta;
 	}
 
 	int InputManager::GetAxisIndex(std::string axisName)
