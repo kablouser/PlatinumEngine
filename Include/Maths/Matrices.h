@@ -1,6 +1,11 @@
 //
 // Created by Shihua on 08/03/2022.
 //
+/// Warning:
+/// 1. Matrix class are using column-major array like glm.
+/// 2. Use Matrix[y/row][x/column] to access every elements.
+
+
 #pragma once
 
 #include <assert.h>
@@ -13,104 +18,114 @@
 //------------------------
 namespace PlatinumEngine
 {
-namespace Maths
-{
-
-	//-----------------------------------------------
-	//  Matrix template class and its helper class
-	//-----------------------------------------------
-
-	// ___class MatrixHelper___
-	// Declare Matrix helper class (help with rewriting operator [] to make "matrix[y][x]" works)
-
-	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-	class MatrixHelper;
-
-
-	// ___class Matrix___
-	// A template class for matrix classes
-	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-	class Matrix
+	namespace Maths
 	{
 
-	public:
+		//-----------------------------------------------
+		//  Matrix template class and its helper class
+		//-----------------------------------------------
 
-		//___FUNCTION___
+		// ___class MatrixHelper___
+		// Declare Matrix helper class (help with rewriting operator [] to make "matrix[y][x]" works)
 
-		/***
-		 * Overloading operator[] function. For accessing very element in the matrix.
-		 * @param row : This is the id of row (y)
-		 * @return    : Return object of MatrixHelper class, which contains another overloaded operator [] function
-		 */
-		MatrixHelper<numberOfRow, numberOfColumn, T> operator[](const int row);
-
-
-		/***
-		 * Overloading operator+ function. For addition between two matrices.
-		 * @param otherMatrix : another matrix object for doing the addition
-		 * @return A copy of matrix object  (the final result).
-		 */
-		Matrix<numberOfRow, numberOfColumn, T> operator+(Matrix<numberOfRow, numberOfColumn, T> otherMatrix);
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		class MatrixHelper;
 
 
-		/***
-		 * Overloading operator- function. For subtraction between two matrices.
-		 * @param otherMatrix : another matrix object for doing the subtraction
-		 * @return A copy of matrix object  (the final result).
-		 */
-		Matrix<numberOfRow, numberOfColumn, T> operator-(Matrix<numberOfRow, numberOfColumn, T> otherMatrix);
+		// ___class Matrix___
+		// A template class for matrix classes
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		class Matrix
+		{
+
+		public:
+
+			//___FUNCTION___
+
+			/***
+			 * Overloading operator[] function. For accessing very element in the matrix.
+			 * @param row : This is the id of row (y)
+			 * @return    : Return object of MatrixHelper class, which contains another overloaded operator [] function
+			 */
+			MatrixHelper<numberOfRow, numberOfColumn, T> operator[](const int row);
 
 
-		/***
-		 * Overloading operator* function. For scaling the matrix.
-		 * @param scale
-		 * @return A copy of matrix object (the final result).
-		 */
-		Matrix<numberOfRow, numberOfColumn, T> operator*(float scale);
+			/***
+			 * Overloading operator+ function. For addition between two matrices.
+			 * @param otherMatrix : another matrix object for doing the addition
+			 * @return A copy of matrix object  (the final result).
+			 */
+			Matrix<numberOfRow, numberOfColumn, T> operator+(Matrix<numberOfRow, numberOfColumn, T> otherMatrix);
 
 
-		/***
-		 * Overloading operator- function. For scaling the matrix.
-		 * @param otherMatrix
-		 */
-		void operator=(Matrix<numberOfRow, numberOfColumn, T> otherMatrix);
+			/***
+			 * Overloading operator- function. For subtraction between two matrices.
+			 * @param otherMatrix : another matrix object for doing the subtraction
+			 * @return A copy of matrix object  (the final result).
+			 */
+			Matrix<numberOfRow, numberOfColumn, T> operator-(Matrix<numberOfRow, numberOfColumn, T> otherMatrix);
 
 
-		//___CONSTRUCTOR___
-		Matrix(); // create empty matrix
-		Matrix(T valueForPacking); // fill the matrix (the std::vector) with valueForPacking
+			/***
+			 * Overloading operator* function. For scaling the matrix.
+			 * @param scale
+			 * @return A copy of matrix object (the final result).
+			 */
+			Matrix<numberOfRow, numberOfColumn, T> operator*(float scale);
+
+
+			/***
+			 * Overloading operator- function. For scaling the matrix.
+			 * @param otherMatrix
+			 */
+			void operator=(Matrix<numberOfRow, numberOfColumn, T> otherMatrix);
+
+
+			//___CONSTRUCTOR___
+			Matrix(); // create empty matrix
+			Matrix(T valueForPacking); // fill the matrix (the std::vector) with valueForPacking
 
 
 
-		//___VARIABLE___
-		T matrix[numberOfRow * numberOfColumn];
+			//___VARIABLE___
+			T matrix[numberOfRow * numberOfColumn];
 
-	private:
-
-
-	};
+		private:
 
 
-	// ___class MatrixHelper___
-	// Implementation of MatrixHelper class
-	template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-	class MatrixHelper
-	{
-
-	public:
-		T& operator[](unsigned int column);
+		};
 
 
-	private:
-		friend class Matrix<numberOfRow, numberOfColumn, T>;
+		// ___class MatrixHelper___
+		// Implementation of MatrixHelper class
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		class MatrixHelper
+		{
 
-		Matrix<numberOfRow, numberOfColumn, T>& _matrix;
-		unsigned int _currentRow;
+		public:
+			/***
+			 * Return the reference of a specific value Matrix[y/row][x/column] in matrix array.
+			 * @param column
+			 * @return
+			 */
+			T& operator[](unsigned int column);
 
-		MatrixHelper(Matrix<numberOfRow, numberOfColumn, T>& matrix, unsigned int currentRow);
-	};
 
-}
+		private:
+
+			//___DECLAIRE FRIEND CLASS___
+			friend class Matrix<numberOfRow, numberOfColumn, T>;
+
+
+			//___PARAMETERS___
+			Matrix<numberOfRow, numberOfColumn, T>& _matrix;
+			unsigned int _currentRow;
+
+			//___CONSTRUCTOR___
+			MatrixHelper(Matrix<numberOfRow, numberOfColumn, T>& matrix, unsigned int currentRow);
+		};
+
+	}
 }
 
 
@@ -122,53 +137,73 @@ namespace Maths
 
 namespace PlatinumEngine
 {
-namespace Maths
-{
-
-	class Mat4 : public Matrix<4, 4, float>
+	namespace Maths
 	{
-	public:
 
-		//___FUNCTION___
-		Mat4 operator*(Mat4 anotherMat4);
+		class Mat4 : public Matrix<4, 4, float>
+		{
+		public:
 
-		Vec4 operator*(Vec4 homogeneousVector);
+			//___FUNCTION___
+			Mat4 operator*(Mat4 anotherMat4);
 
-		void ConvertFromArray(float* arrayMat4);
+			Vec4 operator*(Vec4 homogeneousVector);
 
-		void SetIdentityMatrix();
+			void ConvertFromArray(float* arrayMat4);
 
-		void SetTranslationMatrix(Vec3 translationDirection);
+			void SetIdentityMatrix();
 
-		void SetRotationMatrix(Vec3 eulerAngle);
+			void SetTranslationMatrix(Vec3 translationDirection);
 
-		void SetScaleMatrix(float scale);
+			void SetRotationMatrix(Vec3 eulerAngle);
 
-		void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
+			void SetScaleMatrix(float scale);
 
-		void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far);
+			void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
 
-		void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
+			void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far);
 
-
-		//___CONSTRUCTOR___
-		using Matrix<4, 4, float>::Matrix;
-
-
-		//___VARIABLE___
+			void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
 
 
-	private:
-
-		//___FUNCTION___
-
-		//___CONSTRUCTOR___
-
-		//___VARIABLE___
-	};
+			//___CONSTRUCTOR___
+			using Matrix<4, 4, float>::Matrix;
 
 
-}
+			//___VARIABLE___
+
+
+		};
+
+
+		class Mat3 : public Matrix<3, 3, float>
+		{
+		public:
+
+			//___FUNCTION___
+			Mat3 operator*(Mat3 anotherMat4);
+
+			Vec3 operator*(Vec3 homogeneousVector);
+
+			void ConvertFromArray(float* arrayMat3);
+
+			void SetIdentityMatrix();
+
+			void SetRotationMatrix(Vec3 eulerAngle);
+
+			void SetScaleMatrix(float scale);
+
+			//___CONSTRUCTOR___
+			using Matrix<3, 3, float>::Matrix;
+
+
+			//___VARIABLE___
+
+
+		};
+
+
+	}
 }
 
 
@@ -199,10 +234,24 @@ namespace PlatinumEngine
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
 		Matrix<numberOfRow, numberOfColumn, T>::Matrix(T valueForPacking)
 		{
-			int matrixArrayLength = numberOfRow * numberOfColumn;
+			// initiate the matrix with 0
+			memset(this->matrix, 0, sizeof(this->matrix));
 
-			for (int i = 0; i < matrixArrayLength; i++)
-				this->matrix[i] = valueForPacking;
+			// get the length of diagonal
+			int diagonalLength = 0;
+
+			if(numberOfRow < numberOfColumn)
+			{
+				diagonalLength = numberOfRow;
+			}
+			else
+			{
+				diagonalLength = numberOfColumn;
+			}
+
+			// fill the diagonal with the valueForPacking
+			for (int i = 0; i < diagonalLength; i++)
+				(*this)[i][i] = valueForPacking;
 		}
 
 
@@ -320,46 +369,32 @@ namespace PlatinumEngine
 
 			assert(numberOfRow > _currentRow || numberOfColumn > column);
 
-			return _matrix.matrix[_currentRow * numberOfColumn + column];
+			return _matrix.matrix[column * numberOfRow + _currentRow];
 
 		}
 
-	}
-}
 
 
-//------------------------------
-// Test Function
-//------------------------------
-/*
-namespace PlatinumEngine::Maths
-{
+		//-------------------------------------------
+		// overloading << operator
+		//-------------------------------------------
 
-
-	int TestFunc()
-	{
-
-		PlatinumEngine::Maths::Mat4 test1(2.f);
-		PlatinumEngine::Maths::Mat4 test2(4.f);
-		PlatinumEngine::Maths::Vec4 test3(1.f,2.f,3.f,4.f);
-
-
-
-		test3 = test1 * test3;
-
-		test1.SetRotationMatrix(PlatinumEngine::Maths::Vec3(0,0,3.14 /3));
-
-		for(int y =0;y<4;y++)
+		inline std::ostream& operator<<(std::ostream &out, Mat4 &m)
 		{
-			for (int x = 0; x < 4; x++)
-			{
-				std::cout << test1[y][x] << " ";
-			}
-			std::cout<<std::endl;
+			return out <<m[0][0]<<" "<<m[0][1]<<" "<<m[0][2]<<" "<<m[0][3]<<"\n"<<
+					   m[1][0]<<" "<<m[1][1]<<" "<<m[1][2]<<" "<<m[1][3]<<"\n"<<
+					   m[2][0]<<" "<<m[2][1]<<" "<<m[2][2]<<" "<<m[2][3]<<"\n"<<
+					   m[3][0]<<" "<<m[3][1]<<" "<<m[3][2]<<" "<<m[3][3];
 		}
 
-		std::cout<<test3;
-	}
+		inline std::ostream& operator<<(std::ostream &out, Mat3 &m)
+		{
+			return out <<m[0][0]<<" "<<m[0][1]<<" "<<m[0][2]<<"\n"<<
+					   m[1][0]<<" "<<m[1][1]<<" "<<m[1][2]<<"\n"<<
+					   m[2][0]<<" "<<m[2][1]<<" "<<m[2][2]<<"\n";
+		}
 
+	}
 }
- */
+
+
