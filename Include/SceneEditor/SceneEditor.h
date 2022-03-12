@@ -4,10 +4,11 @@
 
 #pragma once
 
+// Platinum Library
 #include <Renderer/Renderer.h>
-#include "Renderer/Renderer.h"
-#include "EditorCamera.h"
-#include "SceneEditor/InputManagerExtend.h"
+#include <SceneEditor/EditorCamera.h>
+#include <SceneEditor/InputManagerExtend.h>
+#include <SceneManager/Scene.h>
 
 namespace PlatinumEngine
 {
@@ -15,8 +16,6 @@ namespace PlatinumEngine
 	{
 	public:
 		// ___VARIABLE___
-
-
 
 		// ___FUNCTION___
 
@@ -32,13 +31,8 @@ namespace PlatinumEngine
 		 */
 		void Update();
 
-
-
-
 		// ___CONSTRUCTOR___
-		SceneEditor(InputManagerExtend* inputManager);//, Scene* scene);
-
-
+		SceneEditor(InputManagerExtend* inputManager, Scene* scene);
 
 		// ___DESTRUCTOR___
 		//~SceneEditor();
@@ -52,7 +46,7 @@ namespace PlatinumEngine
 
 		// Input Manager
 		InputManagerExtend* _inputManager;
-		//Scene* _scene;
+		Scene* _scene;
 
 		// Values for Camera
 		EditorCamera _camera;
