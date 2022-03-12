@@ -13,15 +13,22 @@
 
 #include <OpenGL/GLCheck.h>
 
+#include <Maths/Matrices.h>
 
 static void GlfwErrorCallback(int error, const char* description)
 {
 	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
 }
 
+int main()
+{
 
+	PlatinumEngine::Maths::Mat4 createMat4(1.0f);
+	std::cout<<createMat4<<std::endl;
 
-int main(int, char**)
+}
+
+int main2(int, char**)
 {
 	// Setup window
 	glfwSetErrorCallback(GlfwErrorCallback);
