@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include <assert.h>
+#include <cassert>
 #include <glm/glm.hpp>
-#include <string.h>
+#include <cstring>
 #include <Maths/Vectors.h>
 
 //------------------------
@@ -78,12 +78,12 @@ namespace PlatinumEngine
 			 * Overloading operator- function. For scaling the matrix.
 			 * @param otherMatrix
 			 */
-			void operator=(Matrix<numberOfRow, numberOfColumn, T> otherMatrix);
+			Matrix<numberOfRow, numberOfColumn, T>& operator=(Matrix<numberOfRow, numberOfColumn, T> otherMatrix);
 
 
 			//___CONSTRUCTOR___
 			Matrix(); // create empty matrix
-			Matrix(T valueForPacking); // fill the matrix (the std::vector) with valueForPacking
+			explicit Matrix(T valueForPacking); // fill the matrix (the std::vector) with valueForPacking
 
 
 
@@ -113,7 +113,7 @@ namespace PlatinumEngine
 
 		private:
 
-			//___DECLAIRE FRIEND CLASS___
+			//___DECLARE FRIEND CLASS___
 			friend class Matrix<numberOfRow, numberOfColumn, T>;
 
 
@@ -331,7 +331,7 @@ namespace PlatinumEngine
 
 
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-		void Matrix<numberOfRow, numberOfColumn, T>
+		Matrix<numberOfRow, numberOfColumn, T>& Matrix<numberOfRow, numberOfColumn, T>
 		::operator=(Matrix<numberOfRow, numberOfColumn, T> otherMatrix)
 		{
 
@@ -344,8 +344,7 @@ namespace PlatinumEngine
 
 				}
 			}
-
-
+			return (*this);
 		}
 
 		//-------------------------------------------
@@ -356,9 +355,7 @@ namespace PlatinumEngine
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
 		MatrixHelper<numberOfRow, numberOfColumn, T>
 		::MatrixHelper(Matrix<numberOfRow, numberOfColumn, T>& matrix, unsigned int currentRow)
-				:_matrix(matrix), _currentRow(currentRow)
-		{
-		}
+				:_matrix(matrix), _currentRow(currentRow){}
 
 
 		// ___OVERLOADING FUNCTION___

@@ -127,7 +127,6 @@ namespace PlatinumEngine
 
 			this->ConvertFromArray(orthogonalMatrix);
 
-
 		}
 
 
