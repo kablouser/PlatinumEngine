@@ -15,7 +15,7 @@ namespace PlatinumEngine{
 
 	SceneEditor::SceneEditor(InputManagerExtend* inputManager, Scene* scene):
 			_ifCameraSettingWindowOpen(false),
-			_camera(), _fov(0), _near(0.4), _far(10000),_inputManager(inputManager), _scene(scene),
+			_camera(), _fov(0), _near(4), _far(10000),_inputManager(inputManager), _scene(scene),
 			_mouseMoveDelta(0, 0) ,_mouseButtonType(InputManagerExtend::MouseButtonType::none),
 			_wheelValueDelta(0)
 
@@ -48,7 +48,7 @@ namespace PlatinumEngine{
 			auto targetSize = ImGui::GetContentRegionAvail();
 
 
-			if(ImGui::BeginChild("##e",ImVec2(targetSize.x, targetSize.y), 0,ImGuiWindowFlags_NoMove))
+			if(ImGui::BeginChild("##e",ImVec2(targetSize.x, targetSize.y), false,ImGuiWindowFlags_NoMove))
 			{
 				//-----------
 				// Widgets
@@ -72,7 +72,7 @@ namespace PlatinumEngine{
 				if (ImGui::Button("Camera Setting"))
 				{
 
-					_ifCameraSettingWindowOpen = _ifCameraSettingWindowOpen ^ true;
+					_ifCameraSettingWindowOpen = !_ifCameraSettingWindowOpen;
 
 				}
 
@@ -99,7 +99,7 @@ namespace PlatinumEngine{
 
 				// Camera setting window
 
-				if (_ifCameraSettingWindowOpen == true)
+				if (_ifCameraSettingWindowOpen)
 				{
 
 					if (ImGui::Begin("Camera Setting", &_ifCameraSettingWindowOpen))
@@ -113,7 +113,7 @@ namespace PlatinumEngine{
 						{
 							if (ImGui::Button("Orthogonal"))
 							{
-								_camera.isOrthogonal = _camera.isOrthogonal ^ 1;
+								_camera.isOrthogonal = !_camera.isOrthogonal;
 							}
 
 							// Text boxes
@@ -126,7 +126,7 @@ namespace PlatinumEngine{
 						{
 							if (ImGui::Button("Perspective"))
 							{
-								_camera.isOrthogonal = _camera.isOrthogonal ^ 1;
+								_camera.isOrthogonal = !_camera.isOrthogonal;
 							}
 
 							// Slider
@@ -147,7 +147,7 @@ namespace PlatinumEngine{
 
 						// ___Window Interaction Features___
 
-						if (ImGui::IsWindowFocused() == false)
+						if (!ImGui::IsWindowFocused())
 							_ifCameraSettingWindowOpen = false;
 
 
@@ -228,9 +228,10 @@ namespace PlatinumEngine{
 		// check camera type
 		if(_camera.isOrthogonal)
 		{
+			std::cout<<(-targetSize.x/2.f)<<", "<<(targetSize.x/2.f)<<std::endl;
 			// update as orthogonal projection matrix
-			_camera.SetOrthogonalMatrix(-targetSize.x/2,targetSize.x/2,
-					-targetSize.y/2,targetSize.y/2,(float)_near,(float)_far);
+			_camera.SetOrthogonalMatrix(-targetSize.x/2.f,targetSize.x/2.f,
+					-targetSize.y/2.f,targetSize.y/2.f,(float)_near,(float)_far);
 
 		}
 		else
@@ -241,7 +242,7 @@ namespace PlatinumEngine{
 
 
 
-		///__Update rendering information to renderder__
+		///__Update rendering information to renderer__
 		_scene->Render(nullptr);
 
 
