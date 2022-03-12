@@ -172,9 +172,9 @@ namespace PlatinumEngine
 	}
 
 
-/*	void Scene::Render(RasterRenderer* renderer)
+	void Scene::Render(Renderer* renderer)
 	{
-
-	}*/
+		std::cout<<"Pass Rendering data..."<<std::endl;
+	}
 
 }

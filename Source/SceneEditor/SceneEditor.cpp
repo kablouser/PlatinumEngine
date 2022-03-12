@@ -2,9 +2,9 @@
 // Created by Shihua on 02/03/2022.
 //
 
-#include "SceneEditor/SceneEditor.h"
+#include <SceneEditor/SceneEditor.h>
 #include <imgui.h>
-#include <stdio.h>
+
 
 
 namespace PlatinumEngine{
@@ -13,9 +13,9 @@ namespace PlatinumEngine{
 
 	// ___CONSTRUCTOR___
 
-	SceneEditor::SceneEditor(InputManagerExtend* inputManager)://, Scene* scene):
+	SceneEditor::SceneEditor(InputManagerExtend* inputManager, Scene* scene):
 			_ifCameraSettingWindowOpen(false),
-			_camera(), _fov(0), _near(0.4), _far(10000),_inputManager(inputManager),//, _scene(scene)
+			_camera(), _fov(0), _near(0.4), _far(10000),_inputManager(inputManager), _scene(scene),
 			_mouseMoveDelta(0, 0) ,_mouseButtonType(InputManagerExtend::MouseButtonType::none),
 			_wheelValueDelta(0)
 
@@ -238,6 +238,13 @@ namespace PlatinumEngine{
 			// update as perspective projection matrix
 			_camera.SetPerspectiveMatrix((float)_fov, targetSize.x / targetSize.y, (float)_near, (float)_far);
 		}
+
+
+
+		///__Update rendering information to renderder__
+		_scene->Render(nullptr);
+
+
 	}
 
 }
