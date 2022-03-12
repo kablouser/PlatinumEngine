@@ -33,6 +33,8 @@ namespace PlatinumEngine
 		axis.negativeKey = GLFW_KEY_UNKNOWN;
 		axis.type = AxisType::keyboardMouseButton;
 		_axes.push_back(axis);
+		_clickedMouseButton = -1;
+		_previousMousePosition = ImVec2(0.f,0.f);
 	}
 
 	void InputManager::ShowGUIWindow(bool* outIsOpen)
