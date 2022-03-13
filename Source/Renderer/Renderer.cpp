@@ -50,14 +50,12 @@ namespace PlatinumEngine
 			return;
 		}
 
-		if (!_shaderProgram.Compile(UNLIT_VERTEX_SHADER, UNLIT_FRAGMENT_SHADER))
+		if (!_meshShader.Compile(UNLIT_VERTEX_SHADER, UNLIT_FRAGMENT_SHADER))
 			return;
 
 
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
-		if (!_framebuffer.Create(_framebufferWidth, _framebufferHeight))
-			return;
 
 		// check for uncaught errors
 		GL_CHECK();
@@ -70,74 +68,79 @@ namespace PlatinumEngine
 		// nothing to do
 	}
 
-	void Renderer::Render(bool* outIsOpen)
+	void Renderer::Begin()
 	{
-		if(ImGui::Begin("Raster Renderer", outIsOpen) &&
-			// when init is bad, don't render anything
-			_isInitGood)
-		{
+		_framebuffer->Bind();
+		GL_CHECK(glViewport(0, 0, _framebufferWidth, _framebufferHeight));
+		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+	}
 
-			// check ImGui's window size, can't render when area=0
-			ImVec2 targetSize = ImGui::GetContentRegionAvail();
-			if(1.0f < targetSize.x && 1.0f < targetSize.y)
-			{
-				// resize framebuffer if necessary
-				if (_framebufferWidth != (int)targetSize.x || _framebufferHeight != (int)targetSize.y)
-				{
-					_framebufferWidth = (int)targetSize.x;
-					_framebufferHeight = (int)targetSize.y;
-					_framebuffer.Create(_framebufferWidth, _framebufferHeight);
-				}
+	void Renderer::End()
+	{
+		_framebuffer->Unbind();
+	}
 
-				_framebuffer.Bind();
+	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
+	{
+		_framebuffer = framebuffer;
+	}
 
-				GL_CHECK(glViewport(0, 0, targetSize.x, targetSize.y));
-				GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-				GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
-
-				_shaderProgram.Bind();
-				_unlitShaderInput.Draw();
-				_shaderProgram.Unbind();
-
-				_framebuffer.Unbind();
-
-				ImGui::Image(_framebuffer.GetColorTexture().GetImGuiHandle(), targetSize);
-
-				GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-			}
-		}
-
-		ImGui::End();
+	void Renderer::ResizeFrameBuffer(Framebuffer *framebuffer, ImVec2 targetSize)
+	{
+		_framebufferWidth = (int)targetSize.x;
+		_framebufferHeight = (int)targetSize.y;
+		_framebuffer->Create(_framebufferWidth, _framebufferHeight);
 	}
 
 	void Renderer::LoadMesh(const Mesh &mesh)
 	{
+		_meshShader.Bind();
 		_unlitShaderInput.Set(mesh.GetVertices(), mesh.GetIndices());
 		SetShaderProperties();
+		_meshShader.Unbind();
 	}
 
+	// update model matrix in shader
+	void Renderer::SetModelMatrix(Maths::Mat4 mat)
+	{
+		_meshShader.SetUniform("model", mat);
+	}
+
+	// update view matrix in shader
+	void Renderer::SetViewMatrix(Maths::Mat4 mat)
+	{
+		_meshShader.SetUniform("view", mat);
+	}
+
+	// update perspective matrix in shader
+	void Renderer::SetProjectionMatrix(Maths::Mat4 mat)
+	{
+		_meshShader.SetUniform("projection", mat);
+	}
+
+	void Renderer::Render()
+	{
+		_unlitShaderInput.Draw();
+	}
 	//--------------------------------------------------------------------------------------------------------------
 	// Private functions implementation.
 	//--------------------------------------------------------------------------------------------------------------
 	void Renderer::SetShaderProperties()
 	{
-		_shaderProgram.Bind();
-		glm::mat4 matrix = glm::mat4(1.0f);
+		Maths::Mat4 matrix;
+		matrix.SetIdentityMatrix();
 
-
-		_shaderProgram.SetUniform("modelToProjection", matrix);
-		_shaderProgram.SetUniform("modelToProjection", matrix);
+		_meshShader.SetUniform("modelToProjection", matrix);
 
 		// set basic properties
-		_shaderProgram.SetUniform("objectColour", glm::vec3(1.0f,0.5f,0.31f));
-		_shaderProgram.SetUniform("isTextureEnabled",false);
+		_meshShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
+		_meshShader.SetUniform("isTextureEnabled",false);
 
-		_shaderProgram.SetUniform("lightPosition", glm::vec3(0.9f * std::cos(glfwGetTime()),0.9f * std::sin(glfwGetTime()),0.9f));
-		_shaderProgram.SetUniform("lightColour", glm::vec3(1.0f,1.0f,1.0f));
-		_shaderProgram.SetUniform("viewPosition", glm::vec3(0.0f,0.0f,1.0f));
+		_meshShader.SetUniform("lightPosition", Maths::Vec3(0.9f * std::cos(glfwGetTime()),0.9f * std::sin(glfwGetTime()),0.9f));
+		_meshShader.SetUniform("lightColour", Maths::Vec3(1.0f,1.0f,1.0f));
+		_meshShader.SetUniform("viewPosition", Maths::Vec3(0.0f,0.0f,1.0f));
 	}
-
-
 
 
 }

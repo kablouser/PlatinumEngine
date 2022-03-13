@@ -18,6 +18,7 @@ namespace PlatinumEngine {
 			Vec4();
 			Vec4(float x, float y, float z);
 			Vec4(float x, float y, float z, float w);
+
 			Vec4 operator-() const;
 			Vec4& operator+=(const Vec4 &v);
 			Vec4& operator-=(const Vec4 &v);
@@ -72,6 +73,7 @@ namespace PlatinumEngine {
 		/**
 		 * Data structure for a vector of three values
 		 */
+
 		class Vec3 : public glm::vec3 {
 		public:
 			Vec3();
@@ -140,9 +142,11 @@ namespace PlatinumEngine {
 					u.x * v.y - u.y * v.x};
 		}
 
+
 		/**
 		 * Data structure for a vector with two values
 		 */
+
 		class Vec2 : public glm::vec2 {
 		public:
 			Vec2();
@@ -244,5 +248,6 @@ namespace PlatinumEngine {
 		{
 			return u.CalcDistance(v);
 		}
+
 	}
 }
