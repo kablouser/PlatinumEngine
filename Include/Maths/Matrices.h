@@ -67,18 +67,10 @@ namespace PlatinumEngine
 
 
 			/***
-			 * Overloading operator* function. For scaling the matrix.
-			 * @param scale
-			 * @return A copy of matrix object (the final result).
-			 */
-			Matrix<numberOfRow, numberOfColumn, T> operator*(float scale);
-
-
-			/***
 			 * Overloading operator- function. For scaling the matrix.
 			 * @param otherMatrix
 			 */
-			Matrix<numberOfRow, numberOfColumn, T>& operator=(Matrix<numberOfRow, numberOfColumn, T> otherMatrix);
+			Matrix<numberOfRow, numberOfColumn, T>& operator=(const Matrix<numberOfRow, numberOfColumn, T>& otherMatrix);
 
 
 			//___CONSTRUCTOR___
@@ -145,9 +137,17 @@ namespace PlatinumEngine
 		public:
 
 			//___FUNCTION___
+			Mat4 operator*(float scale);
+
 			Mat4 operator*(Mat4 anotherMat4);
 
 			Vec4 operator*(Vec4 homogeneousVector);
+
+			Mat4 operator+(Mat4 otherMatrix);
+
+			Mat4 operator-(Mat4 otherMatrix);
+
+			Mat4& operator=(const Mat4& otherMatrix);
 
 			void ConvertFromArray(float* arrayMat4);
 
@@ -181,9 +181,17 @@ namespace PlatinumEngine
 		public:
 
 			//___FUNCTION___
+			Mat3 operator*(float scale);
+
 			Mat3 operator*(Mat3 anotherMat4);
 
 			Vec3 operator*(Vec3 homogeneousVector);
+
+			Mat3 operator+(Mat3 otherMatrix);
+
+			Mat3 operator-(Mat3 otherMatrix);
+
+			Mat3& operator=(const Mat3& otherMatrix);
 
 			void ConvertFromArray(float* arrayMat3);
 
@@ -195,7 +203,6 @@ namespace PlatinumEngine
 
 			//___CONSTRUCTOR___
 			using Matrix<3, 3, float>::Matrix;
-
 
 			//___VARIABLE___
 
@@ -309,32 +316,11 @@ namespace PlatinumEngine
 
 
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-		Matrix<numberOfRow, numberOfColumn, T> Matrix<numberOfRow, numberOfColumn, T>
-		::operator*(float scale)
-		{
-
-			Matrix<numberOfRow, numberOfColumn, T> result;
-
-			for (int y = 0; y < numberOfRow; y++)
-			{
-				for (int x = 0; x < numberOfColumn; x++)
-				{
-
-					result[y][x] = (*this)[y][x] * scale;
-
-				}
-			}
-
-			return result;
-
-		}
-
-
-		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
 		Matrix<numberOfRow, numberOfColumn, T>& Matrix<numberOfRow, numberOfColumn, T>
-		::operator=(Matrix<numberOfRow, numberOfColumn, T> otherMatrix)
+		::operator=(const Matrix<numberOfRow, numberOfColumn, T>& otherMatrix)
 		{
-
+			if(this == & otherMatrix)
+				return *this;
 			for (int y = 0; y < numberOfRow; y++)
 			{
 				for (int x = 0; x < numberOfColumn; x++)
