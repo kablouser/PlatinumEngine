@@ -20,7 +20,7 @@ namespace PlatinumEngine
 	}
 
 	ShaderInput::ShaderInput(
-			const std::vector<DefaultVertex>& vertices,
+			const std::vector<Vertex>& vertices,
 			const std::vector<GLuint>& indices)
 			: ShaderInput()
 	{
@@ -64,12 +64,12 @@ namespace PlatinumEngine
 	// Public functions.
 	//------------------------------------------------------------------------------------------------------------------
 
-	void ShaderInput::Set(const std::vector<DefaultVertex>& vertices, const std::vector<GLuint>& indices)
+	void ShaderInput::Set(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices)
 	{
-		SetGeneric<DefaultVertex, GLuint>({
-						{ GL_FLOAT, 3, offsetof(DefaultVertex, position) },
-						{ GL_FLOAT, 3, offsetof(DefaultVertex, normal) },
-						{ GL_FLOAT, 2, offsetof(DefaultVertex, textureCoordinate) }},
+		SetGeneric<Vertex, GLuint>({
+						{ GL_FLOAT, 3, offsetof(Vertex, position) },
+						{ GL_FLOAT, 3, offsetof(Vertex, normal) },
+						{ GL_FLOAT, 2, offsetof(Vertex, textureCoords) }},
 				vertices, indices);
 	}
 
@@ -89,6 +89,8 @@ namespace PlatinumEngine
 
 	void ShaderInput::Draw(GLenum drawingMode) const
 	{
+		if(_drawLength == 0)
+			return;
 		GL_CHECK(glBindVertexArray(_vertexArrayObject));
 		GL_CHECK(glDrawElements(drawingMode, _drawLength, _typeOfIndex, 0));
 		// Alternative direct drawing without indexing

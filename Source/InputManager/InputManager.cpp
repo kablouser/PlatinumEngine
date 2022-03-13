@@ -64,9 +64,12 @@ namespace PlatinumEngine
 					leftX, leftY, rightX, rightY, leftTrigger, rightTrigger);
 
 			ImVec2 mousePos = GetMousePosition();
-			int id = glfwJoystickPresent(0);
-			ImGui::Text("JoyStick Connected : %d", id);
-			ImGui::Text("JoyStick Name: %s", glfwGetJoystickName(id));
+			int isConnected = glfwJoystickPresent(0);
+			ImGui::Text("JoyStick Connected : %d", isConnected);
+			if(isConnected)
+			{
+				ImGui::Text("JoyStick Name: %s", glfwGetJoystickName(0));
+			}
 			ImGui::Text("Position: %f, %f", mousePos.x, mousePos.y);
 			ImGui::Text("Left Mouse Down: %d", IsMouseDown(0));
 			ImGui::Text("Up Arrow Key Down: %d", ImGui::IsKeyDown(GLFW_KEY_UP));

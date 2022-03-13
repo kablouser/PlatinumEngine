@@ -65,21 +65,39 @@ FetchContent_MakeAvailable(glew)
 #-----------------------------
 # New place to put all your source code files into:
 set(PROJECT_SOURCES_WITHOUT_MAIN
+	# order by folder structure
+	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
+  
+	"Source/ComponentComposition/Component.cpp;"
+	"Source/ComponentComposition/ComponentType.cpp;"
+	"Source/ComponentComposition/GameObject.cpp;"
+	
 	"Source/InputManager/InputManager.cpp;"
+	
 	"Source/Loaders/LoaderCommon.cpp;"
 	"Source/Loaders/MeshLoader.cpp;"
-	"Source/RasterRenderer/RasterRenderer.cpp;"
-	"Source/OpenGL/ShaderInput.cpp;"
-	"Source/OpenGL/GLEnumInfo.cpp;"
+
+	"Source/Logger/Logger.cpp;"
+	
+	"Source/Maths/Matrices.cpp;"
+	"Source/Maths/Vectors.cpp;"
+	
+	"Source/OpenGL/Framebuffer.cpp;"
 	"Source/OpenGL/GLCheck.cpp;"
+	"Source/OpenGL/GLEnumInfo.cpp;"
 	"Source/OpenGL/Mesh.cpp;"
-	"Source/SceneEditor/SceneEditor.cpp;"
-  	"Source/SceneEditor/EditorCamera.cpp;"
-	"Source/WindowManager/WindowManager.cpp;"
-	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
+	"Source/OpenGL/ShaderInput.cpp;"
 	"Source/OpenGL/ShaderProgram.cpp;"
 	"Source/OpenGL/Texture.cpp;"
-	"Source/OpenGL/Framebuffer.cpp;")
+	
+	"Source/Renderer/Renderer.cpp;"
+	
+	"Source/SceneEditor/EditorCamera.cpp;"
+	"Source/SceneEditor/SceneEditor.cpp;"
+	
+	"Source/WindowManager/Filedialog.cpp;"
+	"Source/WindowManager/WindowManager.cpp;"
+  )
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
@@ -92,7 +110,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/In
 add_executable(tests
 	${PROJECT_SOURCES_WITHOUT_MAIN}
 	Test/TestTemplate.cpp
-	)
+	Source/WindowManager/Filedialog.cpp Include/WindowManager/Filedialog.h)
 target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
 

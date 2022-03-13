@@ -9,11 +9,12 @@
 #include <OpenGL/ShaderInput.h>
 #include <OpenGL/ShaderProgram.h>
 #include <OpenGL/Framebuffer.h>
+#include <OpenGL/Mesh.h>
 #include <GLFW/glfw3.h>
 
 namespace PlatinumEngine
 {
-	class RasterRenderer
+	class Renderer
 	{
 
 	public:
@@ -22,23 +23,23 @@ namespace PlatinumEngine
 		//PlatinumEngine::EditorCamera camera;
 
 		// Constructors
-		RasterRenderer(bool printOpenGLInfo = true);
+		Renderer(bool printOpenGLInfo = true);
 
-		~RasterRenderer();
+		~Renderer();
 
-		void ShowGUIWindow(bool* outIsOpen);
+		// basic render function, will be improved in the future
+		void Render(bool* outIsOpen);
 
-		void LoadMesh();
+		/**
+		 * mesh component can call this function to input mesh data into shader
+		 * @param mesh
+		 */
+		void LoadMesh(const Mesh &mesh);
 
 	private:
 
 		// true iff all init steps were successful
 		bool _isInitGood;
-
-//		settings for rendering OpenGL
-//		sf::ContextSettings _contextSettings;
-//		// intermediate output of OpenGL rendering
-//		sf::RenderTexture _renderTexture;
 
 		ShaderProgram _shaderProgram;
 		ShaderInput _unlitShaderInput;
@@ -47,9 +48,7 @@ namespace PlatinumEngine
 		int _framebufferWidth;
 		int _framebufferHeight;
 
-		// these two parameters are creating for testing the effect of Blinn-Phong-Shading
-
-
+		void SetShaderProperties();
 
 		void CubeTest();
 	};
