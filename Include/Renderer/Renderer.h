@@ -41,6 +41,7 @@ namespace PlatinumEngine
 
 		// three temporary functions to update model, view, projection matrix before TransformComponent
 		// update model matrix in shader
+
 		void SetModelMatrix(Maths::Mat4 mat = Maths::Mat4(1.0));
 
 		// update view matrix in shader
@@ -57,6 +58,7 @@ namespace PlatinumEngine
 		 * @param mesh
 		 */
 		void LoadMesh(const Mesh &mesh);
+
 	private:
 
 		// true iff all init steps were successful
@@ -69,6 +71,8 @@ namespace PlatinumEngine
 		int _framebufferWidth;
 		int _framebufferHeight;
 
+
 		void SetLightProperties();
+
 	};
 }

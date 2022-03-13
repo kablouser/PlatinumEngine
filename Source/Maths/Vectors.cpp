@@ -7,6 +7,7 @@
 using namespace PlatinumEngine::Maths;
 
 
+
 Vec4::Vec4() : glm::vec4(0.0f, 0.0f, 0.0f, 0.0f) {}
 Vec4::Vec4(const float x, const float y, const float z) :
 	glm::vec4(x, y, z, 0.0f) {}
@@ -79,6 +80,7 @@ namespace PlatinumEngine
 
 
 //// Vec3 overloaders
+
 
 //float Vec3::operator*(const Vec3 &v)
 //{
@@ -167,3 +169,4 @@ Vec2& Vec2::operator/=(const float t)
 {
 	return *this *= 1.0f/t;
 }
+
