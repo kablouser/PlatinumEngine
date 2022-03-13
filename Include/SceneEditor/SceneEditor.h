@@ -9,6 +9,7 @@
 #include <SceneEditor/EditorCamera.h>
 #include <SceneEditor/InputManagerExtend.h>
 #include <SceneManager/Scene.h>
+#include <OpenGL/Framebuffer.h>
 
 namespace PlatinumEngine
 {
@@ -44,9 +45,10 @@ namespace PlatinumEngine
 		// Flags
 		bool _ifCameraSettingWindowOpen;
 
-		// Input Manager
+		// Managers
 		InputManagerExtend* _inputManager;
 		Scene* _scene;
+		Renderer* _renderer;
 
 		// Values for Camera
 		EditorCamera _camera;
@@ -58,8 +60,10 @@ namespace PlatinumEngine
 		InputManagerExtend::MouseButtonType _mouseButtonType;
 		float _wheelValueDelta;
 
-		// intermediate output of OpenGL rendering
-		// sf::RenderTexture _renderTexture;
+
+
+		// output of OpenGL rendering
+		Framebuffer _renderTexture;
 
 
 

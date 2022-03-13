@@ -17,14 +17,14 @@ namespace PlatinumEngine{
 			_ifCameraSettingWindowOpen(false),
 			_camera(), _fov(0), _near(4), _far(10000),_inputManager(inputManager), _scene(scene),
 			_mouseMoveDelta(0, 0) ,_mouseButtonType(InputManagerExtend::MouseButtonType::none),
-			_wheelValueDelta(0)
+			_wheelValueDelta(0),_renderTexture()
 
 	{
 		_inputManager->CreateAxis(std::string ("Horizontal"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManagerExtend::AxisType::keyboardMouseButton);
 		_inputManager->CreateAxis(std::string ("Vertical"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManagerExtend::AxisType::keyboardMouseButton);
 
 		// use a random number instead
-		//	_renderTexture.create(1.f,1.f,_contextSettings);
+		_renderTexture.Create(1.f,1.f);
 
 	}
 
@@ -243,7 +243,12 @@ namespace PlatinumEngine{
 
 
 		///__Update rendering information to renderer__
-		_scene->Render(nullptr);
+		_scene->Render(_renderer);
+
+
+		///__Render Objects__
+		
+
 
 
 	}
