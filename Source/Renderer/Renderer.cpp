@@ -97,7 +97,7 @@ namespace PlatinumEngine
 	{
 		_meshShader.Bind();
 		_unlitShaderInput.Set(mesh.GetVertices(), mesh.GetIndices());
-		SetShaderProperties();
+		SetLightProperties();
 		_meshShader.Unbind();
 	}
 
@@ -126,13 +126,8 @@ namespace PlatinumEngine
 	//--------------------------------------------------------------------------------------------------------------
 	// Private functions implementation.
 	//--------------------------------------------------------------------------------------------------------------
-	void Renderer::SetShaderProperties()
+	void Renderer::SetLightProperties()
 	{
-		Maths::Mat4 matrix;
-		matrix.SetIdentityMatrix();
-
-		_meshShader.SetUniform("modelToProjection", matrix);
-
 		// set basic properties
 		_meshShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
 		_meshShader.SetUniform("isTextureEnabled",false);

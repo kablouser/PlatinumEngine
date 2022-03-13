@@ -71,6 +71,6 @@ namespace PlatinumEngine
 		int _framebufferWidth;
 		int _framebufferHeight;
 
-		void SetShaderProperties();
+		void SetLightProperties();
 	};
 }
