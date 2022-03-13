@@ -9,6 +9,8 @@
 #include <vector>
 
 #include <Loaders/LoaderCommon.h>
+#include <Logger/Logger.h>
+#include <OpenGL/Mesh.h>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -38,6 +40,21 @@ namespace PlatinumEngine
 		 * @param outTextureCoords : texture coords of vertices from mesh
 		 */
 		void ConvertMesh(aiMesh *mesh, std::vector<glm::vec3> &outPositions, std::vector<glm::vec3> &outNormals, std::vector<glm::vec2> &outTextureCoords);
+
+		/**
+		 * Loads a file into a mesh
+		 * @param filePath : Location of file
+		 * @param JoinVertices : Will join vertices so the mesh contains unique vertices only, default true
+		 * @return : Mesh data structure
+		 */
+		Mesh LoadMesh(const std::string &filePath, bool JoinVertices=true);
+
+		/**
+		 * Convert an assimp mesh to a platinum engine mesh
+		 * @param mesh : assimp mesh of data
+		 * @return : Mesh structure
+		 */
+		Mesh ConvertMesh(aiMesh *mesh);
 	}
 }
 
