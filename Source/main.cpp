@@ -84,7 +84,7 @@ int main(int, char**)
 			// GUI HERE
 			//--------------------------------------------------------------------------------------------------------------
 			if (isRasterRendererOpen)
-				rasterRenderer.Render(&isRasterRendererOpen);
+				rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);
 			if(isLoggerOpen)
