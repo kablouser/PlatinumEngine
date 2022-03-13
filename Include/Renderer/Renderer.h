@@ -28,7 +28,7 @@ namespace PlatinumEngine
 		~Renderer();
 
 		// set framebuffer from SceneEditor
-		void SetFramebuffer(Framebuffer *framebuffer);
+		void SetFramebuffer(Framebuffer &framebuffer);
 
 		// initialize framebuffer
 		void Begin();
@@ -36,8 +36,11 @@ namespace PlatinumEngine
 		// unbind framebuffer
 		void End();
 
-		// resize framebuffer size
-		void ResizeFrameBuffer(Framebuffer *framebuffer, ImVec2 targetSize);
+		/**
+		 * resize framebuffer, it's an interface for SceneEditor
+		 * @param framebuffer, targetSize
+		 * */
+		void ResizeFrameBuffer(Framebuffer &framebuffer, ImVec2 targetSize);
 
 		// three temporary functions to update model, view, projection matrix before TransformComponent
 		// update model matrix in shader
@@ -53,8 +56,11 @@ namespace PlatinumEngine
 		// basic render function, will be improved in the future
 		void Render();
 
+		void ShowGUIWindow(bool* outIsOpen);
+
 		/**
-		 * mesh component can call this function to input mesh data into shader
+		 * mesh component can call this function to input mesh data into shader, if you want to test a mesh renderer,
+		 * use this function
 		 * @param mesh
 		 */
 		void LoadMesh(const Mesh &mesh);
@@ -67,7 +73,7 @@ namespace PlatinumEngine
 		ShaderProgram _meshShader, _lightShader;
 		ShaderInput _unlitShaderInput;
 
-		Framebuffer *_framebuffer;
+		Framebuffer _framebuffer;
 		int _framebufferWidth;
 		int _framebufferHeight;
 
