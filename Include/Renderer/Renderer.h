@@ -74,5 +74,6 @@ namespace PlatinumEngine
 
 		void SetLightProperties();
 
+
 	};
 }
