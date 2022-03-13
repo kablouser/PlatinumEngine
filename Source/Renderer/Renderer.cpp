@@ -98,7 +98,6 @@ namespace PlatinumEngine
 		_meshShader.Bind();
 		_unlitShaderInput.Set(mesh.GetVertices(), mesh.GetIndices());
 		SetLightProperties();
-		_meshShader.Unbind();
 	}
 
 	// update model matrix in shader
@@ -122,6 +121,7 @@ namespace PlatinumEngine
 	void Renderer::Render()
 	{
 		_unlitShaderInput.Draw();
+		_meshShader.Unbind();
 	}
 	//--------------------------------------------------------------------------------------------------------------
 	// Private functions implementation.
