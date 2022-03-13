@@ -41,13 +41,13 @@ namespace PlatinumEngine
 
 		// three temporary functions to update model, view, projection matrix before TransformComponent
 		// update model matrix in shader
-		void SetModelMatrix(Maths::Mat4 mat);
+		void SetModelMatrix(Maths::Mat4 mat = Maths::Mat4(1.0));
 
 		// update view matrix in shader
-		void SetViewMatrix(Maths::Mat4 mat);
+		void SetViewMatrix(Maths::Mat4 mat = Maths::Mat4(1.0));
 
 		// update projection matrix in shader
-		void SetProjectionMatrix(Maths::Mat4 mat);
+		void SetProjectionMatrix(Maths::Mat4 mat = Maths::Mat4(1.0));
 
 		// basic render function, will be improved in the future
 		void Render();
@@ -57,8 +57,6 @@ namespace PlatinumEngine
 		 * @param mesh
 		 */
 		void LoadMesh(const Mesh &mesh);
-
-
 	private:
 
 		// true iff all init steps were successful
