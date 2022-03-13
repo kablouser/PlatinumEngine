@@ -9,12 +9,24 @@ namespace PlatinumEngine
 {
 	namespace Maths
 	{
-
-		void Mat4::ConvertFromArray(float* arrayMatrix)
+		Mat4 Mat4::operator*(float scale)
 		{
 
-			memcpy(this->matrix, arrayMatrix, 16 * sizeof(float));
+			Mat4 result;
 
+			for(int i=0;i<4;i++)
+			{
+				for(int j=0;j<4;j++)
+				{
+
+					result[i][j] = (*this)[i][j] * scale;
+
+				}
+
+
+			}
+
+			return result;
 		}
 
 		Mat4 Mat4::operator*(Mat4 anotherMat4)
@@ -59,6 +71,63 @@ namespace PlatinumEngine
 			resultVec4.w = result.w;
 
 			return resultVec4;
+
+		}
+
+		Mat4 Mat4::operator+(Mat4 otherMatrix)
+		{
+
+			Mat4 result;
+
+			for (int y = 0; y < 4; y++)
+			{
+				for (int x = 0; x < 4; x++)
+				{
+
+					result[y][x] = (*this)[y][x] + otherMatrix[y][x];
+
+				}
+			}
+
+			return result;
+
+		}
+
+		Mat4 Mat4::operator-(Mat4 otherMatrix)
+		{
+
+			Mat4 result;
+
+			for (int y = 0; y < 4; y++)
+			{
+				for (int x = 0; x < 4; x++)
+				{
+
+					result[y][x] = (*this)[y][x] - otherMatrix[y][x];
+
+				}
+			}
+
+			return result;
+
+		}
+
+		Mat4& Mat4::operator=(const Mat4& otherMatrix)
+		{
+
+			if(this == & otherMatrix)
+				return *this;
+
+			std::memcpy(this->matrix, otherMatrix.matrix, 16 * sizeof(float));
+
+			return (*this);
+
+		}
+
+		void Mat4::ConvertFromArray(float* arrayMatrix)
+		{
+
+			memcpy(this->matrix, arrayMatrix, 16 * sizeof(float));
 
 		}
 
@@ -153,6 +222,121 @@ namespace PlatinumEngine
 
 		}
 
+		Mat3 Mat3::operator*(float scale)
+		{
+
+			Mat3 result;
+
+			for(int i=0;i<3;i++)
+			{
+				for(int j=0;j<3;j++)
+				{
+
+					result[i][j] = (*this)[i][j] * scale;
+
+				}
+
+			}
+
+			return result;
+
+		}
+
+		Mat3 Mat3::operator*(Mat3 anotherMat3)
+		{
+
+			// Create glm matrices for calculate multiplication
+			glm::mat3x3 leftMatrix = glm::make_mat3(this->matrix);
+			glm::mat3x3 rightMatrix = glm::make_mat3(anotherMat3.matrix);
+			glm::mat3x3 result = leftMatrix * rightMatrix;
+
+
+			// create a new Mat4 object
+
+			Mat3 resultMat3;
+
+			// get the glm::mat4x4 array pointer
+
+			float* resultPtr = glm::value_ptr(result);
+
+			// convert the array into Mat4
+
+			resultMat3.ConvertFromArray(resultPtr);
+
+			// return the final result with the type Mat4
+
+			return resultMat3;
+
+		}
+
+		Vec3 Mat3::operator*(Vec3 vector)
+		{
+			float vectorArray[] = { vector.x, vector.y, vector.z};
+
+			glm::mat3x3 leftMatrix = glm::make_mat3(this->matrix);
+			glm::vec3 rightVector = glm::make_vec3(vectorArray);
+			glm::vec3 result = leftMatrix * rightVector;
+
+			Vec3 resultVec3;
+
+			resultVec3.x = result.x;
+			resultVec3.y = result.y;
+			resultVec3.z = result.z;
+
+			return resultVec3;
+
+
+		}
+
+		Mat3 Mat3::operator+(Mat3 otherMatrix)
+		{
+
+			Mat3 result;
+
+			for (int y = 0; y < 3; y++)
+			{
+				for (int x = 0; x < 3; x++)
+				{
+
+					result[y][x] = (*this)[y][x] + otherMatrix[y][x];
+
+				}
+			}
+
+			return result;
+
+		}
+
+		Mat3 Mat3::operator-(Mat3 otherMatrix)
+		{
+
+			Mat3 result;
+
+			for (int y = 0; y < 3; y++)
+			{
+				for (int x = 0; x < 3; x++)
+				{
+
+					result[y][x] = (*this)[y][x] - otherMatrix[y][x];
+
+				}
+			}
+
+			return result;
+
+		}
+
+		Mat3& Mat3::operator=(const Mat3& otherMatrix)
+		{
+
+			if(this == & otherMatrix)
+				return *this;
+
+			std::memcpy(this->matrix, otherMatrix.matrix, 9 * sizeof(float));
+
+			return (*this);
+
+		}
 
 
 
@@ -202,58 +386,6 @@ namespace PlatinumEngine
 			this->ConvertFromArray(scaleMatrix);
 
 		}
-
-
-
-		Mat3 Mat3::operator*(Mat3 anotherMat3)
-		{
-
-			// Create glm matrices for calculate multiplication
-			glm::mat3x3 leftMatrix = glm::make_mat3(this->matrix);
-			glm::mat3x3 rightMatrix = glm::make_mat3(anotherMat3.matrix);
-			glm::mat3x3 result = leftMatrix * rightMatrix;
-
-
-			// create a new Mat4 object
-
-			Mat3 resultMat3;
-
-			// get the glm::mat4x4 array pointer
-
-			float* resultPtr = glm::value_ptr(result);
-
-			// convert the array into Mat4
-
-			resultMat3.ConvertFromArray(resultPtr);
-
-			// return the final result with the type Mat4
-
-			return resultMat3;
-
-		}
-
-
-		Vec3 Mat3::operator*(Vec3 vector)
-		{
-			float vectorArray[] = { vector.x, vector.y, vector.z};
-
-			glm::mat3x3 leftMatrix = glm::make_mat3(this->matrix);
-			glm::vec3 rightVector = glm::make_vec3(vectorArray);
-			glm::vec3 result = leftMatrix * rightVector;
-
-			Vec3 resultVec3;
-
-			resultVec3.x = result.x;
-			resultVec3.y = result.y;
-			resultVec3.z = result.z;
-
-			return resultVec3;
-
-
-		}
-
-
-
 
 	}
 }
