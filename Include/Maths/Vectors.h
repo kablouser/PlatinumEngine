@@ -6,26 +6,44 @@
 
 #include <cmath>
 #include <iostream>
+#include <glm/glm.hpp>
 
 // TODO:
 // Potentially add reflection, refraction and faceforward from glm if needed
 
 namespace PlatinumEngine {
 	namespace Maths {
-		class Vec4 {
+		class Vec4 : public glm::vec4 {
 		public:
 			Vec4();
 			Vec4(float x, float y, float z);
 			Vec4(float x, float y, float z, float w);
-			float operator*(const Vec4 &v);
 			Vec4 operator-() const;
 			Vec4& operator+=(const Vec4 &v);
+			Vec4& operator-=(const Vec4 &v);
 			Vec4& operator*=(float t);
 			Vec4& operator/=(float t);
+			friend std::ostream& operator<<(std::ostream &out, const Vec4 &v);
+			template<typename T> friend float Dot(T &u, T &v);
+			template<typename T> friend float Length(T &v);
+			template<typename T> friend float Distance(T &u, T &v);
 
-		public:
-			float x, y, z, w;
+		private:
+			float DotProduct(const Vec4 &u)
+			{
+				return glm::dot(glm::vec4(*this), u);
+			}
+			float CalcLength()
+			{
+				return glm::length(glm::vec4(*this));
+			}
+			float CalcDistance(const Vec4 &u)
+			{
+				return glm::distance(glm::vec4(*this), u);
+			}
 		};
+
+		std::ostream& operator<<(std::ostream &out, const Vec4 &v);
 
 		/**
 		 * Calculates the square of the length of a vector size 4
@@ -50,27 +68,40 @@ namespace PlatinumEngine {
 		{
 			return {u.x-v.x, u.y-v.y, u.z-v.z, u.w-v.w};
 		}
-		inline std::ostream& operator<<(std::ostream &out, const Vec4 &v)
-		{
-			return out << v.x << ' ' << v.y << ' ' << v.z << ' ' << v.w;
-		}
 
 		/**
 		 * Data structure for a vector of three values
 		 */
-		class Vec3 {
+		class Vec3 : public glm::vec3 {
 		public:
 			Vec3();
 			Vec3(float x, float y, float z);
-			float operator*(const Vec3 &v);
 			Vec3 operator-() const;
 			Vec3& operator+=(const Vec3 &v);
+			Vec3& operator-=(const Vec3 &v);
 			Vec3& operator*=(float t);
 			Vec3& operator/=(float t);
+			friend std::ostream& operator<<(std::ostream &out, const Vec3 &v);
+			template<typename T> friend float Dot(T &u, T &v);
+			template<typename T> friend float Length(T &v);
+			template<typename T> friend float Distance(T &u, T &v);
 
-		public:
-			float x, y, z;
+		private:
+			float DotProduct(const Vec3 &u)
+			{
+				return glm::dot(glm::vec3(*this), u);
+			}
+			float CalcLength()
+			{
+				return glm::length(glm::vec3(*this));
+			}
+			float CalcDistance(const Vec3 &u)
+			{
+				return glm::distance(glm::vec3(*this), u);
+			}
 		};
+
+		std::ostream& operator<<(std::ostream &out, const Vec3 &v);
 
 		/**
 		 * Calculates the square of the length of a vector size 3
@@ -95,10 +126,6 @@ namespace PlatinumEngine {
 		{
 			return {u.x - v.x, u.y - v.y, u.z - v.z};
 		}
-		inline std::ostream& operator<<(std::ostream &out, const Vec3 &v)
-		{
-			return out << v.x << ' ' << v.y << ' ' << v.z;
-		}
 
 		/**
 		 * Calculates the cross product of two vectors
@@ -116,19 +143,36 @@ namespace PlatinumEngine {
 		/**
 		 * Data structure for a vector with two values
 		 */
-		class Vec2 {
+		class Vec2 : public glm::vec2 {
 		public:
 			Vec2();
 			Vec2(float x, float y);
-			float operator*(const Vec2 &v);
 			Vec2 operator-() const;
 			Vec2& operator+=(const Vec2 &v);
+			Vec2& operator-=(const Vec2 &v);
 			Vec2& operator*=(float t);
 			Vec2& operator/=(float t);
+			friend std::ostream& operator<<(std::ostream &out, const Vec2 &v);
+			template<typename T> friend float Dot(T &u, T &v);
+			template<typename T> friend float Length(T &v);
+			template<typename T> friend float Distance(T &u, T &v);
 
-		public:
-			float x, y;
+		private:
+			float DotProduct(const Vec2 &u)
+			{
+				return glm::dot(glm::vec2(*this), u);
+			}
+			float CalcLength()
+			{
+				return glm::length(glm::vec2(*this));
+			}
+			float CalcDistance(const Vec2 &u)
+			{
+				return glm::distance(glm::vec2(*this), u);
+			}
 		};
+
+		std::ostream& operator<<(std::ostream &out, const Vec2 &v);
 
 		/**
 		 * Calculates the square of the length of a vector size 2
@@ -153,10 +197,7 @@ namespace PlatinumEngine {
 		{
 			return {u.x - v.x, u.y - v.y};
 		}
-		inline std::ostream& operator<<(std::ostream &out, const Vec2 &v)
-		{
-			return out << v.x << ' ' << v.y;
-		}
+
 
 		/**
 		 * Calculates the length of the vector
@@ -164,9 +205,9 @@ namespace PlatinumEngine {
 		 * @param v Input vector
 		 * @return Length as float
 		 */
-		template<typename T> inline float Length(T &v)
+		template<typename T> float Length(T &v)
 		{
-			return std::sqrt(LengthSquared(v));
+			return v.CalcLength();
 		}
 
 		/**
@@ -176,9 +217,9 @@ namespace PlatinumEngine {
 		 * @param v Second input vector
 		 * @return Dot product of the two
 		 */
-		template<typename T> inline float Dot(T &u, T &v)
+		template<typename T> float Dot(T &u, T &v)
 		{
-			return u*v;
+			return u.DotProduct(v);
 		}
 
 		/**
@@ -187,7 +228,7 @@ namespace PlatinumEngine {
 		 * @param v Input vector
 		 * @return A vector of length 1
 		 */
-		template<typename T> inline T Normalise(T &v)
+		template<typename T> T Normalise(T &v)
 		{
 			return v / Length(v);
 		}
@@ -199,9 +240,9 @@ namespace PlatinumEngine {
 		 * @param v Second input vector
 		 * @return Distance between the two vectors as a float
 		 */
-		template<typename T> inline float Distance(T &u, T &v)
+		template<typename T> float Distance(T &u, T &v)
 		{
-			return std::sqrt(LengthSquared(u-v)); // Templates are weird, but this works and Length doesn't
+			return u.CalcDistance(v);
 		}
 	}
 }
