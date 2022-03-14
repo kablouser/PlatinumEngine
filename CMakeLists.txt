@@ -74,6 +74,9 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	
 	"Source/InputManager/InputManager.cpp;"
 	
+	"Source/Loaders/LoaderCommon.cpp;"
+	"Source/Loaders/MeshLoader.cpp;"
+
 	"Source/Logger/Logger.cpp;"
 	
 	"Source/Maths/Matrices.cpp;"
