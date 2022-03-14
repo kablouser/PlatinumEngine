@@ -21,7 +21,6 @@ static void GlfwErrorCallback(int error, const char* description)
 }
 
 
-
 int main(int, char**)
 {
 	// Setup window
@@ -42,6 +41,7 @@ int main(int, char**)
 		return EXIT_FAILURE;
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
+
 
 	{
 		// this scope has a valid OpenGL context initialised
