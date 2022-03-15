@@ -72,6 +72,12 @@ namespace PlatinumEngine
 			 */
 			Matrix<numberOfRow, numberOfColumn, T>& operator=(const Matrix<numberOfRow, numberOfColumn, T>& otherMatrix);
 
+			/**
+			 * Convert array into matrix
+			 * @param arrayMatrix : array
+			 * @param arraySize : size of array
+			 */
+			void ConvertFromArray(T* array, unsigned int arraySize);
 
 			//___CONSTRUCTOR___
 			Matrix(); // create empty matrix
@@ -149,15 +155,13 @@ namespace PlatinumEngine
 
 			Mat4& operator=(const Mat4& otherMatrix);
 
-			void ConvertFromArray(float* arrayMat4);
-
 			void SetIdentityMatrix();
 
 			void SetTranslationMatrix(Vec3 translationDirection);
 
 			void SetRotationMatrix(Vec3 eulerAngle);
 
-			void SetScaleMatrix(float scale);
+			void SetScaleMatrix(PlatinumEngine::Maths::Vec3 scale);
 
 			void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
 
@@ -193,13 +197,11 @@ namespace PlatinumEngine
 
 			Mat3& operator=(const Mat3& otherMatrix);
 
-			void ConvertFromArray(float* arrayMat3);
-
 			void SetIdentityMatrix();
 
 			void SetRotationMatrix(Vec3 eulerAngle);
 
-			void SetScaleMatrix(float scale);
+			void SetScaleMatrix(PlatinumEngine::Maths::Vec3 scale);
 
 			//___CONSTRUCTOR___
 			using Matrix<3, 3, float>::Matrix;
@@ -321,16 +323,20 @@ namespace PlatinumEngine
 		{
 			if(this == & otherMatrix)
 				return *this;
-			for (int y = 0; y < numberOfRow; y++)
-			{
-				for (int x = 0; x < numberOfColumn; x++)
-				{
 
-					(*this)[y][x] = otherMatrix[y][x];
+			std::memcpy(this->matrix, otherMatrix.matrix,  numberOfRow * numberOfColumn * sizeof(T));
 
-				}
-			}
 			return (*this);
+		}
+
+
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		void Matrix<numberOfRow, numberOfColumn, T>
+		::ConvertFromArray(T* array, unsigned int arraySize)
+		{
+			if(arraySize == numberOfRow * numberOfColumn )
+				memcpy(this->matrix, array, numberOfRow * numberOfColumn * sizeof(T));
+
 		}
 
 		//-------------------------------------------
@@ -361,22 +367,24 @@ namespace PlatinumEngine
 		//-------------------------------------------
 		// overloading << operator
 		//-------------------------------------------
-
-		inline std::ostream& operator<<(std::ostream &out, Mat4 &m)
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		inline std::ostream& operator<<(std::ostream &out, Matrix<numberOfRow, numberOfColumn, T> &m)
 		{
-			return out <<m[0][0]<<" "<<m[0][1]<<" "<<m[0][2]<<" "<<m[0][3]<<"\n"<<
-					   m[1][0]<<" "<<m[1][1]<<" "<<m[1][2]<<" "<<m[1][3]<<"\n"<<
-					   m[2][0]<<" "<<m[2][1]<<" "<<m[2][2]<<" "<<m[2][3]<<"\n"<<
-					   m[3][0]<<" "<<m[3][1]<<" "<<m[3][2]<<" "<<m[3][3];
-		}
 
-		inline std::ostream& operator<<(std::ostream &out, Mat3 &m)
-		{
-			return out <<m[0][0]<<" "<<m[0][1]<<" "<<m[0][2]<<"\n"<<
-					   m[1][0]<<" "<<m[1][1]<<" "<<m[1][2]<<"\n"<<
-					   m[2][0]<<" "<<m[2][1]<<" "<<m[2][2]<<"\n";
-		}
+			std::string output;
 
+			for(int i = 0; i < numberOfRow; i ++ )
+			{
+				for (int j = 0; j < numberOfColumn; j++)
+				{
+					output.append(std::to_string(m[i][j]) + " ");
+				}
+				output.append("\n");
+			}
+			output.append("\n");
+
+			return out << output;
+		}
 	}
 }
 
