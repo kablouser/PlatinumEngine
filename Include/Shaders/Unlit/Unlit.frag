@@ -1,5 +1,5 @@
 R"(
-#version 460 core
+#version 330 core
 in vec3 vertexPos;
 in vec3 vertexNormal;
 in vec2 vertexTextureCoordinate;
@@ -37,7 +37,7 @@ void main()
         vec3 viewDir = normalize(viewPosition - vertexPos);
         vec3 reflectDir = reflect(-lightDir, norm);
         float specularCoefficient = pow(max(dot(viewDir, reflectDir), 0.0f), 32);
-        vec3 specularColour = specularCoefficient* specularStrength * lightColour;
+        vec3 specularColour = specularCoefficient * specularStrength * lightColour;
 
         vec3 result = (ambientColour + diffuseColour + specularColour) * objectColour;
         outColour = vec4(result, 1.0);
