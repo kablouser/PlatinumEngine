@@ -8,7 +8,6 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-
 out vec3 vertexPos;
 out vec3 vertexNormal;
 out vec2 vertexTextureCoordinate;
