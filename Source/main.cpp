@@ -20,6 +20,7 @@ static void GlfwErrorCallback(int error, const char* description)
 	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
 }
 
+
 int main(int, char**)
 {
 	// Setup window
@@ -40,6 +41,7 @@ int main(int, char**)
 		return EXIT_FAILURE;
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
+
 
 	{
 		// this scope has a valid OpenGL context initialised
@@ -80,11 +82,12 @@ int main(int, char**)
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
+
 			//--------------------------------------------------------------------------------------------------------------
 			// GUI HERE
 			//--------------------------------------------------------------------------------------------------------------
 			if (isRasterRendererOpen)
-				rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
+				rasterRenderer.Render(&isRasterRendererOpen);
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);
 			if(isLoggerOpen)

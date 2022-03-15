@@ -67,13 +67,16 @@ FetchContent_MakeAvailable(glew)
 set(PROJECT_SOURCES_WITHOUT_MAIN
 	# order by folder structure
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
-  
+	
 	"Source/ComponentComposition/Component.cpp;"
 	"Source/ComponentComposition/ComponentType.cpp;"
 	"Source/ComponentComposition/GameObject.cpp;"
 	
 	"Source/InputManager/InputManager.cpp;"
 	
+	"Source/Loaders/LoaderCommon.cpp;"
+	"Source/Loaders/MeshLoader.cpp;"
+
 	"Source/Logger/Logger.cpp;"
 	
 	"Source/Maths/Matrices.cpp;"
@@ -89,13 +92,20 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	
 	"Source/Renderer/Renderer.cpp;"
 	
-	"Source/SceneEditor/EditorCamera.cpp;"
 	"Source/SceneEditor/SceneEditor.cpp;"
+	"Source/SceneEditor/EditorCamera.cpp;"
+	
+	"Source/SceneManager/Scene.cpp;"
+	
+	"Source/WindowManager/WindowManager.cpp;"
 	
 	"Source/WindowManager/Filedialog.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
-  )
+	)
+
+
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
+
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
 
@@ -108,6 +118,8 @@ add_executable(tests
 	${PROJECT_SOURCES_WITHOUT_MAIN}
 	Test/TestTemplate.cpp
 	Source/WindowManager/Filedialog.cpp Include/WindowManager/Filedialog.h)
+
+
 target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
 
