@@ -222,7 +222,6 @@ namespace PlatinumEngine
 
 		}
 
-
 		Mat3 Mat3::operator*(float scale)
 		{
 
@@ -288,7 +287,6 @@ namespace PlatinumEngine
 
 
 		}
-
 
 		Mat3 Mat3::operator+(Mat3 otherMatrix)
 		{
@@ -388,7 +386,6 @@ namespace PlatinumEngine
 			this->ConvertFromArray(scaleMatrix);
 
 		}
-
 
 	}
 }
