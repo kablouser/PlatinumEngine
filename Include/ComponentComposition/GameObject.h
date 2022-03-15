@@ -21,8 +21,6 @@ namespace PlatinumEngine
 		~GameObject();
 
 
-		~GameObject();
-
 		bool IsEnabled();
 		void SetEnabled(bool enableFlag);
 

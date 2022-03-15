@@ -30,7 +30,7 @@ namespace PlatinumEngine
 		/**
 		 * Update data in Scene Editor
 		 */
-		void Update();
+		void Update(ImVec2 targetSize);
 
 		// ___CONSTRUCTOR___
 		SceneEditor(InputManagerExtend* inputManager, Scene* scene);

@@ -96,7 +96,7 @@ int main(int, char**)
 			//--------------------------------------------------------------------------------------------------------------
 			if (isRasterRendererOpen)
 			{
-				rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
+				//rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
 				
 
 			}

@@ -144,7 +144,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/In
 
 set(UNIT_TESTS
 	"Test/TestTemplate.cpp;"
-	"Test/Maths/VectorsTest.cpp;")
+	"Test/Maths/VectorsTest.cpp;"
+	"Test/SceneEditor/EditorCameraTest.cpp;")
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 
 target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")

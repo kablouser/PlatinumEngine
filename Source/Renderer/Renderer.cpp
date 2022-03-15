@@ -50,9 +50,8 @@ namespace PlatinumEngine
 			return;
 		}
 
-		if (!_shaderProgram.Compile(UNLIT_VERTEX_SHADER, UNLIT_FRAGMENT_SHADER))
+		if (!_meshShader.Compile(UNLIT_VERTEX_SHADER, UNLIT_FRAGMENT_SHADER))
 			return;
-
 
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
@@ -60,7 +59,7 @@ namespace PlatinumEngine
 			return;
 
 		// check for uncaught errors
-		GL_CHECK();
+//		GL_CHECK();
 
 		_isInitGood = true;
 	}
@@ -70,13 +69,71 @@ namespace PlatinumEngine
 		// nothing to do
 	}
 
-	void Renderer::Render(bool* outIsOpen)
+	void Renderer::Begin()
+	{
+		_framebuffer.Bind();
+		GL_CHECK(glViewport(0, 0, _framebufferWidth, _framebufferHeight));
+		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+	}
+
+	void Renderer::End()
+	{
+		_framebuffer.Unbind();
+	}
+
+	void Renderer::SetFramebuffer(Framebuffer& framebuffer)
+	{
+		_framebuffer = framebuffer;
+	}
+
+	void Renderer::ResizeFrameBuffer(Framebuffer &framebuffer, ImVec2 targetSize)
+	{
+		_framebufferWidth = (int)targetSize.x;
+		_framebufferHeight = (int)targetSize.y;
+		_framebuffer.Create(_framebufferWidth, _framebufferHeight);
+	}
+
+	void Renderer::LoadMesh(const Mesh &mesh)
+	{
+		_meshShader.Bind();
+		_unlitShaderInput.Set(mesh.GetVertices(), mesh.GetIndices());
+		SetLightProperties();
+	}
+
+	// update model matrix in shader
+	void Renderer::SetModelMatrix(Maths::Mat4 mat)
+	{
+		_meshShader.SetUniform("model", mat);
+	}
+
+	// update view matrix in shader
+	void Renderer::SetViewMatrix(Maths::Mat4 mat)
+	{
+		_meshShader.SetUniform("view", mat);
+	}
+
+	// update perspective matrix in shader
+	void Renderer::SetProjectionMatrix(Maths::Mat4 mat)
+	{
+		_meshShader.SetUniform("projection", mat);
+	}
+
+	void Renderer::Render()
+	{
+		_unlitShaderInput.Draw();
+		_meshShader.Unbind();
+	}
+
+	// if you want to test a mesh use
+	// void Renderer::ShowGUIWindow(bool* outIsOpen, const Mesh &mesh)
+	// then comment CubeTest(), cancel comment on LoadMesh(const Mesh &mesh)
+	void Renderer::ShowGUIWindow(bool* outIsOpen)
 	{
 		if(ImGui::Begin("Raster Renderer", outIsOpen) &&
-			// when init is bad, don't render anything
-			_isInitGood)
+		   // when init is bad, don't render anything
+		   _isInitGood)
 		{
-
 			// check ImGui's window size, can't render when area=0
 			ImVec2 targetSize = ImGui::GetContentRegionAvail();
 			if(1.0f < targetSize.x && 1.0f < targetSize.y)
@@ -84,60 +141,128 @@ namespace PlatinumEngine
 				// resize framebuffer if necessary
 				if (_framebufferWidth != (int)targetSize.x || _framebufferHeight != (int)targetSize.y)
 				{
-					_framebufferWidth = (int)targetSize.x;
-					_framebufferHeight = (int)targetSize.y;
-					_framebuffer.Create(_framebufferWidth, _framebufferHeight);
+					ResizeFrameBuffer(_framebuffer, targetSize);
 				}
 
-				_framebuffer.Bind();
+				Begin();
+				// LoadMesh(mesh)
+				// SetModelMatrix();
+				// SetViewMatrix();
+				// SetProjectionMatrix();
+				CubeTest();
+				Render();
 
-				GL_CHECK(glViewport(0, 0, targetSize.x, targetSize.y));
-				GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-				GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
-
-				_shaderProgram.Bind();
-				_unlitShaderInput.Draw();
-				_shaderProgram.Unbind();
-
-				_framebuffer.Unbind();
+				End();
 
 				ImGui::Image(_framebuffer.GetColorTexture().GetImGuiHandle(), targetSize);
 
-				GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 			}
 		}
 
 		ImGui::End();
 	}
-
-	void Renderer::LoadMesh(const Mesh &mesh)
-	{
-		_unlitShaderInput.Set(mesh.GetVertices(), mesh.GetIndices());
-		SetShaderProperties();
-	}
-
 	//--------------------------------------------------------------------------------------------------------------
 	// Private functions implementation.
 	//--------------------------------------------------------------------------------------------------------------
-	void Renderer::SetShaderProperties()
+	void Renderer::SetLightProperties()
 	{
-		_shaderProgram.Bind();
-		glm::mat4 matrix = glm::mat4(1.0f);
-
-
-		_shaderProgram.SetUniform("modelToProjection", matrix);
-		_shaderProgram.SetUniform("modelToProjection", matrix);
-
 		// set basic properties
-		_shaderProgram.SetUniform("objectColour", glm::vec3(1.0f,0.5f,0.31f));
-		_shaderProgram.SetUniform("isTextureEnabled",false);
+		_meshShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
+		_meshShader.SetUniform("isTextureEnabled",false);
 
-		_shaderProgram.SetUniform("lightPosition", glm::vec3(0.9f * std::cos(glfwGetTime()),0.9f * std::sin(glfwGetTime()),0.9f));
-		_shaderProgram.SetUniform("lightColour", glm::vec3(1.0f,1.0f,1.0f));
-		_shaderProgram.SetUniform("viewPosition", glm::vec3(0.0f,0.0f,1.0f));
+		_meshShader.SetUniform("lightPosition", Maths::Vec3(0.9f * std::sin(glfwGetTime()),0.9f * std::sin(glfwGetTime()),0.9f));
+		_meshShader.SetUniform("lightColour", Maths::Vec3(1.0f,1.0f,1.0f));
+		_meshShader.SetUniform("viewPosition", Maths::Vec3(0.0f,0.0f,1.0f));
 	}
 
+	void Renderer::CubeTest()
+	{
+		_meshShader.Bind();
+		Maths::Mat4 matrix;
+		matrix.SetIdentityMatrix();
+		SetModelMatrix(matrix);
+		SetViewMatrix(matrix);
+		SetProjectionMatrix(matrix);
+		SetLightProperties();
 
+		// in variables
+		_unlitShaderInput.Set({
+						{{ -0.5f, -0.5f, -0.5f  }, {  0.0f,  0.0f, -1.0f }, { 0, 0 }},
+						{{ 0.5f, -0.5f, -0.5f   }, { 0.0f,  0.0f, -1.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f, -0.5f   }, { 0.0f,  0.0f, -1.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f, -0.5f   }, { 0.0f,  0.0f, -1.0f  }, { 0, 0 }},
+						{{ -0.5f,  0.5f, -0.5f  }, {  0.0f,  0.0f, -1.0f }, { 0, 0 }},
+						{{ -0.5f, -0.5f, -0.5f  }, {  0.0f,  0.0f, -1.0f }, { 0, 0 }},
+						{{ -0.5f, -0.5f,  0.5f  }, {  0.0f,  0.0f,  1.0f }, { 0, 0 }},
+						{{ 0.5f, -0.5f,  0.5f   }, { 0.0f,  0.0f,  1.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  0.0f,  1.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  0.0f,  1.0f  }, { 0, 0 }},
+						{{ -0.5f,  0.5f,  0.5f  }, {  0.0f,  0.0f,  1.0f }, { 0, 0 }},
+						{{ -0.5f, -0.5f,  0.5f  }, {  0.0f,  0.0f,  1.0f }, { 0, 0 }},
+						{{ -0.5f,  0.5f,  0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f,  0.5f, -0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f, -0.5f, -0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f, -0.5f, -0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f, -0.5f,  0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f,  0.5f,  0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
+						{{ 0.5f,  0.5f,  0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f, -0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f, -0.5f, -0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f, -0.5f, -0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f, -0.5f,  0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f,  0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
+						{{ -0.5f, -0.5f, -0.5f  }, {  0.0f, -1.0f,  0.0f }, { 0, 0 }},
+						{{ 0.5f, -0.5f, -0.5f   }, { 0.0f, -1.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f, -0.5f,  0.5f   }, { 0.0f, -1.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f, -0.5f,  0.5f   }, { 0.0f, -1.0f,  0.0f  }, { 0, 0 }},
+						{{ -0.5f, -0.5f,  0.5f  }, {  0.0f, -1.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f, -0.5f, -0.5f  }, {  0.0f, -1.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f,  0.5f, -0.5f  }, {  0.0f,  1.0f,  0.0f }, { 0, 0 }},
+						{{ 0.5f,  0.5f, -0.5f   }, { 0.0f,  1.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  1.0f,  0.0f  }, { 0, 0 }},
+						{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  1.0f,  0.0f  }, { 0, 0 }},
+						{{ -0.5f,  0.5f,  0.5f  }, {  0.0f,  1.0f,  0.0f }, { 0, 0 }},
+						{{ -0.5f,  0.5f, -0.5f  }, {  0.0f,  1.0f,  0.0  }, { 0, 0 }},
+				},
+				{
+						0,   1,   2,
+						3,   4,   5,
+						6,   7,   8,
+						9,   10,  11,
+						12,  13,  14,
+						15,  16,  17,
+						18,  19,  20,
+						21,  22,  23,
+						24,  25,  26,
+						27,  28,  29,
+						30,  31,  32,
+						33,  34,  35,
+						36,  37,  38,
+						39,  40,  41,
+						42,  43,  44,
+						45,  46,  47,
+						48,  49,  50,
+						51,  52,  53,
+						54,  55,  56,
+						57,  59,  59,
+						60,  61,  62,
+						63,  64,  65,
+						66,  67,  68,
+						69,  70,  71,
+						72,  73,  74,
+						75,  76,  77,
+						78,  79,  80,
+						81,  82,  83,
+						84,  85,  86,
+						87,  88,  89,
+						90,  91,  92,
+						93,  94,  95,
+						96,  97,  98,
+						99,  100, 101,
+						102, 103, 104,
+						105, 106, 107
+				});
+	}
 
 
 }

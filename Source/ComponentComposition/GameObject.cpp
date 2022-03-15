@@ -20,10 +20,6 @@ namespace PlatinumEngine
 	GameObject::~GameObject()
 	{}
 
-	GameObject::~GameObject()
-	{}
-
-
 
 
 	bool GameObject::IsEnabled()

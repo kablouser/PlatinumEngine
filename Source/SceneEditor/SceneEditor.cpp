@@ -162,7 +162,7 @@ namespace PlatinumEngine{
 				// Update Data
 				//------------------
 
-				Update();
+				Update(targetSize);
 
 			}
 			ImGui::EndChild();
@@ -173,18 +173,12 @@ namespace PlatinumEngine{
 
 
 
-	void SceneEditor::Update()
+	void SceneEditor::Update(ImVec2 targetSize)
 	{
-		///__get viewport size__
-
-		auto targetSize = ImGui::GetContentRegionAvail();
-
-
-
 
 		///__update view matrix__
 
-		// check mouse click to do rotation and translation
+		// __check mouse click to do rotation and translation__
 
 		// rotation
 		if(_mouseButtonType == InputManagerExtend::MouseButtonType::left)
@@ -228,14 +222,17 @@ namespace PlatinumEngine{
 		// check camera type
 		if(_camera.isOrthogonal)
 		{
-			std::cout<<(-targetSize.x/2.f)<<", "<<(targetSize.x/2.f)<<std::endl;
+
 			// update as orthogonal projection matrix
-			_camera.SetOrthogonalMatrix(-targetSize.x/2.f,targetSize.x/2.f,
-					-targetSize.y/2.f,targetSize.y/2.f,(float)_near,(float)_far);
+			_camera.SetOrthogonalMatrix(-targetSize.x/20.f,targetSize.x/20.f,
+					-targetSize.y/20.f,targetSize.y/20.f,(float)_near,(float)_far);
 
 		}
 		else
 		{
+
+
+
 			// update as perspective projection matrix
 			_camera.SetPerspectiveMatrix((float)_fov, targetSize.x / targetSize.y, (float)_near, (float)_far);
 		}
