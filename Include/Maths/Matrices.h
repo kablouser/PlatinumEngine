@@ -108,6 +108,7 @@ namespace PlatinumEngine
 			//___DECLARE FRIEND CLASS___
 			friend class Matrix<numberOfRow, numberOfColumn, T>;
 
+
 			//___PARAMETERS___
 			Matrix<numberOfRow, numberOfColumn, T>& _matrix;
 			unsigned int _currentRow;
@@ -163,8 +164,6 @@ namespace PlatinumEngine
 			void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far);
 
 			void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
-
-
 
 
 			//___CONSTRUCTOR___
@@ -380,8 +379,5 @@ namespace PlatinumEngine
 
 	}
 }
-
-
-
 
 
