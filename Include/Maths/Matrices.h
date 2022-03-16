@@ -77,8 +77,6 @@ namespace PlatinumEngine
 			Matrix(); // create empty matrix
 			explicit Matrix(T valueForPacking); // fill the matrix (the std::vector) with valueForPacking
 
-
-
 			//___VARIABLE___
 			T matrix[numberOfRow * numberOfColumn];
 
@@ -93,7 +91,6 @@ namespace PlatinumEngine
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
 		class MatrixHelper
 		{
-
 		public:
 			/***
 			 * Return the reference of a specific value Matrix[y/row][x/column] in matrix array.
@@ -102,12 +99,9 @@ namespace PlatinumEngine
 			 */
 			T& operator[](unsigned int column);
 
-
 		private:
-
 			//___DECLARE FRIEND CLASS___
 			friend class Matrix<numberOfRow, numberOfColumn, T>;
-
 
 			//___PARAMETERS___
 			Matrix<numberOfRow, numberOfColumn, T>& _matrix;
@@ -171,7 +165,7 @@ namespace PlatinumEngine
 
 
 			//___VARIABLE___
-
+			void ConvertFromArray(float* arrayMat3);
 
 		};
 

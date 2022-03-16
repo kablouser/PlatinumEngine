@@ -8,6 +8,7 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
+
 // TODO:
 // Potentially add reflection, refraction and faceforward from glm if needed
 
@@ -69,6 +70,7 @@ namespace PlatinumEngine {
 		{
 			return {u.x-v.x, u.y-v.y, u.z-v.z, u.w-v.w};
 		}
+
 
 		/**
 		 * Data structure for a vector of three values
