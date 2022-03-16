@@ -52,7 +52,7 @@ namespace PlatinumEngine
 
 			// convert the array into Mat4
 
-			resultMat4.ConvertFromArray(resultPtr);
+			resultMat4.ConvertFromArray(resultPtr, 16);
 
 			// return the final result with the type Mat4
 
@@ -128,12 +128,6 @@ namespace PlatinumEngine
 
 		}
 
-		void Mat4::ConvertFromArray(float* arrayMatrix)
-		{
-
-			memcpy(this->matrix, arrayMatrix, 16 * sizeof(float));
-
-		}
 
 		void Mat4::SetIdentityMatrix()
 		{
@@ -143,7 +137,7 @@ namespace PlatinumEngine
 									   0, 0, 1, 0,
 									   0, 0, 0, 1 };
 
-			this->ConvertFromArray(identityMatrix);
+			this->ConvertFromArray(identityMatrix, 16);
 
 		}
 
@@ -155,7 +149,7 @@ namespace PlatinumEngine
 										  0, 0, 1, 0,
 										  translationDirection.x, translationDirection.y, translationDirection.z, 1 };
 
-			this->ConvertFromArray(translationMatrix);
+			this->ConvertFromArray(translationMatrix, 16);
 		}
 
 		void Mat4::SetRotationMatrix(Vec3 eulerAngle)
@@ -175,21 +169,21 @@ namespace PlatinumEngine
 			// convert glm::mat4 into Mat4
 			float* rotationMatrix = glm::value_ptr(rotationMat4);
 
-			this->ConvertFromArray(rotationMatrix);
+
+			this->ConvertFromArray(rotationMatrix, 16);
 
 		}
 
-		void Mat4::SetScaleMatrix(float scale)
+		void Mat4::SetScaleMatrix(PlatinumEngine::Maths::Vec3 scale)
 		{
 
-			float scaleMatrix[] = { scale, 0, 0, 0,
-									0, scale, 0, 0,
-									0, 0, scale, 0,
+			float scaleMatrix[] = { scale.x, 0, 0, 0,
+									0, scale.y, 0, 0,
+									0, 0, scale.z, 0,
 									0, 0, 0, 1 };
 
-			this->ConvertFromArray(scaleMatrix);
+			this->ConvertFromArray(scaleMatrix, 16);
 		}
-
 
 		void Mat4::SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
 		{
@@ -198,10 +192,9 @@ namespace PlatinumEngine
 
 			float* orthogonalMatrix = glm::value_ptr(OrthogonalGLM);
 
-			this->ConvertFromArray(orthogonalMatrix);
+			this->ConvertFromArray(orthogonalMatrix, 16);
 
 		}
-
 
 		void Mat4::SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far)
 		{
@@ -211,7 +204,7 @@ namespace PlatinumEngine
 
 			float* frustumMatrix = glm::value_ptr(frustumGLM);
 
-			this->ConvertFromArray(frustumMatrix);
+			this->ConvertFromArray(frustumMatrix, 16);
 
 		}
 
@@ -222,7 +215,7 @@ namespace PlatinumEngine
 
 			float* frustumMatrix = glm::value_ptr(frustumGLM);
 
-			this->ConvertFromArray(frustumMatrix);
+			this->ConvertFromArray(frustumMatrix, 16);
 
 		}
 
@@ -265,7 +258,7 @@ namespace PlatinumEngine
 
 			// convert the array into Mat4
 
-			resultMat3.ConvertFromArray(resultPtr);
+			resultMat3.ConvertFromArray(resultPtr, 9);
 
 			// return the final result with the type Mat4
 
@@ -342,22 +335,13 @@ namespace PlatinumEngine
 
 		}
 
-
-
-		void Mat3::ConvertFromArray(float* arrayMatrix)
-		{
-
-			memcpy(this->matrix, arrayMatrix, 9 * sizeof(float));
-
-		}
-
 		void Mat3::SetIdentityMatrix()
 		{
 			float identityMatrix[] = { 1, 0, 0,
 									   0, 1, 0,
 									   0, 0, 1};
 
-			this->ConvertFromArray(identityMatrix);
+			this->ConvertFromArray(identityMatrix, 9);
 
 		}
 
@@ -377,17 +361,16 @@ namespace PlatinumEngine
 			// convert glm::mat4 into Mat4
 			float* rotationMatrix = glm::value_ptr(rotationMat3);
 
-			this->ConvertFromArray(rotationMatrix);
+			this->ConvertFromArray(rotationMatrix, 9);
 		}
 
-
-		void Mat3::SetScaleMatrix(float scale)
+		void Mat3::SetScaleMatrix(PlatinumEngine::Maths::Vec3 scale)
 		{
-			float scaleMatrix[] = { scale, 0, 0,
-									0, scale, 0,
-									0, 0, scale };
+			float scaleMatrix[] = { scale.x, 0, 0,
+									0, scale.y, 0,
+									0, 0, scale.z };
 
-			this->ConvertFromArray(scaleMatrix);
+			this->ConvertFromArray(scaleMatrix, 9);
 
 		}
 

@@ -141,6 +141,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/In
 #-----------------------------
 # Add unit tests here:
 
+set(UNIT_TESTS
+	"Test/TestTemplate.cpp;"
+	"Test/Maths/VectorsTest.cpp;"
+	"Test/Maths/MatricesTest.cpp;")
+add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 
 set(UNIT_TESTS
 	"Test/TestTemplate.cpp;"

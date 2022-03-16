@@ -75,7 +75,6 @@ namespace PlatinumEngine {
 		/**
 		 * Data structure for a vector of three values
 		 */
-
 		class Vec3 : public glm::vec3 {
 		public:
 			Vec3();
@@ -148,7 +147,6 @@ namespace PlatinumEngine {
 		/**
 		 * Data structure for a vector with two values
 		 */
-
 		class Vec2 : public glm::vec2 {
 		public:
 			Vec2();

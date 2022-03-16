@@ -80,8 +80,6 @@ namespace PlatinumEngine
 
 //// Vec3 overloaders
 
-
-
 //float Vec3::operator*(const Vec3 &v)
 //{
 //	return x*v.x + y*v.y + z*v.z;
