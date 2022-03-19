@@ -79,7 +79,7 @@ namespace PlatinumEngine
 		// void LoadLight(const Light &light);
 		void LoadLight();
 
-	private:
+	//private:
 
 		// true iff all init steps were successful
 		bool _isInitGood;

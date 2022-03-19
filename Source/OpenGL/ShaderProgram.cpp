@@ -151,6 +151,6 @@ namespace PlatinumEngine
 
 	void ShaderProgram::SetUniform(const std::string &name, const glm::mat4 &value) const
 	{
-		GL_CHECK(glUniformMatrix4fv(glGetUniformLocation(_shaderProgramHandle, name.c_str()), 1, GL_FALSE, &value.matrix[0]));
+		GL_CHECK(glUniformMatrix4fv(glGetUniformLocation(_shaderProgramHandle, name.c_str()), 1, GL_FALSE, &value[0][0]));
 	}
 }

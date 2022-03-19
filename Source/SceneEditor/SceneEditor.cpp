@@ -13,11 +13,11 @@ namespace PlatinumEngine{
 
 	// ___CONSTRUCTOR___
 
-	SceneEditor::SceneEditor(InputManagerExtend* inputManager, Scene* scene):
+	SceneEditor::SceneEditor(InputManagerExtend* inputManager, Scene* scene, Renderer* renderer):
 			_ifCameraSettingWindowOpen(false),
-			_camera(), _fov(0), _near(4), _far(10000),_inputManager(inputManager), _scene(scene),
+			_camera(), _fov(60), _near(4), _far(10000),_inputManager(inputManager), _scene(scene),
 			_mouseMoveDelta(0, 0) ,_mouseButtonType(InputManagerExtend::MouseButtonType::none),
-			_wheelValueDelta(0),_renderTexture()
+			_wheelValueDelta(0),_renderTexture(), _renderer(renderer)
 
 	{
 		_inputManager->CreateAxis(std::string ("Horizontal"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManagerExtend::AxisType::keyboardMouseButton);
@@ -34,14 +34,14 @@ namespace PlatinumEngine{
 
 	// ___FUNCTIONS___
 
-	void SceneEditor::ShowGUIWindow(bool* outIsOpen, Renderer& rasterRenderer)
+	void SceneEditor::ShowGUIWindow(bool* outIsOpen)
 	{
 		//-------------------------------------------
 		// begin the ImGui Scene Editor Main Window
 		//-------------------------------------------
 
 
-		if (ImGui::Begin("Scene Editor", outIsOpen))
+		if (ImGui::Begin("Scene Editor", outIsOpen, ImGuiWindowFlags_NoSavedSettings))
 		{
 
 			// Get window size
@@ -59,14 +59,14 @@ namespace PlatinumEngine{
 				_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
 
 
-				ImGui::Text("Wheel shift value: %.1f", _wheelValueDelta);
+				/*ImGui::Text("Wheel shift value: %.1f", _wheelValueDelta);
 				ImGui::Text("Detect Mouse Movement: Button %d is pressed, delta: (%.1f, %.1f)", _mouseButtonType, _mouseMoveDelta.x, _mouseMoveDelta.y);
-				ImGui::Text("Projection Matrix: (\n %.1f, %.1f, %.1f, %.1f \n %.1f, %.1f, %.1f, %.1f \n %.1f, %.1f, %.1f, %.1f \n %.1f, %.1f, %.1f, %.1f \n)",
-						_camera.projectionMatrix4[0][0],_camera.projectionMatrix4[0][1], _camera.projectionMatrix4[0][2],_camera.projectionMatrix4[0][3],
-						_camera.projectionMatrix4[1][0],_camera.projectionMatrix4[1][1], _camera.projectionMatrix4[1][2],_camera.projectionMatrix4[1][3],
-						_camera.projectionMatrix4[2][0],_camera.projectionMatrix4[2][1], _camera.projectionMatrix4[2][2],_camera.projectionMatrix4[2][3],
-						_camera.projectionMatrix4[3][0],_camera.projectionMatrix4[3][1], _camera.projectionMatrix4[3][2],_camera.projectionMatrix4[3][3]
-				);
+				ImGui::Text("View Matrix: (\n %.1f, %.1f, %.1f, %.1f \n %.1f, %.1f, %.1f, %.1f \n %.1f, %.1f, %.1f, %.1f \n %.1f, %.1f, %.1f, %.1f \n)",
+						_camera.viewMatrix4[0][0],_camera.viewMatrix4[0][1], _camera.viewMatrix4[0][2],_camera.viewMatrix4[0][3],
+						_camera.viewMatrix4[1][0],_camera.viewMatrix4[1][1], _camera.viewMatrix4[1][2],_camera.viewMatrix4[1][3],
+						_camera.viewMatrix4[2][0],_camera.viewMatrix4[2][1], _camera.viewMatrix4[2][2],_camera.viewMatrix4[2][3],
+						_camera.viewMatrix4[3][0],_camera.viewMatrix4[3][1], _camera.viewMatrix4[3][2],_camera.viewMatrix4[3][3]
+				);*/
 
 
 				if (ImGui::Button("Camera Setting"))
@@ -75,20 +75,6 @@ namespace PlatinumEngine{
 					_ifCameraSettingWindowOpen = !_ifCameraSettingWindowOpen;
 
 				}
-
-
-				//------------
-				// Rendering
-				//------------
-
-				// get window size
-				//auto targetSize = ImGui::GetContentRegionAvail();
-
-				// get rendering result from Renderer
-				// rasterRenderer.RenderObjects(_renderTexture, targetSize);
-
-				// put target into GUI window
-				// ImGui::Image(_renderTexture, targetSize);
 
 
 
@@ -131,7 +117,7 @@ namespace PlatinumEngine{
 
 							// Slider
 
-							ImGui::SliderInt("Field of View", &_fov, 4, 40);
+							ImGui::SliderInt("Field of View", &_fov, 4, 160);
 
 
 							// Text boxes
@@ -175,27 +161,25 @@ namespace PlatinumEngine{
 
 	void SceneEditor::Update(ImVec2 targetSize)
 	{
+		//---------------------
+		// update view matrix
+		//---------------------
 
-		///__update view matrix__
-
-		// __check mouse click to do rotation and translation__
-
-		// rotation
-		if(_mouseButtonType == InputManagerExtend::MouseButtonType::left)
+		// check mouse click to do rotation and translation
+		if(_mouseButtonType == InputManagerExtend::MouseButtonType::left) // for rotation
 		{
 
 			_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
 
 		}
-		// rotation
-		else if(_mouseButtonType == InputManagerExtend::MouseButtonType::right)
+
+		else if(_mouseButtonType == InputManagerExtend::MouseButtonType::right)// for rotation
 		{
 
 			_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
 
 		}
-		// translation (up down left right)
-		else if(_mouseButtonType == InputManagerExtend::MouseButtonType::middle)
+		else if(_mouseButtonType == InputManagerExtend::MouseButtonType::middle)// translation (up down left right)
 		{
 
 			_camera.TranslationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
@@ -216,8 +200,9 @@ namespace PlatinumEngine{
 
 
 
-
-		///__Update projection matrix__
+		//---------------------------
+		// Update projection matrix
+		//---------------------------
 
 		// check camera type
 		if(_camera.isOrthogonal)
@@ -238,18 +223,48 @@ namespace PlatinumEngine{
 		}
 
 
+		//------------------------------------------
+		// Update rendering information to renderer
+		//------------------------------------------
 
-		///__Update rendering information to renderer__
 		_scene->Render(_renderer);
 
+		//--------------------
+		// Render Objects
+		//--------------------
 
-		///__Render Objects__
-		
+		// pass framebuffer to renderer
+		_renderer->SetFramebuffer(&_renderTexture);
+
+		if(1.0f < targetSize.x && 1.0f < targetSize.y)
+		{
+			// resize framebuffer if necessary
+			if (_renderer->_framebufferWidth != (int)targetSize.x || _renderer->_framebufferHeight != (int)targetSize.y)
+			{
+				_renderer->ResizeFrameBuffer(_renderer->_framebuffer, targetSize);
+			}
+
+			_renderer->Begin();
+			Mesh mesh(_renderer->vertices, _renderer->indices);
+			_renderer->LoadMesh(mesh);
+			_renderer->SetModelMatrix();
+			_renderer->SetViewMatrix(_camera.viewMatrix4);
+			_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
+			_renderer->SetLightProperties();
+			// CubeTest();
+			_renderer->Render();
+
+			_renderer->LoadLight();
+			_renderer->_lightShaderInput.Draw();
+			_renderer->_lightShader.Unbind();
+			_renderer->End();
 
 
+			// display updated framebuffer
+			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize);
+		}
 
 	}
-
 }
 
 

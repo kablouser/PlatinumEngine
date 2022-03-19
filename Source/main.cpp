@@ -71,11 +71,10 @@ int main(int, char**)
 		bool isRasterRendererOpen = true;
 		PlatinumEngine::Renderer rasterRenderer;
 
-
 		bool isSceneEditorOpen = true;
 		PlatinumEngine::Scene scene;
 		PlatinumEngine::InputManagerExtend inputManagerExtend;
-		PlatinumEngine::SceneEditor sceneEditor(&inputManagerExtend, &scene);
+		PlatinumEngine::SceneEditor sceneEditor(&inputManagerExtend, &scene, &rasterRenderer);
 
 		bool isInputWindowOpen = true;
 		PlatinumEngine::InputManager inputManager;
@@ -94,8 +93,11 @@ int main(int, char**)
 			//--------------------------------------------------------------------------------------------------------------
 			// GUI HERE
 			//--------------------------------------------------------------------------------------------------------------
-			if (isRasterRendererOpen)
-				rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
+			//if (isRasterRendererOpen)
+			//	rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
+
+			if (isSceneEditorOpen)
+				sceneEditor.ShowGUIWindow(&isSceneEditorOpen);
 				
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);

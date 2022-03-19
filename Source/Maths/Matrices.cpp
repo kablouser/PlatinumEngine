@@ -23,10 +23,6 @@ namespace PlatinumEngine
 
 				}
 
-			// Create glm matrices for calculate multiplication
-			glm::mat4x4 leftMatrix = glm::make_mat4(this->matrix);
-			glm::mat4x4 rightMatrix = glm::make_mat4(anotherMat4.matrix);
-			glm::mat4x4 result = leftMatrix * rightMatrix;
 
 			}
 
@@ -128,7 +124,6 @@ namespace PlatinumEngine
 
 		}
 
-
 		void Mat4::SetIdentityMatrix()
 		{
 
@@ -168,7 +163,6 @@ namespace PlatinumEngine
 
 			// convert glm::mat4 into Mat4
 			float* rotationMatrix = glm::value_ptr(rotationMat4);
-
 
 			this->ConvertFromArray(rotationMatrix, 16);
 
@@ -373,6 +367,7 @@ namespace PlatinumEngine
 			this->ConvertFromArray(scaleMatrix, 9);
 
 		}
+
 
 	}
 }

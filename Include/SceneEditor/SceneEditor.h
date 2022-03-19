@@ -25,7 +25,7 @@ namespace PlatinumEngine
 		 * @param outIsOpen : flag for showing this window or not
 		 * @param rasterRenderer :  Reference of the engine renderer
 		 */
-		void ShowGUIWindow(bool* outIsOpen, Renderer& rasterRenderer);
+		void ShowGUIWindow(bool* outIsOpen);
 
 		/**
 		 * Update data in Scene Editor
@@ -33,7 +33,7 @@ namespace PlatinumEngine
 		void Update(ImVec2 targetSize);
 
 		// ___CONSTRUCTOR___
-		SceneEditor(InputManagerExtend* inputManager, Scene* scene);
+		SceneEditor(InputManagerExtend* inputManager, Scene* scene, Renderer* renderer);
 
 		// ___DESTRUCTOR___
 		//~SceneEditor();
@@ -61,11 +61,7 @@ namespace PlatinumEngine
 		float _wheelValueDelta;
 
 
-
 		// output of OpenGL rendering
 		Framebuffer _renderTexture;
-
-
-
 	};
 }

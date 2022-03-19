@@ -86,9 +86,6 @@ namespace PlatinumEngine
 			//___VARIABLE___
 			T matrix[numberOfRow * numberOfColumn];
 
-			//___VARIABLE___
-			T matrix[numberOfRow * numberOfColumn];
-
 		private:
 
 
@@ -127,13 +124,6 @@ namespace PlatinumEngine
 	}
 }
 
-			Mat4& operator=(const Mat4& otherMatrix);
-
-			void ConvertFromArray(float* arrayMat4);
-
-			void SetIdentityMatrix();
-
-			void SetTranslationMatrix(Vec3 translationDirection);
 
 namespace PlatinumEngine
 {
@@ -171,7 +161,6 @@ namespace PlatinumEngine
 
 			void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
 
-			Mat3 operator-(Mat3 otherMatrix);
 
 			//___CONSTRUCTOR___
 			using Matrix<4, 4, float>::Matrix;

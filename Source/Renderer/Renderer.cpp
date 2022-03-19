@@ -88,13 +88,94 @@ namespace PlatinumEngine
 		// nothing to do
 	}
 
-	void Renderer::Render(bool* outIsOpen)
+	void Renderer::Begin()
+	{
+		_framebuffer.Bind();
+		glEnable(GL_DEPTH_TEST);
+		GL_CHECK(glViewport(0, 0, _framebufferWidth, _framebufferHeight));
+		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+	}
+
+	void Renderer::End()
+	{
+		glDisable(GL_DEPTH_TEST);
+		_framebuffer.Unbind();
+		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
+	}
+
+	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
+	{
+		_framebuffer = *framebuffer;
+	}
+
+	void Renderer::ResizeFrameBuffer(Framebuffer &framebuffer, ImVec2 targetSize)
+	{
+		_framebufferWidth = (int)targetSize.x;
+		_framebufferHeight = (int)targetSize.y;
+		_framebuffer.Create(_framebufferWidth, _framebufferHeight);
+	}
+
+	void Renderer::LoadMesh(const Mesh &mesh)
+	{
+		_meshShader.Bind();
+		_meshShaderInput.Set(mesh.GetVertices(), mesh.GetIndices());
+		SetLightProperties();
+	}
+
+	// update model matrix in shader
+	void Renderer::SetModelMatrix(Maths::Mat4 mat)
+	{
+		//mat.SetRotationMatrix(Maths::Vec3(0.5f * (float)glfwGetTime() * 50.0f / 180.0f * 3.14f, 1.0f, 0.0f));
+		_meshShader.SetUniform("model", mat);
+	}
+
+	// update view matrix in shader
+	void Renderer::SetViewMatrix(Maths::Mat4 mat)
+	{
+		//glm::mat4 view = GetViewMatrix();
+		_meshShader.SetUniform("view", mat);
+	}
+
+	// update perspective matrix in shader
+	void Renderer::SetProjectionMatrix(Maths::Mat4 mat)
+	{
+		_meshShader.SetUniform("projection", mat);
+	}
+
+	void Renderer::Render()
+	{
+		_meshShaderInput.Draw();
+		_meshShader.Unbind();
+	}
+
+	void Renderer::LoadLight()
+	{
+		_lightShader.Bind();
+
+		// model view projection matrix
+		Maths::Mat4 translateMat, scaleMat, matrix;
+		scaleMat.SetScaleMatrix(Maths::Vec3(0.2f,0.2f,0.2f));
+		translateMat.SetTranslationMatrix(light.lightPos);
+		matrix = translateMat * scaleMat;
+		_lightShader.SetUniform("model", matrix);
+		glm::mat4 view = GetViewMatrix();
+		_lightShader.SetUniform("view", view);
+		_lightShader.SetUniform("projection", matrix);
+
+		_lightShaderInput.Set(vertices, indices);
+	}
+
+	// if you want to test a mesh use
+	// void Renderer::ShowGUIWindow(bool* outIsOpen, const Mesh &mesh)
+	// then comment CubeTest(), cancel comment on LoadMesh(const Mesh &mesh)
+	void Renderer::ShowGUIWindow(bool* outIsOpen)
 	{
 		if(ImGui::Begin("Raster Renderer", outIsOpen) &&
-			// when init is bad, don't render anything
-			_isInitGood)
+		   // when init is bad, don't render anything
+		   _isInitGood)
 		{
-
 			// check ImGui's window size, can't render when area=0
 			ImVec2 targetSize = ImGui::GetContentRegionAvail();
 			if(1.0f < targetSize.x && 1.0f < targetSize.y)
@@ -102,54 +183,40 @@ namespace PlatinumEngine
 				// resize framebuffer if necessary
 				if (_framebufferWidth != (int)targetSize.x || _framebufferHeight != (int)targetSize.y)
 				{
-					_framebufferWidth = (int)targetSize.x;
-					_framebufferHeight = (int)targetSize.y;
-					_framebuffer.Create(_framebufferWidth, _framebufferHeight);
+					ResizeFrameBuffer(_framebuffer, targetSize);
 				}
 
-				_framebuffer.Bind();
+				Begin();
+				Mesh mesh(vertices, indices);
+				LoadMesh(mesh);
+				SetModelMatrix();
+				SetViewMatrix();
+				SetProjectionMatrix();
+				SetLightProperties();
+				// CubeTest();
+				Render();
 
-				GL_CHECK(glViewport(0, 0, targetSize.x, targetSize.y));
-				GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-				GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
-
-				_shaderProgram.Bind();
-				_unlitShaderInput.Draw();
-				_shaderProgram.Unbind();
-
-				_framebuffer.Unbind();
+				LoadLight();
+				_lightShaderInput.Draw();
+				_lightShader.Unbind();
+				End();
 
 				ImGui::Image(_framebuffer.GetColorTexture().GetImGuiHandle(), targetSize);
 
-
-				GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 			}
 		}
 
 		ImGui::End();
 	}
-
-	void Renderer::LoadMesh(const Mesh &mesh)
-	{
-		_unlitShaderInput.Set(mesh.GetVertices(), mesh.GetIndices());
-		SetShaderProperties();
-	}
-
 	//--------------------------------------------------------------------------------------------------------------
 	// Private functions implementation.
 	//--------------------------------------------------------------------------------------------------------------
-	void Renderer::SetShaderProperties()
+	void Renderer::SetLightProperties()
 	{
-		_shaderProgram.Bind();
-		glm::mat4 matrix = glm::mat4(1.0f);
-
-
-		_shaderProgram.SetUniform("modelToProjection", matrix);
-		_shaderProgram.SetUniform("modelToProjection", matrix);
-
+		light.lightPos = Maths::Vec3(0.9f * std::cos(glfwGetTime()),0.9f * std::sin(glfwGetTime()),0.9f);
 		// set basic properties
-		_shaderProgram.SetUniform("objectColour", glm::vec3(1.0f,0.5f,0.31f));
-		_shaderProgram.SetUniform("isTextureEnabled",false);
+		_meshShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
+		_meshShader.SetUniform("isTextureEnabled",false);
 
 		_meshShader.SetUniform("light.position", light.lightPos);
 		_meshShader.SetUniform("light.ambientStrength", light.ambientStrength);
@@ -260,10 +327,7 @@ namespace PlatinumEngine
 						102, 103, 104,
 						105, 106, 107
 				});
-
 	}
-
-
 
 
 }
