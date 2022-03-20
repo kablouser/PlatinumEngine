@@ -39,6 +39,8 @@ namespace PlatinumEngine
 		 */
 		void RotationByMouse(Maths::Vec2 delta);
 
+		void RotateCamera(Maths::Vec3 translateMovement);
+
 
 		/**
 		 * Accept mouse input and translate camera (left, right, up or down)
@@ -61,6 +63,11 @@ namespace PlatinumEngine
 		 */
 		void TranslationByKeyBoard(float x, float y);
 
+		/**
+		 * Translate
+		 * @param movement : the translation direction with magnitude
+		 */
+		void TranslateCamera(Maths::Vec3 translateMovement);
 
 		/**
 		 * The three functions are to calculate new up/forward/right
@@ -73,14 +80,26 @@ namespace PlatinumEngine
 
 
 
-		/// Functions for projection matrix
-
+		/**
+		 * Functions for updating the projection matrix
+		 * @param left
+		 * @param right
+		 * @param bottom
+		 * @param top
+		 * @param near
+		 * @param far
+		 * ...
+		 */
 		void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far);
 		void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
 		void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
 
 
-
+		/**
+		 * Update camera position
+		 * @param cameraPosition
+		 */
+		void SetCameraPosition(Maths::Vec3 cameraPosition);
 
 
 
@@ -94,6 +113,8 @@ namespace PlatinumEngine
 		// transformation
 		Maths::Vec3 _eulerAngle;
 		Maths::Vec3 _translationValue;
+		Maths::Vec3 _cameraPosition; // need this position is because we need to adjust the camera position
+									 // after the user change the fov of the camera)
 
 		// device input data
 		float _translationSpeed = 0.005;

@@ -39,10 +39,9 @@ namespace PlatinumEngine{
 		//-------------------------------------------
 		// begin the ImGui Scene Editor Main Window
 		//-------------------------------------------
-
-
-		if (ImGui::Begin("Scene Editor", outIsOpen, ImGuiWindowFlags_NoSavedSettings))
+		if (ImGui::Begin("Scene Editor", outIsOpen))
 		{
+
 
 			// Get window size
 			auto targetSize = ImGui::GetContentRegionAvail();
@@ -75,8 +74,6 @@ namespace PlatinumEngine{
 					_ifCameraSettingWindowOpen = !_ifCameraSettingWindowOpen;
 
 				}
-
-
 
 				//-------------
 				// Sub window
@@ -140,6 +137,8 @@ namespace PlatinumEngine{
 
 
 					}
+
+
 					ImGui::End();
 				}
 
@@ -147,12 +146,14 @@ namespace PlatinumEngine{
 				//------------------
 				// Update Data
 				//------------------
-
 				Update(targetSize);
+
 
 			}
 			ImGui::EndChild();
 		}
+
+
 		ImGui::End();
 
 	}
@@ -161,72 +162,88 @@ namespace PlatinumEngine{
 
 	void SceneEditor::Update(ImVec2 targetSize)
 	{
-		//---------------------
-		// update view matrix
-		//---------------------
 
-		// check mouse click to do rotation and translation
-		if(_mouseButtonType == InputManagerExtend::MouseButtonType::left) // for rotation
+		//--------------------------------------
+		// check if mouse is inside the screen
+		//--------------------------------------
+		if(_inputManager->GetMousePosition().x <= targetSize.x
+				&& _inputManager->GetMousePosition().x >= 0.f
+				&& _inputManager->GetMousePosition().y <= targetSize.y
+				&& _inputManager->GetMousePosition().y >= 0.f
+				&& ImGui::IsWindowFocused())
 		{
+			//---------------------
+			// update view matrix
+			//---------------------
 
-			_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
+			// check mouse click to do rotation and translation
+			if (_mouseButtonType == InputManagerExtend::MouseButtonType::left) // for rotation
+			{
+
+				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
+
+			}
+
+			else if (_mouseButtonType == InputManagerExtend::MouseButtonType::right)// for rotation
+			{
+
+				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
+
+			}
+			else if (_mouseButtonType == InputManagerExtend::MouseButtonType::middle)// translation (up down left right)
+			{
+
+				_camera.TranslationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
+
+			}
+
+			// check this is for moving camera closer/further
+			if (_wheelValueDelta != 0)
+			{
+
+				_camera.TranslationByMouse(_wheelValueDelta);
+
+			}
+
+			// check if there is any keyboard input
+			if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
+				_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
+				_camera.TranslationByKeyBoard(_inputManager->GetAxis("Vertical"), _inputManager->GetAxis("Horizontal"));
+
+
+
 
 		}
-
-		else if(_mouseButtonType == InputManagerExtend::MouseButtonType::right)// for rotation
-		{
-
-			_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
-
-		}
-		else if(_mouseButtonType == InputManagerExtend::MouseButtonType::middle)// translation (up down left right)
-		{
-
-			_camera.TranslationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
-
-		}
-
-		// check this is for moving camera closer/further
-		if(_wheelValueDelta != 0)
-		{
-
-			_camera.TranslationByMouse(_wheelValueDelta);
-
-		}
-
-		// check if there is any keyboard input
-		if(_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) || _inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
-			_camera.TranslationByKeyBoard(_inputManager->GetAxis("Vertical"), _inputManager->GetAxis("Horizontal"));
-
-
 
 		//---------------------------
 		// Update projection matrix
 		//---------------------------
 
 		// check camera type
-		if(_camera.isOrthogonal)
+		if (_camera.isOrthogonal)
 		{
 
 			// update as orthogonal projection matrix
-			_camera.SetOrthogonalMatrix(-targetSize.x/20.f,targetSize.x/20.f,
-					-targetSize.y/20.f,targetSize.y/20.f,(float)_near,(float)_far);
+			_camera.SetOrthogonalMatrix(-targetSize.x / 20.f, targetSize.x / 20.f,
+					-targetSize.y / 20.f, targetSize.y / 20.f, (float)_near, (float)_far);
 
 		}
 		else
 		{
 
 
-
 			// update as perspective projection matrix
-			_camera.SetPerspectiveMatrix((float)_fov, targetSize.x / targetSize.y, (float)_near, (float)_far);
-		}
+			_camera.SetPerspectiveMatrix(3.14159265f * (float)_fov / 180.f,
+					targetSize.x / targetSize.y,
+					(float)_near, (float)_far);
 
+			// update camera position
+			_camera.SetCameraPosition(Maths::Vec3(0.f, 0.f, targetSize.y/(200.f * tanf(3.14159265f * (float)_fov / 360.f))));
+		}
 
 		//------------------------------------------
 		// Update rendering information to renderer
 		//------------------------------------------
-
 		_scene->Render(_renderer);
 
 		//--------------------

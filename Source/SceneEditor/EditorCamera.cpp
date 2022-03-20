@@ -25,7 +25,9 @@ namespace PlatinumEngine
 
 	EditorCamera::EditorCamera()
 			: _eulerAngle(0.f, 0.f, 0.f),
-			  _translationValue(0.f, 0.f, 0.f),
+			  _translationValue(0.f, 0.f, 10.f),
+			  viewMatrix4(1.f),
+			  projectionMatrix4(1.f),
 			  isOrthogonal(false)
 	{}
 
@@ -33,7 +35,7 @@ namespace PlatinumEngine
 	void EditorCamera::RotationByMouse(Maths::Vec2 delta)
 	{
 		// update euler angles
-		_eulerAngle.x += delta.y * _rotationSpeed;//* deltaClock.getElapsedTime().asSeconds();
+		_eulerAngle.x += delta.y * -_rotationSpeed;//* deltaClock.getElapsedTime().asSeconds();
 		_eulerAngle.y += delta.x * _rotationSpeed;//* deltaClock.getElapsedTime().asSeconds();
 
 
@@ -44,11 +46,20 @@ namespace PlatinumEngine
 
 	}
 
+	void EditorCamera::RotateCamera(Maths::Vec3 rotationMovement)
+	{
+		// update translation value
+		_eulerAngle += rotationMovement;
+
+		MoveCamera(PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0),
+				PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0));
+	}
+
 	void EditorCamera::TranslationByMouse(Maths::Vec2 delta)
 	{
 		// update translation value
-		_translationValue += GetUpDirection() * delta.y * _translationSpeed;//* deltaClock.getElapsedTime().asSeconds();
-		_translationValue += GetRightDirection() * delta.x * (-_translationSpeed);//* deltaClock.getElapsedTime().asSeconds();
+		_translationValue += GetUpDirection() * -delta.y * _translationSpeed;//* deltaClock.getElapsedTime().asSeconds();
+		_translationValue += GetRightDirection() * -delta.x * _translationSpeed;//* deltaClock.getElapsedTime().asSeconds();
 
 
 		// update view matrix
@@ -59,12 +70,14 @@ namespace PlatinumEngine
 
 	void EditorCamera::TranslationByMouse(float wheelDelta)
 	{
+
 		if (wheelDelta > 0)
-			_translationValue += GetForwardDirection() * (-_translationSpeed) * 5.f;//* deltaClock.getElapsedTime().asSeconds();
+			_translationValue += GetForwardDirection() * (-_translationSpeed) * 10.f;//* deltaClock.getElapsedTime().asSeconds();
 		else
-			_translationValue += GetForwardDirection() * (_translationSpeed) * 5.f;//* deltaClock.getElapsedTime().asSeconds();
+			_translationValue += GetForwardDirection() * (_translationSpeed) * 10.f;//* deltaClock.getElapsedTime().asSeconds();
 		// update view matrix
-		MoveCamera(PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0), PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0));
+		MoveCamera(PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0),
+				PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0));
 
 	}
 
@@ -77,7 +90,7 @@ namespace PlatinumEngine
 		// * deltaClock.getElapsedTime().asSeconds();
 
 
-		_translationValue += rightDirectionValue * GetRightDirection() * _translationSpeed * 5.f;
+		_translationValue += rightDirectionValue * GetRightDirection() * -_translationSpeed * 5.f;
 		// * deltaClock.getElapsedTime().asSeconds();
 
 
@@ -87,6 +100,14 @@ namespace PlatinumEngine
 
 	}
 
+	void EditorCamera::TranslateCamera(Maths::Vec3 translateMovement)
+	{
+		// update translation value
+		_translationValue += translateMovement;
+
+		MoveCamera(PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0),
+				PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0));
+	}
 
 	Maths::Vec3 EditorCamera::GetUpDirection()
 	{
@@ -119,15 +140,14 @@ namespace PlatinumEngine
 
 	}
 
-	void EditorCamera::MoveCamera(PlatinumEngine::Maths::Vec3 eulerAngle,
-			PlatinumEngine::Maths::Vec3 translationValue)
+	void EditorCamera::MoveCamera(PlatinumEngine::Maths::Vec3 eulerAngle, PlatinumEngine::Maths::Vec3 translationValue)
 	{
 		// update euler angle
 		_eulerAngle += eulerAngle;
 
 		PlatinumEngine::Maths::Mat4 rotationMat4, translationMat4;
 
-		rotationMat4.SetRotationMatrix(_eulerAngle);
+		rotationMat4.SetRotationMatrix(-_eulerAngle);
 
 
 		// update translation value
@@ -136,7 +156,7 @@ namespace PlatinumEngine
 		_translationValue.z += translationValue.z;
 
 		// get translation matrix
-		translationMat4.SetTranslationMatrix(_translationValue);
+		translationMat4.SetTranslationMatrix(-_translationValue - _cameraPosition);
 
 
 		// calculate the new look at matrix by applying the transformation matrix
@@ -144,7 +164,6 @@ namespace PlatinumEngine
 
 
 	}
-
 
 
 	void EditorCamera::SetFrustumMatrix(float left, const float right, float bottom, float top, float near, float far)
@@ -167,4 +186,13 @@ namespace PlatinumEngine
 
 	}
 
+	void EditorCamera::SetCameraPosition(Maths::Vec3 cameraPosition)
+	{
+
+		_cameraPosition = cameraPosition;
+
+		MoveCamera(PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0),
+				PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0));
+
+	}
 }
