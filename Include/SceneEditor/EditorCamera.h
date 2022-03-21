@@ -39,7 +39,11 @@ namespace PlatinumEngine
 		 */
 		void RotationByMouse(Maths::Vec2 delta);
 
-		void RotateCamera(Maths::Vec3 translateMovement);
+		/**
+		 * Rotate the camera by euler angle
+		 * @param eulerAngle : the euler angle
+		 */
+		void RotateCamera(Maths::Vec3 eulerAngle);
 
 
 		/**
@@ -93,15 +97,6 @@ namespace PlatinumEngine
 		void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far);
 		void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
 		void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
-
-
-		/**
-		 * Update camera position
-		 * @param cameraPosition
-		 */
-		void SetCameraPosition(Maths::Vec3 cameraPosition);
-
-
 
 		// CONSTRUCTOR
 		EditorCamera();

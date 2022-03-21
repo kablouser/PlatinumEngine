@@ -46,10 +46,10 @@ namespace PlatinumEngine
 
 	}
 
-	void EditorCamera::RotateCamera(Maths::Vec3 rotationMovement)
+	void EditorCamera::RotateCamera(Maths::Vec3 eulerAngle)
 	{
 		// update translation value
-		_eulerAngle += rotationMovement;
+		_eulerAngle += eulerAngle;
 
 		MoveCamera(PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0),
 				PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0));
@@ -145,7 +145,7 @@ namespace PlatinumEngine
 		// update euler angle
 		_eulerAngle += eulerAngle;
 
-		PlatinumEngine::Maths::Mat4 rotationMat4, translationMat4;
+		PlatinumEngine::Maths::Mat4 rotationMat4, translationMat4, translation2Mat4;
 
 		rotationMat4.SetRotationMatrix(-_eulerAngle);
 
@@ -156,11 +156,13 @@ namespace PlatinumEngine
 		_translationValue.z += translationValue.z;
 
 		// get translation matrix
-		translationMat4.SetTranslationMatrix(-_translationValue - _cameraPosition);
+		translationMat4.SetTranslationMatrix(-_translationValue);
+
+		translation2Mat4.SetTranslationMatrix(-_cameraPosition);
 
 
 		// calculate the new look at matrix by applying the transformation matrix
-		viewMatrix4 = rotationMat4 * translationMat4;
+		viewMatrix4 = rotationMat4 * translationMat4 * translation2Mat4;
 
 
 	}
@@ -186,13 +188,4 @@ namespace PlatinumEngine
 
 	}
 
-	void EditorCamera::SetCameraPosition(Maths::Vec3 cameraPosition)
-	{
-
-		_cameraPosition = cameraPosition;
-
-		MoveCamera(PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0),
-				PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0));
-
-	}
 }

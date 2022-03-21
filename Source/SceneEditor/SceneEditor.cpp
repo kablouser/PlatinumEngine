@@ -237,8 +237,6 @@ namespace PlatinumEngine{
 					targetSize.x / targetSize.y,
 					(float)_near, (float)_far);
 
-			// update camera position
-			_camera.SetCameraPosition(Maths::Vec3(0.f, 0.f, targetSize.y/(200.f * tanf(3.14159265f * (float)_fov / 360.f))));
 		}
 
 		//------------------------------------------
