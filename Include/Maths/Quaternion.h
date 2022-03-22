@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include "math.h"
+#include "Maths/Vectors.h"
 
 namespace PlatinumEngine
 {
@@ -31,6 +32,7 @@ namespace PlatinumEngine
 			void Set(float newX, float newY, float newZ, float newW);
 			float Norm();
 			float Dot(const Quaternion &q);
+			Vec3 EulerAngles();
 
 			static Quaternion Normalize(Quaternion &q);
 			static Quaternion Conjugate(Quaternion &q);

@@ -143,6 +143,32 @@ namespace PlatinumEngine
 			return (x*q.x + y*q.y + z*q.z + w*q.w);
 		}
 
+		Vec3 Quaternion::EulerAngles()
+		{
+			float t0 = 2. * (w*x + y*z);
+			float t1 = 1.f - 2.f * (x*x + y*y);
+			float roll = atan2(t0, t1);
+			float t2 = 2.f * (w*y - z*x);
+			t2 = t2>1.f?1.f:t2;
+			t2 = t2<-1.f?-1.f:t2;
+			float pitch = asin(t2);
+			float t3 = 2.f * (w*z + x*y);
+			float t4 = 1.f - 2.f * (y*y + z*z);
+			float yaw = atan2(t3, t4);
+			Vec3 v(yaw, pitch, roll);
+			return v;
+		}
+
+		/*Quaternion EulerToQuat(Vec3 euler)
+		{
+			float yaw = euler.x, pitch = euler.y, roll = euler.z;
+			float qx = sin(roll/2) * cos(pitch/2) * cos(yaw/2) - cos(roll/2) * sin(pitch/2) * sin(yaw/2);
+			float qy = cos(roll/2) * sin(pitch/2) * cos(yaw/2) + sin(roll/2) * cos(pitch/2) * sin(yaw/2);
+			float qz = cos(roll/2) * cos(pitch/2) * sin(yaw/2) - sin(roll/2) * sin(pitch/2) * cos(yaw/2);
+			float qw = cos(roll/2) * cos(pitch/2) * cos(yaw/2) + sin(roll/2) * sin(pitch/2) * sin(yaw/2);
+			return Quaternion(qx, qy, qz, qw);
+		}/*
+
 		// Static Methods
 
 		static Quaternion Normalize(Quaternion &q)
