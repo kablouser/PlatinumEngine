@@ -114,11 +114,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/In
 # IMPORTANT SECTION! Unit testing
 #-----------------------------
 # Add unit tests here:
-add_executable(tests
-	${PROJECT_SOURCES_WITHOUT_MAIN}
-	Test/TestTemplate.cpp
-	Source/WindowManager/Filedialog.cpp Include/WindowManager/Filedialog.h)
 
+set(UNIT_TESTS
+	"Test/TestTemplate.cpp;"
+	"Test/Maths/VectorsTest.cpp;"
+	"Test/Maths/MatricesTest.cpp;")
+add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 
 target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------

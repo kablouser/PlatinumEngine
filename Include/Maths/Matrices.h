@@ -67,19 +67,17 @@ namespace PlatinumEngine
 
 
 			/***
-			 * Overloading operator* function. For scaling the matrix.
-			 * @param scale
-			 * @return A copy of matrix object (the final result).
-			 */
-			Matrix<numberOfRow, numberOfColumn, T> operator*(float scale);
-
-
-			/***
 			 * Overloading operator- function. For scaling the matrix.
 			 * @param otherMatrix
 			 */
-			Matrix<numberOfRow, numberOfColumn, T>& operator=(Matrix<numberOfRow, numberOfColumn, T> otherMatrix);
+			Matrix<numberOfRow, numberOfColumn, T>& operator=(const Matrix<numberOfRow, numberOfColumn, T>& otherMatrix);
 
+			/**
+			 * Convert array into matrix
+			 * @param arrayMatrix : array
+			 * @param arraySize : size of array
+			 */
+			void ConvertFromArray(T* array, unsigned int arraySize);
 
 			//___CONSTRUCTOR___
 			Matrix(); // create empty matrix
@@ -145,11 +143,17 @@ namespace PlatinumEngine
 		public:
 
 			//___FUNCTION___
+			Mat4 operator*(float scale);
+
 			Mat4 operator*(Mat4 anotherMat4);
 
 			Vec4 operator*(Vec4 homogeneousVector);
 
-			void ConvertFromArray(float* arrayMat4);
+			Mat4 operator+(Mat4 otherMatrix);
+
+			Mat4 operator-(Mat4 otherMatrix);
+
+			Mat4& operator=(const Mat4& otherMatrix);
 
 			void SetIdentityMatrix();
 
@@ -157,7 +161,7 @@ namespace PlatinumEngine
 
 			void SetRotationMatrix(Vec3 eulerAngle);
 
-			void SetScaleMatrix(float scale);
+			void SetScaleMatrix(PlatinumEngine::Maths::Vec3 scale);
 
 			void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
 
@@ -181,21 +185,26 @@ namespace PlatinumEngine
 		public:
 
 			//___FUNCTION___
+			Mat3 operator*(float scale);
+
 			Mat3 operator*(Mat3 anotherMat4);
 
 			Vec3 operator*(Vec3 homogeneousVector);
 
-			void ConvertFromArray(float* arrayMat3);
+			Mat3 operator+(Mat3 otherMatrix);
+
+			Mat3 operator-(Mat3 otherMatrix);
+
+			Mat3& operator=(const Mat3& otherMatrix);
 
 			void SetIdentityMatrix();
 
 			void SetRotationMatrix(Vec3 eulerAngle);
 
-			void SetScaleMatrix(float scale);
+			void SetScaleMatrix(PlatinumEngine::Maths::Vec3 scale);
 
 			//___CONSTRUCTOR___
 			using Matrix<3, 3, float>::Matrix;
-
 
 			//___VARIABLE___
 
@@ -309,42 +318,25 @@ namespace PlatinumEngine
 
 
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-		Matrix<numberOfRow, numberOfColumn, T> Matrix<numberOfRow, numberOfColumn, T>
-		::operator*(float scale)
+		Matrix<numberOfRow, numberOfColumn, T>& Matrix<numberOfRow, numberOfColumn, T>
+		::operator=(const Matrix<numberOfRow, numberOfColumn, T>& otherMatrix)
 		{
+			if(this == & otherMatrix)
+				return *this;
 
-			Matrix<numberOfRow, numberOfColumn, T> result;
+			std::memcpy(this->matrix, otherMatrix.matrix,  numberOfRow * numberOfColumn * sizeof(T));
 
-			for (int y = 0; y < numberOfRow; y++)
-			{
-				for (int x = 0; x < numberOfColumn; x++)
-				{
-
-					result[y][x] = (*this)[y][x] * scale;
-
-				}
-			}
-
-			return result;
-
+			return (*this);
 		}
 
 
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-		Matrix<numberOfRow, numberOfColumn, T>& Matrix<numberOfRow, numberOfColumn, T>
-		::operator=(Matrix<numberOfRow, numberOfColumn, T> otherMatrix)
+		void Matrix<numberOfRow, numberOfColumn, T>
+		::ConvertFromArray(T* array, unsigned int arraySize)
 		{
+			if(arraySize == numberOfRow * numberOfColumn )
+				memcpy(this->matrix, array, numberOfRow * numberOfColumn * sizeof(T));
 
-			for (int y = 0; y < numberOfRow; y++)
-			{
-				for (int x = 0; x < numberOfColumn; x++)
-				{
-
-					(*this)[y][x] = otherMatrix[y][x];
-
-				}
-			}
-			return (*this);
 		}
 
 		//-------------------------------------------
@@ -375,22 +367,24 @@ namespace PlatinumEngine
 		//-------------------------------------------
 		// overloading << operator
 		//-------------------------------------------
-
-		inline std::ostream& operator<<(std::ostream &out, Mat4 &m)
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		inline std::ostream& operator<<(std::ostream &out, Matrix<numberOfRow, numberOfColumn, T> &m)
 		{
-			return out <<m[0][0]<<" "<<m[0][1]<<" "<<m[0][2]<<" "<<m[0][3]<<"\n"<<
-					   m[1][0]<<" "<<m[1][1]<<" "<<m[1][2]<<" "<<m[1][3]<<"\n"<<
-					   m[2][0]<<" "<<m[2][1]<<" "<<m[2][2]<<" "<<m[2][3]<<"\n"<<
-					   m[3][0]<<" "<<m[3][1]<<" "<<m[3][2]<<" "<<m[3][3];
-		}
 
-		inline std::ostream& operator<<(std::ostream &out, Mat3 &m)
-		{
-			return out <<m[0][0]<<" "<<m[0][1]<<" "<<m[0][2]<<"\n"<<
-					   m[1][0]<<" "<<m[1][1]<<" "<<m[1][2]<<"\n"<<
-					   m[2][0]<<" "<<m[2][1]<<" "<<m[2][2]<<"\n";
-		}
+			std::string output;
 
+			for(int i = 0; i < numberOfRow; i ++ )
+			{
+				for (int j = 0; j < numberOfColumn; j++)
+				{
+					output.append(std::to_string(m[i][j]) + " ");
+				}
+				output.append("\n");
+			}
+			output.append("\n");
+
+			return out << output;
+		}
 	}
 }
 

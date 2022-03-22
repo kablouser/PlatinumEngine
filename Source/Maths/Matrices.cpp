@@ -9,12 +9,24 @@ namespace PlatinumEngine
 {
 	namespace Maths
 	{
-
-		void Mat4::ConvertFromArray(float* arrayMatrix)
+		Mat4 Mat4::operator*(float scale)
 		{
 
-			memcpy(this->matrix, arrayMatrix, 16 * sizeof(float));
+			Mat4 result;
 
+			for(int i=0;i<4;i++)
+			{
+				for(int j=0;j<4;j++)
+				{
+
+					result[i][j] = (*this)[i][j] * scale;
+
+				}
+
+
+			}
+
+			return result;
 		}
 
 		Mat4 Mat4::operator*(Mat4 anotherMat4)
@@ -36,7 +48,7 @@ namespace PlatinumEngine
 
 			// convert the array into Mat4
 
-			resultMat4.ConvertFromArray(resultPtr);
+			resultMat4.ConvertFromArray(resultPtr, 16);
 
 			// return the final result with the type Mat4
 
@@ -62,6 +74,56 @@ namespace PlatinumEngine
 
 		}
 
+		Mat4 Mat4::operator+(Mat4 otherMatrix)
+		{
+
+			Mat4 result;
+
+			for (int y = 0; y < 4; y++)
+			{
+				for (int x = 0; x < 4; x++)
+				{
+
+					result[y][x] = (*this)[y][x] + otherMatrix[y][x];
+
+				}
+			}
+
+			return result;
+
+		}
+
+		Mat4 Mat4::operator-(Mat4 otherMatrix)
+		{
+
+			Mat4 result;
+
+			for (int y = 0; y < 4; y++)
+			{
+				for (int x = 0; x < 4; x++)
+				{
+
+					result[y][x] = (*this)[y][x] - otherMatrix[y][x];
+
+				}
+			}
+
+			return result;
+
+		}
+
+		Mat4& Mat4::operator=(const Mat4& otherMatrix)
+		{
+
+			if(this == & otherMatrix)
+				return *this;
+
+			std::memcpy(this->matrix, otherMatrix.matrix, 16 * sizeof(float));
+
+			return (*this);
+
+		}
+
 		void Mat4::SetIdentityMatrix()
 		{
 
@@ -70,7 +132,7 @@ namespace PlatinumEngine
 									   0, 0, 1, 0,
 									   0, 0, 0, 1 };
 
-			this->ConvertFromArray(identityMatrix);
+			this->ConvertFromArray(identityMatrix, 16);
 
 		}
 
@@ -82,7 +144,7 @@ namespace PlatinumEngine
 										  0, 0, 1, 0,
 										  translationDirection.x, translationDirection.y, translationDirection.z, 1 };
 
-			this->ConvertFromArray(translationMatrix);
+			this->ConvertFromArray(translationMatrix, 16);
 		}
 
 		void Mat4::SetRotationMatrix(Vec3 eulerAngle)
@@ -102,21 +164,20 @@ namespace PlatinumEngine
 			// convert glm::mat4 into Mat4
 			float* rotationMatrix = glm::value_ptr(rotationMat4);
 
-			this->ConvertFromArray(rotationMatrix);
+			this->ConvertFromArray(rotationMatrix, 16);
 
 		}
 
-		void Mat4::SetScaleMatrix(float scale)
+		void Mat4::SetScaleMatrix(PlatinumEngine::Maths::Vec3 scale)
 		{
 
-			float scaleMatrix[] = { scale, 0, 0, 0,
-									0, scale, 0, 0,
-									0, 0, scale, 0,
+			float scaleMatrix[] = { scale.x, 0, 0, 0,
+									0, scale.y, 0, 0,
+									0, 0, scale.z, 0,
 									0, 0, 0, 1 };
 
-			this->ConvertFromArray(scaleMatrix);
+			this->ConvertFromArray(scaleMatrix, 16);
 		}
-
 
 		void Mat4::SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
 		{
@@ -125,10 +186,9 @@ namespace PlatinumEngine
 
 			float* orthogonalMatrix = glm::value_ptr(OrthogonalGLM);
 
-			this->ConvertFromArray(orthogonalMatrix);
+			this->ConvertFromArray(orthogonalMatrix, 16);
 
 		}
-
 
 		void Mat4::SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far)
 		{
@@ -138,7 +198,7 @@ namespace PlatinumEngine
 
 			float* frustumMatrix = glm::value_ptr(frustumGLM);
 
-			this->ConvertFromArray(frustumMatrix);
+			this->ConvertFromArray(frustumMatrix, 16);
 
 		}
 
@@ -149,61 +209,29 @@ namespace PlatinumEngine
 
 			float* frustumMatrix = glm::value_ptr(frustumGLM);
 
-			this->ConvertFromArray(frustumMatrix);
+			this->ConvertFromArray(frustumMatrix, 16);
 
 		}
 
-
-
-
-		void Mat3::ConvertFromArray(float* arrayMatrix)
+		Mat3 Mat3::operator*(float scale)
 		{
 
-			memcpy(this->matrix, arrayMatrix, 9 * sizeof(float));
+			Mat3 result;
+
+			for(int i=0;i<3;i++)
+			{
+				for(int j=0;j<3;j++)
+				{
+
+					result[i][j] = (*this)[i][j] * scale;
+
+				}
+
+			}
+
+			return result;
 
 		}
-
-		void Mat3::SetIdentityMatrix()
-		{
-			float identityMatrix[] = { 1, 0, 0,
-									   0, 1, 0,
-									   0, 0, 1};
-
-			this->ConvertFromArray(identityMatrix);
-
-		}
-
-		void Mat3::SetRotationMatrix(Vec3 eulerAngle)
-		{
-			// get rotation matrix (quaternion)
-			glm::quat quaternionX(glm::vec3(eulerAngle.x, 0, 0));
-
-			glm::quat quaternionY(glm::vec3(0, eulerAngle.y, 0));
-
-			glm::quat quaternionZ(glm::vec3(0, 0, eulerAngle.z));
-
-			glm::mat3x3 rotationMat3 =
-					glm::mat3_cast(quaternionY) * glm::mat3_cast(quaternionX) * glm::mat3_cast(quaternionZ);
-
-
-			// convert glm::mat4 into Mat4
-			float* rotationMatrix = glm::value_ptr(rotationMat3);
-
-			this->ConvertFromArray(rotationMatrix);
-		}
-
-
-		void Mat3::SetScaleMatrix(float scale)
-		{
-			float scaleMatrix[] = { scale, 0, 0,
-									0, scale, 0,
-									0, 0, scale };
-
-			this->ConvertFromArray(scaleMatrix);
-
-		}
-
-
 
 		Mat3 Mat3::operator*(Mat3 anotherMat3)
 		{
@@ -224,14 +252,13 @@ namespace PlatinumEngine
 
 			// convert the array into Mat4
 
-			resultMat3.ConvertFromArray(resultPtr);
+			resultMat3.ConvertFromArray(resultPtr, 9);
 
 			// return the final result with the type Mat4
 
 			return resultMat3;
 
 		}
-
 
 		Vec3 Mat3::operator*(Vec3 vector)
 		{
@@ -252,8 +279,94 @@ namespace PlatinumEngine
 
 		}
 
+		Mat3 Mat3::operator+(Mat3 otherMatrix)
+		{
+
+			Mat3 result;
+
+			for (int y = 0; y < 3; y++)
+			{
+				for (int x = 0; x < 3; x++)
+				{
+
+					result[y][x] = (*this)[y][x] + otherMatrix[y][x];
+
+				}
+			}
+
+			return result;
+
+		}
+
+		Mat3 Mat3::operator-(Mat3 otherMatrix)
+		{
+
+			Mat3 result;
+
+			for (int y = 0; y < 3; y++)
+			{
+				for (int x = 0; x < 3; x++)
+				{
+
+					result[y][x] = (*this)[y][x] - otherMatrix[y][x];
+
+				}
+			}
+
+			return result;
+
+		}
+
+		Mat3& Mat3::operator=(const Mat3& otherMatrix)
+		{
+
+			if(this == & otherMatrix)
+				return *this;
+
+			std::memcpy(this->matrix, otherMatrix.matrix, 9 * sizeof(float));
+
+			return (*this);
+
+		}
+
+		void Mat3::SetIdentityMatrix()
+		{
+			float identityMatrix[] = { 1, 0, 0,
+									   0, 1, 0,
+									   0, 0, 1};
+
+			this->ConvertFromArray(identityMatrix, 9);
+
+		}
+
+		void Mat3::SetRotationMatrix(Vec3 eulerAngle)
+		{
+			// get rotation matrix (quaternion)
+			glm::quat quaternionX(glm::vec3(eulerAngle.x, 0, 0));
+
+			glm::quat quaternionY(glm::vec3(0, eulerAngle.y, 0));
+
+			glm::quat quaternionZ(glm::vec3(0, 0, eulerAngle.z));
+
+			glm::mat3x3 rotationMat3 =
+					glm::mat3_cast(quaternionY) * glm::mat3_cast(quaternionX) * glm::mat3_cast(quaternionZ);
 
 
+			// convert glm::mat4 into Mat4
+			float* rotationMatrix = glm::value_ptr(rotationMat3);
+
+			this->ConvertFromArray(rotationMatrix, 9);
+		}
+
+		void Mat3::SetScaleMatrix(PlatinumEngine::Maths::Vec3 scale)
+		{
+			float scaleMatrix[] = { scale.x, 0, 0,
+									0, scale.y, 0,
+									0, 0, scale.z };
+
+			this->ConvertFromArray(scaleMatrix, 9);
+
+		}
 
 	}
 }
