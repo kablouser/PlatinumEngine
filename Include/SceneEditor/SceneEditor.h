@@ -33,7 +33,7 @@ namespace PlatinumEngine
 		void Update(ImVec2 targetSize);
 
 		// ___CONSTRUCTOR___
-		SceneEditor(InputManagerExtend* inputManager, Scene* scene, Renderer* renderer);
+		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer);
 
 		// ___DESTRUCTOR___
 		//~SceneEditor();
@@ -46,7 +46,7 @@ namespace PlatinumEngine
 		bool _ifCameraSettingWindowOpen;
 
 		// Managers
-		InputManagerExtend* _inputManager;
+		InputManager* _inputManager;
 		Scene* _scene;
 		Renderer* _renderer;
 
@@ -57,7 +57,7 @@ namespace PlatinumEngine
 		int _far;
 
 		ImVec2 _mouseMoveDelta;
-		InputManagerExtend::MouseButtonType _mouseButtonType;
+		int _mouseButtonType;
 		float _wheelValueDelta;
 
 

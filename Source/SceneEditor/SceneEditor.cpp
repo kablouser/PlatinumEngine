@@ -13,7 +13,7 @@ namespace PlatinumEngine{
 
 	// ___CONSTRUCTOR___
 
-	SceneEditor::SceneEditor(InputManagerExtend* inputManager, Scene* scene, Renderer* renderer):
+	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer):
 			_ifCameraSettingWindowOpen(false),
 			_camera(), _fov(60), _near(4), _far(10000),_inputManager(inputManager), _scene(scene),
 			_mouseMoveDelta(0, 0) ,_mouseButtonType(InputManagerExtend::MouseButtonType::none),
@@ -53,19 +53,11 @@ namespace PlatinumEngine{
 				// Widgets
 				//-----------
 
-				_inputManager->GetMouseMoveVector(_mouseMoveDelta,_mouseButtonType);
+				_mouseButtonType = _inputManager->GetMouseDown();
+
+				_mouseMoveDelta = _inputManager->GetMouseMoveVector();
 
 				_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
-
-
-				/*ImGui::Text("Wheel shift value: %.1f", _wheelValueDelta);
-				ImGui::Text("Detect Mouse Movement: Button %d is pressed, delta: (%.1f, %.1f)", _mouseButtonType, _mouseMoveDelta.x, _mouseMoveDelta.y);
-				ImGui::Text("View Matrix: (\n %.1f, %.1f, %.1f, %.1f \n %.1f, %.1f, %.1f, %.1f \n %.1f, %.1f, %.1f, %.1f \n %.1f, %.1f, %.1f, %.1f \n)",
-						_camera.viewMatrix4[0][0],_camera.viewMatrix4[0][1], _camera.viewMatrix4[0][2],_camera.viewMatrix4[0][3],
-						_camera.viewMatrix4[1][0],_camera.viewMatrix4[1][1], _camera.viewMatrix4[1][2],_camera.viewMatrix4[1][3],
-						_camera.viewMatrix4[2][0],_camera.viewMatrix4[2][1], _camera.viewMatrix4[2][2],_camera.viewMatrix4[2][3],
-						_camera.viewMatrix4[3][0],_camera.viewMatrix4[3][1], _camera.viewMatrix4[3][2],_camera.viewMatrix4[3][3]
-				);*/
 
 
 				if (ImGui::Button("Camera Setting"))
@@ -177,20 +169,20 @@ namespace PlatinumEngine{
 			//---------------------
 
 			// check mouse click to do rotation and translation
-			if (_mouseButtonType == InputManagerExtend::MouseButtonType::left) // for rotation
+			if (_mouseButtonType == 0) // for rotation
 			{
 
 				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
 
 			}
 
-			else if (_mouseButtonType == InputManagerExtend::MouseButtonType::right)// for rotation
+			else if (_mouseButtonType == 1)// for rotation
 			{
 
 				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
 
 			}
-			else if (_mouseButtonType == InputManagerExtend::MouseButtonType::middle)// translation (up down left right)
+			else if (_mouseButtonType == 2)// translation (up down left right)
 			{
 
 				_camera.TranslationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));

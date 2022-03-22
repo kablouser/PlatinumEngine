@@ -8,7 +8,6 @@
 #include <GLFW/glfw3.h>
 
 #include <InputManager/InputManager.h>
-#include <SceneEditor/InputManagerExtend.h>
 #include <Renderer/Renderer.h>
 #include <WindowManager/WindowManager.h>
 #include <Logger/Logger.h>
@@ -71,13 +70,12 @@ int main(int, char**)
 		bool isRasterRendererOpen = true;
 		PlatinumEngine::Renderer rasterRenderer;
 
-		bool isSceneEditorOpen = true;
-		PlatinumEngine::Scene scene;
-		PlatinumEngine::InputManagerExtend inputManagerExtend;
-		PlatinumEngine::SceneEditor sceneEditor(&inputManagerExtend, &scene, &rasterRenderer);
-
 		bool isInputWindowOpen = true;
 		PlatinumEngine::InputManager inputManager;
+
+		bool isSceneEditorOpen = true;
+		PlatinumEngine::Scene scene;
+		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer);
 
 		PlatinumEngine::WindowManager windowManager;
 
