@@ -122,7 +122,9 @@ namespace PlatinumEngine
 
 	void Renderer::LoadMesh(Mesh &mesh)
 	{
-		mesh.Render();
+		// mesh.Render();
+		_meshShader.Bind();
+		_meshShaderInput.Set(mesh.GetVertices(), mesh.GetIndices());
 	}
 
 	// update model matrix in shader

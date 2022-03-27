@@ -258,7 +258,6 @@ namespace PlatinumEngine{
 			_renderer->SetViewMatrix(_camera.viewMatrix4);
 			_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
 			_renderer->SetLightProperties();
-			// CubeTest();
 			_renderer->Render();
 
 			_renderer->LoadLight();
