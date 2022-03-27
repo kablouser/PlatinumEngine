@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 
 #include <InputManager/InputManager.h>
+#include <Inspector/InspectorWindow.h>
 #include <Renderer/Renderer.h>
 #include <WindowManager/WindowManager.h>
 #include <Logger/Logger.h>
@@ -71,6 +72,18 @@ int main(int, char**)
 		bool isInputWindowOpen = true;
 		PlatinumEngine::InputManager inputManager;
 
+		bool isInspectorWindowOpen = true;
+		PlatinumEngine::InspectorWindow inspectorWindow;
+
+		// TEST CODE FOR INSPECTOR WINDOW
+		auto* obj = new PlatinumEngine::GameObject("Object");
+		auto* meshComp = new PlatinumEngine::MeshComponent();
+		auto* transformerComp = new PlatinumEngine::TransformComponent();
+		obj->AddComponent(meshComp);
+		obj->AddComponent(transformerComp);
+		inspectorWindow.SetActiveGameObject(obj);
+		// END TEST CODE
+
 		PlatinumEngine::WindowManager windowManager;
 
 		// Main loop
@@ -87,11 +100,13 @@ int main(int, char**)
 			// GUI HERE
 			//--------------------------------------------------------------------------------------------------------------
 			if (isRasterRendererOpen)
-				rasterRenderer.Render(&isRasterRendererOpen);
+				rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);
 			if(isLoggerOpen)
 				logger.ShowGUIWindow(&isLoggerOpen);
+			if(isInspectorWindowOpen)
+				inspectorWindow.ShowGUIWindow(&isInspectorWindowOpen);
 			windowManager.ShowGUI();
 			//--------------------------------------------------------------------------------------------------------------
 			// END OF GUI
@@ -111,6 +126,12 @@ int main(int, char**)
 
 			glfwSwapBuffers(window);
 		}
+
+		// TEST CODE FOR INSPECTOR WINDOW
+		delete transformerComp;
+		delete meshComp;
+		delete obj;
+		// END TEST CODE
 
 		// Cleanup ImGui
 		ImGui_ImplOpenGL3_Shutdown();
