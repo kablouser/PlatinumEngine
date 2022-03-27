@@ -12,6 +12,7 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen)
 
 	if (_activeGameObject)
 	{
+		// Name box
 		ImGui::Text("Object Name: ");
 		ImGui::SameLine();
 		static char buffer[128];
@@ -20,11 +21,12 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen)
 		_activeGameObject->name = std::string{buffer};
 
 		// Now render each component gui
-		if (_activeGameObject->HasComponent<MeshComponent>())
+		if (_activeGameObject->GetComponent<MeshComponent>())
 			ShowMeshComponent();
-		if (_activeGameObject->HasComponent<TransformComponent>())
+		if (_activeGameObject->GetComponent<TransformComponent>())
 			ShowTransformComponent();
 	}
+
 	ImGui::End();
 }
 
@@ -47,7 +49,6 @@ void InspectorWindow::ShowTransformComponent()
 {
 	// TODO: Check does this work with transform component when made?
 	// If this gui is being shown, assumption that object has transform component
-	ImGuiIO& io = ImGui::GetIO();
 	ImGui::Separator();
 	if (ImGui::CollapsingHeader("Transform Component"))
 	{
