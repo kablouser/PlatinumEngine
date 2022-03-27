@@ -19,15 +19,46 @@ namespace PlatinumEngine
 
 	public:
 		// temporary light struct for light test
-		struct Light
+		struct PointLight
 		{
 			Maths::Vec3 lightPos;
+
+			Maths::Vec3 ambientStrength;
+			Maths::Vec3 diffuseStrength;
+			Maths::Vec3 specularStrength;
+
+			// coefficient
+			float constant;
+			float linear;
+			float quadratic;
+		};
+
+		struct DirectLight
+		{
+			Maths::Vec3 lightDir;
+
 			Maths::Vec3 ambientStrength;
 			Maths::Vec3 diffuseStrength;
 			Maths::Vec3 specularStrength;
 		};
-		// VARIABLE
-		//PlatinumEngine::EditorCamera camera;
+
+		struct SpotLight
+		{
+			Maths::Vec3 lightPos;
+			Maths::Vec3 lightDir;
+
+			float cutOff;
+			float outerCutOff;
+
+			Maths::Vec3 ambientStrength;
+			Maths::Vec3 diffuseStrength;
+			Maths::Vec3 specularStrength;
+
+			// coefficient
+			float constant;
+			float linear;
+			float quadratic;
+		};
 
 		// Constructors
 		Renderer(bool printOpenGLInfo = true);
@@ -59,9 +90,8 @@ namespace PlatinumEngine
 		// update projection matrix in shader
 		void SetProjectionMatrix(Maths::Mat4 mat = Maths::Mat4(1.0));
 
-		// basic render function, will be improved in the future
-		void Render();
-
+		void SetLightProperties();
+		// a window for renderer to test
 		void ShowGUIWindow(bool* outIsOpen);
 
 		/**
@@ -84,19 +114,16 @@ namespace PlatinumEngine
 		// true iff all init steps were successful
 		bool _isInitGood;
 
-		ShaderProgram _meshShader, _lightShader;
-		ShaderInput _meshShaderInput, _lightShaderInput;
+		ShaderProgram _unlitShader;
+
+		// ShaderInput _meshShaderInput, _lightShaderInput;
 
 		Framebuffer _framebuffer;
 		int _framebufferWidth;
 		int _framebufferHeight;
 
-		Maths::Mat4 cameraRotation;
-		Light light;
-		void SetLightProperties();
-		void CubeTest();
+		PointLight pointLight;
 
-		glm::mat4 GetViewMatrix();
 		// vertics
 		std::vector<Vertex> vertices = {{{ -0.5f, -0.5f, -0.5f  }, {  0.0f,  0.0f, -1.0f }, { 0, 0 }},
 										{{ 0.5f, -0.5f, -0.5f   }, { 0.0f,  0.0f, -1.0f  }, { 0, 0 }},

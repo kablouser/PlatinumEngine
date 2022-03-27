@@ -7,4 +7,6 @@ namespace PlatinumEngine
 	{}
 	CameraComponent::CameraComponent()
 	{}
+
+
 }

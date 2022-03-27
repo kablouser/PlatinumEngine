@@ -14,13 +14,13 @@ namespace PlatinumEngine
 	public:
 		RenderComponent();
 		~RenderComponent();
-		RenderComponent(const Mesh &mesh);
+		RenderComponent(Mesh &mesh);
 
 		// update mesh from mesh loader
 		void LoadMesh(const std::string &filePath);
 
 		// return mesh
-		Mesh GetMesh();
+		Mesh& GetMesh();
 
 		// override the OnRender() of the Component
 		void OnRender(Renderer &render) override;

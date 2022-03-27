@@ -111,7 +111,6 @@ namespace PlatinumEngine
 	}
 
 
-
 	void Scene::UpdateComponents(GameObject* gameObject, float deltaTime)
 	{
 		for(auto &iterator:gameObject->_components)
@@ -145,7 +144,6 @@ namespace PlatinumEngine
 	}
 
 
-
 	void Scene::End()
 	{
 		for(auto &iterator : _rootGameObjects)
@@ -172,9 +170,9 @@ namespace PlatinumEngine
 	}
 
 
-/*	void Scene::Render(RasterRenderer* renderer)
+	void Scene::Render(Renderer* renderer)
 	{
-
-	}*/
+		std::cout<<"Pass Rendering data..."<<std::endl;
+	}
 
 }

@@ -49,7 +49,7 @@ namespace PlatinumEngine
 
 		void Update(float deltaTime);
 
-		//void Render(RasterRenderer* renderer);
+		void Render(Renderer* renderer);
 
 		std::vector<GameObject*> _gameObjects;
 		std::vector<GameObject*> _rootGameObjects;
@@ -57,10 +57,10 @@ namespace PlatinumEngine
 
 
 		///___CONSTRUCTOR___
-		Scene();
+		Scene(){};
 
 		///___DESTRUCTOR___
-		~Scene();
+		//~Scene();
 
 
 	};

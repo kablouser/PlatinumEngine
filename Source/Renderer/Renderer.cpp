@@ -9,7 +9,7 @@
 #include <Logger/Logger.h>
 
 // test
-// #include "ComponentComposition/RenderComponent.h"
+#include "ComponentComposition/RenderComponent.h"
 
 // shaders
 // DON'T FORMAT THESE LINES, OTHERWISE IT BREAKS
@@ -18,18 +18,6 @@ const std::string UNLIT_VERTEX_SHADER =
 ;
 const std::string UNLIT_FRAGMENT_SHADER =
 #include <Shaders/Unlit/Unlit.frag>
-;
-const std::string MESH_VERTEX_SHADER =
-#include <Shaders/Unlit/MeshShader.vert>
-;
-const std::string MESH_FRAGMENT_SHADER =
-#include <Shaders/Unlit/MeshShader.frag>
-;
-const std::string LIGHT_VERTEX_SHADER =
-#include <Shaders/Unlit/LightShader.vert>
-;
-const std::string LIGHT_FRAGMENT_SHADER =
-#include <Shaders/Unlit/LightShader.frag>
 ;
 
 namespace PlatinumEngine
@@ -65,10 +53,7 @@ namespace PlatinumEngine
 			return;
 		}
 
-		if (!_meshShader.Compile(MESH_VERTEX_SHADER, MESH_FRAGMENT_SHADER))
-			return;
-
-		if(!_lightShader.Compile(LIGHT_VERTEX_SHADER, LIGHT_FRAGMENT_SHADER))
+		if (!_unlitShader.Compile(UNLIT_VERTEX_SHADER, UNLIT_FRAGMENT_SHADER))
 			return;
 
 		_framebufferWidth = 1;
@@ -77,9 +62,13 @@ namespace PlatinumEngine
 			return;
 
 		// initialize light
-		light.ambientStrength = Maths::Vec3(0.2f, 0.2f, 0.2f);
-		light.diffuseStrength = Maths::Vec3(0.5f, 0.5f, 0.5f);
-		light.specularStrength = Maths::Vec3(1.0f, 1.0f, 1.0f);
+		pointLight.constant = 1.0f;
+		pointLight.linear = 0.09f;
+		pointLight.quadratic = 0.032f;
+
+		pointLight.ambientStrength = Maths::Vec3(0.2f, 0.2f, 0.2f);
+		pointLight.diffuseStrength = Maths::Vec3(0.5f, 0.5f, 0.5f);
+		pointLight.specularStrength = Maths::Vec3(1.0f, 1.0f, 1.0f);
 		// check for uncaught errors
 //		GL_CHECK();
 
@@ -93,19 +82,22 @@ namespace PlatinumEngine
 
 	void Renderer::Begin()
 	{
-		_framebuffer.Bind();
-		glEnable(GL_DEPTH_TEST);
-		GL_CHECK(glViewport(0, 0, _framebufferWidth, _framebufferHeight));
-		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+//		_framebuffer.Bind();
+
+//		glEnable(GL_DEPTH_TEST);
+//		GL_CHECK(glViewport(0, 0, _framebufferWidth, _framebufferHeight));
+//		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+//		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+		_unlitShader.Bind();
 	}
 
 	void Renderer::End()
 	{
-		glDisable(GL_DEPTH_TEST);
-		_framebuffer.Unbind();
-		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
+//		glDisable(GL_DEPTH_TEST);
+//		_framebuffer.Unbind();
+//		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+//		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
+		_unlitShader.Unbind();
 	}
 
 	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
@@ -129,43 +121,20 @@ namespace PlatinumEngine
 	void Renderer::SetModelMatrix(Maths::Mat4 mat)
 	{
 		//mat.SetRotationMatrix(Maths::Vec3(0.5f * (float)glfwGetTime() * 50.0f / 180.0f * 3.14f, 1.0f, 0.0f));
-		_meshShader.SetUniform("model", mat);
+		_unlitShader.SetUniform("model", mat);
 	}
 
 	// update view matrix in shader
 	void Renderer::SetViewMatrix(Maths::Mat4 mat)
 	{
-		glm::mat4 view = GetViewMatrix();
-		_meshShader.SetUniform("view", view);
+		//glm::mat4 view = GetViewMatrix();
+		_unlitShader.SetUniform("view", mat);
 	}
 
 	// update perspective matrix in shader
 	void Renderer::SetProjectionMatrix(Maths::Mat4 mat)
 	{
-		_meshShader.SetUniform("projection", mat);
-	}
-
-	void Renderer::Render()
-	{
-		_meshShaderInput.Draw();
-		_meshShader.Unbind();
-	}
-
-	void Renderer::LoadLight()
-	{
-		_lightShader.Bind();
-
-		// model view projection matrix
-		Maths::Mat4 translateMat, scaleMat, matrix;
-		scaleMat.SetScaleMatrix(0.2f);
-		translateMat.SetTranslationMatrix(light.lightPos);
-		matrix = translateMat * scaleMat;
-		_lightShader.SetUniform("model", matrix);
-		glm::mat4 view = GetViewMatrix();
-		_lightShader.SetUniform("view", view);
-		_lightShader.SetUniform("projection", matrix);
-
-		_lightShaderInput.Set(vertices, indices);
+		_unlitShader.SetUniform("projection", mat);
 	}
 
 	// if you want to test a mesh use
@@ -188,13 +157,9 @@ namespace PlatinumEngine
 				}
 
 				Begin();
-				CubeTest();
-				// RenderComponent renderComponent(mesh);
-				Render();
-
-				LoadLight();
-				_lightShaderInput.Draw();
-				_lightShader.Unbind();
+				Mesh mesh(vertices, indices);
+//				RenderComponent renderComponent(mesh);
+				LoadMesh(mesh);
 				End();
 
 				ImGui::Image(_framebuffer.GetColorTexture().GetImGuiHandle(), targetSize);
@@ -209,121 +174,21 @@ namespace PlatinumEngine
 	//--------------------------------------------------------------------------------------------------------------
 	void Renderer::SetLightProperties()
 	{
-		light.lightPos = Maths::Vec3(0.9f * std::cos(glfwGetTime()),0.9f * std::sin(glfwGetTime()),0.9f);
+		pointLight.lightPos = Maths::Vec3(0.9f * (float)std::cos(glfwGetTime()),0.9f * (float)std::sin(glfwGetTime()),0.9f);
 		// set basic properties
-		_meshShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
-		_meshShader.SetUniform("isTextureEnabled",false);
+		_unlitShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
 
-		_meshShader.SetUniform("light.position", light.lightPos);
-		_meshShader.SetUniform("light.ambientStrength", light.ambientStrength);
-		_meshShader.SetUniform("light.diffuseStrength", light.diffuseStrength);
-		_meshShader.SetUniform("light.specularStrength", light.specularStrength);
-		_meshShader.SetUniform("viewPos", Maths::Vec3(0.0f,0.0f,1.0f));
-	}
+		_unlitShader.SetUniform("pointLight.position", pointLight.lightPos);
+		_unlitShader.SetUniform("pointLight.ambient", pointLight.ambientStrength);
+		_unlitShader.SetUniform("pointLight.diffuse", pointLight.diffuseStrength);
+		_unlitShader.SetUniform("pointLight.specular", pointLight.specularStrength);
 
-	glm::mat4 Renderer::GetViewMatrix()
-	{
-		// calculate the new Front vector
-		glm::vec3 front;
-		front.x = cos(glm::radians(-90.0f)) * cos(glm::radians(0.0f));
-		front.y = sin(glm::radians(0.0f));
-		front.z = sin(glm::radians(-90.0f)) * cos(glm::radians(0.0f));
-		glm::vec3 Front = glm::normalize(front);
-		glm::vec3 WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-		// also re-calculate the Right and Up vector
-		glm::vec3 Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-		glm::vec3 Up    = glm::normalize(glm::cross(Right, Front));
-		return glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f) + Front, Up);
-	}
+		_unlitShader.SetUniform("pointLight.constant", pointLight.constant);
+		_unlitShader.SetUniform("pointLight.linear", pointLight.linear);
+		_unlitShader.SetUniform("pointLight.quadratic", pointLight.quadratic);
+		_unlitShader.SetUniform("viewPosition", Maths::Vec3(0.0, 0.0, 10.0));
 
-	void Renderer::CubeTest()
-	{
-		_meshShader.Bind();
-		Maths::Mat4 matrix;
-		matrix.SetIdentityMatrix();
-		SetModelMatrix(matrix);
-		SetViewMatrix(matrix);
-		SetProjectionMatrix(matrix);
-		SetLightProperties();
-
-		// in variables;
-		//		SetProjectionMatrix
-		_meshShaderInput.Set({
-						{{ -0.5f, -0.5f, -0.5f  }, {  0.0f,  0.0f, -1.0f }, { 0.0f,  0.0f, }},
-						{{ 0.5f, -0.5f, -0.5f   }, { 0.0f,  0.0f, -1.0f  }, { 1.0f,  0.0f, }},
-						{{ 0.5f,  0.5f, -0.5f   }, { 0.0f,  0.0f, -1.0f  }, { 1.0f,  1.0f, }},
-						{{ 0.5f,  0.5f, -0.5f   }, { 0.0f,  0.0f, -1.0f  }, { 1.0f,  1.0f, }},
-						{{ -0.5f,  0.5f, -0.5f  }, {  0.0f,  0.0f, -1.0f }, { 0.0f,  1.0f, }},
-						{{ -0.5f, -0.5f, -0.5f  }, {  0.0f,  0.0f, -1.0f }, { 0.0f,  0.0f, }},
-						{{ -0.5f, -0.5f,  0.5f  }, {  0.0f,  0.0f,  1.0f }, { 0.0f,  0.0f, }},
-						{{ 0.5f, -0.5f,  0.5f   }, { 0.0f,  0.0f,  1.0f  }, { 1.0f,  0.0f, }},
-						{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  0.0f,  1.0f  }, { 1.0f,  1.0f, }},
-						{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  0.0f,  1.0f  }, { 1.0f,  1.0f, }},
-						{{ -0.5f,  0.5f,  0.5f  }, {  0.0f,  0.0f,  1.0f }, { 0.0f,  1.0f, }},
-						{{ -0.5f, -0.5f,  0.5f  }, {  0.0f,  0.0f,  1.0f }, { 0.0f,  0.0f, }},
-						{{ -0.5f,  0.5f,  0.5f  }, { -1.0f,  0.0f,  0.0f }, { 1.0f,  0.0f, }},
-						{{ -0.5f,  0.5f, -0.5f  }, { -1.0f,  0.0f,  0.0f }, { 1.0f,  1.0f, }},
-						{{ -0.5f, -0.5f, -0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0.0f,  1.0f, }},
-						{{ -0.5f, -0.5f, -0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0.0f,  1.0f, }},
-						{{ -0.5f, -0.5f,  0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0.0f,  0.0f, }},
-						{{ -0.5f,  0.5f,  0.5f  }, { -1.0f,  0.0f,  0.0f }, { 1.0f,  0.0f, }},
-						{{ 0.5f,  0.5f,  0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 1.0f,  0.0f, }},
-						{{ 0.5f,  0.5f, -0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 1.0f,  1.0f, }},
-						{{ 0.5f, -0.5f, -0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0.0f,  1.0f, }},
-						{{ 0.5f, -0.5f, -0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0.0f,  1.0f, }},
-						{{ 0.5f, -0.5f,  0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0.0f,  0.0f, }},
-						{{ 0.5f,  0.5f,  0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 1.0f,  0.0f, }},
-						{{ -0.5f, -0.5f, -0.5f  }, {  0.0f, -1.0f,  0.0f }, { 0.0f,  1.0f, }},
-						{{ 0.5f, -0.5f, -0.5f   }, { 0.0f, -1.0f,  0.0f  }, { 1.0f,  1.0f, }},
-						{{ 0.5f, -0.5f,  0.5f   }, { 0.0f, -1.0f,  0.0f  }, { 1.0f,  0.0f, }},
-						{{ 0.5f, -0.5f,  0.5f   }, { 0.0f, -1.0f,  0.0f  }, { 1.0f,  0.0f, }},
-						{{ -0.5f, -0.5f,  0.5f  }, {  0.0f, -1.0f,  0.0f }, { 0.0f,  0.0f, }},
-						{{ -0.5f, -0.5f, -0.5f  }, {  0.0f, -1.0f,  0.0f }, { 0.0f,  1.0f, }},
-						{{ -0.5f,  0.5f, -0.5f  }, {  0.0f,  1.0f,  0.0f }, { 0.0f,  1.0f, }},
-						{{ 0.5f,  0.5f, -0.5f   }, { 0.0f,  1.0f,  0.0f  }, { 1.0f,  1.0f, }},
-						{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  1.0f,  0.0f  }, { 1.0f,  0.0f, }},
-						{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  1.0f,  0.0f  }, { 1.0f,  0.0f, }},
-						{{ -0.5f,  0.5f,  0.5f  }, {  0.0f,  1.0f,  0.0f }, { 0.0f,  0.0f, }},
-						{{ -0.5f,  0.5f, -0.5f  }, {  0.0f,  1.0f,  0.0  }, { 0.0f,  1.0f }},
-				},
-				{
-						0,   1,   2,
-						3,   4,   5,
-						6,   7,   8,
-						9,   10,  11,
-						12,  13,  14,
-						15,  16,  17,
-						18,  19,  20,
-						21,  22,  23,
-						24,  25,  26,
-						27,  28,  29,
-						30,  31,  32,
-						33,  34,  35,
-						36,  37,  38,
-						39,  40,  41,
-						42,  43,  44,
-						45,  46,  47,
-						48,  49,  50,
-						51,  52,  53,
-						54,  55,  56,
-						57,  59,  59,
-						60,  61,  62,
-						63,  64,  65,
-						66,  67,  68,
-						69,  70,  71,
-						72,  73,  74,
-						75,  76,  77,
-						78,  79,  80,
-						81,  82,  83,
-						84,  85,  86,
-						87,  88,  89,
-						90,  91,  92,
-						93,  94,  95,
-						96,  97,  98,
-						99,  100, 101,
-						102, 103, 104,
-						105, 106, 107
-				});
+		_unlitShader.SetUniform("isPointLight", true);
 	}
 
 

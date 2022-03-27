@@ -50,9 +50,9 @@ void Mesh::Recreate(const std::vector<Vertex>& vertices, const std::vector<unsig
 void Mesh::Render()
 {
 	if(_dirty) Update();
-	glBindVertexArray(_vertexArrayObject);
+	GL_CHECK(glBindVertexArray(_vertexArrayObject));
 	glDrawElements(GL_TRIANGLES, _drawLength, GL_UNSIGNED_INT, nullptr);
-	glBindVertexArray(0);
+	GL_CHECK(glBindVertexArray(0));
 
 }
 // Private Functions
@@ -60,48 +60,48 @@ void Mesh::Create()
 {
 	if(!glGenVertexArrays) return;
 
-	glGenVertexArrays(1, &_vertexArrayObject);
-	glGenBuffers(1, &_vertexBufferObject);
-	glGenBuffers(1, &_elementBufferObject);
+	GL_CHECK(glGenVertexArrays(1, &_vertexArrayObject));
+	GL_CHECK(glGenBuffers(1, &_vertexBufferObject));
+	GL_CHECK(glGenBuffers(1, &_elementBufferObject));
 
-	glBindVertexArray(_vertexArrayObject);
+	GL_CHECK(glBindVertexArray(_vertexArrayObject));
 
-	glBindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
+	GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject));
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
+	GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0));
+	GL_CHECK(glEnableVertexAttribArray(0));
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
-	glEnableVertexAttribArray(1);
+	GL_CHECK(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal)));
+	GL_CHECK(glEnableVertexAttribArray(1));
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, textureCoords));
-	glEnableVertexAttribArray(2);
+	GL_CHECK(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, textureCoords)));
+	GL_CHECK(glEnableVertexAttribArray(2));
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBufferObject);
+	GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBufferObject));
 
-	glBindVertexArray(0);
+	GL_CHECK(glBindVertexArray(0));
 }
 
 void Mesh::Destroy()
 {
 	if(!glDeleteBuffers) return;
 
-	glDeleteBuffers(1, &_elementBufferObject);
-	glDeleteBuffers(1, &_vertexBufferObject);
-	glDeleteVertexArrays(1, &_vertexArrayObject);
+	GL_CHECK(glDeleteBuffers(1, &_elementBufferObject));
+	GL_CHECK(glDeleteBuffers(1, &_vertexBufferObject));
+	GL_CHECK(glDeleteVertexArrays(1, &_vertexArrayObject));
 	_elementBufferObject = _vertexArrayObject = _vertexBufferObject = 0;
 }
 void Mesh::Update()
 {
-	glBindVertexArray(_vertexArrayObject);
+	GL_CHECK(glBindVertexArray(_vertexArrayObject));
 
-	glBindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * _vertices.size(), _vertices.data(), GL_DYNAMIC_DRAW);
+	GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject));
+	GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * _vertices.size(), _vertices.data(), GL_DYNAMIC_DRAW));
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBufferObject);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * _indices.size(), _indices.data(), GL_DYNAMIC_DRAW);
+	GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBufferObject));
+	GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * _indices.size(), _indices.data(), GL_DYNAMIC_DRAW));
 
-	glBindVertexArray(0);
+	GL_CHECK(glBindVertexArray(0));
 
 	_dirty = false;
 }

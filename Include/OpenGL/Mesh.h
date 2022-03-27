@@ -7,6 +7,7 @@
 #include <vector>
 #include <OpenGL/Vertex.h>
 #include <OpenGL/Texture.h>
+#include <OpenGL/GLCheck.h>
 
 namespace PlatinumEngine {
 	/**

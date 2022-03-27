@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <string>
@@ -6,7 +7,6 @@
 #include "ComponentComposition/Component.h"
 
 #include "iostream"
-
 
 namespace PlatinumEngine
 {
@@ -20,6 +20,7 @@ namespace PlatinumEngine
 		GameObject(std::string name);
 		~GameObject();
 
+
 		bool IsEnabled();
 		void SetEnabled(bool enableFlag);
 
@@ -28,6 +29,7 @@ namespace PlatinumEngine
 
 		int GetChildrenCount();
 		GameObject* GetChild(int index);
+
 
 		void RemoveComponent(int index);
 		int GetComponentCount();
@@ -51,13 +53,20 @@ namespace PlatinumEngine
 			return false;
 		}
 
+
+
 		//Returns existing component or nullptr if it doesn't exist
+
+
 		template<class T> T* GetComponent()
 		{
 			for(auto& c:_components)
 				if(typeid(*c)==typeid(T))
 					return dynamic_cast<T*>(c);
+
 			return nullptr;
+
+
 		}
 
 		//Removes component
@@ -83,4 +92,6 @@ namespace PlatinumEngine
 		std::vector<GameObject*> _children;
 		std::vector<Component*> _components;
 	};
+
 }
+
