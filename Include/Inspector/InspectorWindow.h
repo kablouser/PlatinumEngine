@@ -40,10 +40,13 @@ namespace PlatinumEngine
 		float rotation[3] = {0.0f, 0.0f, 0.0f};
 		float scale[3] = {1.0f, 1.0f, 1.0f};
 	};
+<<<<<<< HEAD
 
 	class AnotherComponent : public Component
 	{
 	public:
 		AnotherComponent() = default;
 	};
+=======
+>>>>>>> origin/inspector_window
 }
