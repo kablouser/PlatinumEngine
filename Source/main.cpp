@@ -77,6 +77,25 @@ int main(int, char**)
 
 		PlatinumEngine::WindowManager windowManager;
 
+
+		// Create scene
+		PlatinumEngine::Scene scene;
+
+		for(int i = 0; i<5; i++)
+		{
+			scene.AddGameObject("GameObject");
+
+		}
+
+		for(int i = 0; i< 5; i++)
+		{
+
+			scene.AddGameObject("GameObject2",scene.GetRootGameObject(i));
+
+
+		}
+
+
 		// Main loop
 		while (!glfwWindowShouldClose(window))
 		{
@@ -95,7 +114,7 @@ int main(int, char**)
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);
 			if(isHierarchyWindowOpen)
-				hierarchyWindow.ShowGUIWindow(&isHierarchyWindowOpen);
+				hierarchyWindow.ShowGUIWindow(&isHierarchyWindowOpen, scene);
 			if(isLoggerOpen)
 				logger.ShowGUIWindow(&isLoggerOpen);
 			windowManager.ShowGUI();
