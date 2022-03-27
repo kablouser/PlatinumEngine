@@ -8,6 +8,9 @@
 // printing errors
 #include <Logger/Logger.h>
 
+// test
+#include "ComponentComposition/RenderComponent.h"
+
 // shaders
 // DON'T FORMAT THESE LINES, OTHERWISE IT BREAKS
 const std::string UNLIT_VERTEX_SHADER =
@@ -117,11 +120,9 @@ namespace PlatinumEngine
 		_framebuffer.Create(_framebufferWidth, _framebufferHeight);
 	}
 
-	void Renderer::LoadMesh(const Mesh &mesh)
+	void Renderer::LoadMesh(Mesh &mesh)
 	{
-		_meshShader.Bind();
-		_meshShaderInput.Set(mesh.GetVertices(), mesh.GetIndices());
-		SetLightProperties();
+		mesh.Render();
 	}
 
 	// update model matrix in shader
@@ -188,13 +189,8 @@ namespace PlatinumEngine
 
 				Begin();
 				Mesh mesh(vertices, indices);
+				RenderComponent renderComponent(mesh);
 				LoadMesh(mesh);
-				SetModelMatrix();
-				SetViewMatrix();
-				SetProjectionMatrix();
-				SetLightProperties();
-				// CubeTest();
-				Render();
 
 				LoadLight();
 				_lightShaderInput.Draw();

@@ -26,6 +26,7 @@ std::vector<Vertex> Mesh::GetVertices() const {
 
 void Mesh::SetVertices(std::vector<Vertex> &vertices) {
 	_vertices = vertices;
+	_dirty = true;
 }
 
 std::vector<unsigned int> Mesh::GetIndices() const {
@@ -34,6 +35,7 @@ std::vector<unsigned int> Mesh::GetIndices() const {
 
 void Mesh::SetIndices(std::vector<unsigned int> &indices) {
 	_indices = indices;
+	_dirty = true;
 }
 
 void Mesh::Recreate(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices)
@@ -89,7 +91,8 @@ void Mesh::Destroy()
 	glDeleteVertexArrays(1, &_vertexArrayObject);
 	_elementBufferObject = _vertexArrayObject = _vertexBufferObject = 0;
 }
-void Mesh::Update() {
+void Mesh::Update()
+{
 	glBindVertexArray(_vertexArrayObject);
 
 	glBindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);

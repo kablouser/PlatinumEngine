@@ -69,7 +69,7 @@ namespace PlatinumEngine
 		 * use this function
 		 * @param mesh
 		 */
-		void LoadMesh(const Mesh &mesh);
+		void LoadMesh(Mesh &mesh);
 
 		//TODO: LoadLight
 		/**
