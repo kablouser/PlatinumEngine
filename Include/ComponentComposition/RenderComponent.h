@@ -24,7 +24,9 @@ namespace PlatinumEngine
 
 		// override the OnRender() of the Component
 		void OnRender(Renderer &render) override;
+
 	private:
 		Mesh _mesh;
+		ShaderInput _shaderInput;
 	};
 }

@@ -4,6 +4,7 @@
 
 #include <SceneEditor/SceneEditor.h>
 #include <imgui.h>
+#include <ComponentComposition/RenderComponent.h>
 
 
 
@@ -263,9 +264,10 @@ namespace PlatinumEngine{
 			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-			Mesh mesh(vertices, indices);
+//			Mesh mesh(vertices, indices);
+			RenderComponent renderComponent;
 			_renderer->Begin();
-			_renderer->LoadMesh(mesh);
+			renderComponent.OnRender(*_renderer);
 			_renderer->SetModelMatrix();
 			_renderer->SetViewMatrix(_camera.viewMatrix4);
 			_renderer->SetProjectionMatrix(_camera.projectionMatrix4);

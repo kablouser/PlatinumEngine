@@ -114,7 +114,6 @@ namespace PlatinumEngine
 
 	void Renderer::LoadMesh(Mesh &mesh)
 	{
-		mesh.Render();
 	}
 
 	// update model matrix in shader

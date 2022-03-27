@@ -118,8 +118,8 @@ namespace PlatinumEngine
 			}
 
 			// Set data then return
-			returnMesh.SetVertices(vertices);
-			returnMesh.SetIndices(indices);
+			returnMesh.vertices = vertices;
+			returnMesh.indices  = indices;
 			return returnMesh;
 		}
 	}

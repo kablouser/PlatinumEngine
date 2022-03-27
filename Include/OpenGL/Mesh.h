@@ -16,26 +16,11 @@ namespace PlatinumEngine {
 	 */
 	class Mesh {
 	public:
+		std::vector<Vertex> vertices;
+		std::vector<unsigned int> indices;
+
 		Mesh();
-		Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices);
+		Mesh(std::vector<Vertex> newVertices, std::vector<unsigned int> newIndices);
 		~Mesh();
-		std::vector<Vertex> GetVertices() const;
-		void SetVertices(std::vector<Vertex> &vertices);
-		std::vector<unsigned int> GetIndices() const;
-		void SetIndices(std::vector<unsigned int> &indices);
-		void Recreate(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices);
-		void Render();
-
-	private:
-		bool _dirty;
-		unsigned int _vertexArrayObject, _vertexBufferObject, _elementBufferObject;
-		GLsizeiptr _drawLength;
-		std::vector<Vertex> _vertices;
-		std::vector<unsigned int> _indices;
-
-		void Create();
-		void Destroy();
-		void Update();
-
 	};
 }
