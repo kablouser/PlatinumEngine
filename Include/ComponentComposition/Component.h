@@ -1,4 +1,5 @@
 #pragma once
+#include <Renderer/Renderer.h>
 
 namespace PlatinumEngine
 {
@@ -67,7 +68,7 @@ namespace PlatinumEngine
 		/**
 		 * Event triggered every render frame. Could render when the game is not running (i.e. in the scene editor).
 		 */
-		// virtual void OnRender(Renderer& renderer)
+		virtual void OnRender(Renderer& renderer);
 
 
 	private:
