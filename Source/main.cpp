@@ -10,6 +10,7 @@
 #include <InputManager/InputManager.h>
 #include <Renderer/Renderer.h>
 #include <WindowManager/WindowManager.h>
+#include <SceneManager/HierarchyWindow.h>
 #include <Logger/Logger.h>
 
 #include <OpenGL/GLCheck.h>
@@ -71,6 +72,9 @@ int main(int, char**)
 		bool isInputWindowOpen = true;
 		PlatinumEngine::InputManager inputManager;
 
+		bool isHierarchyWindowOpen = true;
+		PlatinumEngine::HierarchyWindow hierarchyWindow;
+
 		PlatinumEngine::WindowManager windowManager;
 
 		// Main loop
@@ -90,6 +94,8 @@ int main(int, char**)
 				rasterRenderer.Render(&isRasterRendererOpen);
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);
+			if(isHierarchyWindowOpen)
+				hierarchyWindow.ShowGUIWindow(&isHierarchyWindowOpen);
 			if(isLoggerOpen)
 				logger.ShowGUIWindow(&isLoggerOpen);
 			windowManager.ShowGUI();
