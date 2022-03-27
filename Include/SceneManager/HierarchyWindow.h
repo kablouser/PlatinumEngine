@@ -12,6 +12,7 @@
 
 // Platinum Engine library
 #include <ComponentComposition/GameObject.h>
+#include <SceneManager/Scene.h>
 
 
 namespace PlatinumEngine
@@ -42,7 +43,7 @@ namespace PlatinumEngine
 
 		void GenerateHierarchyListForTest();
 
-		void ShowGUIWindow(bool* isOpen, std::vector<GameObject*>& gameObjectList);
+		void ShowGUIWindow(bool* isOpen, Scene* scene);
 
 		// ---CONSTRUCTOR
 		HierarchyWindow();
@@ -52,7 +53,7 @@ namespace PlatinumEngine
 		// ---FUNCTION
 		void DisplayTreeNote(std::vector<HierarchyStruct>& hierarchyListParameter);
 
-		void DisplayTreeNote(std::vector<GameObject *>& hierarchyListParameter);
+		void DisplayTreeNote(GameObject * hierarchyListParameter);
 
 		// ---VARIABLE
 		std::vector<HierarchyStruct> hierarchyList;
@@ -128,33 +129,47 @@ namespace PlatinumEngine
 
 	}
 
-	void HierarchyWindow::DisplayTreeNote(std::vector<GameObject *>& hierarchyListParameter)
+	void HierarchyWindow::DisplayTreeNote(GameObject * gameObject)
 	{
 
-		for(GameObject* h : hierarchyListParameter)
-		{
 
-			bool is_expanded = ImGui::TreeNodeExV(h->name.c_str(), ImGuiTreeNodeFlags_FramePadding, " ", nullptr);
-			ImGui::SameLine();
-			ImGui::Selectable(h->name.c_str(), false);
-			if(is_expanded)
+		bool is_expanded = ImGui::TreeNodeExV(gameObject, ImGuiTreeNodeFlags_FramePadding, " ", nullptr);
+		ImGui::SameLine();
+		ImGui::Selectable(gameObject->name.c_str(), false);
+		if(is_expanded)
+		{
+			for(int i = 0; i < gameObject->GetChildrenCount(); i++)
 			{
 
-				DisplayTreeNote(h->_children);
+				DisplayTreeNote(gameObject->GetChild(i));
 
-				ImGui::TreePop();
 			}
 
+			ImGui::TreePop();
 		}
 
 	}
 
 
-	void HierarchyWindow::ShowGUIWindow(bool* isOpen, std::vector<GameObject*>& gameObjectList)
+	void HierarchyWindow::ShowGUIWindow(bool* isOpen, Scene* scene)
 	{
 
+		// Generate the Hierarchy window
 		if(ImGui::Begin("Hierarchy Window", isOpen))
 		{
+
+			// Get the number of root game object
+			unsigned int numberOfRootGameObject = scene->GetRootGameObjectsCount();
+
+			// Loop through every root game objects in a scene
+			for(int i =0 ; i< numberOfRootGameObject; i++)
+			{
+
+				scene->GetRootGameObject(i);
+
+			}
+
+
 			DisplayTreeNote(hierarchyList);
 		}
 		ImGui::End();
