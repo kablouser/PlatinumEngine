@@ -96,6 +96,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/SceneEditor/EditorCamera.cpp;"
 	
 	"Source/SceneManager/Scene.cpp;"
+	"Source/SceneManager/SceneManager.cpp;"
 	
 	"Source/WindowManager/WindowManager.cpp;"
 	
@@ -117,6 +118,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/In
 add_executable(tests
 	${PROJECT_SOURCES_WITHOUT_MAIN}
 	Test/TestTemplate.cpp
+	Test/TestScene.cpp
 	Source/WindowManager/Filedialog.cpp Include/WindowManager/Filedialog.h)
 
 
