@@ -9,7 +9,7 @@
 #include <Logger/Logger.h>
 
 // test
-#include "ComponentComposition/RenderComponent.h"
+// #include "ComponentComposition/RenderComponent.h"
 
 // shaders
 // DON'T FORMAT THESE LINES, OTHERWISE IT BREAKS
@@ -188,9 +188,9 @@ namespace PlatinumEngine
 				}
 
 				Begin();
-				Mesh mesh(vertices, indices);
-				RenderComponent renderComponent(mesh);
-				LoadMesh(mesh);
+				CubeTest();
+				// RenderComponent renderComponent(mesh);
+				Render();
 
 				LoadLight();
 				_lightShaderInput.Draw();
@@ -243,6 +243,7 @@ namespace PlatinumEngine
 		matrix.SetIdentityMatrix();
 		SetModelMatrix(matrix);
 		SetViewMatrix(matrix);
+		SetProjectionMatrix(matrix);
 		SetLightProperties();
 
 		// in variables;
