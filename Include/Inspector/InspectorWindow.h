@@ -5,7 +5,7 @@
 #pragma once
 
 #include <imgui.h>
-
+#include "WindowManager/Filedialog.h"
 #include <ComponentComposition/GameObject.h>
 
 namespace PlatinumEngine
@@ -22,6 +22,11 @@ namespace PlatinumEngine
 		void ShowTransformComponent();
 	private:
 		GameObject* _activeGameObject = nullptr;
+
+		ImVec2 maxSize = ImVec2((float)1080, (float)960);
+		ImVec2 minSize = ImVec2((float)540, (float)480);
+
+		std::string fileName;
 	};
 
 
@@ -40,13 +45,10 @@ namespace PlatinumEngine
 		float rotation[3] = {0.0f, 0.0f, 0.0f};
 		float scale[3] = {1.0f, 1.0f, 1.0f};
 	};
-<<<<<<< HEAD
 
 	class AnotherComponent : public Component
 	{
 	public:
 		AnotherComponent() = default;
 	};
-=======
->>>>>>> origin/inspector_window
 }

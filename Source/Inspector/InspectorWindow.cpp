@@ -1,47 +1,32 @@
 //
-// Created by Matt on 27/03/2022.
+// Created by Matt & Shawn on 27/03/2022.
 //
 
 #include <Inspector/InspectorWindow.h>
 
 using namespace PlatinumEngine;
 
+static char buf1[64] = "";
 void InspectorWindow::ShowGUIWindow(bool* isOpen)
 {
 	ImGui::Begin("Inspector Window", isOpen);
 
 	if (_activeGameObject)
 	{
-<<<<<<< HEAD
-=======
-		// Name box
->>>>>>> origin/inspector_window
 		ImGui::Text("Object Name: ");
 		ImGui::SameLine();
 		static char buffer[128];
 		strcpy(buffer, _activeGameObject->name.c_str());
-<<<<<<< HEAD
-		ImGui::InputText(" ", buffer, IM_ARRAYSIZE(buffer));
+		ImGui::InputText("##input name", buffer, IM_ARRAYSIZE(buffer));
 		_activeGameObject->name = std::string{buffer};
 
 		// Now render each component gui
 		if (_activeGameObject->HasComponent<MeshComponent>())
 			ShowMeshComponent();
+
 		if (_activeGameObject->HasComponent<TransformComponent>())
 			ShowTransformComponent();
 	}
-=======
-		ImGui::InputText("##Object Name", buffer, IM_ARRAYSIZE(buffer));
-		_activeGameObject->name = std::string{buffer};
-
-		// Now render each component gui
-		if (_activeGameObject->GetComponent<MeshComponent>())
-			ShowMeshComponent();
-		if (_activeGameObject->GetComponent<TransformComponent>())
-			ShowTransformComponent();
-	}
-
->>>>>>> origin/inspector_window
 	ImGui::End();
 }
 
@@ -52,20 +37,33 @@ void InspectorWindow::SetActiveGameObject(GameObject* gameObject)
 
 void InspectorWindow::ShowMeshComponent()
 {
-<<<<<<< HEAD
-=======
-	// TODO: Once mesh renderer component made
->>>>>>> origin/inspector_window
+
 	ImGui::Separator();
-	if (ImGui::CollapsingHeader("Mesh Component"))
+	if (ImGui::CollapsingHeader("Mesh Render Component"))
 	{
-		ImGui::Text("I am a mesh");
+		ImGui::Text("Mesh");
+		ImGui::SameLine();
+		ImGui::InputText("##Mesh Name",buf1,64);
+		ImGui::SameLine();
+		if(ImGui::Button("choose mesh"))
+		{
+			ImGuiFileDialog::Instance()->OpenDialog("getFileName","Choose Mesh",".obj",".");
+		}
 	}
+	if(ImGuiFileDialog::Instance()->Display("getFileName", ImGuiWindowFlags_NoCollapse, minSize, maxSize))
+	{
+		if(ImGuiFileDialog::Instance()->IsOk())
+		{
+
+			fileName = ImGuiFileDialog ::Instance()->GetCurrentFileName();
+		}
+		ImGuiFileDialog::Instance()->Close();
+	}
+	strncpy(buf1, fileName.c_str(), sizeof(buf1));
 }
 
 void InspectorWindow::ShowTransformComponent()
 {
-<<<<<<< HEAD
 	// If this gui is being shown, assumption that object has transform component
 	static float position[3];
 	std::copy(std::begin(_activeGameObject->GetComponent<TransformComponent>()->position),
@@ -82,50 +80,23 @@ void InspectorWindow::ShowTransformComponent()
 	ImGui::Separator();
 	if (ImGui::CollapsingHeader("Transform Component"))
 	{
-		ImGui::PushItemWidth(50);
-=======
-	// TODO: Check does this work with transform component when made?
-	// If this gui is being shown, assumption that object has transform component
-	ImGui::Separator();
-	if (ImGui::CollapsingHeader("Transform Component"))
-	{
-		ImGui::PushItemWidth(75);
->>>>>>> origin/inspector_window
+		ImGui::PushItemWidth(80);
 		ImGui::Text("Position: ");
 		ImGui::SameLine();
 		ImGui::Text("X");
 		ImGui::SameLine();
-<<<<<<< HEAD
-		ImGui::InputFloat(" ", &position[0]);
+		ImGui::InputFloat("##Xpos", &position[0]);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::InputFloat(" ", &position[1]);
+		ImGui::InputFloat("##Ypos", &position[1]);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::InputFloat(" ", &position[2]);
+		ImGui::InputFloat("##Zpos", &position[2]);
 		std::copy(std::begin(position),
 				std::end(position),
 				std::begin(_activeGameObject->GetComponent<TransformComponent>()->position));
-
-//		ImGui::Text("Rotation: ");
-//		ImGui::SameLine();
-//		ImGui::InputFloat3(" ", rotation);
-//
-//		ImGui::Text("Scale: ");
-//		ImGui::SameLine();
-//		ImGui::InputFloat3(" ", scale);
-=======
-		ImGui::InputFloat("##Xpos", &_activeGameObject->GetComponent<TransformComponent>()->position[0]);
-		ImGui::SameLine();
-		ImGui::Text("Y");
-		ImGui::SameLine();
-		ImGui::InputFloat("##Ypos", &_activeGameObject->GetComponent<TransformComponent>()->position[1]);
-		ImGui::SameLine();
-		ImGui::Text("Z");
-		ImGui::SameLine();
-		ImGui::InputFloat("##Zpos", &_activeGameObject->GetComponent<TransformComponent>()->position[2]);
 
 		ImGui::Text("Rotation: ");
 		ImGui::SameLine();
@@ -154,7 +125,6 @@ void InspectorWindow::ShowTransformComponent()
 		ImGui::Text("Z");
 		ImGui::SameLine();
 		ImGui::InputFloat("##Zscale", &_activeGameObject->GetComponent<TransformComponent>()->scale[2]);
->>>>>>> origin/inspector_window
 		ImGui::PopItemWidth();
 	}
 }

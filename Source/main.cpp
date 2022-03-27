@@ -15,7 +15,6 @@
 
 #include <OpenGL/GLCheck.h>
 
-
 static void GlfwErrorCallback(int error, const char* description)
 {
 	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
