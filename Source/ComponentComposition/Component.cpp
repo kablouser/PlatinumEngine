@@ -55,4 +55,7 @@ namespace PlatinumEngine
 
 	void Component::OnUpdate(float)
 	{}
+
+	void Component::OnRender(Renderer& renderer)
+	{}
 }

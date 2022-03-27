@@ -189,7 +189,7 @@ namespace PlatinumEngine
 
 				Begin();
 				Mesh mesh(vertices, indices);
-				RenderComponent renderComponent(mesh);
+//				RenderComponent renderComponent(mesh);
 				LoadMesh(mesh);
 
 				LoadLight();
