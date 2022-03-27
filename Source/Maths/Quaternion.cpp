@@ -159,28 +159,14 @@ namespace PlatinumEngine
 			return v;
 		}
 
-		/*Quaternion EulerToQuat(Vec3 euler)
-		{
-			float yaw = euler.x, pitch = euler.y, roll = euler.z;
-			float qx = sin(roll/2) * cos(pitch/2) * cos(yaw/2) - cos(roll/2) * sin(pitch/2) * sin(yaw/2);
-			float qy = cos(roll/2) * sin(pitch/2) * cos(yaw/2) + sin(roll/2) * cos(pitch/2) * sin(yaw/2);
-			float qz = cos(roll/2) * cos(pitch/2) * sin(yaw/2) - sin(roll/2) * sin(pitch/2) * cos(yaw/2);
-			float qw = cos(roll/2) * cos(pitch/2) * cos(yaw/2) + sin(roll/2) * sin(pitch/2) * sin(yaw/2);
-			return Quaternion(qx, qy, qz, qw);
-		}/*
-
 		// Static Methods
 
-		static Quaternion Normalize(Quaternion &q)
+		static Quaternion Normalise(Quaternion &q)
 		{
 			float n = q.Norm();
-			if(n!=0.f)
-			{
-				Quaternion r;
-				float invN = 1.f/n;
-				r = q * invN;
-				return r;
-			}
+			float invN = 1.f/n;
+			Quaternion r = q * invN;
+			return r;
 		}
 
 		static Quaternion Conjugate(Quaternion &q)
@@ -239,7 +225,7 @@ namespace PlatinumEngine
 				r.x = s * a.x + t * r.x;
 				r.y = s * a.y + t * r.y;
 				r.z = s * a.z + t * r.z;
-				r = Normalize(r);
+				r = Normalise(r);
 				return r;
 			}
 
@@ -253,6 +239,46 @@ namespace PlatinumEngine
 			r.y = ( a.y * ratioA + r.y * ratioB );
 			r.z = ( a.z * ratioA + r.z * ratioB );
 			return r;
+		}
+
+		static Vec3 QuatToEuler(Quaternion q)
+		{
+			float t0 = 2. * (q.w*q.x + q.y*q.z);
+			float t1 = 1.f - 2.f * (q.x*q.x + q.y*q.y);
+			float roll = atan2(t0, t1);
+			float t2 = 2.f * (q.w*q.y - q.z*q.x);
+			t2 = t2>1.f?1.f:t2;
+			t2 = t2<-1.f?-1.f:t2;
+			float pitch = asin(t2);
+			float t3 = 2.f * (q.w*q.z + q.x*q.y);
+			float t4 = 1.f - 2.f * (q.y*q.y + q.z*q.z);
+			float yaw = atan2(t3, t4);
+			Vec3 v(yaw, pitch, roll);
+			return v;
+		}
+
+		static Quaternion EulerToQuat(Vec3 euler)
+		{
+			float yaw = euler.x/2.f, pitch = euler.y/2.f, roll = euler.z/2.f;
+			float sinroll = sin(roll), sinpitch = sin(pitch), sinyaw = sin(yaw);
+			float cosroll = cos(roll), cospitch = cos(pitch), cosyaw = cos(yaw);
+			float qx = sinroll * cospitch * cosyaw - cosroll * sinpitch * sinyaw;
+			float qy = cosroll * sinpitch * cosyaw + sinroll * cospitch * sinyaw;
+			float qz = cosroll * cospitch * sinyaw - sinroll * sinpitch * cosyaw;
+			float qw = cosroll * cospitch * cosyaw + sinroll * sinpitch * sinyaw;
+			return Quaternion(qx, qy, qz, qw);
+		}
+
+		static Quaternion AngleAxis(Vec3 axis, float angle)
+		{
+			float halfAngle = angle * .5f;
+			float s = sin(halfAngle);
+			Quaternion q;
+			q.x = axis.x * s;
+			q.y = axis.y * s;
+			q.z = axis.z * s;
+			q.w = cos(halfAngle);
+			return q;
 		}
 	}
 }

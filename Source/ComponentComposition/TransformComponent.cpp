@@ -19,13 +19,20 @@ namespace PlatinumEngine
 
 	void TransformComponent::Rotate(Maths::Vec3 euler)
 	{
-		Maths::Quaternion eulerRot = Maths::Quaternion.EulerToQuaternion(eulers.x, eulers.y, eulers.z);
+		Maths::Quaternion eulerRot = Maths::Quaternion::EulerToQuat(euler);
 		rotation = rotation * eulerRot;
+	}
+
+	void TransformComponent::Rotate(Maths::Quaternion q)
+	{
+		rotation = rotation * q;
 	}
 
 	void TransformComponent::RotateAround(Maths::Vec3 point, Maths::Vec3 axis, float angle)
 	{
-
+		Maths::Quaternion q = Maths::Quaternion::AngleAxis(up, angle);
+		position = q.EulerAngles() * (position-point) + point;
+		rotation *= q;
 	}
 
 	void TransformComponent::Scale(Maths::Vec3 newScale)
@@ -37,6 +44,24 @@ namespace PlatinumEngine
 
 	void TransformComponent::LookAt(Maths::Vec3 target)
 	{
+		Maths::Vec3 forwardVector = target - position;
+		forwardVector = Maths::Normalise(forwardVector);
+		float dot = Maths::Dot(forward, forwardVector);
 
+		if (abs(dot - (-1.0f)) < 0.000001f)
+		{
+			Rotate(Maths::Quaternion(up.x, up.y, up.z, 3.1415926535897932f));
+			return;
+		}
+		if (abs(dot - (1.0f)) < 0.000001f)
+		{
+			Rotate(Maths::Quaternion::identity);
+			return;
+		}
+
+		float rotAngle = (float)acos(dot);
+		Maths::Vec3 rotAxis = Maths::Cross(forward, forwardVector);
+		rotAxis = Maths::Normalise(rotAxis);
+		Rotate(Maths::Quaternion::AngleAxis(rotAxis, rotAngle));
 	}
 }

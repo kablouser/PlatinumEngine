@@ -34,11 +34,14 @@ namespace PlatinumEngine
 			float Dot(const Quaternion &q);
 			Vec3 EulerAngles();
 
-			static Quaternion Normalize(Quaternion &q);
+			static Quaternion Normalise(Quaternion &q);
 			static Quaternion Conjugate(Quaternion &q);
 			static Quaternion Inverse(Quaternion &q);
 			static float Angle(Quaternion a, Quaternion b);
 			static Quaternion Slerp(Quaternion a, Quaternion b, float t);
+			static Vec3 QuatToEuler(Quaternion q);
+			static Quaternion EulerToQuat(Vec3 euler);
+			static Quaternion AngleAxis(Vec3 axis, float angle);
 
 		public:
 			static Quaternion identity;
