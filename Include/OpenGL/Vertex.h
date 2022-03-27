@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
+#include <Maths/Vectors.h>
 
 namespace PlatinumEngine {
 	struct Vertex {
-		glm::vec3 position;
-		glm::vec3 normal;
-		glm::vec2 textureCoords;
+		Maths::Vec3 position;
+		Maths::Vec3 normal;
+		Maths::Vec2 textureCoords;
 	};
 }
 

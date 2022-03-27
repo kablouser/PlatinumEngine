@@ -6,14 +6,13 @@
 
 namespace PlatinumEngine
 {
-	ImVec2 maxSize = ImVec2((float)1080, (float)960);
-	ImVec2 minSize = ImVec2((float)540, (float)480);
-
-	std::string fileDialog::SaveFile()
+	const ImVec2 FileDialog::MIN_SIZE = ImVec2((float)540, (float)480);
+	const ImVec2 FileDialog::MAX_SIZE = ImVec2((float)1080, (float)960);
+	std::string FileDialog::SaveFile()
 	{
 		std::string filePath;
 
-		if(ImGuiFileDialog::Instance()->Display("SaveFileKey", ImGuiWindowFlags_NoCollapse, minSize, maxSize))
+		if(ImGuiFileDialog::Instance()->Display("SaveFileKey", ImGuiWindowFlags_NoCollapse, MIN_SIZE, MAX_SIZE))
 		{
 			if(ImGuiFileDialog::Instance()->IsOk())
 			{
@@ -25,11 +24,11 @@ namespace PlatinumEngine
 		return filePath;
 	}
 
-	std::string fileDialog::LoadFile()
+	std::string FileDialog::LoadFile()
 	{
 		std::string filePathName;
 
-		if(ImGuiFileDialog::Instance()->Display("LoadFileKey", ImGuiWindowFlags_NoCollapse, minSize, maxSize))
+		if(ImGuiFileDialog::Instance()->Display("LoadFileKey", ImGuiWindowFlags_NoCollapse, MIN_SIZE, MAX_SIZE))
 		{
 			if(ImGuiFileDialog::Instance()->IsOk())
 			{

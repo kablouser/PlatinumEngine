@@ -74,6 +74,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	
 	"Source/InputManager/InputManager.cpp;"
 	
+	"Source/Inspector/InspectorWindow.cpp;"
+	
 	"Source/Loaders/LoaderCommon.cpp;"
 	"Source/Loaders/MeshLoader.cpp;"
 

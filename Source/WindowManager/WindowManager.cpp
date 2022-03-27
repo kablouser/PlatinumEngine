@@ -42,13 +42,13 @@ namespace PlatinumEngine
 	void WindowManager::LoadFile()
 	{
 		std::string x;
-		x = PlatinumEngine::fileDialog::LoadFile();
+		x = PlatinumEngine::FileDialog::LoadFile();
 		std::cout << x << std::endl;
 	}
 	void WindowManager::SaveFile()
 	{
 		std::string x;
-		x = PlatinumEngine::fileDialog::SaveFile();
+		x = PlatinumEngine::FileDialog::SaveFile();
 		std::cout << x << std::endl;
 	}
 
