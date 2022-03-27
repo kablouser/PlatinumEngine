@@ -88,6 +88,7 @@ int main(int, char**)
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
+
 			//--------------------------------------------------------------------------------------------------------------
 			// GUI HERE
 			//--------------------------------------------------------------------------------------------------------------
@@ -96,7 +97,7 @@ int main(int, char**)
 
 			if (isSceneEditorOpen)
 				sceneEditor.ShowGUIWindow(&isSceneEditorOpen);
-				
+
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);
 
