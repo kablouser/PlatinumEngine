@@ -11,20 +11,17 @@ namespace PlatinumEngine
 	void HierarchyWindow::DisplayTreeNote(GameObject* gameObject, Scene& scene)
 	{
 
+		// Store the states (is expanded or not) of the node
 		bool is_expanded = ImGui::TreeNodeExV(gameObject,
 				ImGuiTreeNodeFlags_FramePadding|(gameObject->GetChildrenCount()==0 ? ImGuiTreeNodeFlags_Leaf : 0),
-				" ", nullptr);
+				gameObject->name.c_str(), nullptr);
 
-
-		ImGui::SameLine();
-		bool selected = ImGui::Selectable(gameObject->name.c_str(), false);
-
-
-		if(selected)
+		// Check if this node is clicked
+		if(ImGui::IsItemClicked())
 			selectedGameObject = gameObject;
 
 
-		//--- Drag and Drop Function
+		// Add Drag and Drop Events
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 		{
 
@@ -34,7 +31,6 @@ namespace PlatinumEngine
 			// End the DragDropSource
 			ImGui::EndDragDropSource();
 		}
-
 		if (ImGui::BeginDragDropTarget())
 		{
 
@@ -53,6 +49,7 @@ namespace PlatinumEngine
 		if(is_expanded)
 		{
 
+			// Loop through the children
 			for(int i = 0; i < gameObject->GetChildrenCount(); i++)
 			{
 
@@ -82,11 +79,10 @@ namespace PlatinumEngine
 
 		}
 		ImGui::End();
-
 	}
 
 	// ---CONSTRUCTOR
-	HierarchyWindow::HierarchyWindow()
+	HierarchyWindow::HierarchyWindow():selectedGameObject(nullptr)
 	{}
 
 

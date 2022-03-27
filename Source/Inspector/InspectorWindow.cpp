@@ -20,10 +20,10 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen)
 		_activeGameObject->name = std::string{objectNameBuffer};
 
 		// Now render each component gui
-		if (_activeGameObject->HasComponent<MeshComponent>())
+		if (_activeGameObject->GetComponent<MeshComponent>()!= nullptr)
 			ShowMeshComponent();
 
-		if (_activeGameObject->HasComponent<TransformComponent>())
+		if (_activeGameObject->GetComponent<TransformComponent>()!= nullptr)
 			ShowTransformComponent();
 	}
 	ImGui::End();

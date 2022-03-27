@@ -6,6 +6,7 @@
 
 #include <imgui.h>
 #include "WindowManager/Filedialog.h"
+#include <ComponentComposition/Component.h>
 #include <ComponentComposition/GameObject.h>
 
 namespace PlatinumEngine

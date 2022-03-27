@@ -79,34 +79,31 @@ int main(int, char**)
 		bool isInspectorWindowOpen = true;
 		PlatinumEngine::InspectorWindow inspectorWindow;
 
-		// TEST CODE FOR INSPECTOR WINDOW
-		auto* obj = new PlatinumEngine::GameObject("Object");
-		auto* meshComp = new PlatinumEngine::MeshComponent();
-		auto* transformerComp = new PlatinumEngine::TransformComponent();
-		obj->AddComponent(meshComp);
-		obj->AddComponent(transformerComp);
-		inspectorWindow.SetActiveGameObject(obj);
-		// END TEST CODE
+
 
 		PlatinumEngine::WindowManager windowManager;
 
 
-		// Create scene
+		//---------TEST-----------
+
 		PlatinumEngine::Scene scene;
 
-		for(int i = 0; i<5; i++)
+		for (int i = 0; i < 5; i++)
 		{
 			scene.AddGameObject("GameObject");
 
 		}
 
-		for(int i = 0; i< 5; i++)
+		for (int i = 0; i < 5; i++)
 		{
 
-			scene.AddGameObject("GameObject2",scene.GetRootGameObject(i));
+			scene.AddGameObject("GameObject2", scene.GetRootGameObject(i));
 
 
 		}
+
+		//--------END TEST----------
+
 
 
 		// Main loop
@@ -127,11 +124,16 @@ int main(int, char**)
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);
 			if(isHierarchyWindowOpen)
+			{
 				hierarchyWindow.ShowGUIWindow(&isHierarchyWindowOpen, scene);
+				inspectorWindow.SetActiveGameObject(hierarchyWindow.selectedGameObject);
+
+				if(isInspectorWindowOpen)
+					inspectorWindow.ShowGUIWindow(&isInspectorWindowOpen);
+			}
 			if(isLoggerOpen)
 				logger.ShowGUIWindow(&isLoggerOpen);
-			if(isInspectorWindowOpen)
-				inspectorWindow.ShowGUIWindow(&isInspectorWindowOpen);
+
 			windowManager.ShowGUI();
 			//--------------------------------------------------------------------------------------------------------------
 			// END OF GUI
@@ -152,11 +154,7 @@ int main(int, char**)
 			glfwSwapBuffers(window);
 		}
 
-		// TEST CODE FOR INSPECTOR WINDOW
-		delete transformerComp;
-		delete meshComp;
-		delete obj;
-		// END TEST CODE
+
 
 		// Cleanup ImGui
 		ImGui_ImplOpenGL3_Shutdown();
