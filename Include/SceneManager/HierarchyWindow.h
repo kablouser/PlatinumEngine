@@ -34,7 +34,6 @@ namespace PlatinumEngine
 	class HierarchyWindow
 	{
 
-		friend class GameObject;
 
 	public:
 

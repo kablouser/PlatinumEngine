@@ -14,8 +14,6 @@ namespace PlatinumEngine
 	{
 		friend class Scene;
 
-		friend class HierarchyWindow;
-
 		// only friends with base Component class, not its derivatives
 		friend class Component;
 
