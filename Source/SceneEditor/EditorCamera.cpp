@@ -19,7 +19,6 @@
 #include "SceneEditor/EditorCamera.h"
 
 
-
 namespace PlatinumEngine
 {
 
@@ -158,11 +157,11 @@ namespace PlatinumEngine
 		// get translation matrix
 		translationMat4.SetTranslationMatrix(-_translationValue);
 
-		translation2Mat4.SetTranslationMatrix(-_cameraPosition);
+		// translation2Mat4.SetTranslationMatrix(-_cameraPosition);
 
 
 		// calculate the new look at matrix by applying the transformation matrix
-		viewMatrix4 = rotationMat4 * translationMat4 * translation2Mat4;
+		viewMatrix4 = rotationMat4 * translationMat4;
 
 
 	}

@@ -23,8 +23,11 @@ namespace PlatinumEngine{
 		_inputManager->CreateAxis(std::string ("Horizontal"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManagerExtend::AxisType::keyboardMouseButton);
 		_inputManager->CreateAxis(std::string ("Vertical"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManagerExtend::AxisType::keyboardMouseButton);
 
-		// use a random number instead
-		_renderTexture.Create(1.f,1.f);
+
+		_framebufferWidth = 1;
+		_framebufferHeight = 1;
+		if (!_renderTexture.Create(_framebufferWidth, _framebufferHeight))
+			return;
 
 	}
 
@@ -241,29 +244,38 @@ namespace PlatinumEngine{
 		//--------------------
 
 		// pass framebuffer to renderer
-		_renderer->SetFramebuffer(&_renderTexture);
-
+		_framebufferWidth = (int)targetSize.x;
+		_framebufferHeight = (int)targetSize.y;
+		_renderTexture.Create(_framebufferWidth, _framebufferHeight);
 		if(1.0f < targetSize.x && 1.0f < targetSize.y)
 		{
 			// resize framebuffer if necessary
-			if (_renderer->_framebufferWidth != (int)targetSize.x || _renderer->_framebufferHeight != (int)targetSize.y)
+			if (_framebufferWidth != (int)targetSize.x || _framebufferHeight != (int)targetSize.y)
 			{
-				_renderer->ResizeFrameBuffer(_renderer->_framebuffer, targetSize);
+				_framebufferWidth = (int)targetSize.x;
+				_framebufferHeight = (int)targetSize.y;
+				_renderTexture.Create(_framebufferWidth, _framebufferHeight);
 			}
 
+			_renderTexture.Bind();
+			glEnable(GL_DEPTH_TEST);
+			glViewport(0, 0, _framebufferWidth, _framebufferHeight);
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+			Mesh mesh(vertices, indices);
 			_renderer->Begin();
-			Mesh mesh(_renderer->vertices, _renderer->indices);
 			_renderer->LoadMesh(mesh);
 			_renderer->SetModelMatrix();
 			_renderer->SetViewMatrix(_camera.viewMatrix4);
 			_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
 			_renderer->SetLightProperties();
-			_renderer->Render();
-
-			_renderer->LoadLight();
-			_renderer->_lightShaderInput.Draw();
-			_renderer->_lightShader.Unbind();
 			_renderer->End();
+
+			_renderTexture.Unbind();
+			glDisable(GL_DEPTH_TEST);
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
 
 
 			// display updated framebuffer
