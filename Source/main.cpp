@@ -8,7 +8,6 @@
 #include <GLFW/glfw3.h>
 
 #include <InputManager/InputManager.h>
-#include <SceneEditor/InputManagerExtend.h>
 #include <Renderer/Renderer.h>
 #include <WindowManager/WindowManager.h>
 #include <Logger/Logger.h>
@@ -71,14 +70,12 @@ int main(int, char**)
 		bool isRasterRendererOpen = true;
 		PlatinumEngine::Renderer rasterRenderer;
 
+		bool isInputWindowOpen = true;
+		PlatinumEngine::InputManager inputManager;
 
 		bool isSceneEditorOpen = true;
 		PlatinumEngine::Scene scene;
-		PlatinumEngine::InputManagerExtend inputManagerExtend;
-		PlatinumEngine::SceneEditor sceneEditor(&inputManagerExtend, &scene);
-
-		bool isInputWindowOpen = true;
-		PlatinumEngine::InputManager inputManager;
+		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer);
 
 		PlatinumEngine::WindowManager windowManager;
 
@@ -95,17 +92,11 @@ int main(int, char**)
 			//--------------------------------------------------------------------------------------------------------------
 			// GUI HERE
 			//--------------------------------------------------------------------------------------------------------------
-			if (isRasterRendererOpen)
-			{
-				rasterRenderer.Render(&isRasterRendererOpen);
-
-			}
+			//if (isRasterRendererOpen)
+			//	rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
 
 			if (isSceneEditorOpen)
-			{
-				sceneEditor.ShowGUIWindow(&isSceneEditorOpen, rasterRenderer);
-			}
-
+				sceneEditor.ShowGUIWindow(&isSceneEditorOpen);
 
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);

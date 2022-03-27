@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
 #include <vector>
 #include <OpenGL/Vertex.h>
 #include <OpenGL/Texture.h>
@@ -18,14 +17,24 @@ namespace PlatinumEngine {
 	public:
 		Mesh();
 		Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices);
+		~Mesh();
 		std::vector<Vertex> GetVertices() const;
 		void SetVertices(std::vector<Vertex> &vertices);
 		std::vector<unsigned int> GetIndices() const;
 		void SetIndices(std::vector<unsigned int> &indices);
+		void Recreate(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices);
+		void Render();
 
 	private:
+		bool _dirty;
+		unsigned int _vertexArrayObject, _vertexBufferObject, _elementBufferObject;
+		GLsizeiptr _drawLength;
 		std::vector<Vertex> _vertices;
 		std::vector<unsigned int> _indices;
-//		Texture *_texture;
+
+		void Create();
+		void Destroy();
+		void Update();
+
 	};
 }

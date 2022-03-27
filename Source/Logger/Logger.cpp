@@ -1,7 +1,8 @@
-// todo change to <> brackets
 #include <Logger/Logger.h>
 // to print to console
 #include <iostream>
+// for dynamic allocation
+#include <vector>
 // for easier string manipulation
 #include <sstream>
 // for displaying gui controls
@@ -13,26 +14,54 @@ namespace
 	static std::vector<PlatinumEngine::Logger*> allLoggers;
 
 	// Static here make this only visible inside this source file
+
 	static void LogInConsole(const char* messageType, const char* message, const char* file, unsigned int line,
 			PlatinumEngine::Logger::LogType type)
+
 	{
-		std::string fileString(file);
-		// remove the full path, just use the filename
-		fileString = fileString.substr(fileString.find_last_of("\\/") + 1);
-
+		// stringbuilder
 		std::ostringstream outputStringStream;
-		outputStringStream << messageType << ' ' << message;
-		if (file != nullptr)
-			outputStringStream << ' ' << fileString << "(" << line << ")";
+		// need to seperate message into lines, otherwise GUI cutoff text
+		std::vector<std::string> outputLines;
 
-		// copy to string
-		std::string output = outputStringStream.str();
-		// only use std::cout, not std::cerr
-		// because it preserves the ordering
-		std::cout << output << std::endl;
-		// save output in all loggers
-		for(size_t i = 0; i < allLoggers.size(); ++i)
-			allLoggers[i]->SaveLog(type, output);
+		outputStringStream << messageType << ' ';
+
+		for(size_t i = 0; message[i] != '\0'; ++i)
+		{
+			if(message[i] == '\n')
+			{
+				// newline
+				outputLines.push_back(outputStringStream.str());
+				// delete contents of ostringstream and reset
+				outputStringStream.str("");
+				outputStringStream.clear();
+			}
+			else
+			{
+				outputStringStream << message[i];
+			}
+		}
+
+		// should we print the file and line?
+		if (file != nullptr && file[0] != '\0')
+		{
+			std::string fileString(file);
+			// remove the full path, just use the filename
+			fileString = fileString.substr(fileString.find_last_of("\\/") + 1);
+			outputStringStream << ' ' << fileString << "(" << line << ")";
+		}
+
+		outputLines.push_back(outputStringStream.str());
+
+		for(const std::string& line : outputLines)
+		{
+			// only use std::cout, not std::cerr
+			// because it preserves the ordering
+			std::cout << line << std::endl;
+			// save output in all loggers
+			for(size_t i = 0; i < allLoggers.size(); ++i)
+				allLoggers[i]->SaveLog(type, line);
+		}
 	}
 }
 
@@ -55,21 +84,27 @@ namespace PlatinumEngine
 
 	void Logger::LogInfo(const char* message, const char* file, unsigned int line)
 	{
+
 		LogInConsole("(info)", message, file, line, LogType::info);
+
 	}
 
 	void Logger::LogWarning(const char* message, const char* file, unsigned int line)
 	{
 		// there is no warning output stream in standard C++
+
 		LogInConsole("[Warning]", message, file, line, LogType::warning);
+
 	}
 
 	void Logger::LogError(const char* message, const char* file, unsigned int line)
 	{
+
 		LogInConsole("{ERROR}", message, file, line, LogType::error);
 	}
 
 	Logger::Logger() : _scrollToBottom(true)
+
 	{
 		allLoggers.push_back(this);
 	}
@@ -110,7 +145,6 @@ namespace PlatinumEngine
 					&savedLogs[i].message[0],
 					savedLogs[i].message.size() + 1,
 					ImGuiInputTextFlags_ReadOnly);
-
 		// check if user tried to scroll, but not when checkbox is clicked
 		if(ImGui::GetScrollY() != ImGui::GetScrollMaxY() && !isCheckboxClicked)
 			// let user scroll around
@@ -133,5 +167,36 @@ namespace PlatinumEngine
 		++_nextUniqueID;
 
 		savedLogs.push_back({uniqueID, type, message});
+	}
+
+	LoggerStream::LoggerStream(Logger::LogType type, const char* file, unsigned int line) :
+		_type(type),
+		_line(line)
+	{
+		// std::string cannot be constructed with nullptr,
+		// and 0 length c-strings are not worth storing
+		if (file != nullptr && file[0] != '\0')
+			_file = std::string(file);
+	}
+
+	LoggerStream::~LoggerStream()
+	{
+		switch(_type)
+		{
+		case Logger::LogType::info:
+			Logger::LogInfo(_stringStream.str(), _file.c_str(), _line);
+			break;
+		case Logger::LogType::warning:
+			Logger::LogWarning(_stringStream.str(), _file.c_str(), _line);
+			break;
+		case Logger::LogType::error:
+			Logger::LogError(_stringStream.str(), _file.c_str(), _line);
+			break;
+
+		default:
+			// _type is not recognised
+			assert(false);
+			break;
+		}
 	}
 }

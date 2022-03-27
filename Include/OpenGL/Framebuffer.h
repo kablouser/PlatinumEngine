@@ -28,5 +28,6 @@ namespace PlatinumEngine
 		GLuint _framebufferHandle;
 		GLuint _depthAndStencilHandle;
 		Texture _colorTexture;
+
 	};
 }

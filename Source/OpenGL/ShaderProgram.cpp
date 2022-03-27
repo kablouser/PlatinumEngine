@@ -119,17 +119,17 @@ namespace PlatinumEngine
 		GL_CHECK(glUniform4f(glGetUniformLocation(_shaderProgramHandle, name.c_str()), x, y, z, w));
 	}
 
-	void ShaderProgram::SetUniform(const std::string &name, const glm::vec2 &value) const
+	void ShaderProgram::SetUniform(const std::string &name, const Maths::Vec2 &value) const
 	{
 		GL_CHECK(glUniform2fv(glGetUniformLocation(_shaderProgramHandle, name.c_str()), 1, &value[0]));
 	}
 
-	void ShaderProgram::SetUniform(const std::string &name, const glm::vec3 &value) const
+	void ShaderProgram::SetUniform(const std::string &name, const Maths::Vec3 &value) const
 	{
 		GL_CHECK(glUniform3fv(glGetUniformLocation(_shaderProgramHandle, name.c_str()), 1, &value[0]));
 	}
 
-	void ShaderProgram::SetUniform(const std::string &name, const glm::vec4 &value) const
+	void ShaderProgram::SetUniform(const std::string &name, const Maths::Vec4 &value) const
 	{
 		GL_CHECK(glUniform4fv(glGetUniformLocation(_shaderProgramHandle, name.c_str()), 1, &value[0]));
 	}
@@ -142,6 +142,11 @@ namespace PlatinumEngine
 	void ShaderProgram::SetUniform(const std::string &name, const glm::mat3 &value) const
 	{
 		GL_CHECK(glUniformMatrix3fv(glGetUniformLocation(_shaderProgramHandle, name.c_str()), 1, GL_FALSE, &value[0][0]));
+	}
+
+	void ShaderProgram::SetUniform(const std::string &name, const Maths::Mat4 &value) const
+	{
+		GL_CHECK(glUniformMatrix4fv(glGetUniformLocation(_shaderProgramHandle, name.c_str()), 1, GL_FALSE, &value.matrix[0]));
 	}
 
 	void ShaderProgram::SetUniform(const std::string &name, const glm::mat4 &value) const

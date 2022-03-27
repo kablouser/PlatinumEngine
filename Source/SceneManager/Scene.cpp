@@ -111,7 +111,6 @@ namespace PlatinumEngine
 	}
 
 
-
 	void Scene::UpdateComponents(GameObject* gameObject, float deltaTime)
 	{
 		for(auto &iterator:gameObject->_components)
@@ -143,7 +142,6 @@ namespace PlatinumEngine
 		}
 
 	}
-
 
 
 	void Scene::End()

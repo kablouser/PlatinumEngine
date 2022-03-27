@@ -9,6 +9,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+// PlatinumEngine math library
+#include <Maths/Vectors.h>
+#include <Maths/Matrices.h>
+
 namespace PlatinumEngine
 {
 	class ShaderProgram
@@ -39,18 +43,19 @@ namespace PlatinumEngine
 
 		void SetUniform(const std::string &name, float x, float y, float z, float w) const;
 
-		void SetUniform(const std::string &name, const glm::vec2 &value) const;
+		void SetUniform(const std::string &name, const Maths::Vec2 &value) const;
 
-		void SetUniform(const std::string &name, const glm::vec3 &value) const;
+		void SetUniform(const std::string &name, const Maths::Vec3 &value) const;
 
-		void SetUniform(const std::string &name, const glm::vec4 &value) const;
+		void SetUniform(const std::string &name, const Maths::Vec4 &value) const;
 
 		void SetUniform(const std::string &name, const glm::mat2 &value) const;
 
 		void SetUniform(const std::string &name, const glm::mat3 &value) const;
 
-		void SetUniform(const std::string &name, const glm::mat4 &value) const;
+		void SetUniform(const std::string &name, const Maths::Mat4 &value) const;
 
+		void SetUniform(const std::string &name, const glm::mat4 &value) const;
 
 
 	private:
