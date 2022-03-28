@@ -11,6 +11,15 @@ namespace PlatinumEngine
 		{
 		}
 
+		Quaternion::Quaternion(float yaw, float pitch, float roll)
+		{
+			Quaternion q = EulerToQuat(Vec3(yaw,pitch,roll));
+			x = q.x;
+			y = q.y;
+			z = q.z;
+			w = q.w;
+		}
+
 		Quaternion::~Quaternion()
 		{}
 
@@ -143,18 +152,17 @@ namespace PlatinumEngine
 
 		Vec3 Quaternion::EulerAngles()
 		{
-			float t0 = 2. * (w*x + y*z);
-			float t1 = 1.f - 2.f * (x*x + y*y);
-			float roll = atan2(t0, t1);
-			float t2 = 2.f * (w*y - z*x);
-			t2 = t2>1.f?1.f:t2;
-			t2 = t2<-1.f?-1.f:t2;
-			float pitch = asin(t2);
-			float t3 = 2.f * (w*z + x*y);
-			float t4 = 1.f - 2.f * (y*y + z*z);
-			float yaw = atan2(t3, t4);
-			Vec3 v(yaw, pitch, roll);
-			return v;
+			return QuatToEuler(Quaternion(x,y,z,w));
+		}
+
+		Vec4 Quaternion::ToVec4()
+		{
+			return Vec4(x,y,z,w);
+		}
+
+		std::string Quaternion::ToString()
+		{
+			return "{X:"+std::to_string(x)+" Y:"+std::to_string(y)+" Z:"+std::to_string(z)+" W:"+std::to_string(w)+"}";
 		}
 
 		// Static Methods
@@ -188,6 +196,35 @@ namespace PlatinumEngine
 		float Quaternion::Angle(Quaternion a, Quaternion b)
 		{
 			return 2 * acos(abs(glm::clamp(a.Dot(b),- 1.f,1.f)));
+		}
+
+		Quaternion Quaternion::Lerp(Quaternion a, Quaternion b, float t)
+		{
+			float num = t;
+			float num2 = 1.f - num;
+			Quaternion q;
+			float num5 = (((a.x * b.x) + (a.y * b.y)) + (a.z * b.z)) + (a.w * b.w);
+			if (num5 >= 0.f)
+			{
+				q.x = (num2 * a.x) + (num * b.x);
+				q.y = (num2 * a.y) + (num * b.y);
+				q.z = (num2 * a.z) + (num * b.z);
+				q.w = (num2 * a.w) + (num * b.w);
+			}
+			else
+			{
+				q.x = (num2 * a.x) - (num * b.x);
+				q.y = (num2 * a.y) - (num * b.y);
+				q.z = (num2 * a.z) - (num * b.z);
+				q.w = (num2 * a.w) - (num * b.w);
+			}
+			float num4 = (((q.x * q.x) + (q.y * q.y)) + (q.z * q.z)) + (q.w * q.w);
+			float num3 = 1.f / sqrt(num4);
+			q.x *= num3;
+			q.y *= num3;
+			q.z *= num3;
+			q.w *= num3;
+			return q;
 		}
 
 		Quaternion Quaternion::Slerp(Quaternion a, Quaternion b, float t)
@@ -271,11 +308,60 @@ namespace PlatinumEngine
 		{
 			float halfAngle = angle * .5f;
 			float s = sin(halfAngle);
+			Quaternion q = Quaternion(axis.x * s, axis.y * s, axis.z * s, cos(halfAngle));
+			return q;
+		}
+
+		Quaternion Quaternion::RotationMatrix(Mat4 matrix)
+		{
 			Quaternion q;
-			q.x = axis.x * s;
-			q.y = axis.y * s;
-			q.z = axis.z * s;
-			q.w = cos(halfAngle);
+			float root, half;
+			float scale = matrix[0][0] + matrix[1][1] + matrix[2][2];
+
+			if (scale > 0.0f)
+			{
+				root = sqrt(scale + 1.0f);
+				q.w = root * 0.5f;
+				root = 0.5f / root;
+
+				q.x = (matrix[1][2] - matrix[2][1]) * root;
+				q.y = (matrix[2][0] - matrix[0][2]) * root;
+				q.z = (matrix[0][1] - matrix[1][0]) * root;
+
+				return q;
+			}
+			if ((matrix[0][0] >= matrix[1][1]) && (matrix[0][0] >= matrix[2][2]))
+			{
+				root = sqrt(1.0f + matrix[0][0] - matrix[1][1] - matrix[2][2]);
+				half = 0.5f / root;
+
+				q.x = 0.5f * root;
+				q.y = (matrix[0][1] + matrix[1][0]) * half;
+				q.z = (matrix[0][2] + matrix[2][0]) * half;
+				q.w = (matrix[1][2] - matrix[2][1]) * half;
+
+				return q;
+			}
+			if (matrix[1][1] > matrix[2][2])
+			{
+				root = sqrt(1.0f + matrix[1][1] - matrix[0][0] - matrix[2][2]);
+				half = 0.5f / root;
+
+				q.x = (matrix[1][0] + matrix[0][1]) * half;
+				q.y = 0.5f * root;
+				q.z = (matrix[2][1] + matrix[1][2]) * half;
+				q.w = (matrix[2][0] - matrix[0][2]) * half;
+
+				return q;
+			}
+			root = sqrt(1.0f + matrix[2][2] - matrix[0][0] - matrix[1][1]);
+			half = 0.5f / root;
+
+			q.x = (matrix[2][0] + matrix[0][2]) * half;
+			q.y = (matrix[2][1] + matrix[1][2]) * half;
+			q.z = 0.5f * root;
+			q.w = (matrix[0][1] - matrix[1][0]) * half;
+
 			return q;
 		}
 
