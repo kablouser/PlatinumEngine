@@ -149,7 +149,8 @@ set(UNIT_TESTS
 	"Test/Maths/VectorsTest.cpp;"
 	"Test/Maths/MatricesTest.cpp;"  
 	"Test/SceneEditor/EditorCameraTest.cpp;"
-  "Test/TestScene.cpp;")
+  "Test/TestScene.cpp;"
+  )
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 
 target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
@@ -167,7 +168,8 @@ set(PROJECT_LIBRARIES
 	"imgui;"
 	"glm;"
 	"assimp;"
-	"libglew_static;")
+	"libglew_static;"
+  )
 # different targets
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_LIBRARIES})
 target_link_libraries(tests PRIVATE ${PROJECT_LIBRARIES} Catch2::Catch2WithMain)

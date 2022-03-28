@@ -8,7 +8,6 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
-
 // TODO:
 // Potentially add reflection, refraction and faceforward from glm if needed
 
@@ -19,7 +18,7 @@ namespace PlatinumEngine {
 			Vec4();
 			Vec4(float x, float y, float z);
 			Vec4(float x, float y, float z, float w);
-
+      
 			Vec4 operator-() const;
 			Vec4& operator+=(const Vec4 &v);
 			Vec4& operator-=(const Vec4 &v);
@@ -70,7 +69,6 @@ namespace PlatinumEngine {
 		{
 			return {u.x-v.x, u.y-v.y, u.z-v.z, u.w-v.w};
 		}
-
 
 		/**
 		 * Data structure for a vector of three values
@@ -142,7 +140,6 @@ namespace PlatinumEngine {
 					u.z * v.x - u.x * v.z,
 					u.x * v.y - u.y * v.x};
 		}
-
 
 		/**
 		 * Data structure for a vector with two values
@@ -248,6 +245,5 @@ namespace PlatinumEngine {
 		{
 			return u.CalcDistance(v);
 		}
-
 	}
 }
