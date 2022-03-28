@@ -14,8 +14,10 @@ namespace
 	static std::vector<PlatinumEngine::Logger*> allLoggers;
 
 	// Static here make this only visible inside this source file
+
 	static void LogInConsole(const char* messageType, const char* message, const char* file, unsigned int line,
 			PlatinumEngine::Logger::LogType type)
+
 	{
 		// stringbuilder
 		std::ostringstream outputStringStream;
@@ -82,21 +84,27 @@ namespace PlatinumEngine
 
 	void Logger::LogInfo(const char* message, const char* file, unsigned int line)
 	{
+
 		LogInConsole("(info)", message, file, line, LogType::info);
+
 	}
 
 	void Logger::LogWarning(const char* message, const char* file, unsigned int line)
 	{
 		// there is no warning output stream in standard C++
+
 		LogInConsole("[Warning]", message, file, line, LogType::warning);
+
 	}
 
 	void Logger::LogError(const char* message, const char* file, unsigned int line)
 	{
+
 		LogInConsole("{ERROR}", message, file, line, LogType::error);
 	}
 
 	Logger::Logger() : _scrollToBottom(true)
+
 	{
 		allLoggers.push_back(this);
 	}
@@ -137,7 +145,6 @@ namespace PlatinumEngine
 					&savedLogs[i].message[0],
 					savedLogs[i].message.size() + 1,
 					ImGuiInputTextFlags_ReadOnly);
-
 		// check if user tried to scroll, but not when checkbox is clicked
 		if(ImGui::GetScrollY() != ImGui::GetScrollMaxY() && !isCheckboxClicked)
 			// let user scroll around

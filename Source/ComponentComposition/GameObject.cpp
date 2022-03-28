@@ -1,3 +1,4 @@
+
 #include <ComponentComposition/GameObject.h>
 #include <SceneManager/Scene.h>
 #include <ComponentComposition/Component.h>
@@ -40,7 +41,7 @@ namespace PlatinumEngine
 	{
 		return _isEnabled;
 	}
-
+  
 	void GameObject::SetEnabled(bool isEnabled, Scene& scene)
 	{
 		if (_isEnabled == isEnabled)
@@ -63,7 +64,7 @@ namespace PlatinumEngine
 	{
 		return _parent;
 	}
-
+  
 	void GameObject::SetParent(GameObject* parent, Scene& scene)
 	{
 		if (_parent == parent)
@@ -78,7 +79,7 @@ namespace PlatinumEngine
 			// this has become NOT a root GameObject now
 			scene.RemoveRootGameObject(*this);
 		}
-
+    
 		if (parent)
 		{
 			parent->_children.push_back(this);
@@ -102,13 +103,13 @@ namespace PlatinumEngine
 	{
 		return _children.size();
 	}
-
+  
 	GameObject* GameObject::GetChild(size_t index)
 	{
 		// range-checked indexing
 		return _children.at(index);
 	}
-
+  
 	size_t GameObject::GetChildIndex(GameObject* child) const
 	{
 		for (size_t i = 0; i < _children.size(); i++)
@@ -116,7 +117,7 @@ namespace PlatinumEngine
 				return i;
 		return (size_t)-1;
 	}
-
+  
 	//--------------------------------------------------------------------------------------------------------------
 	// _components control
 	//--------------------------------------------------------------------------------------------------------------
@@ -125,7 +126,7 @@ namespace PlatinumEngine
 	{
 		return _components.size();
 	}
-
+  
 	Component* GameObject::GetComponent(size_t index)
 	{
 		// range-checked indexing

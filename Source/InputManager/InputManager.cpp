@@ -86,9 +86,9 @@ namespace PlatinumEngine
 	{
 		switch (button)
 		{
-			case 0: return ImGui::IsMouseClicked(ImGuiMouseButton_Left);
-			case 1: return ImGui::IsMouseClicked(ImGuiMouseButton_Right);
-			case 2: return ImGui::IsMouseClicked(ImGuiMouseButton_Middle);
+		case 0: return ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+		case 1: return ImGui::IsMouseClicked(ImGuiMouseButton_Right);
+		case 2: return ImGui::IsMouseClicked(ImGuiMouseButton_Middle);
 		}
 		return false;
 	}
@@ -98,9 +98,9 @@ namespace PlatinumEngine
 	{
 		switch (button)
 		{
-			case 0: return ImGui::IsMouseDown(ImGuiMouseButton_Left);
-			case 1: return ImGui::IsMouseDown(ImGuiMouseButton_Right);
-			case 2: return ImGui::IsMouseDown(ImGuiMouseButton_Middle);
+		case 0: return ImGui::IsMouseDown(ImGuiMouseButton_Left);
+		case 1: return ImGui::IsMouseDown(ImGuiMouseButton_Right);
+		case 2: return ImGui::IsMouseDown(ImGuiMouseButton_Middle);
 		}
 		return false;
 	}
@@ -110,9 +110,9 @@ namespace PlatinumEngine
 	{
 		switch (button)
 		{
-			case 0: return ImGui::IsMouseReleased(ImGuiMouseButton_Left);
-			case 1: return ImGui::IsMouseReleased(ImGuiMouseButton_Right);
-			case 2: return ImGui::IsMouseReleased(ImGuiMouseButton_Middle);
+		case 0: return ImGui::IsMouseReleased(ImGuiMouseButton_Left);
+		case 1: return ImGui::IsMouseReleased(ImGuiMouseButton_Right);
+		case 2: return ImGui::IsMouseReleased(ImGuiMouseButton_Middle);
 		}
 		return false;
 	}

@@ -1,4 +1,5 @@
 #pragma once
+#include <Renderer/Renderer.h>
 
 namespace PlatinumEngine
 {
@@ -58,6 +59,7 @@ namespace PlatinumEngine
 		// _gameObject controls
 		//--------------------------------------------------------------------------------------------------------------
 
+
 		/**
 		 * Gets the GameObject this component is attached to. Could be null.
 		 */
@@ -99,6 +101,7 @@ namespace PlatinumEngine
 		 * Event triggered every frame while this component is enabled and the game is running.
 		 */
 		virtual void OnUpdate(Scene& scene, double deltaTime);
+
 
 		/**
 		 * Event triggered every render frame. Could render when the game is not running (i.e. in the scene editor).

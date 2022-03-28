@@ -191,6 +191,7 @@ namespace PlatinumEngine
 
 	void Scene::Render(Renderer& renderer)
 	{
+    std::cout<<"Pass Rendering data..."<<std::endl;
 		for (auto gameObject: _rootGameObjects)
 		{
 			BroadcastOnRender(*gameObject, renderer);
@@ -361,7 +362,7 @@ namespace PlatinumEngine
 		if (!VectorHelpers::RemoveFirst(_gameObjects, &gameObject))
 		{
 			PLATINUM_ERROR("Hierarchy is invalid: _gameObjects is missing an element");
-		}
+    }
 
 		delete &gameObject;
 	}

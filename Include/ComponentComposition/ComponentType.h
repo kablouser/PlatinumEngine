@@ -9,9 +9,11 @@ namespace PlatinumEngine
 	public:
 		LightComponent();
 	};
+
 	class CameraComponent : public PlatinumEngine::Component
 	{
 	public:
 		CameraComponent();
 	};
+
 }

@@ -1,8 +1,10 @@
+
 #pragma once
 
 #include <string>
 #include <vector>
 #include <typeinfo>
+#include "ComponentComposition/Component.h"
 
 namespace PlatinumEngine
 {
@@ -18,7 +20,7 @@ namespace PlatinumEngine
 		friend class Component;
 
 	public:
-
+    
 		//--------------------------------------------------------------------------------------------------------------
 		// _isEnabled control
 		//--------------------------------------------------------------------------------------------------------------
@@ -43,7 +45,7 @@ namespace PlatinumEngine
 		// Sets the parent of the current GameObject
 		// Removes it from old parent, updates the parent and then add to new parent
 		void SetParent(GameObject* parent, Scene& scene);
-
+    
 		//--------------------------------------------------------------------------------------------------------------
 		// _children control
 		// note: if you want to remove a child from this GameObject, use GameObject::SetParent(nullptr);
@@ -126,4 +128,6 @@ namespace PlatinumEngine
 		// Uses scene to broadcast events when there's a change
 		void UpdateIsEnabledInHierarchy(Scene& scene);
 	};
+
 }
+

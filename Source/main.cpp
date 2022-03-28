@@ -13,6 +13,8 @@
 #include <WindowManager/WindowManager.h>
 #include <SceneManager/HierarchyWindow.h>
 #include <Logger/Logger.h>
+#include <SceneEditor/SceneEditor.h>
+
 
 #include <OpenGL/GLCheck.h>
 
@@ -72,14 +74,15 @@ int main(int, char**)
 		bool isInputWindowOpen = true;
 		PlatinumEngine::InputManager inputManager;
 
+		bool isSceneEditorOpen = true;
+		PlatinumEngine::Scene scene;
+		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer);
 
 		bool isHierarchyWindowOpen = true;
 		PlatinumEngine::HierarchyWindow hierarchyWindow;
 
 		bool isInspectorWindowOpen = true;
 		PlatinumEngine::InspectorWindow inspectorWindow;
-
-
 
 		PlatinumEngine::WindowManager windowManager;
 
@@ -115,6 +118,15 @@ int main(int, char**)
 			//--------------------------------------------------------------------------------------------------------------
 			// GUI HERE
 			//--------------------------------------------------------------------------------------------------------------
+			//if (isRasterRendererOpen)
+			//	rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
+
+			if (isSceneEditorOpen)
+				sceneEditor.ShowGUIWindow(&isSceneEditorOpen);
+
+			if(isInputWindowOpen)
+				inputManager.ShowGUIWindow(&isInputWindowOpen);
+      
 			if (isRasterRendererOpen)
 				rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
 			if(isInputWindowOpen)

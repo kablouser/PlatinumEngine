@@ -27,6 +27,7 @@ namespace PlatinumEngine
 
 	void Component::SetEnabled(bool isEnabled, Scene& scene)
 	{
+
 		// don't trigger event's if enabled state is not changed
 		if (_isEnabled == isEnabled)
 			return;
@@ -56,7 +57,7 @@ namespace PlatinumEngine
 	{
 		if (_gameObject == gameObject)
 			return;
-
+    
 		if (_gameObject)
 			_gameObject->RemoveComponent(this);
 
@@ -66,6 +67,7 @@ namespace PlatinumEngine
 		_gameObject = gameObject;
 		UpdateIsEnabledInHierarchy(scene);
 	}
+
 
 	//------------------------------------------------------------------------------------------------------------------
 	// Events
@@ -107,7 +109,7 @@ namespace PlatinumEngine
 		else
 			return false;
 	}
-
+  
 	void Component::UpdateIsEnabledInHierarchy(Scene& scene)
 	{
 		bool isEnabledInHierarchyNow = CalculateIsEnabledInHierarchy();
