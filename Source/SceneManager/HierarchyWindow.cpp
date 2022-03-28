@@ -11,9 +11,9 @@ namespace PlatinumEngine
 	void HierarchyWindow::DisplayTreeNote(GameObject* gameObject, Scene& scene)
 	{
 		// Store the states (is expanded or not) of the node
-		bool is_expanded = ImGui::TreeNodeExV(gameObject,
+		bool is_expanded = ImGui::TreeNodeEx(gameObject,
 				ImGuiTreeNodeFlags_FramePadding|(gameObject->GetChildrenCount()==0 ? ImGuiTreeNodeFlags_Leaf : 0),
-				gameObject->name.c_str(), nullptr);
+				"%s", gameObject->name.c_str());
 
 		// Check if this node is clicked
 		if(ImGui::IsItemClicked())
