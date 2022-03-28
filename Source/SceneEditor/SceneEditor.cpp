@@ -158,7 +158,7 @@ namespace PlatinumEngine{
 
 	void SceneEditor::Update(ImVec2 targetSize)
 	{
-
+		std::cout<<_camera.GetCameraPosition()<<std::endl;
 		//--------------------------------------
 		// check if mouse is inside the screen
 		//--------------------------------------

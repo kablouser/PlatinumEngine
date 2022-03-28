@@ -25,6 +25,7 @@ namespace PlatinumEngine
 	EditorCamera::EditorCamera()
 			: _eulerAngle(0.f, 0.f, 0.f),
 			  _translationValue(0.f, 0.f, 10.f),
+			  _cameraPosition(0.f,0.f,0.f),
 			  viewMatrix4(1.f),
 			  projectionMatrix4(1.f),
 			  isOrthogonal(false)
@@ -141,29 +142,41 @@ namespace PlatinumEngine
 
 	void EditorCamera::MoveCamera(PlatinumEngine::Maths::Vec3 eulerAngle, PlatinumEngine::Maths::Vec3 translationValue)
 	{
+
+
 		// update euler angle
 		_eulerAngle += eulerAngle;
 
-		PlatinumEngine::Maths::Mat4 rotationMat4, translationMat4, translation2Mat4;
+		PlatinumEngine::Maths::Mat4 rotationMat4, translationMat4, rotationMat4Inverse, translationMat4Inverse;
 
-		rotationMat4.SetRotationMatrix(-_eulerAngle);
-
+		// get rotation matrix
+		rotationMat4Inverse.SetRotationMatrix(-_eulerAngle);
 
 		// update translation value
-		_translationValue.x += translationValue.x;
-		_translationValue.y += translationValue.y;
-		_translationValue.z += translationValue.z;
+		_translationValue += translationValue;
 
 		// get translation matrix
-		translationMat4.SetTranslationMatrix(-_translationValue);
-
-		// translation2Mat4.SetTranslationMatrix(-_cameraPosition);
-
+		translationMat4Inverse.SetTranslationMatrix(-_translationValue);
 
 		// calculate the new look at matrix by applying the transformation matrix
-		viewMatrix4 = rotationMat4 * translationMat4;
+		viewMatrix4 = rotationMat4Inverse * translationMat4Inverse;
 
 
+
+
+		// get rotation matrix
+		rotationMat4.SetRotationMatrix(_eulerAngle);
+
+		// get translation matrix
+		translationMat4.SetTranslationMatrix(_translationValue);
+
+
+		// update camera position
+		Maths::Vec4 tempVec4 = translationMat4 * rotationMat4 * Maths::Vec4(0.f, 0.f, 0.f, 1.f);
+
+		_cameraPosition.x = tempVec4.x;
+		_cameraPosition.y = tempVec4.y;
+		_cameraPosition.z = tempVec4.z;
 	}
 
 
@@ -185,6 +198,11 @@ namespace PlatinumEngine
 	{
 		projectionMatrix4.SetPerspectiveMatrix( fovy,  aspect,  near,  far);
 
+	}
+
+	const Maths::Vec3& EditorCamera::GetCameraPosition()
+	{
+		return _cameraPosition;
 	}
 
 }
