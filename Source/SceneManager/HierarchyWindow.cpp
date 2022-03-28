@@ -10,7 +10,6 @@ namespace PlatinumEngine
 	// ---FUNCTION
 	void HierarchyWindow::DisplayTreeNote(GameObject* gameObject, Scene& scene)
 	{
-
 		// Store the states (is expanded or not) of the node
 		bool is_expanded = ImGui::TreeNodeExV(gameObject,
 				ImGuiTreeNodeFlags_FramePadding|(gameObject->GetChildrenCount()==0 ? ImGuiTreeNodeFlags_Leaf : 0),
@@ -46,10 +45,11 @@ namespace PlatinumEngine
 
 		}
 
+		// check if the node is expanded
 		if(is_expanded)
 		{
 
-			// Loop through the children
+			// Loop through the children under this node
 			for(int i = 0; i < gameObject->GetChildrenCount(); i++)
 			{
 
@@ -73,11 +73,13 @@ namespace PlatinumEngine
 			for(int i =0 ; i< scene.GetRootGameObjectsCount(); i++)
 			{
 
+				// Create node for this game object
 				DisplayTreeNote(scene.GetRootGameObject(i),scene);
 
 			}
 
 		}
+		// End window
 		ImGui::End();
 	}
 

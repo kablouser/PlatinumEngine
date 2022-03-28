@@ -91,15 +91,11 @@ int main(int, char**)
 		for (int i = 0; i < 5; i++)
 		{
 			scene.AddGameObject("GameObject");
-
 		}
 
 		for (int i = 0; i < 5; i++)
 		{
-
-			scene.AddGameObject("GameObject2", scene.GetRootGameObject(i));
-
-
+			scene.AddGameObject(std::string("GameObject2").append(std::to_string(i)), scene.GetRootGameObject(i));
 		}
 
 		//--------END TEST----------

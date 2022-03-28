@@ -23,6 +23,11 @@ namespace PlatinumEngine
 	public:
 
 		// ---> FUNCTION
+		/**
+		 * Function that show Hierarchy window
+		 * @param isOpen : status of this window (open or not)
+		 * @param scene : scene object reference that carries the game object hierarchy structure
+		 */
 		void ShowGUIWindow(bool* isOpen, Scene& scene);
 
 		// ---> CONSTRUCTOR
@@ -34,6 +39,11 @@ namespace PlatinumEngine
 	private:
 
 		// ---> FUNCTION
+		/**
+		 * Function to display nested tree node for all the game objects in the scene
+		 * @param gameObject : the game object that is processing
+		 * @param scene : scene object reference that carries the game object hierarchy structure
+		 */
 		void DisplayTreeNote(GameObject* gameObject, Scene& scene);
 
 	};
