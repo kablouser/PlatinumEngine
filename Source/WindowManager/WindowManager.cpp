@@ -37,6 +37,64 @@ namespace PlatinumEngine
 	}
 
 	///--------------------------------------------------------------------------
+	/// Set up the main menu for basic Window
+	///--------------------------------------------------------------------------
+	void WindowManager::SetUpMainMenu()
+	{
+		if (ImGui::BeginMainMenuBar())
+		{
+			///---------------------------------------------------------------
+			/// File component
+			///---------------------------------------------------------------
+			if (ImGui::BeginMenu("File"))
+			{
+				ShowMenuFile();
+				ImGui::EndMenu();
+			}
+			///---------------------------------------------------------------
+			/// File component
+			///---------------------------------------------------------------
+			if (ImGui::BeginMenu("Edit"))
+			{
+				ShowMenuEdit();
+				ImGui::EndMenu();
+			}
+			///---------------------------------------------------------------
+			/// GameObject component
+			///---------------------------------------------------------------
+			if (ImGui::BeginMenu("GameObject"))
+			{
+				ShowMenuGameObject();
+				ImGui::EndMenu();
+			}
+			///---------------------------------------------------------------
+			/// Window component
+			///---------------------------------------------------------------
+			if (ImGui::BeginMenu("Window"))
+			{
+				if (ImGui::MenuItem("Game", "Ctrl+1", &_showWindowGame))
+				{}
+				if (ImGui::MenuItem("Hierarchy", "Ctrl+2", &_showWindowHierarchy))
+				{}
+				if (ImGui::MenuItem("Inspector", "Ctrl+3", &_showWindowInspector))
+				{}
+				if (ImGui::MenuItem("Project", "Ctrl+4", &_showWindowProject))
+				{}
+				if (ImGui::MenuItem("Scene", "Ctrl+5", &_showWindowScene))
+				{}
+				if (ImGui::MenuItem("Animation", "Ctrl+6", &_showWindowAnimation))
+				{}
+				if (ImGui::MenuItem("Audio", "Ctrl+7", &_showWindowAudio))
+				{}
+				if (ImGui::MenuItem("Lighting", "Ctrl+8", &_showWindowLight))
+				{}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMainMenuBar();
+		}
+	}
+
+	///--------------------------------------------------------------------------
 	/// This section is for main menu bar "file" part file dialog showing
 	///--------------------------------------------------------------------------
 	void WindowManager::LoadFile()
@@ -124,64 +182,7 @@ namespace PlatinumEngine
 		{}
 	}
 
-	///--------------------------------------------------------------------------
-	/// Set up the main menu for basic Window
-	///--------------------------------------------------------------------------
-	void WindowManager::SetUpMainMenu()
-	{
-		if (ImGui::BeginMainMenuBar())
-		{
-			///---------------------------------------------------------------
-			/// File component
-			///---------------------------------------------------------------
-			if (ImGui::BeginMenu("File"))
-			{
-				ShowMenuFile();
-				ImGui::EndMenu();
-			}
-			///---------------------------------------------------------------
-			/// File component
-			///---------------------------------------------------------------
-			if (ImGui::BeginMenu("Edit"))
-			{
-				ShowMenuEdit();
-				ImGui::EndMenu();
-			}
-			///---------------------------------------------------------------
-			/// GameObject component
-			///---------------------------------------------------------------
-			if (ImGui::BeginMenu("GameObject"))
-			{
-				ShowMenuGameObject();
-				ImGui::EndMenu();
-			}
 
-			///---------------------------------------------------------------
-			/// Window component
-			///---------------------------------------------------------------
-			if (ImGui::BeginMenu("Window"))
-			{
-				if (ImGui::MenuItem("Game", "Ctrl+1", &_showWindowGame))
-				{}
-				if (ImGui::MenuItem("Hierarchy", "Ctrl+2", &_showWindowHierarchy))
-				{}
-				if (ImGui::MenuItem("Inspector", "Ctrl+3", &_showWindowInspector))
-				{}
-				if (ImGui::MenuItem("Project", "Ctrl+4", &_showWindowProject))
-				{}
-				if (ImGui::MenuItem("Scene", "Ctrl+5", &_showWindowScene))
-				{}
-				if (ImGui::MenuItem("Animation", "Ctrl+6", &_showWindowAnimation))
-				{}
-				if (ImGui::MenuItem("Audio", "Ctrl+7", &_showWindowAudio))
-				{}
-				if (ImGui::MenuItem("Lighting", "Ctrl+8", &_showWindowLight))
-				{}
-				ImGui::EndMenu();
-			}
-			ImGui::EndMainMenuBar();
-		}
-	}
 	///--------------------------------------------------------------------------
 	///   ---                                                               ---
 	///   | Section: Please implement GUI in the corresponding function below |
