@@ -8,12 +8,13 @@
 #include <GLFW/glfw3.h>
 
 #include <InputManager/InputManager.h>
+#include <Inspector/InspectorWindow.h>
 #include <Renderer/Renderer.h>
 #include <WindowManager/WindowManager.h>
+#include <SceneManager/HierarchyWindow.h>
 #include <Logger/Logger.h>
 
 #include <OpenGL/GLCheck.h>
-
 
 static void GlfwErrorCallback(int error, const char* description)
 {
@@ -71,7 +72,35 @@ int main(int, char**)
 		bool isInputWindowOpen = true;
 		PlatinumEngine::InputManager inputManager;
 
+
+		bool isHierarchyWindowOpen = true;
+		PlatinumEngine::HierarchyWindow hierarchyWindow;
+
+		bool isInspectorWindowOpen = true;
+		PlatinumEngine::InspectorWindow inspectorWindow;
+
+
+
 		PlatinumEngine::WindowManager windowManager;
+
+
+		//---------TEST-----------
+
+		PlatinumEngine::Scene scene;
+
+		for (int i = 0; i < 5; i++)
+		{
+			scene.AddGameObject("GameObject");
+		}
+
+		for (int i = 0; i < 5; i++)
+		{
+			scene.AddGameObject(std::string("GameObject2").append(std::to_string(i)), scene.GetRootGameObject(i));
+		}
+
+		//--------END TEST----------
+
+
 
 		// Main loop
 		while (!glfwWindowShouldClose(window))
@@ -87,11 +116,20 @@ int main(int, char**)
 			// GUI HERE
 			//--------------------------------------------------------------------------------------------------------------
 			if (isRasterRendererOpen)
-				rasterRenderer.Render(&isRasterRendererOpen);
+				rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);
+			if(isHierarchyWindowOpen)
+			{
+				hierarchyWindow.ShowGUIWindow(&isHierarchyWindowOpen, scene);
+				inspectorWindow.SetActiveGameObject(hierarchyWindow.selectedGameObject);
+
+				if(isInspectorWindowOpen)
+					inspectorWindow.ShowGUIWindow(&isInspectorWindowOpen);
+			}
 			if(isLoggerOpen)
 				logger.ShowGUIWindow(&isLoggerOpen);
+
 			windowManager.ShowGUI();
 			//--------------------------------------------------------------------------------------------------------------
 			// END OF GUI
@@ -111,6 +149,8 @@ int main(int, char**)
 
 			glfwSwapBuffers(window);
 		}
+
+
 
 		// Cleanup ImGui
 		ImGui_ImplOpenGL3_Shutdown();

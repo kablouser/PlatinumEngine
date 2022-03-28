@@ -3,84 +3,127 @@
 #include <string>
 #include <vector>
 #include <typeinfo>
-#include "ComponentComposition/Component.h"
-
-#include "iostream"
-
 
 namespace PlatinumEngine
 {
+	class Scene;
+
+	class Component;
+
 	class GameObject
 	{
-	public:
 		friend class Scene;
-		std::string name;
+
+		// only friends with base Component class, not its derivatives
+		friend class Component;
+
 	public:
-		GameObject();
-		GameObject(std::string name);
-		~GameObject();
 
-		bool IsEnabled();
-		void SetEnabled(bool enableFlag);
+		//--------------------------------------------------------------------------------------------------------------
+		// _isEnabled control
+		//--------------------------------------------------------------------------------------------------------------
 
+		// Inconsiderate of hierarchy
+		bool IsEnabled() const;
+
+		void SetEnabled(bool isEnabled, Scene& scene);
+
+		/**
+		 * @return true iff this and all its' parents are enabled, false otherwise
+		 */
+		bool IsEnabledInHierarchy() const;
+
+		//--------------------------------------------------------------------------------------------------------------
+		// _parent control
+		//--------------------------------------------------------------------------------------------------------------
+
+		// Gets the parent of the current GameObject
 		GameObject* GetParent();
-		void SetParent(GameObject* parent);
 
-		int GetChildrenCount();
-		GameObject* GetChild(int index);
+		// Sets the parent of the current GameObject
+		// Removes it from old parent, updates the parent and then add to new parent
+		void SetParent(GameObject* parent, Scene& scene);
 
-		void RemoveComponent(int index);
-		int GetComponentCount();
+		//--------------------------------------------------------------------------------------------------------------
+		// _children control
+		// note: if you want to remove a child from this GameObject, use GameObject::SetParent(nullptr);
+		//--------------------------------------------------------------------------------------------------------------
 
-		int GetChildIndex(GameObject* child);
-		void RemoveChild(GameObject* child);
+		// Returns children count
+		size_t GetChildrenCount() const;
 
-		//Adds a component
-		template <class T> void AddComponent (T *component)
+		// Returns child at index
+		GameObject* GetChild(size_t index);
+
+		// Returns index of child based on their name
+		// (size_t)-1 if it doesn't exist
+		size_t GetChildIndex(GameObject* child) const;
+
+		//--------------------------------------------------------------------------------------------------------------
+		// _components control
+		//--------------------------------------------------------------------------------------------------------------
+
+		// Current component count
+		size_t GetComponentCount() const;
+
+		Component* GetComponent(size_t index);
+
+		// Returns existing component or nullptr if it doesn't exist
+		template<class T>
+		T* GetComponent()
 		{
-			if(!HasComponent<T>())
-				_components.emplace_back(component);
+			return dynamic_cast<T*>(GetComponentInternal(typeid(T)));
 		}
 
-		//Checks if GameObject has the component
-		template<class T> bool HasComponent()
-		{
-			for(auto& c:_components)
-				if(typeid(*c)==typeid(T))
-					return true;
-			return false;
-		}
-
-		//Returns existing component or nullptr if it doesn't exist
-		template<class T> T* GetComponent()
-		{
-			for(auto& c:_components)
-				if(typeid(*c)==typeid(T))
-					return dynamic_cast<T*>(c);
-			return nullptr;
-		}
-
-		//Removes component
-		template<class T> void RemoveComponent()
-		{
-			int index=-1, counter=0;
-			for(auto& c:_components)
-			{
-				if(typeid(*c)==typeid(T))
-				{
-					index=counter;
-					break;
-				}
-				counter++;
-			}
-			if(index>=0)
-				RemoveComponent(index);
-		}
+		std::string name;
 
 	private:
-		bool _isEnabled;
+
+		//--------------------------------------------------------------------------------------------------------------
+		// Constructors/destructors
+		//--------------------------------------------------------------------------------------------------------------
+
+		GameObject();
+
+		explicit GameObject(std::string name = "GameObject", GameObject* parent = nullptr, bool isEnabled = true);
+
+		~GameObject();
+
+		// Cannot copy/move. Complex scene hierarchy structure cannot be determined from this object alone.
+		// Use Scene to copy/move GameObjects
+		GameObject(GameObject const&) = delete;
+
+		GameObject& operator=(GameObject const&) = delete;
+
+		GameObject(GameObject&&) noexcept = delete;
+
+		GameObject& operator=(GameObject&&) noexcept = delete;
+
 		GameObject* _parent;
+		bool _isEnabled;
+		bool _isEnabledInHierarchy;
 		std::vector<GameObject*> _children;
 		std::vector<Component*> _components;
+
+		//--------------------------------------------------------------------------------------------------------------
+		// Internal controls
+		//--------------------------------------------------------------------------------------------------------------
+
+		Component* GetComponentInternal(const std::type_info& typeInfo);
+
+		// note: if you want to remove child from this GameObject, use GameObject::SetParent(nullptr);
+		void RemoveChild(GameObject* child);
+
+		// note: if you want to remove component from this GameObject, use Component::SetGameObject(nullptr);
+		void RemoveComponent(Component* component);
+
+		// Calculates whether the current value of IsEnabledInHierarchy using this parent
+		// relies on parent being in a valid state
+		bool CalculateIsEnabledInHierarchy() const;
+
+		// Must be called everytime IsEnabledInHierarchy might be changed
+		// IsEnabledInHierarchy might change if _parent or _isEnabled is changed
+		// Uses scene to broadcast events when there's a change
+		void UpdateIsEnabledInHierarchy(Scene& scene);
 	};
 }
