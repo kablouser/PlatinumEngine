@@ -7,9 +7,9 @@
 // Platinum Library
 #include <Renderer/Renderer.h>
 #include <SceneEditor/EditorCamera.h>
-#include <SceneEditor/InputManagerExtend.h>
 #include <SceneManager/Scene.h>
 #include <OpenGL/Framebuffer.h>
+#include <InputManager/InputManager.h>
 
 namespace PlatinumEngine
 {

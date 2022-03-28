@@ -89,8 +89,6 @@ int main(int, char**)
 
 		//---------TEST-----------
 
-		PlatinumEngine::Scene scene;
-
 		for (int i = 0; i < 5; i++)
 		{
 			scene.AddGameObject("GameObject");
@@ -118,17 +116,13 @@ int main(int, char**)
 			//--------------------------------------------------------------------------------------------------------------
 			// GUI HERE
 			//--------------------------------------------------------------------------------------------------------------
-			//if (isRasterRendererOpen)
-			//	rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
 
 			if (isSceneEditorOpen)
 				sceneEditor.ShowGUIWindow(&isSceneEditorOpen);
 
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);
-      
-			if (isRasterRendererOpen)
-				rasterRenderer.ShowGUIWindow(&isRasterRendererOpen);
+
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);
 			if(isHierarchyWindowOpen)

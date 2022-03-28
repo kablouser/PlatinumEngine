@@ -23,7 +23,7 @@ namespace PlatinumEngine
 		Mesh& GetMesh();
 
 		// override the OnRender() of the Component
-		void OnRender(Renderer &render) override;
+		void OnRender(Scene& scene, Renderer &render) override;
 
 	private:
 		Mesh _mesh;

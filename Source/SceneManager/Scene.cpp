@@ -191,7 +191,6 @@ namespace PlatinumEngine
 
 	void Scene::Render(Renderer& renderer)
 	{
-    std::cout<<"Pass Rendering data..."<<std::endl;
 		for (auto gameObject: _rootGameObjects)
 		{
 			BroadcastOnRender(*gameObject, renderer);

@@ -25,12 +25,10 @@ namespace PlatinumEngine
 			_isEnabledInHierarchy(false)
 	{
 		_isEnabledInHierarchy = CalculateIsEnabledInHierarchy();
-		PLATINUM_INFO("GameObject constructed");
 	}
 
 	GameObject::~GameObject()
 	{
-		PLATINUM_INFO("GameObject destroyed");
 	}
 
 	//--------------------------------------------------------------------------------------------------------------

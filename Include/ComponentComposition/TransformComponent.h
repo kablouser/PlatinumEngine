@@ -1,5 +1,4 @@
-#ifndef PLATINUMENGINE_TRANSFORMCOMPONENT_H
-#define PLATINUMENGINE_TRANSFORMCOMPONENT_H
+#pragma once
 
 #include "Maths/Vectors.h"
 #include "Maths/Quaternion.h"
@@ -8,7 +7,7 @@
 
 namespace PlatinumEngine
 {
-	class TransformComponent: Component
+	class TransformComponent : public Component
 	{
 	public:
 		Maths::Vec3 position;
@@ -30,5 +29,3 @@ namespace PlatinumEngine
 		void LookAt(Maths::Vec3 target);
 	};
 }
-
-#endif //PLATINUMENGINE_TRANSFORMCOMPONENT_H

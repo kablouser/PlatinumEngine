@@ -69,16 +69,12 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
 
-
+	"Source/ComponentComposition/CameraComponent.cpp;"
 	"Source/ComponentComposition/Component.cpp;"
 	"Source/ComponentComposition/ComponentType.cpp;"
 	"Source/ComponentComposition/GameObject.cpp;"
-
-
-	
-	"Source/ComponentComposition/Component.cpp;"
-	"Source/ComponentComposition/ComponentType.cpp;"
-	"Source/ComponentComposition/GameObject.cpp;"
+	"Source/ComponentComposition/RenderComponent.cpp;"
+	"Source/ComponentComposition/TransformComponent.cpp;"
 	
 	"Source/InputManager/InputManager.cpp;"
 	
@@ -90,43 +86,26 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/Logger/Logger.cpp;"
 	
 	"Source/Maths/Matrices.cpp;"
-
+	"Source/Maths/Quaternion.cpp;"
 	"Source/Maths/Vectors.cpp;"
 	
 	"Source/OpenGL/Framebuffer.cpp;"
 	"Source/OpenGL/GLCheck.cpp;"
 	"Source/OpenGL/GLEnumInfo.cpp;"
 	"Source/OpenGL/Mesh.cpp;"
-
 	"Source/OpenGL/ShaderInput.cpp;"
-	"Source/SceneEditor/SceneEditor.cpp;"
-  	"Source/SceneEditor/EditorCamera.cpp;"
-	"Source/SceneEditor/InputManagerExtend.cpp;"
-	"Source/WindowManager/WindowManager.cpp;"
-	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
 	"Source/OpenGL/ShaderProgram.cpp;"
-
-
 	"Source/OpenGL/Texture.cpp;"
-
+	
 	"Source/Renderer/Renderer.cpp;"
 	
-	"Source/SceneEditor/SceneEditor.cpp;"
 	"Source/SceneEditor/EditorCamera.cpp;"
+	"Source/SceneEditor/SceneEditor.cpp;"
 	
+	"Source/SceneManager/HierarchyWindow.cpp;"
 	"Source/SceneManager/Scene.cpp;"
 	"Source/SceneManager/SceneManager.cpp;"
-	"Source/SceneManager/HierarchyWindow.cpp;"
 	
-	"Source/WindowManager/WindowManager.cpp;"
-	
-	"Source/SceneManager/Scene.cpp;"
-	
-	"Source/SceneEditor/EditorCamera.cpp;"
-
-	"Source/SceneEditor/SceneEditor.cpp;"
-	"Source/SceneEditor/EditorCamera.cpp;"
-	"Source/SceneManager/Scene.cpp;"
 	"Source/WindowManager/Filedialog.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
 	)

@@ -5,12 +5,10 @@ namespace PlatinumEngine
 	{
 		Quaternion::Quaternion(): x(0.f), y(0.f), z(0.f), w(1.f)
 		{
-			identity.Set(0.f,0.f,0.f,1.f);
 		}
 
 		Quaternion::Quaternion(float x, float y, float z, float w): x(x), y(y), z(z), w(w)
 		{
-			identity.Set(0.f,0.f,0.f,1.f);
 		}
 
 		Quaternion::~Quaternion()
@@ -161,7 +159,7 @@ namespace PlatinumEngine
 
 		// Static Methods
 
-		static Quaternion Normalise(Quaternion &q)
+		Quaternion Quaternion::Normalise(Quaternion &q)
 		{
 			float n = q.Norm();
 			float invN = 1.f/n;
@@ -169,7 +167,7 @@ namespace PlatinumEngine
 			return r;
 		}
 
-		static Quaternion Conjugate(Quaternion &q)
+		Quaternion Quaternion::Conjugate(Quaternion &q)
 		{
 			Quaternion r;
 			r.x = q.x * -1.f;
@@ -179,7 +177,7 @@ namespace PlatinumEngine
 			return r;
 		}
 
-		static Quaternion Inverse(Quaternion &q)
+		Quaternion Quaternion::Inverse(Quaternion &q)
 		{
 			float n=q.Norm();
 			n=1.f/(n*n);
@@ -187,12 +185,12 @@ namespace PlatinumEngine
 			return r;
 		}
 
-		static float Angle(Quaternion a, Quaternion b)
+		float Quaternion::Angle(Quaternion a, Quaternion b)
 		{
 			return 2 * acos(abs(glm::clamp(a.Dot(b),- 1.f,1.f)));
 		}
 
-		static Quaternion Slerp(Quaternion a, Quaternion b, float t)
+		Quaternion Quaternion::Slerp(Quaternion a, Quaternion b, float t)
 		{
 			if ( t == 0 ) return a;
 			if ( t == 1 ) return b;
@@ -241,7 +239,7 @@ namespace PlatinumEngine
 			return r;
 		}
 
-		static Vec3 QuatToEuler(Quaternion q)
+		Vec3 Quaternion::QuatToEuler(Quaternion q)
 		{
 			float t0 = 2. * (q.w*q.x + q.y*q.z);
 			float t1 = 1.f - 2.f * (q.x*q.x + q.y*q.y);
@@ -257,7 +255,7 @@ namespace PlatinumEngine
 			return v;
 		}
 
-		static Quaternion EulerToQuat(Vec3 euler)
+		Quaternion Quaternion::EulerToQuat(Vec3 euler)
 		{
 			float yaw = euler.x/2.f, pitch = euler.y/2.f, roll = euler.z/2.f;
 			float sinroll = sin(roll), sinpitch = sin(pitch), sinyaw = sin(yaw);
@@ -269,7 +267,7 @@ namespace PlatinumEngine
 			return Quaternion(qx, qy, qz, qw);
 		}
 
-		static Quaternion AngleAxis(Vec3 axis, float angle)
+		Quaternion Quaternion::AngleAxis(Vec3 axis, float angle)
 		{
 			float halfAngle = angle * .5f;
 			float s = sin(halfAngle);
@@ -280,5 +278,7 @@ namespace PlatinumEngine
 			q.w = cos(halfAngle);
 			return q;
 		}
+
+		Quaternion Quaternion::identity;
 	}
 }

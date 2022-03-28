@@ -1,5 +1,4 @@
-#ifndef PLATINUMENGINE_QUATERNION_H
-#define PLATINUMENGINE_QUATERNION_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include "math.h"
@@ -49,4 +48,3 @@ namespace PlatinumEngine
 		};
 	}
 }
-#endif //PLATINUMENGINE_QUATERNION_H

@@ -12,6 +12,10 @@ namespace PlatinumEngine
 		right = Maths::Vec3(1.f,0.f,0.f);
 	}
 
+	TransformComponent::~TransformComponent()
+	{
+	}
+
 	void TransformComponent::Translate(Maths::Vec3 translation)
 	{
 		position += translation;

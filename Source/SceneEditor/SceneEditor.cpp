@@ -17,12 +17,12 @@ namespace PlatinumEngine{
 	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer):
 			_ifCameraSettingWindowOpen(false),
 			_camera(), _fov(60), _near(4), _far(10000),_inputManager(inputManager), _scene(scene),
-			_mouseMoveDelta(0, 0) ,_mouseButtonType(InputManagerExtend::MouseButtonType::none),
+			_mouseMoveDelta(0, 0) ,_mouseButtonType(-1),
 			_wheelValueDelta(0),_renderTexture(), _renderer(renderer)
 
 	{
-		_inputManager->CreateAxis(std::string ("Horizontal"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManagerExtend::AxisType::keyboardMouseButton);
-		_inputManager->CreateAxis(std::string ("Vertical"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManagerExtend::AxisType::keyboardMouseButton);
+		_inputManager->CreateAxis(std::string ("Horizontal"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
+		_inputManager->CreateAxis(std::string ("Vertical"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
 
 
 		_framebufferWidth = 1;
@@ -238,7 +238,7 @@ namespace PlatinumEngine{
 		//------------------------------------------
 		// Update rendering information to renderer
 		//------------------------------------------
-		_scene->Render(_renderer);
+		_scene->Render(*_renderer);
 
 		//--------------------
 		// Render Objects
@@ -267,7 +267,7 @@ namespace PlatinumEngine{
 //			Mesh mesh(vertices, indices);
 			RenderComponent renderComponent;
 			_renderer->Begin();
-			renderComponent.OnRender(*_renderer);
+			renderComponent.OnRender(*_scene, *_renderer);
 			_renderer->SetModelMatrix();
 			_renderer->SetViewMatrix(_camera.viewMatrix4);
 			_renderer->SetProjectionMatrix(_camera.projectionMatrix4);

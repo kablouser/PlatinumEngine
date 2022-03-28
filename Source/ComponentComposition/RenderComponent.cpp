@@ -7,7 +7,7 @@ namespace PlatinumEngine
 {
 	RenderComponent::RenderComponent()
 	{
-		LoadMesh("C:/Users/asus/Desktop/course/games101/Assignment3/models/rock/rock.obj");
+		//LoadMesh("C:/Users/asus/Desktop/course/games101/Assignment3/models/rock/rock.obj");
 	}
 	RenderComponent::~RenderComponent() {}
 
@@ -17,7 +17,7 @@ namespace PlatinumEngine
 		// _material = material;
 	}
 
-	void RenderComponent::OnRender(Renderer &render)
+	void RenderComponent::OnRender(Scene& scene, Renderer &render)
 	{
 		_shaderInput.Draw();
 	}
