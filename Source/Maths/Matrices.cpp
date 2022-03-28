@@ -232,7 +232,7 @@ namespace PlatinumEngine
 			return result;
 
 		}
-
+    
 		Mat3 Mat3::operator*(Mat3 anotherMat3)
 		{
 
@@ -300,7 +300,6 @@ namespace PlatinumEngine
 
 		Mat3 Mat3::operator-(Mat3 otherMatrix)
 		{
-
 			Mat3 result;
 
 			for (int y = 0; y < 3; y++)
@@ -365,7 +364,7 @@ namespace PlatinumEngine
 									0, 0, scale.z };
 
 			this->ConvertFromArray(scaleMatrix, 9);
-
+      
 		}
 
 	}

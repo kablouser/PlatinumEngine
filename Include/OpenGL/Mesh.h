@@ -7,6 +7,7 @@
 #include <vector>
 #include <OpenGL/Vertex.h>
 #include <OpenGL/Texture.h>
+#include <OpenGL/GLCheck.h>
 
 namespace PlatinumEngine {
 	/**
@@ -15,16 +16,11 @@ namespace PlatinumEngine {
 	 */
 	class Mesh {
 	public:
-		Mesh();
-		Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices);
-		std::vector<Vertex> GetVertices() const;
-		void SetVertices(std::vector<Vertex> &vertices);
-		std::vector<unsigned int> GetIndices() const;
-		void SetIndices(std::vector<unsigned int> &indices);
+		std::vector<Vertex> vertices;
+		std::vector<unsigned int> indices;
 
-	private:
-		std::vector<Vertex> _vertices;
-		std::vector<unsigned int> _indices;
-//		Texture *_texture;
+		Mesh();
+		Mesh(std::vector<Vertex> newVertices, std::vector<unsigned int> newIndices);
+		~Mesh();
 	};
 }

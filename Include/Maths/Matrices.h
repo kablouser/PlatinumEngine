@@ -83,8 +83,6 @@ namespace PlatinumEngine
 			Matrix(); // create empty matrix
 			explicit Matrix(T valueForPacking); // fill the matrix (the std::vector) with valueForPacking
 
-
-
 			//___VARIABLE___
 			T matrix[numberOfRow * numberOfColumn];
 
@@ -126,12 +124,6 @@ namespace PlatinumEngine
 	}
 }
 
-
-
-
-//------------------------
-//  Matrix Class
-//------------------------
 
 namespace PlatinumEngine
 {
@@ -246,6 +238,7 @@ namespace PlatinumEngine
 			// initiate the matrix with 0
 			memset(this->matrix, 0, sizeof(this->matrix));
 
+
 			// get the length of diagonal
 			int diagonalLength = 0;
 
@@ -336,7 +329,6 @@ namespace PlatinumEngine
 		{
 			if(arraySize == numberOfRow * numberOfColumn )
 				memcpy(this->matrix, array, numberOfRow * numberOfColumn * sizeof(T));
-
 		}
 
 		//-------------------------------------------

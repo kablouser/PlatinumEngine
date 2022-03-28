@@ -4,9 +4,7 @@
 
 #pragma once
 
-// math library
-#include <glm/gtc/quaternion.hpp>
-
+#include "Maths/Matrices.h"
 
 namespace PlatinumEngine
 {
@@ -14,13 +12,15 @@ namespace PlatinumEngine
 	{
 	public:
 		// VARIABLE
-		glm::mat4 lookAtMatrix4;
-		bool isFirstMousePress = false;
-		bool isFirstMouseWheelPress = false;
-		enum KeyType
-		{
-			up, down, left, right
-		};
+
+		// Camera relative Matrix
+		Maths::Mat4 viewMatrix4;
+		Maths::Mat4 projectionMatrix4;
+
+		// Flags
+		bool isOrthogonal;
+
+		enum AxisType{horizontalAxis, verticalAxis};
 
 
 		// FUNCTION
@@ -29,14 +29,21 @@ namespace PlatinumEngine
 		 * @param eulerAngle
 		 * @param translationValue
 		 */
-		void MoveCamera(glm::vec3 eulerAngle, glm::vec3 translationValue);
+		void MoveCamera(Maths::Vec3 eulerAngle,
+				Maths::Vec3 translationValue);
 
 
 		/**
 		 * Accept mouse input and rotate camera based on the mouse position.
 		 * @param delta
 		 */
-		void RotationByMouse(glm::vec2 delta);
+		void RotationByMouse(Maths::Vec2 delta);
+
+		/**
+		 * Rotate the camera by euler angle
+		 * @param eulerAngle : the euler angle
+		 */
+		void RotateCamera(Maths::Vec3 eulerAngle);
 
 
 		/**
@@ -44,7 +51,7 @@ namespace PlatinumEngine
 		 * based on the mouse position.
 		 * @param newMousePosition
 		 */
-		void TranslationByMouse(glm::vec2 newMousePosition);
+		void TranslationByMouse(Maths::Vec2 newMousePosition);
 
 		/**
 		 * Accept mouse input and translate camera (forward or backward)
@@ -58,24 +65,38 @@ namespace PlatinumEngine
 		 * based on the mouse wheel delta value.
 		 * @param type
 		 */
-		void TranslationByKeyBoard(KeyType type);
+		void TranslationByKeyBoard(float x, float y);
 
 		/**
-		 * Update the initial mouse position.
-		 * @param delta
+		 * Translate
+		 * @param movement : the translation direction with magnitude
 		 */
-		void UpdateInitialMousePosition(glm::vec2 delta);
+		void TranslateCamera(Maths::Vec3 translateMovement);
 
 		/**
 		 * The three functions are to calculate new up/forward/right
 		 * direction by the newest view matrix
 		 * @return glm::vec3 is the new up/forward/right direction
 		 */
-		glm::vec3 GetUpDirection();
-		glm::vec3 GetForwardDirection();
-		glm::vec3 GetRightDirection();
+		Maths::Vec3 GetUpDirection();
+		Maths::Vec3 GetForwardDirection();
+		Maths::Vec3 GetRightDirection();
 
 
+
+		/**
+		 * Functions for updating the projection matrix
+		 * @param left
+		 * @param right
+		 * @param bottom
+		 * @param top
+		 * @param near
+		 * @param far
+		 * ...
+		 */
+		void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far);
+		void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
+		void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
 
 		// CONSTRUCTOR
 		EditorCamera();
@@ -85,11 +106,12 @@ namespace PlatinumEngine
 		// PARAMETER
 
 		// transformation
-		glm::vec3 _eulerAngle;
-		glm::vec3 _translationValue;
+		Maths::Vec3 _eulerAngle;
+		Maths::Vec3 _translationValue;
+		Maths::Vec3 _cameraPosition; // need this position is because we need to adjust the camera position
+									 // after the user change the fov of the camera)
 
 		// device input data
-		glm::vec2 _initialMousePosition;
 		float _translationSpeed = 0.005;
 		float _rotationSpeed = 0.005;
 

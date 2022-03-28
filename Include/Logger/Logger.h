@@ -5,6 +5,7 @@
 
 namespace PlatinumEngine
 {
+
 	/**
 	 * Macro for logging information using function syntax.
 	 * Prints message into console and saves into any constructed Loggers.
@@ -34,36 +35,45 @@ namespace PlatinumEngine
 	 * Global functions allow logging from any place without a reference to a logger.
 	 * A logger instance will then save any logs during its lifetime. And display those logs in a ImGui window.
 	 */
+
 	class Logger
 	{
 	public:
+
 
 		enum class LogType {info, warning, error};
 
 		class Log
 		{
 		public:
+
 			// ImGui InputText requires a unique string for highlighting to work. This is that.
+
 			std::string uniqueID;
 			LogType type;
 			std::string message;
 		};
 
 		// You shouldn't use these functions directly, use the macros instead.
+
 		static void LogInfo(const std::string& message, const char* file = nullptr, unsigned int line = 0);
 		static void LogWarning(const std::string& message, const char* file = nullptr, unsigned int line = 0);
 		static void LogError(const std::string& message, const char* file = nullptr, unsigned int line = 0);
+
 		static void LogInfo(const char* message, const char* file = nullptr, unsigned int line = 0);
 		static void LogWarning(const char* message, const char* file = nullptr, unsigned int line = 0);
 		static void LogError(const char* message, const char* file = nullptr, unsigned int line = 0);
 
+
 		/**
 		 * Logs saved during the lifetime of this Logger object.
 		 */
+
 		std::vector<Log> savedLogs;
 
 		/*
 		 * Starts saving logs inside of this object
+
 		 */
 		Logger();
 
@@ -91,6 +101,8 @@ namespace PlatinumEngine
 		unsigned int _nextUniqueID;
 		// should this window scroll to the bottom of the logs?
 		bool _scrollToBottom;
+
+
 	};
 
 	/**

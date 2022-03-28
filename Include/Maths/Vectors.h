@@ -18,6 +18,7 @@ namespace PlatinumEngine {
 			Vec4();
 			Vec4(float x, float y, float z);
 			Vec4(float x, float y, float z, float w);
+      
 			Vec4 operator-() const;
 			Vec4& operator+=(const Vec4 &v);
 			Vec4& operator-=(const Vec4 &v);

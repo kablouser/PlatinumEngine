@@ -11,9 +11,6 @@
 
 namespace PlatinumEngine
 {
-
-
-
 	InputManager::InputManager()
 	{
 		///--------------------------------------------------------------------------
@@ -36,8 +33,8 @@ namespace PlatinumEngine
 		axis.negativeKey = GLFW_KEY_UNKNOWN;
 		axis.type = AxisType::keyboardMouseButton;
 		_axes.push_back(axis);
-
-
+		_clickedMouseButton = -1;
+		_previousMousePosition = ImVec2(0.f,0.f);
 	}
 
 	void InputManager::ShowGUIWindow(bool* outIsOpen)
@@ -89,9 +86,9 @@ namespace PlatinumEngine
 	{
 		switch (button)
 		{
-			case 0: return ImGui::IsMouseClicked(ImGuiMouseButton_Left);
-			case 1: return ImGui::IsMouseClicked(ImGuiMouseButton_Right);
-			case 2: return ImGui::IsMouseClicked(ImGuiMouseButton_Middle);
+		case 0: return ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+		case 1: return ImGui::IsMouseClicked(ImGuiMouseButton_Right);
+		case 2: return ImGui::IsMouseClicked(ImGuiMouseButton_Middle);
 		}
 		return false;
 	}
@@ -101,9 +98,9 @@ namespace PlatinumEngine
 	{
 		switch (button)
 		{
-			case 0: return ImGui::IsMouseDown(ImGuiMouseButton_Left);
-			case 1: return ImGui::IsMouseDown(ImGuiMouseButton_Right);
-			case 2: return ImGui::IsMouseDown(ImGuiMouseButton_Middle);
+		case 0: return ImGui::IsMouseDown(ImGuiMouseButton_Left);
+		case 1: return ImGui::IsMouseDown(ImGuiMouseButton_Right);
+		case 2: return ImGui::IsMouseDown(ImGuiMouseButton_Middle);
 		}
 		return false;
 	}
@@ -113,9 +110,9 @@ namespace PlatinumEngine
 	{
 		switch (button)
 		{
-			case 0: return ImGui::IsMouseReleased(ImGuiMouseButton_Left);
-			case 1: return ImGui::IsMouseReleased(ImGuiMouseButton_Right);
-			case 2: return ImGui::IsMouseReleased(ImGuiMouseButton_Middle);
+		case 0: return ImGui::IsMouseReleased(ImGuiMouseButton_Left);
+		case 1: return ImGui::IsMouseReleased(ImGuiMouseButton_Right);
+		case 2: return ImGui::IsMouseReleased(ImGuiMouseButton_Middle);
 		}
 		return false;
 	}
@@ -128,6 +125,15 @@ namespace PlatinumEngine
 		ImVec2 mousePositionRelative = ImVec2(mousePositionAbsolute.x - screenPositionAbsolute.x, mousePositionAbsolute.y - screenPositionAbsolute.y);
 		return mousePositionRelative;
 		//Relative to the current screen (might need to change this)
+	}
+
+	//Returns the current mouse button being pressed
+	int InputManager::GetMouseDown()
+	{
+		if(ImGui::IsMouseDown(ImGuiMouseButton_Left)) return 0;
+		else if(ImGui::IsMouseDown(ImGuiMouseButton_Right)) return 1;
+		else if(ImGui::IsMouseDown(ImGuiMouseButton_Middle)) return 2;
+		else return -1;
 	}
 
 	//Checks for Key Press Action
@@ -204,5 +210,98 @@ namespace PlatinumEngine
 		// produce warning/error here
 		return 0.0f;
 		//NEED MORE REFINEMENT AND IMPROVEMENT
+	}
+
+	//Creates an empty axis with a name
+	void InputManager::CreateAxis(std::string axisName)
+	{
+		Axis newAxis;
+		newAxis.name = axisName;
+		_axes.push_back(newAxis);
+	}
+
+	//Creates an axis with a name and some initial values
+	void InputManager::CreateAxis(std::string axisName, int positiveKey, int negativeKey, AxisType inputType)
+	{
+		Axis axis;
+		axis.name=axisName;
+		axis.positiveKey = positiveKey;
+		axis.negativeKey = negativeKey;
+		axis.type = inputType;
+		_axes.push_back(axis);
+	}
+
+	void InputManager::SetAxisType(std::string axisName, AxisType axisType)
+	{
+		_axes[GetAxisIndex(axisName)].type = axisType;
+	}
+
+	void InputManager::SetAxisPositiveKey(std::string axisName, int posKey)
+	{
+		_axes[GetAxisIndex(axisName)].positiveKey = posKey;
+	}
+
+	void InputManager::SetAxisNegativeKey(std::string axisName, int negKey)
+	{
+		_axes[GetAxisIndex(axisName)].negativeKey = negKey;
+	}
+
+	void InputManager::SetAxisGamepadID(std::string axisName, int id)
+	{
+		_axes[GetAxisIndex(axisName)].gamepadID = id;
+	}
+
+	void InputManager::SetAxisGamepadAxis(std::string axisName, int padAxis)
+	{
+		_axes[GetAxisIndex(axisName)].gamepadAxis = padAxis;
+	}
+
+	void InputManager::SetAxisGamepadPositiveButton(std::string axisName, int padposKey)
+	{
+		_axes[GetAxisIndex(axisName)].gamepadPositiveButton = padposKey;
+	}
+
+	void InputManager::SetAxisGamepadNegativeButton(std::string axisName, int padnegKey)
+	{
+		_axes[GetAxisIndex(axisName)].gamepadNegativeButton = padnegKey;
+	}
+
+	ImVec2 InputManager::GetMouseMoveVector()
+	{
+		int pressedMouseButton = GetMouseDown();
+		ImVec2 delta = ImVec2(0.f,0.f);
+		if(_clickedMouseButton != pressedMouseButton)
+		{
+			// update previous position
+			_previousMousePosition = GetMousePosition();
+		}
+			// if the key is pressed before
+		else if(pressedMouseButton != -1)
+		{
+			// get current position
+			ImVec2 currentPosition = GetMousePosition();
+			// calculate delta (distance and direction)
+			delta.x = currentPosition.x - _previousMousePosition.x;
+			delta.y = currentPosition.y - _previousMousePosition.y;
+			// update previous position
+			_previousMousePosition = GetMousePosition();
+		}
+		_clickedMouseButton = pressedMouseButton;
+		return delta;
+	}
+
+	float InputManager::GetMouseWheelDeltaValue()
+	{
+		float currentWheelValue = ImGui::GetIO().MouseWheel;
+		float delta = currentWheelValue - 0;
+		return delta;
+	}
+
+	int InputManager::GetAxisIndex(std::string axisName)
+	{
+		for(int i=0;i<_axes.size();i++)
+			if(_axes[i].name==axisName)
+				return i;
+		return -1;
 	}
 }

@@ -8,16 +8,8 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-
-out vec3 vertexPos;
-out vec3 vertexNormal;
-out vec2 vertexTextureCoordinate;
-
 void main()
 {
-    vertexPos = vec3(projection * view * model * vec4(inVertex, 1.0));
-    vertexNormal = inNormal;
     gl_Position = projection * view * model * vec4(inVertex, 1.0);
-    vertexTextureCoordinate = inTextureCoordinate;
 }
 )"
