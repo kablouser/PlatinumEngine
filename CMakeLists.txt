@@ -81,7 +81,9 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/ComponentComposition/GameObject.cpp;"
 	
 	"Source/InputManager/InputManager.cpp;"
-
+	
+	"Source/Inspector/InspectorWindow.cpp;"
+  
 	"Source/Loaders/LoaderCommon.cpp;"
 	"Source/Loaders/MeshLoader.cpp;"
 
@@ -113,6 +115,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/SceneEditor/EditorCamera.cpp;"
 	
 	"Source/SceneManager/Scene.cpp;"
+	"Source/SceneManager/SceneManager.cpp;"
+	"Source/SceneManager/HierarchyWindow.cpp;"
 	
 	"Source/WindowManager/WindowManager.cpp;"
 	
@@ -140,12 +144,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/In
 # IMPORTANT SECTION! Unit testing
 #-----------------------------
 # Add unit tests here:
-
 set(UNIT_TESTS
 	"Test/TestTemplate.cpp;"
 	"Test/Maths/VectorsTest.cpp;"
-	"Test/Maths/MatricesTest.cpp;"
-	"Test/SceneEditor/EditorCameraTest.cpp;")
+	"Test/Maths/MatricesTest.cpp;"  
+	"Test/SceneEditor/EditorCameraTest.cpp;"
+  "Test/TestScene.cpp;")
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 
 target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")

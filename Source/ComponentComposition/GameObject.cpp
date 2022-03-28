@@ -1,126 +1,183 @@
 
 #include <ComponentComposition/GameObject.h>
+#include <SceneManager/Scene.h>
+#include <ComponentComposition/Component.h>
+#include <Helpers/VectorHelpers.h>
+#include <Logger/Logger.h>
+
 namespace PlatinumEngine
 {
-	GameObject::GameObject()
+	//--------------------------------------------------------------------------------------------------------------
+	// Constructors/destructors
+	//--------------------------------------------------------------------------------------------------------------
 
+	GameObject::GameObject() :
+			_parent(nullptr),
+			_isEnabled(true),
+			_isEnabledInHierarchy(true)
 	{
-		_parent = nullptr;
-		_isEnabled = true;
-
 	}
 
-
-
-	GameObject::GameObject(std::string name): name(name)
+	GameObject::GameObject(std::string name, GameObject* parent, bool isEnabled) :
+			name(std::move(name)),
+			_parent(parent),
+			_isEnabled(isEnabled),
+			_isEnabledInHierarchy(false)
 	{
-		GameObject();
+		_isEnabledInHierarchy = CalculateIsEnabledInHierarchy();
+		PLATINUM_INFO("GameObject constructed");
 	}
 
 	GameObject::~GameObject()
-	{}
+	{
+		PLATINUM_INFO("GameObject destroyed");
+	}
 
+	//--------------------------------------------------------------------------------------------------------------
+	// _isEnabled control
+	//--------------------------------------------------------------------------------------------------------------
 
-
-	bool GameObject::IsEnabled()
+	bool GameObject::IsEnabled() const
 	{
 		return _isEnabled;
 	}
-
-	//Enable/Disable the GameObject
-	void GameObject::SetEnabled(bool enableFlag)
-
+  
+	void GameObject::SetEnabled(bool isEnabled, Scene& scene)
 	{
-		_isEnabled = enableFlag;
+		if (_isEnabled == isEnabled)
+			return;
+
+		_isEnabled = isEnabled;
+		UpdateIsEnabledInHierarchy(scene);
 	}
 
-	//Gets the parent of the current GameObject
-	GameObject* GameObject::GetParent()
+	bool GameObject::IsEnabledInHierarchy() const
+	{
+		return _isEnabledInHierarchy;
+	}
 
+	//--------------------------------------------------------------------------------------------------------------
+	// _parent control
+	//--------------------------------------------------------------------------------------------------------------
+
+	GameObject* GameObject::GetParent()
 	{
 		return _parent;
 	}
-
-
-	//Sets the parent of the current GameObject
-	//Removes it from old parent, updates the parent and then add to new parent
-
-	void GameObject::SetParent(GameObject* parent)
-
+  
+	void GameObject::SetParent(GameObject* parent, Scene& scene)
 	{
-
-		if(_parent == parent)
+		if (_parent == parent)
 			return;
 
-
-		if(_parent)
+		if (_parent)
 		{
 			_parent->RemoveChild(this);
-			_parent = parent;
-			if(_parent)
-				_parent->_children.push_back(this);
 		}
 		else
 		{
-			_parent = parent;
-			if(_parent)
-				_parent->_children.push_back(this);
+			// this has become NOT a root GameObject now
+			scene.RemoveRootGameObject(*this);
+		}
+    
+		if (parent)
+		{
+			parent->_children.push_back(this);
+		}
+		else
+		{
+			// this has become a root GameObject now
+			scene._rootGameObjects.push_back(this);
 		}
 
+		_parent = parent;
+		UpdateIsEnabledInHierarchy(scene);
 	}
 
+	//--------------------------------------------------------------------------------------------------------------
+	// _children control
+	// note: if you want to remove a child from this GameObject, use GameObject::SetParent(nullptr);
+	//--------------------------------------------------------------------------------------------------------------
 
-	//Returns children count
-	int GameObject::GetChildrenCount()
-
+	size_t GameObject::GetChildrenCount() const
 	{
 		return _children.size();
 	}
-
-
-	//Returns child at index
-	GameObject* GameObject::GetChild(int index)
-
+  
+	GameObject* GameObject::GetChild(size_t index)
 	{
-		return _children[index];
+		// range-checked indexing
+		return _children.at(index);
 	}
-
-
-	//Removes component at index
-	void GameObject::RemoveComponent(int index)
+  
+	size_t GameObject::GetChildIndex(GameObject* child) const
 	{
-		_components.erase(_components.begin()+index);
+		for (size_t i = 0; i < _children.size(); i++)
+			if (_children[i] == child)
+				return i;
+		return (size_t)-1;
 	}
+  
+	//--------------------------------------------------------------------------------------------------------------
+	// _components control
+	//--------------------------------------------------------------------------------------------------------------
 
-
-	//Current component count
-	int GameObject::GetComponentCount()
-
+	size_t GameObject::GetComponentCount() const
 	{
 		return _components.size();
 	}
-
-	//Returns index of child based on their name
-	//-1 if it doesn't exist
-
-	int GameObject::GetChildIndex(GameObject* child)
+  
+	Component* GameObject::GetComponent(size_t index)
 	{
-		for(int i=0;i<_children.size();i++)
-			if(_children[i]==child)
-
-				return i;
-		return -1;
+		// range-checked indexing
+		return _components.at(index);
 	}
 
-	//Deletes child on the basis of their name
+	//--------------------------------------------------------------------------------------------------------------
+	// Internal controls
+	//--------------------------------------------------------------------------------------------------------------
+
+	Component* GameObject::GetComponentInternal(const std::type_info& typeInfo)
+	{
+		for (auto component: _components)
+			if (typeid(*component) == typeInfo)
+				return component;
+		return nullptr;
+	}
 
 	void GameObject::RemoveChild(GameObject* child)
 	{
-		int index = GetChildIndex(child);
-		if(index>=0)
-			_children.erase(_children.begin()+index);
+		if (!VectorHelpers::RemoveFirst(_children, child))
+		{
+			PLATINUM_ERROR("Hierarchy is invalid: _children is missing an element");
+		}
+	}
 
+	void GameObject::RemoveComponent(Component* component)
+	{
+		if (!VectorHelpers::RemoveFirst(_components, component))
+		{
+			PLATINUM_ERROR("Hierarchy is invalid");
+		}
+	}
 
+	bool GameObject::CalculateIsEnabledInHierarchy() const
+	{
+		if (_parent)
+			return _isEnabled && _parent->_isEnabledInHierarchy;
+		else
+			return _isEnabled;
+	}
 
+	void GameObject::UpdateIsEnabledInHierarchy(Scene& scene)
+	{
+		bool isEnabledInHierarchyNow = CalculateIsEnabledInHierarchy();
+
+		if (_isEnabledInHierarchy == isEnabledInHierarchyNow)
+			return;
+
+		_isEnabledInHierarchy = isEnabledInHierarchyNow;
+
+		scene.UpdateIsEnabledInHierarchy(*this);
 	}
 }
