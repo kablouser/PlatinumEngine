@@ -17,7 +17,7 @@
 
 
 #include <OpenGL/GLCheck.h>
-#include "D:\GithubDesktop\PlatinumEngine\Build\Debug\_deps\imgui-src\imgui_demo.cpp"
+
 static void GlfwErrorCallback(int error, const char* description)
 {
 	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
