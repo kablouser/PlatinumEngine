@@ -4,7 +4,6 @@
 cmake_minimum_required(VERSION 3.21)
 project(PlatinumEngine VERSION 0.0.1)
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_OSX_ARCHITECTURES arm64)
 # static libraries please
 set(BUILD_SHARED_LIBS FALSE)
 # FetchContent to fetch git repos remotely
