@@ -129,7 +129,7 @@ namespace PlatinumEngine
 				}
 			}
 
-			// Update offset for next mesh, we add  as indices in next mesh will start at 0
+			// Update offset for next mesh, we add 1 as indices in next mesh will start at 0
 			offset += highestIndex + 1;
 		}
 	}
