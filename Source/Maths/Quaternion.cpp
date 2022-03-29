@@ -20,6 +20,15 @@ namespace PlatinumEngine
 			w = q.w;
 		}
 
+		Quaternion::Quaternion(Vec3 euler)
+		{
+			Quaternion q = EulerToQuat(euler);
+			x = q.x;
+			y = q.y;
+			z = q.z;
+			w = q.w;
+		}
+
 		Quaternion::~Quaternion()
 		{}
 
@@ -365,6 +374,6 @@ namespace PlatinumEngine
 			return q;
 		}
 
-		Quaternion Quaternion::identity;
+		Quaternion Quaternion::identity = Quaternion();
 	}
 }

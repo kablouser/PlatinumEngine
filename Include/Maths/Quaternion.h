@@ -15,6 +15,7 @@ namespace PlatinumEngine
 			Quaternion();
 			Quaternion(float x, float y, float z, float w);
 			Quaternion(float yaw, float pitch, float roll);
+			Quaternion(Vec3 euler);
 			~Quaternion();
 
 			void operator *=(const Quaternion &q);
