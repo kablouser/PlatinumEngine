@@ -153,7 +153,7 @@ void InspectorWindow::ShowAddComponent()
 		static const char* selectedComponent = nullptr;
 		static char componentSelectorBuffer[128];
 		ImGui::Text("%s", "Select a Component");
-		ImGui::InputText("##FilterGuns", componentSelectorBuffer, IM_ARRAYSIZE(componentSelectorBuffer));
+		ImGui::InputText("##FilterComponents", componentSelectorBuffer, IM_ARRAYSIZE(componentSelectorBuffer));
 
 		if (ImGui::BeginListBox("##ComponentSelector"))
 		{
