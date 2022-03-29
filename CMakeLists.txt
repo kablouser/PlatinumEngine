@@ -2,8 +2,8 @@
 # Initialising stuff
 #-----------------------------
 cmake_minimum_required(VERSION 3.21)
-project(PlatinumEngine VERSION 0.0.1)
-set(CMAKE_CXX_STANDARD 14)
+project(PlatinumEngine VERSION 0.0.2)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_OSX_ARCHITECTURES arm64)
 # static libraries please
 set(BUILD_SHARED_LIBS FALSE)
@@ -149,8 +149,10 @@ set(PROJECT_LIBRARIES
 	"glm;"
 	"assimp;"
 	"libglew_static;"
+	"stdc++fs;"
   )
 # different targets
+link_libraries(stdc++fs)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_LIBRARIES})
 target_link_libraries(tests PRIVATE ${PROJECT_LIBRARIES} Catch2::Catch2WithMain)
 #-----------------------------
