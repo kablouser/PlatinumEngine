@@ -64,7 +64,7 @@ namespace PlatinumEngine
 								PlatinumEngine::Logger::LogInfo("Cannot move game object to the new position.");
 
 						}
-							// move the position of objects with the same parent
+						// move the position of objects with the same parent
 						else
 						{
 							if (!gameObject->GetParent()->MoveChildGameObjectPositionInList(gameObject, temp))
