@@ -91,25 +91,23 @@ namespace PlatinumEngine
 				ImGui::EndMenu();
 			}
 
-			if(ImGui::BeginMenu("                                        ", false))
+			ImGui::SameLine((ImGui::GetWindowContentRegionMax().x * 0.5f) - (1.5f * (ImGui::GetFontSize() + ImGui::GetStyle().ItemSpacing.x)));
+
+			if (ImGui::Button("Play"))
 			{
 
 			}
 
-			if(ImGui::BeginMenu("Play"))
+			if (ImGui::Button("Pause"))
 			{
 
 			}
 
-			if(ImGui::BeginMenu("Pause"))
+			if (ImGui::Button("Stop"))
 			{
 
 			}
 
-			if(ImGui::BeginMenu("Stop"))
-			{
-
-			}
 			ImGui::EndMainMenuBar();
 		}
 	}

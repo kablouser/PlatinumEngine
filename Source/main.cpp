@@ -86,6 +86,9 @@ int main(int, char**)
 		bool isInspectorWindowOpen = true;
 		PlatinumEngine::InspectorWindow inspectorWindow;
 
+		bool isGameWindowOpen = true;
+		PlatinumEngine::GameWindow gameWindow;
+
 		PlatinumEngine::WindowManager windowManager;
 
 
@@ -137,6 +140,8 @@ int main(int, char**)
 			}
 			if(isLoggerOpen)
 				logger.ShowGUIWindow(&isLoggerOpen);
+			if(isGameWindowOpen)
+				gameWindow.ShowGuiWindow(&isGameWindowOpen);
 
 			windowManager.ShowGUI();
 			//ImGui::ShowDemoWindow();

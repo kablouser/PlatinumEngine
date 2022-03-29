@@ -6,6 +6,15 @@
 
 namespace PlatinumEngine
 {
+	PlatinumEngine::GameWindow::GameWindow(InputManager* inputManager, Scene* scene, Renderer* renderer)
+	{
+
+	}
+
+	PlatinumEngine::GameWindow::GameWindow()
+	{
+
+	}
 	/*
 	void PlatinumEngine::GameWindow::Start(bool* OnStart)
 	{
@@ -20,6 +29,8 @@ namespace PlatinumEngine
 		if(ImGui::Begin("Game View", outIsOpen))
 		{
 
+
+			ImGui::End();
 		}
 	}
 }

@@ -13,6 +13,8 @@ namespace PlatinumEngine
 	{
 	public:
 		GameWindow(InputManager* inputManager, Scene* scene, Renderer* renderer);
+		GameWindow();
+		//~GameWindow();
 
 		void ShowGuiWindow(bool* OutIsOpen);
 
