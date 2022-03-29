@@ -50,15 +50,16 @@ void InspectorWindow::ShowMeshComponent()
 {
 	ImGui::Separator();
 	static char meshBuffer[128];
-	if (ImGui::CollapsingHeader("Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap))
+	bool isHeaderOpen = ImGui::CollapsingHeader("Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+	// TODO: Icon button maybe?
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 4.0f) - (1.5f * (ImGui::GetFontSize() + ImGui::GetStyle().ItemSpacing.x)));
+	if (ImGui::Button("Remove")) {
+		// remove component
+		_scene.RemoveComponent(*_activeGameObject->GetComponent<RenderComponent>());
+		return;
+	}
+	if (isHeaderOpen)
 	{
-		// TODO: Icon button maybe?
-		ImGui::SameLine();
-		if (ImGui::Button("Remove")) {
-			// remove component
-			_scene.RemoveComponent(*_activeGameObject->GetComponent<RenderComponent>());
-			return;
-		}
 		ImGui::Text("Mesh");
 		ImGui::SameLine();
 		ImGui::InputText("##Mesh Name",meshBuffer,64);
@@ -85,15 +86,16 @@ void InspectorWindow::ShowTransformComponent()
 {
 	// If this gui is being shown, assumption that object has transform component
 	ImGui::Separator();
-	if (ImGui::CollapsingHeader("Transform Component", ImGuiTreeNodeFlags_AllowItemOverlap))
+	bool isHeaderOpen = ImGui::CollapsingHeader("Transform Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+	// TODO: Icon button maybe?
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 4.0f) - (1.5f * (ImGui::GetFontSize() + ImGui::GetStyle().ItemSpacing.x)));
+	if (ImGui::Button("Remove")) {
+		// remove component
+		_scene.RemoveComponent(*_activeGameObject->GetComponent<TransformComponent>());
+		return;
+	}
+	if (isHeaderOpen)
 	{
-		// TODO: Icon button maybe?
-		ImGui::SameLine();
-		if (ImGui::Button("Remove")) {
-			// remove component
-			_scene.RemoveComponent(*_activeGameObject->GetComponent<TransformComponent>());
-			return;
-		}
 		ImGui::PushItemWidth(80);
 		ImGui::Text("Position: ");
 		ImGui::SameLine();
