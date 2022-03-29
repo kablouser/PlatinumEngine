@@ -84,7 +84,7 @@ int main(int, char**)
 		PlatinumEngine::HierarchyWindow hierarchyWindow;
 
 		bool isInspectorWindowOpen = true;
-		PlatinumEngine::InspectorWindow inspectorWindow;
+		PlatinumEngine::InspectorWindow inspectorWindow(scene);
 
 		PlatinumEngine::WindowManager windowManager;
 
