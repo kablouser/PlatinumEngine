@@ -97,10 +97,9 @@ int main(int, char**)
 		{
 			auto object = scene.AddGameObject("GameObject");
 			object->SetEnabled(true,scene);
-
-			auto component = scene.AddComponent<PlatinumEngine::RenderComponent>(object, object->IsEnabled());
+			auto component = scene.AddComponent<PlatinumEngine::RenderComponent>(object);
 			component->LoadMesh("D:/Download/fourCubes.obj");
-			component->SetEnabled(true,scene);
+
 		}
 
 		for (int i = 0; i < 5; i++)

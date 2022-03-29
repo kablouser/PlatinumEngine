@@ -80,7 +80,7 @@ namespace PlatinumEngine
 			if (gameObject)
 				if (gameObject->GetComponent<T>())
 					return gameObject->GetComponent<T>();
-			return AddComponentInternal(*new T(), gameObject, isEnabled);
+			return static_cast<T*>(AddComponentInternal(*static_cast<Component*>(new T()), gameObject, isEnabled));
 		}
 
 		void RemoveComponent(Component& component);

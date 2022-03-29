@@ -125,6 +125,39 @@ namespace PlatinumEngine
 
 			}
 
+			ImVec2 windowSize = ImGui::GetContentRegionAvail();
+
+			ImGui::InvisibleButton(" ", ImVec2(windowSize.x,10));
+
+			// Add Drag and Drop Events
+			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+			{
+
+				// Set payload to carry the game object
+				ImGui::SetDragDropPayload("Demo", nullptr, sizeof(void*));
+				std::cout<<"test"<<std::endl;
+				// End the DragDropSource
+				ImGui::EndDragDropSource();
+			}
+			if (ImGui::BeginDragDropTarget())
+			{
+
+				// Check payload and update the parent of the dropped game object node
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Demo"))
+				{
+
+					GameObject* temp = *(GameObject**)payload->Data;
+
+					// check move behavior mode
+					// if the mode is to change hierarchy between game objects
+					if (modeForDraggingBehavior == _hierarchyMode)
+					{
+						// change the dragged object's parent
+						temp->SetParent(nullptr, scene);
+					}
+				}
+			}
+
 		}
 		// End window
 		ImGui::End();
