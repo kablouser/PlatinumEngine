@@ -21,8 +21,8 @@ namespace PlatinumEngine{
 			_wheelValueDelta(0),_renderTexture(), _renderer(renderer)
 
 	{
-		_inputManager->CreateAxis(std::string ("Horizontal"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
-		_inputManager->CreateAxis(std::string ("Vertical"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
+		_inputManager->CreateAxis(std::string ("Horizontal2"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
+		_inputManager->CreateAxis(std::string ("Vertical2"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
 
 
 		_framebufferWidth = 1;
@@ -204,7 +204,9 @@ namespace PlatinumEngine{
 			// check if there is any keyboard input
 			if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
 				_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
-				_camera.TranslationByKeyBoard(_inputManager->GetAxis("Vertical"), _inputManager->GetAxis("Horizontal"));
+			{
+				_camera.TranslationByKeyBoard(_inputManager->GetAxis("Vertical2"), _inputManager->GetAxis("Horizontal2"));
+			}
 
 
 
