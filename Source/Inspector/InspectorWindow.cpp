@@ -23,9 +23,6 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen)
 		ImGui::InputText("##input name", objectNameBuffer, IM_ARRAYSIZE(objectNameBuffer));
 		_activeGameObject->name = std::string{objectNameBuffer};
 
-		if (_isAddComponentWindowOpen)
-			ShowAddComponent();
-
 		// Now render each component gui
 		if (_activeGameObject->GetComponent<RenderComponent>()!= nullptr)
 			ShowMeshComponent();
@@ -34,6 +31,8 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen)
 			ShowTransformComponent();
 
 		ImGui::Separator();
+		if (_isAddComponentWindowOpen)
+			ShowAddComponent();
 		if (ImGui::Button("Add Component")) {
 			_isAddComponentWindowOpen = !_isAddComponentWindowOpen;
 		}
@@ -51,8 +50,15 @@ void InspectorWindow::ShowMeshComponent()
 {
 	ImGui::Separator();
 	static char meshBuffer[128];
-	if (ImGui::CollapsingHeader("Mesh Render Component"))
+	if (ImGui::CollapsingHeader("Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap))
 	{
+		// TODO: Icon button maybe?
+		ImGui::SameLine();
+		if (ImGui::Button("Remove")) {
+			// remove component
+			_scene.RemoveComponent(*_activeGameObject->GetComponent<RenderComponent>());
+			return;
+		}
 		ImGui::Text("Mesh");
 		ImGui::SameLine();
 		ImGui::InputText("##Mesh Name",meshBuffer,64);
@@ -79,8 +85,15 @@ void InspectorWindow::ShowTransformComponent()
 {
 	// If this gui is being shown, assumption that object has transform component
 	ImGui::Separator();
-	if (ImGui::CollapsingHeader("Transform Component"))
+	if (ImGui::CollapsingHeader("Transform Component", ImGuiTreeNodeFlags_AllowItemOverlap))
 	{
+		// TODO: Icon button maybe?
+		ImGui::SameLine();
+		if (ImGui::Button("Remove")) {
+			// remove component
+			_scene.RemoveComponent(*_activeGameObject->GetComponent<TransformComponent>());
+			return;
+		}
 		ImGui::PushItemWidth(80);
 		ImGui::Text("Position: ");
 		ImGui::SameLine();
@@ -132,11 +145,12 @@ void InspectorWindow::ShowTransformComponent()
 
 void InspectorWindow::ShowAddComponent()
 {
-	if (ImGui::BeginChild("Select a component"))
+	if (ImGui::BeginChild("ComponentSelector"))
 	{
 		const char* components[] = { "Render Component", "Transform Component"};
 		static const char* selectedComponent = nullptr;
 		static char componentSelectorBuffer[128];
+		ImGui::Text("%s", "Select a Component");
 		ImGui::InputText("##FilterGuns", componentSelectorBuffer, IM_ARRAYSIZE(componentSelectorBuffer));
 
 		if (ImGui::BeginListBox("##ComponentSelector"))
@@ -156,6 +170,13 @@ void InspectorWindow::ShowAddComponent()
 			}
 
 			ImGui::EndListBox();
+		}
+
+		// Cancel button
+		if (ImGui::Button("Cancel"))
+		{
+			_isAddComponentWindowOpen = false;
+			selectedComponent = nullptr;
 		}
 
 		if (selectedComponent)
