@@ -61,9 +61,9 @@ namespace PlatinumEngine
 		//--------------------------------------------------------------------------------------------------------------
 
 		template<typename T>
-		Component* AddComponent(GameObject* gameObject = nullptr, bool isEnabled = true)
+		T* AddComponent(GameObject* gameObject = nullptr, bool isEnabled = true)
 		{
-			return AddComponentInternal(*new T(), gameObject, isEnabled);
+			return static_cast<T*>(AddComponentInternal(*new T(), gameObject, isEnabled));
 		}
 
 		void RemoveComponent(Component& component);

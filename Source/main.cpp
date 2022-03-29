@@ -14,7 +14,7 @@
 #include <SceneManager/HierarchyWindow.h>
 #include <Logger/Logger.h>
 #include <SceneEditor/SceneEditor.h>
-
+#include <ComponentComposition/RenderComponent.h>
 
 #include <OpenGL/GLCheck.h>
 
@@ -89,11 +89,18 @@ int main(int, char**)
 		PlatinumEngine::WindowManager windowManager;
 
 
+
 		//---------TEST-----------
 
+		//Mesh mesh(vertices, indices);
 		for (int i = 0; i < 5; i++)
 		{
-			scene.AddGameObject("GameObject");
+			auto object = scene.AddGameObject("GameObject");
+			object->SetEnabled(true,scene);
+
+			auto component = scene.AddComponent<PlatinumEngine::RenderComponent>(object, object->IsEnabled());
+			component->LoadMesh("D:/Download/fourCubes.obj");
+			component->SetEnabled(true,scene);
 		}
 
 		for (int i = 0; i < 5; i++)
