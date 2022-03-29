@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <typeinfo>
+#include <algorithm>
 #include "ComponentComposition/Component.h"
 
 namespace PlatinumEngine
@@ -60,6 +61,11 @@ namespace PlatinumEngine
 		// Returns index of child based on their name
 		// (size_t)-1 if it doesn't exist
 		size_t GetChildIndex(GameObject* child) const;
+
+		// Returns boolean to check if moving successes or not
+		// targetObject : a target object of which the moved object wants to move in front of
+		// movedGameObject : an object that want to be moved
+		bool MoveChildGameObjectPositionInList(GameObject* targetObject, GameObject* movedGameObject);
 
 		//--------------------------------------------------------------------------------------------------------------
 		// _components control
