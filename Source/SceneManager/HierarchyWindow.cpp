@@ -53,28 +53,25 @@ namespace PlatinumEngine
 					// check if the two game object have a same parent
 					// when the two game objects do not have same a parent
 					// change the parent of dragged object to be the same as the target object
-					if(temp->GetParent() != gameObject->GetParent())
+					if(temp->GetParent() == gameObject->GetParent())
 					{
-						// change the dragged object's parent
-						temp->SetParent(gameObject->GetParent(), scene);
+						
+						// move the position of the dragged objects in the list
+						// move the position of objects with no parent
+						if (temp->GetParent() == nullptr)
+						{
+							if (!scene.MoveRootGameObjectPositionInList(gameObject, temp))
+								PlatinumEngine::Logger::LogInfo("Cannot move game object to the new position.");
+
+						}
+							// move the position of objects with the same parent
+						else
+						{
+							if (!gameObject->GetParent()->MoveChildGameObjectPositionInList(gameObject, temp))
+								PlatinumEngine::Logger::LogInfo("Cannot move game object to the new position.");
+
+						}
 					}
-
-					// move the position of the dragged objects in the list
-					// move the position of objects with no parent
-					if(temp->GetParent() == nullptr )
-					{
-						if(!scene.MoveRootGameObjectPositionInList(gameObject, temp))
-							PlatinumEngine::Logger::LogInfo("Cannot move game object to the new position.");
-
-					}
-					// move the position of objects with the same parent
-					else
-					{
-						if(!gameObject->GetParent()->MoveChildGameObjectPositionInList(gameObject, temp))
-							PlatinumEngine::Logger::LogInfo("Cannot move game object to the new position.");
-
-					}
-
 				}
 			}
 
