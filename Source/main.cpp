@@ -14,7 +14,7 @@
 #include <SceneManager/HierarchyWindow.h>
 #include <Logger/Logger.h>
 #include <SceneEditor/SceneEditor.h>
-
+#include <GameWindow/GameWindow.h>
 
 #include <OpenGL/GLCheck.h>
 

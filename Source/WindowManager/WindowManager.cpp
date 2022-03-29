@@ -90,6 +90,26 @@ namespace PlatinumEngine
 				{}
 				ImGui::EndMenu();
 			}
+
+			if(ImGui::BeginMenu("                                        ", false))
+			{
+
+			}
+
+			if(ImGui::BeginMenu("Play"))
+			{
+
+			}
+
+			if(ImGui::BeginMenu("Pause"))
+			{
+
+			}
+
+			if(ImGui::BeginMenu("Stop"))
+			{
+
+			}
 			ImGui::EndMainMenuBar();
 		}
 	}
