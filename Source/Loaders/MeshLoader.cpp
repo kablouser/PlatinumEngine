@@ -73,16 +73,22 @@ namespace PlatinumEngine
 				return {};
 			}
 
-			// For now, convert first mesh only
-			return ConvertMesh(scene->mMeshes[0]);
+			// Loop all meshes and add data
+			Mesh returnMesh;
+			// Keep track of offset for multiple meshes
+			unsigned int offset = 0;
+			for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
+			{
+				AddMeshData(returnMesh, scene->mMeshes[i], offset);
+			}
+
+			return returnMesh;
 		}
 
-		Mesh ConvertMesh(aiMesh *mesh)
+		void AddMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset)
 		{
-			// Return data
-			Mesh returnMesh{};
-			std::vector<Vertex> vertices;
-			std::vector<unsigned int> indices;
+			// Keep track of the highest index of this mesh
+			unsigned int highestIndex = 0;
 
 			// Loop vertices
 			for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
@@ -106,7 +112,7 @@ namespace PlatinumEngine
 					vertex.textureCoords.y = 0.0f;
 				}
 
-				vertices.emplace_back(vertex);
+				outMesh.vertices.emplace_back(vertex);
 			}
 
 			// Loop indices of the faces of the mesh
@@ -114,13 +120,17 @@ namespace PlatinumEngine
 			{
 				aiFace face = mesh->mFaces[i];
 				for(unsigned int j = 0; j < face.mNumIndices; j++)
-					indices.push_back(face.mIndices[j]);
+				{
+					outMesh.indices.push_back(offset + face.mIndices[j]);
+
+					// Check for new highest
+					if (face.mIndices[j] > highestIndex)
+						highestIndex = face.mIndices[j];
+				}
 			}
 
-			// Set data then return
-			returnMesh.vertices = vertices;
-			returnMesh.indices  = indices;
-			return returnMesh;
+			// Update offset for next mesh, we add 1 as indices in next mesh will start at 0
+			offset += highestIndex + 1;
 		}
 	}
 }

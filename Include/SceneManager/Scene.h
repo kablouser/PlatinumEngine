@@ -6,6 +6,8 @@
 
 #include <vector>
 #include <string>
+#include <algorithm>
+
 #include <ComponentComposition/GameObject.h>
 
 namespace PlatinumEngine
@@ -56,6 +58,12 @@ namespace PlatinumEngine
 		size_t GetRootGameObjectsCount() const;
 
 		GameObject* GetRootGameObject(size_t index);
+
+		// Returns boolean to check if moving successes or not
+		// targetObject : a target object of which the moved object wants to move in front of
+		// movedGameObject : an object that want to be moved
+		bool MoveRootGameObjectPositionInList(GameObject* targetObject, GameObject* movedGameObject);
+
 
 		//--------------------------------------------------------------------------------------------------------------
 		// _components controls
@@ -111,6 +119,13 @@ namespace PlatinumEngine
 		 * @param renderer target location for rendering
 		 */
 		void Render(Renderer& renderer);
+
+
+
+
+
+
+
 
 	private:
 

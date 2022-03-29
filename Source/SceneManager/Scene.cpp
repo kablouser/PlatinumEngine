@@ -92,7 +92,33 @@ namespace PlatinumEngine
 		return _rootGameObjects.at(index);
 	}
 
-	//--------------------------------------------------------------------------------------------------------------
+	bool Scene::MoveRootGameObjectPositionInList(GameObject* targetObject, GameObject* movedGameObject)
+	{
+		// get iterators for the selected target game object
+		auto targetGameObjectIterator = std::find(_rootGameObjects.begin(), _rootGameObjects.end(), targetObject);
+
+		// get iterator for the moved game object
+		auto movedGameObjectIterator = std::find(_rootGameObjects.begin(), _rootGameObjects.end(), movedGameObject);
+
+		// use rotate to move the item in front of the target object
+		if(targetGameObjectIterator!= _rootGameObjects.end() && movedGameObjectIterator != _rootGameObjects.end())
+		{
+			if(movedGameObjectIterator < targetGameObjectIterator)
+			std::rotate(movedGameObjectIterator, movedGameObjectIterator+1, targetGameObjectIterator+1);
+
+			else if (movedGameObjectIterator > targetGameObjectIterator)
+			std::rotate(targetGameObjectIterator, movedGameObjectIterator, movedGameObjectIterator+1);
+
+			// return true if moving successes
+			return true;
+		}
+
+		// return false if moving fails
+		return false;
+	}
+
+
+//--------------------------------------------------------------------------------------------------------------
 	// _components controls
 	//--------------------------------------------------------------------------------------------------------------
 
