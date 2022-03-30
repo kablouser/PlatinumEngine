@@ -86,24 +86,7 @@ int main(int, char**)
 		bool isInspectorWindowOpen = true;
 		PlatinumEngine::InspectorWindow inspectorWindow(scene);
 
-		PlatinumEngine::WindowManager windowManager;
-
-
-		//---------TEST-----------
-
-		for (int i = 0; i < 5; i++)
-		{
-			scene.AddGameObject("GameObject");
-		}
-
-		for (int i = 0; i < 5; i++)
-		{
-			scene.AddGameObject(std::string("GameObject2").append(std::to_string(i)), scene.GetRootGameObject(i));
-		}
-
-		//--------END TEST----------
-
-
+		PlatinumEngine::WindowManager windowManager(scene);
 
 		// Main loop
 		while (!glfwWindowShouldClose(window))

@@ -4,11 +4,15 @@
 
 #pragma once
 #include <WindowManager/Filedialog.h>
+#include <SceneManager/Scene.h>
+
 namespace PlatinumEngine
 {
 	class WindowManager
 	{
 	public:
+		explicit WindowManager(Scene &scene);
+
 		///-----------------------------------
 		///Main menu bar functions
 		///-----------------------------------
@@ -70,6 +74,7 @@ namespace PlatinumEngine
 	    bool _showFileLoad          		 = false;
 	    bool _showFileSave                   = false;
 
-
+	private:
+		Scene &_scene;
 	};
 }

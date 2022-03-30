@@ -25,7 +25,7 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen)
 
 		// Now render each component gui
 		if (_activeGameObject->GetComponent<RenderComponent>()!= nullptr)
-			ShowMeshComponent();
+			ShowMeshRenderComponent();
 
 		if (_activeGameObject->GetComponent<TransformComponent>()!= nullptr)
 			ShowTransformComponent();
@@ -46,7 +46,7 @@ void InspectorWindow::SetActiveGameObject(GameObject* gameObject)
 	_activeGameObject = gameObject;
 }
 
-void InspectorWindow::ShowMeshComponent()
+void InspectorWindow::ShowMeshRenderComponent()
 {
 	ImGui::Separator();
 	static char meshBuffer[128];
@@ -149,7 +149,7 @@ void InspectorWindow::ShowAddComponent()
 {
 	if (ImGui::BeginChild("ComponentSelector"))
 	{
-		const char* components[] = { "Render Component", "Transform Component"};
+		const char* components[] = { "Mesh Render Component", "Transform Component"};
 		static const char* selectedComponent = nullptr;
 		static char componentSelectorBuffer[128];
 		ImGui::Text("%s", "Select a Component");
@@ -183,7 +183,7 @@ void InspectorWindow::ShowAddComponent()
 
 		if (selectedComponent)
 		{
-			if (strcmp(selectedComponent, "Render Component") == 0)
+			if (strcmp(selectedComponent, "Mesh Render Component") == 0)
 			{
 				// Add Render Component
 				_scene.AddComponent<RenderComponent>(_activeGameObject);

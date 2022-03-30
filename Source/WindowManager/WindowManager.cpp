@@ -9,6 +9,10 @@
 
 namespace PlatinumEngine
 {
+	WindowManager::WindowManager(Scene& scene) : _scene(scene)
+	{
+	}
+
 	///--------------------------------------------------------------------------
 	/// this function will create a basic window when you open the Platinum Engine
 	///--------------------------------------------------------------------------
@@ -135,11 +139,10 @@ namespace PlatinumEngine
 	void WindowManager::ShowMenuGameObject()
 	{
 		if (ImGui::MenuItem("Create Empty"))
-		{}
-		if (ImGui::MenuItem("Create Empty Child"))
-		{}
-		if (ImGui::MenuItem("Create Empty Parent"))
-		{}
+		{
+			_scene.AddGameObject();
+		}
+
 		if (ImGui::BeginMenu("3D Object"))
 		{
 			if (ImGui::MenuItem("Cube"))
