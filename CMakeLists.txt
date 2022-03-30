@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_OSX_ARCHITECTURES arm64)
 # static libraries please
 set(BUILD_SHARED_LIBS FALSE)
+# make executable run in project's root directory
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 # FetchContent to fetch git repos remotely
 include(FetchContent)
 # enable CTest
@@ -149,10 +151,10 @@ set(PROJECT_LIBRARIES
 	"glm;"
 	"assimp;"
 	"libglew_static;"
+	# can't link statically, fun!
 	"stdc++fs;"
   )
 # different targets
-link_libraries(stdc++fs)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_LIBRARIES})
 target_link_libraries(tests PRIVATE ${PROJECT_LIBRARIES} Catch2::Catch2WithMain)
 #-----------------------------

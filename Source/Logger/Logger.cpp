@@ -17,7 +17,6 @@ namespace
 
 	static void LogInConsole(const char* messageType, const char* message, const char* file, unsigned int line,
 			PlatinumEngine::Logger::LogType type)
-
 	{
 		// stringbuilder
 		std::ostringstream outputStringStream;

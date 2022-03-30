@@ -1,2 +1,8 @@
-1 rongobongo
-2 rongo miriade
+id, hash, doesExist, path
+0,11030304856860621972,1,./Assets/File1.txt
+1,3178855479351872720,1,./Assets/File3 move.txt
+2,1039573351105802925,1,./Assets/File2.txt
+3,14189162870756182833,1,./Assets/Folder/FileX (copy).txt
+4,14189162870756182833,1,./Assets/Folder/FileX.txt
+5,14189162870756182833,1,./Assets/Folder/Mega.txt
+6,110783867986989623,1,./Assets/AssetsDatabase.txt
