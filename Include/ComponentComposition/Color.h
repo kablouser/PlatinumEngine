@@ -18,7 +18,7 @@ namespace PlatinumEngine
 		Color(uint32_t color);
 		~Color();
 
-		void operator =(Color& other);
+		void operator =(Color other);
 		bool operator ==(Color& other);
 		bool operator !=(Color& other);
 		Color operator *(Color& other);
@@ -43,6 +43,7 @@ namespace PlatinumEngine
 		void Set(float red, float green, float blue, float alpha);
 		void Clamp();
 		static int Lerp(int a, int b, float t){return (int)(a+t*(b-a));};
+
 	};
 
 	std::ostream& operator <<(std::ostream& os, Color& color);

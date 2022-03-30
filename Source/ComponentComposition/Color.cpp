@@ -46,7 +46,7 @@ namespace PlatinumEngine
 
 	//Operator overloading
 
-	void Color::operator=(Color& other)
+	void Color::operator=(Color other)
 	{
 		r=other.r;
 		g=other.g;
