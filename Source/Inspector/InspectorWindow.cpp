@@ -6,7 +6,7 @@
 
 using namespace PlatinumEngine;
 
-InspectorWindow::InspectorWindow(const Scene& scene) : _scene(const_cast<Scene&>(scene))
+InspectorWindow::InspectorWindow(Scene& scene) : _scene(scene)
 {
 }
 
@@ -52,8 +52,8 @@ void InspectorWindow::ShowMeshComponent()
 	static char meshBuffer[128];
 	bool isHeaderOpen = ImGui::CollapsingHeader("Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
-	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 4.0f) - (1.5f * (ImGui::GetFontSize() + ImGui::GetStyle().ItemSpacing.x)));
-	if (ImGui::Button("Remove")) {
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X")) {
 		// remove component
 		_scene.RemoveComponent(*_activeGameObject->GetComponent<RenderComponent>());
 		return;
@@ -88,8 +88,8 @@ void InspectorWindow::ShowTransformComponent()
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader("Transform Component", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
-	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 4.0f) - (1.5f * (ImGui::GetFontSize() + ImGui::GetStyle().ItemSpacing.x)));
-	if (ImGui::Button("Remove")) {
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X")) {
 		// remove component
 		_scene.RemoveComponent(*_activeGameObject->GetComponent<TransformComponent>());
 		return;

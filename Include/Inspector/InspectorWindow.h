@@ -17,7 +17,7 @@ namespace PlatinumEngine
 	class InspectorWindow
 	{
 	public:
-		InspectorWindow(const Scene &scene);
+		InspectorWindow(Scene &scene);
 		void ShowGUIWindow(bool* isOpen);
 		void SetActiveGameObject(GameObject* gameObject);
 	private:
