@@ -105,40 +105,31 @@ namespace PlatinumEngine
 			if (ImGui::Button("Play"))
 			{
 				_gameWindow->_onUpdate = !_gameWindow->_onUpdate;
-				if(_gameWindow->_onUpdate == true)
+				if(_gameWindow->_onUpdate)
 				{
-					_gameWindow->Update();
 					enablePauseButton = !enablePauseButton;
 				}
-				else if(_gameWindow->_onUpdate == false)
+				else if(!_gameWindow->_onUpdate)
 				{
 					enablePauseButton = true;
 				}
-
 			}
 
-			if(enablePauseButton == true)
+  			// activate or inactive pause and step button
+			ImGui::BeginDisabled(enablePauseButton);
+			if (ImGui::Button("Pause"))
 			{
-				ImGui::BeginDisabled(enablePauseButton);
-
-				if (ImGui::Button("Pause")) {}
-				if (ImGui::Button("Step"))  {}
-
-				ImGui::EndDisabled();
+				_pause = !_pause;
+				_gameWindow->Pause(_pause);
 			}
-			else if(enablePauseButton == false)
+			if (ImGui::Button("Step"))
 			{
-				if (ImGui::Button("Pause"))
-				{
-					_pause = !_pause;
-					_gameWindow->Pause(_pause);
-				}
-
-				if (ImGui::Button("Step"))
-				{
-
-				}
+				if(!_pause)
+					_pause = true;
+				_gameWindow->Step();
 			}
+			ImGui::EndDisabled();
+
 			ImGui::EndMainMenuBar();
 		}
 	}

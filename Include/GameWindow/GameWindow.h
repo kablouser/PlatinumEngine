@@ -27,12 +27,12 @@ namespace PlatinumEngine
 		 */
 		void Pause(bool OnPause);
 
-		void Stop();
+		void Step();
 
 		/**
 		 * Update the GameObject states in scene
 		 */
-		void Update();
+		void Update(double deltaTime);
 
 		/**
 		 * Render the GameObjects in the scene
@@ -51,7 +51,13 @@ namespace PlatinumEngine
 		int _framebufferHeight;
 
 		double _previousTime = 0.0;
+		double _deltaTime = 0.0;
+		// user event
+		ImVec2 _mouseMoveDelta;
+		int _mouseButtonType;
+		float _wheelValueDelta;
 
+		bool _onPlay = true;
 	public:
 		bool _onUpdate = false;
 	};
