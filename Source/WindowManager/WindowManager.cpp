@@ -9,7 +9,18 @@
 
 namespace PlatinumEngine
 {
-	WindowManager::WindowManager(GameWindow* gameWindow):_gameWindow(gameWindow)
+	WindowManager::WindowManager(GameWindow* gameWindow,
+								SceneEditor *sceneEditor,
+								HierarchyWindow *hierarchy,
+								Logger *logger,
+								InspectorWindow *inspector,
+								Scene& scene):
+								_gameWindow(gameWindow),
+								_sceneEditor(sceneEditor),
+								_hierarchy(hierarchy),
+								_logger(logger),
+								_inspector(inspector),
+								_scene(scene)
 	{
 
 	}
@@ -26,13 +37,13 @@ namespace PlatinumEngine
 		//window section
 		if (_showWindowGame) 			ShowWindowGame(&_showWindowGame);
 		if (_showWindowScene) 			ShowWindowScene(&_showWindowScene);
-		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy);
+		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy, _scene);
 		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector);
 		if (_showWindowProject) 		ShowWindowProject(&_showWindowProject);
 		if (_showWindowAnimation) 		ShowWindowAnimation(&_showWindowAnimation);
 		if (_showWindowAudio) 			ShowWindowAudio(&_showWindowAudio);
 		if (_showWindowLight) 			ShowWindowLight(&_showWindowLight);
-
+		if (_showLogger)   				ShowLogger(&_showLogger);
 		if (_showFileLoad) 				LoadFile();
 		if (_showFileSave) 				SaveFile();
 
@@ -79,7 +90,9 @@ namespace PlatinumEngine
 			if (ImGui::BeginMenu("Window"))
 			{
 				if (ImGui::MenuItem("Game", "Ctrl+1", &_showWindowGame))
-				{}
+				{
+					ShowWindowGame(&_showWindowGame);
+				}
 				if (ImGui::MenuItem("Hierarchy", "Ctrl+2", &_showWindowHierarchy))
 				{}
 				if (ImGui::MenuItem("Inspector", "Ctrl+3", &_showWindowInspector))
@@ -265,19 +278,21 @@ namespace PlatinumEngine
 	//Please implement Game Window below
 	void WindowManager::ShowWindowGame(bool* outIsOpen)
 	{
-		//TODO:
+		_gameWindow->ShowGuiWindow(outIsOpen);
 	}
 
 	//Please implement Scene Window below
 	void WindowManager::ShowWindowScene(bool* outIsOpen)
 	{
 		//TODO:
+		_sceneEditor->ShowGUIWindow(outIsOpen);
 	}
 
 	//Please implement Inspector Window below
 	void WindowManager::ShowWindowInspector(bool* outIsOpen)
 	{
 		//TODO:
+		_inspector->ShowGUIWindow(outIsOpen);
 	}
 
 	//Please implement Audio Window below
@@ -287,9 +302,15 @@ namespace PlatinumEngine
 	}
 
 	//Please implement Hierarchy Window below
-	void WindowManager::ShowWindowHierarchy(bool* outIsOpen)
+	void WindowManager::ShowWindowHierarchy(bool* outIsOpen, Scene &scene)
 	{
 		//TODO:
+		_hierarchy->ShowGUIWindow(outIsOpen, scene);
+	}
+
+	void WindowManager::ShowLogger(bool* outIsOpen)
+	{
+		_logger->ShowGUIWindow(outIsOpen);
 	}
 
 
