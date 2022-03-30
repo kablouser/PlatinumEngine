@@ -115,6 +115,31 @@ namespace PlatinumEngine
 				return i;
 		return (size_t)-1;
 	}
+
+	bool GameObject::MoveChildGameObjectPositionInList(GameObject* targetObject, GameObject* movedGameObject)
+	{
+		// get iterators for the selected target game object
+		auto targetGameObjectIterator = std::find(_children.begin(), _children.end(), targetObject);
+
+		// get iterator for the moved game object
+		auto movedGameObjectIterator = std::find(_children.begin(), _children.end(), movedGameObject);
+
+		// use rotate to move the item in front of the target object
+		if(targetGameObjectIterator!= _children.end() && movedGameObjectIterator != _children.end())
+		{
+			if(movedGameObjectIterator < targetGameObjectIterator)
+				std::rotate(movedGameObjectIterator, movedGameObjectIterator+1, targetGameObjectIterator+1);
+
+			else if (movedGameObjectIterator > targetGameObjectIterator)
+				std::rotate(targetGameObjectIterator, movedGameObjectIterator, movedGameObjectIterator+1);
+
+			// return true if moving successes
+			return true;
+		}
+
+		// return false if moving fails
+		return false;
+	}
   
 	//--------------------------------------------------------------------------------------------------------------
 	// _components control

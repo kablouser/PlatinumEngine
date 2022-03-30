@@ -36,7 +36,11 @@ namespace PlatinumEngine
 		// ---> PARAMETER
 		GameObject* selectedGameObject;
 
+
 	private:
+		// ---> ENUM
+		enum ModeForDraggingBehavior{_noneMode, _hierarchyMode, _orderMode};
+
 
 		// ---> FUNCTION
 		/**
@@ -44,7 +48,11 @@ namespace PlatinumEngine
 		 * @param gameObject : the game object that is processing
 		 * @param scene : scene object reference that carries the game object hierarchy structure
 		 */
-		void DisplayTreeNote(GameObject* gameObject, Scene& scene);
+		void DisplayTreeNote(GameObject* gameObject, Scene& scene, ModeForDraggingBehavior modeForDraggingBehavior);
+
+
+		// ---> PARAMETER
+		ModeForDraggingBehavior modeForDraggingBehavior;
 
 	};
 

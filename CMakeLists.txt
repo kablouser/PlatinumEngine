@@ -4,6 +4,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(PlatinumEngine VERSION 0.0.1)
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_OSX_ARCHITECTURES arm64)
 # static libraries please
 set(BUILD_SHARED_LIBS FALSE)
 # FetchContent to fetch git repos remotely
@@ -23,7 +24,7 @@ FetchContent_Declare(glfw GIT_REPOSITORY https://github.com/glfw/glfw.git GIT_TA
 FetchContent_MakeAvailable(glfw)
 #-----------------------------
 # Dear ImGui
-FetchContent_Declare(imgui GIT_REPOSITORY https://github.com/ocornut/imgui.git GIT_TAG v1.86)
+FetchContent_Declare(imgui GIT_REPOSITORY https://github.com/ocornut/imgui.git GIT_TAG origin/docking)
 FetchContent_MakeAvailable(imgui)
 add_subdirectory("ImGui CMake")
 #-----------------------------
