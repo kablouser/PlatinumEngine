@@ -7,7 +7,7 @@ namespace PlatinumEngine
 {
 	RenderComponent::RenderComponent()
 	{
-		LoadMesh("D:\\GithubDesktop\\PlatinumEngine\\cube_triangulated.obj");
+		LoadMesh("C:/Users/asus/Desktop/course/games101/Assignment3/models/rock/rock.obj");
 	}
 	RenderComponent::~RenderComponent() {}
 

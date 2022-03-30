@@ -11,7 +11,8 @@ namespace PlatinumEngine
 
 	}
 
-	PlatinumEngine::GameWindow::GameWindow(InputManager* inputManager, Scene* scene, Renderer* renderer): _renderer(renderer), _scene(scene), _inputManager(inputManager),_renderTexture()
+	PlatinumEngine::GameWindow::GameWindow(InputManager* inputManager, Scene* scene, Renderer* renderer)
+		: _renderer(renderer), _scene(scene), _inputManager(inputManager),_renderTexture()
 	{
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
@@ -24,10 +25,14 @@ namespace PlatinumEngine
 		if(ImGui::Begin("Game View", outIsOpen))
 		{
 			auto targetSize = ImGui::GetContentRegionAvail();
-			// TODO: add the user input detection(检测用户输入)
-			if(_onUpdate == true)
+			_mouseButtonType = _inputManager->GetMouseDown();
+			_mouseMoveDelta = _inputManager->GetMouseMoveVector();
+			_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
+
+			if(_onUpdate && _onPlay)
 			{
-				Update();
+				double deltaTime = glfwGetTime() - _previousTime;
+				Update(deltaTime);
 			}
 			Render(targetSize, _scene);
 			ImGui::End();
@@ -36,20 +41,13 @@ namespace PlatinumEngine
 
 	void PlatinumEngine::GameWindow::Pause(bool OnPause)
 	{
-		// TODO: stop the update function(暂停游戏)
-		if(OnPause == true)
-		{
-			std::cout << "continue" << std::endl;
-		}
-		else if(OnPause == false)
-		{
-			std::cout << "pause" << std::endl;
-		}
+		_onPlay = !OnPause;
 	}
 
-	void PlatinumEngine::GameWindow::Stop()
+	void PlatinumEngine::GameWindow::Step()
 	{
-
+		_onPlay = false;
+		Update(1.0 / 30.0);
 	}
 
 	void GameWindow::Render(ImVec2 targetSize, Scene* scene)
@@ -89,12 +87,27 @@ namespace PlatinumEngine
 		}
 	}
 
-	void PlatinumEngine::GameWindow::Update()
+	void PlatinumEngine::GameWindow::Update(double deltaTime)
 	{
-			double newTime = glfwGetTime();
-			double deltaTime = newTime - _previousTime;
-			_scene->Update(deltaTime);
-			_previousTime = newTime;
+		// check if there is any mouse input
+		switch(_mouseButtonType)
+		{
+		case 0: break;
+		case 1: break;
+		case 2: break;
+		default: break;
+		}
+
+		// check if there is any wheel input
+		if (_wheelValueDelta != 0) {}
+
+		// check if there is any keyboard input
+		if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
+			_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
+		{}
+
+		_scene->Update(deltaTime);
+		_previousTime += deltaTime;
 	}
 
 
