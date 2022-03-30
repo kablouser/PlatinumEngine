@@ -11,17 +11,17 @@ namespace PlatinumEngine
 	class WindowManager
 	{
 	public:
-		explicit WindowManager(Scene &scene);
+		WindowManager() = default;
 
 		///-----------------------------------
 		///Main menu bar functions
 		///-----------------------------------
 		//window section
-		void ShowGUI();
+		void ShowGUI(Scene &scene);
 		void ShowMenuFile();
-		void ShowMenuGameObject();
+		void ShowMenuGameObject(Scene &scene);
         void ShowMenuEdit();
-		void SetUpMainMenu();
+		void SetUpMainMenu(Scene &scene);
 
         //file section
         void LoadFile();
@@ -73,8 +73,5 @@ namespace PlatinumEngine
 		///-----------------------------------------------------------------------
 	    bool _showFileLoad          		 = false;
 	    bool _showFileSave                   = false;
-
-	private:
-		Scene &_scene;
 	};
 }
