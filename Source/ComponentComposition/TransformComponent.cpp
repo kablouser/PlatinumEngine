@@ -68,4 +68,17 @@ namespace PlatinumEngine
 		rotAxis = Maths::Normalise(rotAxis);
 		Rotate(Maths::Quaternion::AngleAxis(rotAxis, rotAngle));
 	}
+
+	Maths::Mat4 TransformComponent::GetWorldToLocalMatrixNoScale()
+	{
+		return SetTRInverse(position, rotation);
+	}
+
+	Maths::Mat4 TransformComponent::SetTRInverse(Maths::Vec3 pos, Maths::Quaternion rot)
+	{
+		Maths::Mat4 n;
+		Maths::Quaternion::QuaternionToMatrix (Maths::Quaternion::Inverse(rot));
+		n.SetTranslationMatrix(Maths::Vec3(-pos[0], -pos[1], -pos[2]));
+		return n;
+	}
 }

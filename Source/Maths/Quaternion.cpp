@@ -374,6 +374,43 @@ namespace PlatinumEngine
 			return q;
 		}
 
+		Mat4 Quaternion::QuaternionToMatrix(Quaternion q)
+		{
+			Mat4 m;
+			// Precalculate coordinate products
+			float x = q.x * 2.0F;
+			float y = q.y * 2.0F;
+			float z = q.z * 2.0F;
+			float xx = q.x * x;
+			float yy = q.y * y;
+			float zz = q.z * z;
+			float xy = q.x * y;
+			float xz = q.x * z;
+			float yz = q.y * z;
+			float wx = q.w * x;
+			float wy = q.w * y;
+			float wz = q.w * z;
+
+			// Calculate 3x3 matrix from orthonormal basis
+			m[0][0] = 1.0f - (yy + zz);
+			m[0][1] = xy + wz;
+			m[0][2] = xz - wy;
+			m[0][3] = 0.0F;
+			m[1][0] = xy - wz;
+			m[1][1] = 1.0f - (xx + zz);
+			m[1][2] = yz + wx;
+			m[1][3] = 0.0F;
+			m[2][0] = xz + wy;
+			m[2][1] = yz - wx;
+			m[2][2] = 1.0f - (xx + yy);
+			m[2][3] = 0.0F;
+			m[3][0] = 0.0F;
+			m[3][1] = 0.0F;
+			m[3][2] = 0.0F;
+			m[3][3] = 1.0F;
+			return m;
+		}
+
 		Quaternion Quaternion::identity = Quaternion();
 	}
 }

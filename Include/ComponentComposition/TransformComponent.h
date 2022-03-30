@@ -27,5 +27,10 @@ namespace PlatinumEngine
 		void RotateAround(Maths::Vec3 point, Maths::Vec3 axis, float angle);
 		void Scale(Maths::Vec3 scale);
 		void LookAt(Maths::Vec3 target);
+
+		Maths::Mat4 GetWorldToLocalMatrixNoScale();
+
+	private:
+		Maths::Mat4 SetTRInverse(Maths::Vec3 pos, Maths::Quaternion rot);
 	};
 }

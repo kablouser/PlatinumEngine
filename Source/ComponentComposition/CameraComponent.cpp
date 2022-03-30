@@ -38,10 +38,11 @@ namespace PlatinumEngine
 		Maths::Vec4 q = projectionMatrix.inverse * Maths::Vec4(sgn(clipPlane.x), sgn(clipPlane.y), 1.0f, 1.0f);
 		Maths::Vec4 c = clipPlane * (2.0F / (Maths::Dot (clipPlane, q)));
 		// third row = clip plane - fourth row
-		projectionMatrix[0][2] = c.x - projectionMatrix[0][3];
-		projectionMatrix[1][2] = c.y - projectionMatrix[1][3];
-		projectionMatrix[2][2] = c.z - projectionMatrix[2][3];
-		projectionMatrix[3][2] = c.w - projectionMatrix[3][3];
+		projectionMatrix[2][0] = c.x - projectionMatrix[3][0];
+		projectionMatrix[2][1] = c.y - projectionMatrix[3][1];
+		projectionMatrix[2][2] = c.z - projectionMatrix[3][2];
+		projectionMatrix[2][3] = c.w - projectionMatrix[3][3];
+		return projectionMatrix;
 	}
 
 	void CameraComponent::Render()
@@ -127,7 +128,8 @@ namespace PlatinumEngine
 	{
 		Maths::Mat4 worldToCameraMatrix;
 		worldToCameraMatrix.SetScaleMatrix(Maths::Vec3(1.0F, 1.0F, -1.0F));
-		worldToCameraMatrix = worldToCameraMatrix * transform.GetWorldToLocalMatrixNoScale();
+		TransformComponent* tc = GetGameObject()->GetComponent<TransformComponent>();
+		worldToCameraMatrix = worldToCameraMatrix * tc->GetWorldToLocalMatrixNoScale();
 		return worldToCameraMatrix;
 	}
 
@@ -148,13 +150,13 @@ namespace PlatinumEngine
 	{
 		Maths::Vec3 clipPoint;
 		outP = Maths::Vec3(0, 0, 0);
-		if( worldToClip.PerspectiveMultiplyPoint3( p, out clipPoint ) )
+		if(PerspectiveMultiplyPoint3(worldToClip, p, clipPoint))
 		{
-			Maths::Vec3 cameraPos = cameraToWorld.GetPosition();
+			Maths::Vec3 cameraPos = GetPosition(cameraToWorld);
 			Maths::Vec3 dir = p - cameraPos;
 			// The camera/projection matrices follow OpenGL convention: positive Z is towards the viewer.
 			// So negate it to get into Unity convention.
-			Maths::Vec3 forward = -cameraToWorld.GetAxisZ();
+			Maths::Vec3 forward = -GetAxisZ(cameraToWorld);
 			float dist = Maths::Dot( dir, forward );
 
 			outP.x = viewport.x + (1.0f + clipPoint.x) * viewport.x * 0.5f;
@@ -182,21 +184,20 @@ namespace PlatinumEngine
 		in_v.z = 0.95f;
 
 		Maths::Vec3 pointOnPlane;
-		if( clipToWorld.PerspectiveMultiplyPoint3( in_v, out pointOnPlane ) )
+		if(PerspectiveMultiplyPoint3(clipToWorld, in_v, pointOnPlane))
 		{
 			// Now we have a point on the plane perpendicular to the viewing direction. We need to return the one that is on the line
 			// towards this point, and at p.z distance along camera's viewing axis.
-			Maths::Vec3 cameraPos = cameraToWorld.GetPosition();
+			Maths::Vec3 cameraPos = GetPosition(cameraToWorld);
 			Maths::Vec3 dir = pointOnPlane - cameraPos;
 
 			// The camera/projection matrices follow OpenGL convention: positive Z is towards the viewer.
 			// So negate it to get into Unity convention.
-			Maths::Vec3 forward = -cameraToWorld.GetAxisZ();
+			Maths::Vec3 forward = -GetAxisZ(cameraToWorld);
 			float distToPlane = Maths::Dot( dir, forward );
 			if( abs(distToPlane) >= 1.0e-6f )
 			{
-				bool isPerspective = clipToWorld.IsPerspective();
-				if( isPerspective )
+				if(IsPerspective(clipToWorld))
 				{
 					dir *= p.z / distToPlane;
 					outP = cameraPos + dir;
@@ -217,5 +218,39 @@ namespace PlatinumEngine
 		if (n > 0.0f) return 1.0f;
 		if (n < 0.0f) return -1.0f;
 		return 0.0f;
+	}
+
+	bool CameraComponent::PerspectiveMultiplyPoint3(Maths::Mat4 m, Maths::Vec3 v, Maths::Vec3 o)
+	{
+		Maths::Vec3 res;
+		float w;
+		res.x = m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3];
+		res.y = m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3];
+		res.z = m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3];
+		w     = m[3][0] * v.x + m[3][1] * v.y + m[3][2] * v.z + m[3][3];
+		if( abs(w) > 1.0e-7f )
+		{
+			float invW = 1.0f / w;
+			o.x = res.x * invW;
+			o.y = res.y * invW;
+			o.z = res.z * invW;
+			return true;
+		}
+		return false;
+	}
+
+	Maths::Vec3 CameraComponent::GetAxisZ(Maths::Mat4 m)
+	{
+		return Maths::Vec3(m[0][2], m[1][2], m[2][2]);
+	}
+
+	Maths::Vec3 CameraComponent::GetPosition(Maths::Mat4 m)
+	{
+		return Maths::Vec3(m[0][3], m[1][3], m[2][3]);
+	}
+
+	bool CameraComponent::IsPerspective(Maths::Mat4 m)
+	{
+		return (m[0][3] != 0.0f || m[1][3] != 0.0f || m[2][3] != 0.0f || m[3][3] != 1.0f);
 	}
 }

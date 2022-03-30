@@ -5,6 +5,8 @@
 #include "Maths/Quaternion.h"
 #include "ComponentComposition/Component.h"
 #include "ComponentComposition/Color.h"
+#include "ComponentComposition/GameObject.h"
+#include "ComponentComposition/TransformComponent.h"
 
 namespace PlatinumEngine
 {
@@ -52,6 +54,11 @@ namespace PlatinumEngine
 
 	private:
 		float sgn(float n);
+		bool PerspectiveMultiplyPoint3(Maths::Mat4 m, Maths::Vec3 v, Maths::Vec3 o);
+		Maths::Vec3 GetAxisZ(Maths::Mat4 m);
+		Maths::Vec3 GetPosition(Maths::Mat4 m);
+		bool IsPerspective(Maths::Mat4 m);
+
 	};
 }
 

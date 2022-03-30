@@ -48,6 +48,7 @@ namespace PlatinumEngine
 			static Quaternion EulerToQuat(Vec3 euler);
 			static Quaternion AngleAxis(Vec3 axis, float angle);
 			static Quaternion RotationMatrix(Mat4 matrix);
+			static Mat4 QuaternionToMatrix(Quaternion q);
 
 		public:
 			static Quaternion identity;
