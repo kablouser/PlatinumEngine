@@ -9,6 +9,7 @@
 namespace PlatinumEngine
 {
 	enum projectionType {PERSPECTIVE, ORTHOGRAPHIC};
+	enum clearFlagType {SKYBOX, BGCOLOR, DEPTH, NONE};
 	class CameraComponent: Component
 	{
 	public:
@@ -21,6 +22,7 @@ namespace PlatinumEngine
 		float size;
 		Maths::Vec2 viewportPos;
 		Maths::Vec2 viewportSize;
+		clearFlagType clearFlag;
 
 	public:
 		CameraComponent();

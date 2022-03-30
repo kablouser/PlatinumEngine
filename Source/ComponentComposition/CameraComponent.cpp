@@ -11,6 +11,9 @@ namespace PlatinumEngine
 		 farClippingPlane = 1000;
 		 size = 1;
 		 aspectRatio = 1;
+		 viewportSize = Maths::Vec2(1.f,1.f);
+		 viewportPos = Maths::Vec2(0.f,0.f);
+		 clearFlag = clearFlagType::NONE;
     }
 	CameraComponent::~CameraComponent()
 	{}
@@ -26,6 +29,7 @@ namespace PlatinumEngine
 		size = other.size;
 		viewportSize = other.viewportSize;
 		viewportPos = other.viewportPos;
+		clearFlag = other.clearFlag;
 	}
 
 	Maths::Mat4 CameraComponent::CalculateObliqueMatrix(Maths::Vec4 clipPlane)
