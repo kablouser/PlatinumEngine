@@ -36,28 +36,38 @@ static void GlfwErrorCallback(int error, const char* description)
 
 using std::experimental::filesystem::recursive_directory_iterator;
 
-class AssetsDatabase
+class AssetDatabase
 {
 public:
 
 	typedef size_t AssetID;
 
-	const std::uintmax_t BIG_FILE_THRESHOLD_BYTES = 1000000; // 1MB
+	struct Asset
+	{
+		// note: id is NOT hash
+		AssetID id;
+		size_t hash;
+		bool doesExist;
+		std::experimental::filesystem::path path;
+	};
 
-	AssetsDatabase() :
+	// 1MB
+	const std::uintmax_t BIG_FILE_THRESHOLD_BYTES = 1000000;
+
+	AssetDatabase() :
 		_generator(std::random_device()()),
 		_anyNumber(std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max())
 	{
 	}
 
-	friend std::ostream& operator<<(std::ostream& output, AssetsDatabase& assetsDatabase)
+	friend std::ostream& operator<<(std::ostream& output, AssetDatabase& assetsDatabase)
 	{
 		for(auto i : assetsDatabase._assetIDToFilePath)
 			output << i.first << ' ' << i.second << std::endl;
 		return output;
 	}
 
-	friend std::istream& operator>>(std::istream& input, AssetsDatabase& assetsDatabase)
+	friend std::istream& operator>>(std::istream& input, AssetDatabase& assetsDatabase)
 	{
 		// enforce a empty object
 		assetsDatabase._assetIDToFilePath.clear();
@@ -191,11 +201,10 @@ public:
 
 private:
 
-	std::map<AssetID, std::string> _assetIDToFilePath;
-	std::map<std::string, AssetID> _filePathToAssetID;
+	std::vector<Asset> _database;
+	std::map<AssetID, size_t> _assetIDMap;
 
-	std::mt19937 _generator;
-	std::uniform_int_distribution<size_t> _anyNumber;
+	size_t _nextAssetID;
 };
 
 int main()
@@ -203,7 +212,7 @@ int main()
 	const std::string ASSETS_DATABASE = "./Assets/AssetsDatabase.txt";
 	const std::string ASSETS_FOLDER = "./Assets";
 
-	AssetsDatabase assetsDatabase;
+	AssetDatabase assetsDatabase;
 
 	{
 		std::ifstream inputFile(ASSETS_DATABASE);
