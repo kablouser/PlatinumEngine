@@ -8,6 +8,8 @@
 #include <string>
 #include <algorithm>
 
+#include <ComponentComposition/GameObject.h>
+
 namespace PlatinumEngine
 {
 	class GameObject;
@@ -67,9 +69,17 @@ namespace PlatinumEngine
 		// _components controls
 		//--------------------------------------------------------------------------------------------------------------
 
+		/**
+		 * Adds a component to the scene
+		 * If a game object is provided, then first checks if component exists.
+		 * 	If it does, returns this instead of creating a new one
+		 */
 		template<typename T>
 		Component* AddComponent(GameObject* gameObject = nullptr, bool isEnabled = true)
 		{
+			if (gameObject)
+				if (gameObject->GetComponent<T>())
+					return gameObject->GetComponent<T>();
 			return AddComponentInternal(*new T(), gameObject, isEnabled);
 		}
 
