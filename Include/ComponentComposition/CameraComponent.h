@@ -19,6 +19,7 @@ namespace PlatinumEngine
 		float nearClippingPlane;
 		float farClippingPlane;
 		float size;
+		Maths::Vec2 viewportPos;
 		Maths::Vec2 viewportSize;
 
 	public:

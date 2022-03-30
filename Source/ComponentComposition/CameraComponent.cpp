@@ -25,6 +25,7 @@ namespace PlatinumEngine
 		aspectRatio = other.aspectRatio;
 		size = other.size;
 		viewportSize = other.viewportSize;
+		viewportPos = other.viewportPos;
 	}
 
 	Maths::Mat4 CameraComponent::CalculateObliqueMatrix(Maths::Vec4 clipPlane)
@@ -54,9 +55,8 @@ namespace PlatinumEngine
 
 	Maths::Vec3 CameraComponent::ScreenToViewportPoint(Maths::Vec3 position)
 	{
-		Maths::Vec4 r = GetScreenViewportRect();
-		float nx = (position.x - r.x) / viewportSize.x;
-		float ny = (position.y - r.y) / viewportSize.y;
+		float nx = (position.x - viewportPos.x) / viewportSize.x;
+		float ny = (position.y - viewportPos.y) / viewportSize.y;
 		return Maths::Vec3(nx, ny, position.z);
 	}
 
@@ -73,9 +73,8 @@ namespace PlatinumEngine
 
 	Maths::Vec3 CameraComponent::ViewportToScreenPoint(Maths::Vec3 position)
 	{
-		Maths::Vec4 r = GetScreenViewportRect();
-		float nx = position.x * viewportSize.x + r.x;
-		float ny = position.y * viewportSize.y + r.y;
+		float nx = position.x * viewportSize.x + viewportPos.x;
+		float ny = position.y * viewportSize.y + viewportPos.y;
 		return Maths::Vec3(nx, ny, position.z);
 	}
 
@@ -101,7 +100,7 @@ namespace PlatinumEngine
 
 	Maths::Vec4 CameraComponent::GetScreenViewportRect()
 	{
-		return Maths::Vec4(0, 0, viewportSize.x, viewportSize.y);
+		return Maths::Vec4(viewportPos.x, viewportPos.y, viewportSize.x, viewportSize.y);
 	}
 
 	Maths::Mat4 CameraComponent::GetWorldToClipMatrix()
