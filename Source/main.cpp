@@ -36,7 +36,7 @@ static void GlfwErrorCallback(int error, const char* description)
 
 using std::experimental::filesystem::recursive_directory_iterator;
 
-class AssetDatabase
+class AssetsDatabase
 {
 public:
 
@@ -52,59 +52,67 @@ public:
 	};
 
 	// 1MB
-	const std::uintmax_t BIG_FILE_THRESHOLD_BYTES = 1000000;
+	static constexpr std::uintmax_t BIG_FILE_THRESHOLD_BYTES = 1000000;
+	static constexpr const char* FIRST_LINE = "id, hash, doesExist, path";
 
-	AssetDatabase() :
-		_generator(std::random_device()()),
-		_anyNumber(std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max())
+	AssetsDatabase() : _nextAssetID(0)
 	{
 	}
 
-	friend std::ostream& operator<<(std::ostream& output, AssetDatabase& assetsDatabase)
+	friend std::ostream& operator<<(std::ostream& output, AssetsDatabase& assetsDatabase)
 	{
-		for(auto i : assetsDatabase._assetIDToFilePath)
-			output << i.first << ' ' << i.second << std::endl;
+		output << FIRST_LINE << std::endl;
+		for(auto asset : assetsDatabase._database)
+		{
+			output << asset.id << ',' << asset.hash << ',' << asset.doesExist << ',' << asset.path << std::endl;
+		}
 		return output;
 	}
 
-	friend std::istream& operator>>(std::istream& input, AssetDatabase& assetsDatabase)
+	friend std::istream& operator>>(std::istream& input, AssetsDatabase& assetsDatabase)
 	{
 		// enforce a empty object
-		assetsDatabase._assetIDToFilePath.clear();
-		assetsDatabase._filePathToAssetID.clear();
+		assetsDatabase._database.clear();
+		assetsDatabase._assetIDsMap.clear();
 
-		AssetID id;
+		{
+			std::string firstLine;
+			std::getline(input, firstLine);
+			if(firstLine != FIRST_LINE)
+			{
+				PLATINUM_WARNING("AssetsDatabase stream input: unexpected first line");
+			}
+		}
+
+		Asset asset;
 		std::string filePath;
 		size_t line = 1;
-		while (input >> id && input.get() && std::getline(input, filePath))
+		while (input >> asset.id && input.get() &&
+			input >> asset.hash && input.get() &&
+			input >> asset.doesExist && input.get() &&
+			std::getline(input, filePath))
 		{
-			auto insertID = assetsDatabase._assetIDToFilePath.insert({id, filePath});
-			// if inserted ID successfully
-			if(insertID.second)
+			// construct path object, could exist or not exist
+			asset.path = std::experimental::filesystem::path(filePath);
+
+			// find id
+			auto i = assetsDatabase._assetIDsMap.find(asset.id);
+			// if id is unique
+			if (i == assetsDatabase._assetIDsMap.end())
 			{
-				auto insertFilePath = assetsDatabase._filePathToAssetID.insert({filePath, id});
-				if(!insertFilePath.second)
-				{
-					// File path already in map
-					std::string& existingPath = (insertID.first)->second;
-					PLATINUM_WARNING_STREAM
-						<< "AssetsDatabase input data is bad. File path has already been declared before: "
-						<< existingPath
-						<< " at line " << line;
-					// undo insertID
-					assetsDatabase._assetIDToFilePath.erase(insertID.first);
-				}
+				assetsDatabase._database.push_back(asset);
+				assetsDatabase._assetIDsMap.insert({ asset.id, assetsDatabase._database.size() - 1});
 			}
 			else
 			{
-				// AssetID already in map
-				std::string& existingPath = (insertID.first)->second;
+				// index of existing AssetID in database
+				size_t databaseIndex = i->second;
 				PLATINUM_WARNING_STREAM
-					<< "AssetsDatabase input data is bad. Same AssetID used by multiple files: "
-					<< existingPath
-					<< " and "
-				   	<< filePath
-				   	<< " at line " << line;
+						<< "AssetsDatabase input data is bad. Same AssetID was declared for multiple files: "
+						<< assetsDatabase._database[databaseIndex].path
+						<< " and "
+						<< asset.path
+						<< " at line " << line;
 			}
 
 			++line;
@@ -116,103 +124,164 @@ public:
 		return input;
 	}
 
-	bool TryGetFilePath(AssetID assetID, std::string& outFilePath)
+	static std::size_t HashFile(const std::experimental::filesystem::path& path)
 	{
-		auto i = _assetIDToFilePath.find(assetID);
-		if (i == _assetIDToFilePath.end())
-			return false;
-		else
-		{
-			outFilePath = i->second;
-			return true;
-		}
-	}
-
-	bool TryGetID(const std::string& filePath, AssetID& outAssetID)
-	{
-		auto i = _filePathToAssetID.find(filePath);
-		if (i == _filePathToAssetID.end())
-			return false;
-		else
-		{
-			outAssetID = i->second;
-			return true;
-		}
-	}
-
-	/**
-	 * "plz notice me senpai" sort of situation
-	 */
-	void DetectFilePath(const std::experimental::filesystem::path& filePath)
-	{
-		if (AssetID getID; TryGetID(filePath, getID))
-		{
-			// remove old pair
-			_assetIDToFilePath.erase(getID);
-			_filePathToAssetID.erase(filePath);
-
-			PLATINUM_WARNING("File path already exists. Deleting existing entry.");
-		}
-
-		// generate unique ID for file
-		std::size_t newID;
-		if (BIG_FILE_THRESHOLD_BYTES < std::experimental::filesystem::file_size(filePath))
-		{
-			// BIG FILE
-			// generate AssetID from hash of file name
-			newID = std::hash<std::string>{}(filePath.filename());
-			PLATINUM_INFO_STREAM << "Hashed BIG FILE" << filePath;
-		}
-		else
+		if (std::experimental::filesystem::file_size(path) < BIG_FILE_THRESHOLD_BYTES)
 		{
 			// small file
-			// generate AssetID from hash of file content
-			std::ifstream fileStream(filePath);
-			std::stringstream buffer;
-			buffer << fileStream.rdbuf();
-			newID = std::hash<std::string>{}(buffer.str());
-			PLATINUM_INFO_STREAM << "Hashed small file" << filePath;
-		}
-
-		std::string existingFilePath;
-		if (TryGetFilePath(newID, existingFilePath))
-		{
-			PLATINUM_WARNING_STREAM
-				<< "Generating AssetID failed for " << filePath
-				<< ". Content already exists from another file: " << existingFilePath;
-
-			// hash with filePath
-			newID = newID ^ (std::hash<std::string>{}(filePath) << 1);
-
-			while (TryGetFilePath(newID, existingFilePath))
+			// hash file's content
+			std::ifstream fileStream(path);
+			if(fileStream.is_open())
 			{
-				PLATINUM_WARNING_STREAM
-					<< "Generating AssetID failed for " << filePath
-					<< " again! AssetID already used by another file: " << existingFilePath;
-				// generate totally random
-				newID = _anyNumber(_generator);
+				std::stringstream buffer;
+				buffer << fileStream.rdbuf();
+				return std::hash<std::string>{}(buffer.str());
+			}
+			else
+			{
+				// if file cannot open, just hash the same way as BIG FILE
+				PLATINUM_WARNING_STREAM << "Cannot hash file content because it can't open: " << path;
 			}
 		}
 
-		_assetIDToFilePath.insert({newID, filePath});
-		_filePathToAssetID.insert({filePath, newID});
-		PLATINUM_INFO_STREAM << "Added new file " <<  filePath << ", AssetID=" << newID;
+		// BIG FILE or cannot open file
+		// hash file name
+		return std::hash<std::string>{}(path.filename());
 	}
+
+	bool TryGetAsset(AssetID id, Asset& outAsset)
+	{
+		auto i = _assetIDsMap.find(id);
+		if (i == _assetIDsMap.end())
+			return false;
+		else
+		{
+			// range-checked indexing
+			outAsset = _database.at(i->second);
+			return true;
+		}
+	}
+
+	bool TryGetAsset(const std::string& filePath, Asset& outAsset)
+	{
+		for(auto& i : _database)
+		{
+			if (i.path == filePath)
+			{
+				outAsset = i;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// nodiscard means compiler creates warning if you don't use this function's return value
+	[[nodiscard]] const std::vector<Asset>& GetDatabase() const
+	{
+		return _database;
+	}
+
+	void Update(const std::vector<std::experimental::filesystem::path>& currentExistingPaths)
+	{
+		// build map from paths to database index, 1-to-1
+		std::map<std::experimental::filesystem::path, size_t> pathsMap;
+		// build map from hashes to database index, 1-to-many
+		std::multimap<size_t, size_t> hashesMap;
+
+		{
+			size_t databaseIndex = 0;
+			for (auto& asset: _database)
+			{
+				// ensure current database is update to date
+				asset.doesExist = std::experimental::filesystem::exists(asset.path);
+				// if asset no longer exists, keep it in the database still,
+				// asset might "come back" later
+				// "come back" could be moved/renamed
+
+				// if path insert failed because path is not unique
+				if (!pathsMap.insert({ asset.path, databaseIndex }).second)
+				{
+					PLATINUM_WARNING("AssetsDatabase structure is wrong");
+				}
+
+				hashesMap.insert({ asset.hash, databaseIndex });
+
+				++databaseIndex;
+			}
+		}
+
+		// add any new assets in currentPaths
+		for(auto& path : currentExistingPaths)
+		{
+			if (!std::experimental::filesystem::exists(path))
+				// programmer made mistake with the input
+				continue;
+
+			size_t hash = HashFile(path);
+
+			auto findPath = pathsMap.find(path);
+			if(findPath == pathsMap.end())
+			{
+				// no path
+				auto findHashes = hashesMap.equal_range(hash);
+				auto findHashesBegin = findHashes.first;
+				auto findHashesEnd = findHashes.second;
+
+				// count the number of Assets that exist/don't exist out of the found hashes
+				size_t existCount = 0;
+				size_t nonExistCount = 0;
+				size_t lastDatabaseIndex = -1;
+				for(auto findHash = findHashesBegin; findHash != findHashesEnd; ++findHash)
+				{
+					size_t databaseIndex = findHash->second;
+					if (_database[databaseIndex].doesExist)
+					{
+						++existCount;
+						lastDatabaseIndex = databaseIndex;
+						break;
+					}
+					else
+					{
+						++nonExistCount;
+						lastDatabaseIndex = databaseIndex;
+						if(1 < nonExistCount)
+							break;
+					}
+				}
+
+				if(existCount == 0 && nonExistCount == 0)
+				{
+					// probably new file
+					_database.push_back()
+				}
+
+			}
+			else
+			{
+				// found path
+			}
+		}
+	}
+
+	// TODO function to purge all
 
 private:
 
 	std::vector<Asset> _database;
-	std::map<AssetID, size_t> _assetIDMap;
+	// maps assetID to database index
+	std::map<AssetID, size_t> _assetIDsMap;
 
 	size_t _nextAssetID;
+
 };
+
 
 int main()
 {
 	const std::string ASSETS_DATABASE = "./Assets/AssetsDatabase.txt";
 	const std::string ASSETS_FOLDER = "./Assets";
 
-	AssetDatabase assetsDatabase;
+	AssetsDatabase assetsDatabase;
 
 	{
 		std::ifstream inputFile(ASSETS_DATABASE);
