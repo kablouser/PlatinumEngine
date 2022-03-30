@@ -66,29 +66,16 @@ int main(int, char**)
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
 		// construct logger before everything to save all logs
-		bool isLoggerOpen = true;
+
 		PlatinumEngine::Logger logger;
-
-		bool isRasterRendererOpen = true;
 		PlatinumEngine::Renderer rasterRenderer;
-
-		bool isInputWindowOpen = true;
 		PlatinumEngine::InputManager inputManager;
-
-		bool isSceneEditorOpen = true;
 		PlatinumEngine::Scene scene;
 		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer);
-
-		bool isHierarchyWindowOpen = true;
 		PlatinumEngine::HierarchyWindow hierarchyWindow;
-
-		bool isInspectorWindowOpen = true;
 		PlatinumEngine::InspectorWindow inspectorWindow;
-
-		bool isGameWindowOpen = true;
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
-
-		PlatinumEngine::WindowManager windowManager(&gameWindow);
+		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, scene);
 
 		// Main loop
 		while (!glfwWindowShouldClose(window))
@@ -104,26 +91,6 @@ int main(int, char**)
 			// GUI HERE
 			//--------------------------------------------------------------------------------------------------------------
 			ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-			if (isSceneEditorOpen)
-				sceneEditor.ShowGUIWindow(&isSceneEditorOpen);
-
-			if(isInputWindowOpen)
-				inputManager.ShowGUIWindow(&isInputWindowOpen);
-
-			if(isHierarchyWindowOpen)
-			{
-				hierarchyWindow.ShowGUIWindow(&isHierarchyWindowOpen, scene);
-				inspectorWindow.SetActiveGameObject(hierarchyWindow.selectedGameObject);
-			}
-
-			if(isInspectorWindowOpen)
-				inspectorWindow.ShowGUIWindow(&isInspectorWindowOpen, scene);
-
-			if(isLoggerOpen)
-				logger.ShowGUIWindow(&isLoggerOpen);
-			if(isGameWindowOpen)
-				gameWindow.ShowGuiWindow(&isGameWindowOpen);
-
 			windowManager.ShowGUI(scene);
 			//ImGui::ShowDemoWindow();
 
