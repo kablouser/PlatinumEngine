@@ -94,13 +94,19 @@ namespace PlatinumEngine
 					ShowWindowGame(&_showWindowGame);
 				}
 				if (ImGui::MenuItem("Hierarchy", "Ctrl+2", &_showWindowHierarchy))
-				{}
+				{
+					ShowWindowHierarchy(&_showWindowHierarchy, _scene);
+				}
 				if (ImGui::MenuItem("Inspector", "Ctrl+3", &_showWindowInspector))
-				{}
+				{
+					ShowWindowInspector(&_showWindowInspector);
+				}
 				if (ImGui::MenuItem("Project", "Ctrl+4", &_showWindowProject))
 				{}
 				if (ImGui::MenuItem("Scene", "Ctrl+5", &_showWindowScene))
-				{}
+				{
+					ShowWindowScene(&_showWindowScene);
+				}
 				if (ImGui::MenuItem("Animation", "Ctrl+6", &_showWindowAnimation))
 				{}
 				if (ImGui::MenuItem("Audio", "Ctrl+7", &_showWindowAudio))
@@ -179,6 +185,12 @@ namespace PlatinumEngine
 			ImGuiFileDialog::Instance()->OpenDialog("SaveFileKey","Save File",".*",".");
 		}
 
+		ImGui::Separator();
+
+		if(ImGui::MenuItem("Quit", "Ctrl+Q"))
+		{
+			std::exit(0);
+		}
 	}
 
 	///--------------------------------------------------------------------------

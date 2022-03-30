@@ -110,5 +110,4 @@ namespace PlatinumEngine
 		_previousTime += deltaTime;
 	}
 
-
 }

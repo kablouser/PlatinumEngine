@@ -89,7 +89,7 @@ namespace PlatinumEngine
         ///-----------------------------------------------------------------------
 		///bools in main menu that controls the play/pause/step function of GameWindow
 		///-----------------------------------------------------------------------
-		bool _pause							 = false;
+		bool _pause							 = true;
 		bool _step							 = false;
 
 
