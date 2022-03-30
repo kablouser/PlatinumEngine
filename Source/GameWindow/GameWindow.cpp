@@ -47,7 +47,7 @@ namespace PlatinumEngine
 		}
 	}
 
-	void PlatinumEngine::GameWindow::Stop()
+	void PlatinumEngine::GameWindow::Step()
 	{
 
 	}
@@ -96,6 +96,5 @@ namespace PlatinumEngine
 			_scene->Update(deltaTime);
 			_previousTime = newTime;
 	}
-
 
 }

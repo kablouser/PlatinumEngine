@@ -27,7 +27,7 @@ namespace PlatinumEngine
 		 */
 		void Pause(bool OnPause);
 
-		void Stop();
+		void Step();
 
 		/**
 		 * Update the GameObject states in scene
