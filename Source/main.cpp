@@ -17,7 +17,6 @@
 #include <GameWindow/GameWindow.h>
 
 #include <OpenGL/GLCheck.h>
-
 static void GlfwErrorCallback(int error, const char* description)
 {
 	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
@@ -87,9 +86,9 @@ int main(int, char**)
 		PlatinumEngine::InspectorWindow inspectorWindow;
 
 		bool isGameWindowOpen = true;
-		PlatinumEngine::GameWindow gameWindow;
+		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
 
-		PlatinumEngine::WindowManager windowManager;
+		PlatinumEngine::WindowManager windowManager(&gameWindow);
 
 
 		//---------TEST-----------
@@ -144,7 +143,6 @@ int main(int, char**)
 				gameWindow.ShowGuiWindow(&isGameWindowOpen);
 
 			windowManager.ShowGUI();
-			//ImGui::ShowDemoWindow();
 			//--------------------------------------------------------------------------------------------------------------
 			// END OF GUI
 			//--------------------------------------------------------------------------------------------------------------

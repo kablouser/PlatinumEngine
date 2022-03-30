@@ -4,11 +4,13 @@
 
 #pragma once
 #include <WindowManager/Filedialog.h>
+#include <GameWindow/GameWindow.h>
 namespace PlatinumEngine
 {
 	class WindowManager
 	{
 	public:
+		WindowManager(GameWindow* gameWindow);
 		///-----------------------------------
 		///Main menu bar functions
 		///-----------------------------------
@@ -20,8 +22,8 @@ namespace PlatinumEngine
 		void SetUpMainMenu();
 
         //file section
-        void LoadFile();
-        void SaveFile();
+        static void LoadFile();
+        static void SaveFile();
 
         //shortcuts for main menu bars
 //		void DoShortCut(sf::Event event);
@@ -37,7 +39,7 @@ namespace PlatinumEngine
 		static void ShowWindowLight(bool* outIsOpen);
 		static void ShowWindowAudio(bool* outIsOpen);
 
-	public:
+	private:
 		///-----------------------------------------------------------------------
 		///bools in main menu window list
 		///-----------------------------------------------------------------------
@@ -70,6 +72,14 @@ namespace PlatinumEngine
 	    bool _showFileLoad          		 = false;
 	    bool _showFileSave                   = false;
 
+        ///-----------------------------------------------------------------------
+		///bools in main menu that controls the play/pause/step function of GameWindow
+		///-----------------------------------------------------------------------
+		bool _pause							 = false;
+		bool _step							 = false;
 
+
+	private:
+		GameWindow *_gameWindow;
 	};
 }
