@@ -6,7 +6,6 @@
 #include "InputManager/InputManager.h"
 #include "SceneManager/Scene.h"
 #include "Renderer/Renderer.h"
-
 namespace PlatinumEngine
 {
 	class GameWindow
@@ -18,18 +17,26 @@ namespace PlatinumEngine
 
 		void ShowGuiWindow(bool* OutIsOpen);
 
-		void Start(bool* OnStart);
+		void Pause(bool OnPause);
 
-		void Pause(bool* OnPause);
-
-		void End(bool* OnEnd);
+		void Stop();
 
 		void Update();
+
+		void Render(ImVec2 targetSize, Scene* scene);
 	private:
 		InputManager* _inputManager;
 		Scene* _scene;
 		Renderer* _renderer;
 
-		bool OnStart, OnPause, OnEnd = false;
+		// output of OpenGL rendering
+		Framebuffer _renderTexture;
+		int _framebufferWidth;
+		int _framebufferHeight;
+
+		double _previousTime = 0.0;
+
+	public:
+		bool _onUpdate = false;
 	};
 }

@@ -9,6 +9,12 @@
 
 namespace PlatinumEngine
 {
+	WindowManager::WindowManager(GameWindow* gameWindow):_gameWindow(gameWindow)
+	{
+
+	}
+	/// this is a bool parameter used for disable or enable the pause and step button
+	static bool enablePauseButton = true;
 	///--------------------------------------------------------------------------
 	/// this function will create a basic window when you open the Platinum Engine
 	///--------------------------------------------------------------------------
@@ -91,23 +97,48 @@ namespace PlatinumEngine
 				ImGui::EndMenu();
 			}
 
-			ImGui::SameLine((ImGui::GetWindowContentRegionMax().x * 0.5f) - (1.5f * (ImGui::GetFontSize() + ImGui::GetStyle().ItemSpacing.x)));
+			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 130.f);
 
+			///------------------------------------------------------------------
+			/// This section is for main menu bar to control the game view play/pause/step
+			///------------------------------------------------------------------
 			if (ImGui::Button("Play"))
 			{
+				_gameWindow->_onUpdate = !_gameWindow->_onUpdate;
+				if(_gameWindow->_onUpdate == true)
+				{
+					_gameWindow->Update();
+					enablePauseButton = !enablePauseButton;
+				}
+				else if(_gameWindow->_onUpdate == false)
+				{
+					enablePauseButton = true;
+				}
 
 			}
 
-			if (ImGui::Button("Pause"))
+			if(enablePauseButton == true)
 			{
+				ImGui::BeginDisabled(enablePauseButton);
 
+				if (ImGui::Button("Pause")) {}
+				if (ImGui::Button("Step"))  {}
+
+				ImGui::EndDisabled();
 			}
-
-			if (ImGui::Button("Stop"))
+			else if(enablePauseButton == false)
 			{
+				if (ImGui::Button("Pause"))
+				{
+					_pause = !_pause;
+					_gameWindow->Pause(_pause);
+				}
 
+				if (ImGui::Button("Step"))
+				{
+
+				}
 			}
-
 			ImGui::EndMainMenuBar();
 		}
 	}
