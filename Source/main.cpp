@@ -77,6 +77,7 @@ int main(int, char**)
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, scene);
 
+
 		// Main loop
 		while (!glfwWindowShouldClose(window))
 		{
@@ -91,6 +92,7 @@ int main(int, char**)
 			// GUI HERE
 			//--------------------------------------------------------------------------------------------------------------
 			ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+
 			windowManager.ShowGUI(scene);
 			//ImGui::ShowDemoWindow();
 

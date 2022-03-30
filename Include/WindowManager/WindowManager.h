@@ -11,7 +11,6 @@
 #include <SceneManager/HierarchyWindow.h>
 #include <Logger/Logger.h>
 
-
 namespace PlatinumEngine
 {
 	class WindowManager
@@ -103,6 +102,5 @@ namespace PlatinumEngine
 		Logger *_logger;
 		InspectorWindow *_inspector;
 		Scene& _scene;
-
 	};
 }
