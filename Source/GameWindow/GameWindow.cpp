@@ -24,6 +24,7 @@ namespace PlatinumEngine
 		if(ImGui::Begin("Game View", outIsOpen))
 		{
 			auto targetSize = ImGui::GetContentRegionAvail();
+			// TODO: add the user input detection(检测用户输入)
 			if(_onUpdate == true)
 			{
 				Update();
@@ -35,6 +36,7 @@ namespace PlatinumEngine
 
 	void PlatinumEngine::GameWindow::Pause(bool OnPause)
 	{
+		// TODO: stop the update function(暂停游戏)
 		if(OnPause == true)
 		{
 			std::cout << "continue" << std::endl;
