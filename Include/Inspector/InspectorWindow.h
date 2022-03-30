@@ -17,12 +17,12 @@ namespace PlatinumEngine
 	class InspectorWindow
 	{
 	public:
-		InspectorWindow(Scene &scene);
+		explicit InspectorWindow(Scene &scene);
 		void ShowGUIWindow(bool* isOpen);
 		void SetActiveGameObject(GameObject* gameObject);
 	private:
 		// TODO: Add specific component guis as components are created
-		void ShowMeshComponent();
+		void ShowMeshRenderComponent();
 		void ShowTransformComponent();
 
 		// Shown when add component button pressed
