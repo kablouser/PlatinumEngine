@@ -15,14 +15,30 @@ namespace PlatinumEngine
 		GameWindow();
 		//~GameWindow();
 
+		/**
+		 * This is a Gui
+		 * @param OutIsOpen
+		 */
 		void ShowGuiWindow(bool* OutIsOpen);
 
+		/**
+		 * Pause function that will make the update in gameWinodw pause
+		 * @param OnPause
+		 */
 		void Pause(bool OnPause);
 
 		void Stop();
 
+		/**
+		 * Update the GameObject states in scene
+		 */
 		void Update();
 
+		/**
+		 * Render the GameObjects in the scene
+		 * @param targetSize
+		 * @param scene
+		 */
 		void Render(ImVec2 targetSize, Scene* scene);
 	private:
 		InputManager* _inputManager;
