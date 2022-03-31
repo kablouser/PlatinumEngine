@@ -28,7 +28,6 @@ namespace PlatinumEngine
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);
 	private:
-		Scene &_scene;
 		GameObject* _activeGameObject = nullptr;
 		std::string _meshFileName;
 		bool _isAddComponentWindowOpen = false;
