@@ -8,40 +8,42 @@ using namespace PlatinumEngine;
 
 void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 {
-	ImGui::Begin("Inspector Window", isOpen);
 
-	if (_activeGameObject)
+	if(ImGui::Begin("Inspector Window", isOpen))
 	{
-		ImGui::Text("Name: ");
-		ImGui::SameLine();
-		static char objectNameBuffer[128];
-		strcpy(objectNameBuffer, _activeGameObject->name.c_str());
-		ImGui::InputText("##input name", objectNameBuffer, IM_ARRAYSIZE(objectNameBuffer));
-		_activeGameObject->name = std::string{objectNameBuffer};
-
-		ImGui::SameLine();
-
-		if (ImGui::Checkbox("##IsEnabled", &_isObjectEnabled))
+		if (_activeGameObject)
 		{
-			_activeGameObject->SetEnabled(_isObjectEnabled, scene);
-		}
+			ImGui::Text("Name: ");
+			ImGui::SameLine();
+			static char objectNameBuffer[128];
+			strcpy(objectNameBuffer, _activeGameObject->name.c_str());
+			ImGui::InputText("##input name", objectNameBuffer, IM_ARRAYSIZE(objectNameBuffer));
+			_activeGameObject->name = std::string{ objectNameBuffer };
 
-		// Now render each component gui
-		if (_activeGameObject->GetComponent<RenderComponent>() != nullptr)
-			ShowMeshRenderComponent(scene);
+			ImGui::SameLine();
 
-		if (_activeGameObject->GetComponent<TransformComponent>() != nullptr)
-			ShowTransformComponent(scene);
+			if (ImGui::Checkbox("##IsEnabled", &_isObjectEnabled))
+			{
+				_activeGameObject->SetEnabled(_isObjectEnabled, scene);
+			}
 
-		ImGui::Separator();
-		if (_isAddComponentWindowOpen)
-			ShowAddComponent(scene);
+			// Now render each component gui
+			if (_activeGameObject->GetComponent<RenderComponent>() != nullptr)
+				ShowMeshRenderComponent(scene);
 
-		if (ImGui::Button("Add Component")) {
-			_isAddComponentWindowOpen = !_isAddComponentWindowOpen;
+			if (_activeGameObject->GetComponent<TransformComponent>() != nullptr)
+				ShowTransformComponent(scene);
+
+			ImGui::Separator();
+			if (_isAddComponentWindowOpen)
+				ShowAddComponent(scene);
+
+			if (ImGui::Button("Add Component"))
+			{
+				_isAddComponentWindowOpen = !_isAddComponentWindowOpen;
+			}
 		}
 	}
-
 	ImGui::End();
 }
 

@@ -141,6 +141,7 @@ namespace PlatinumEngine
 				_pause = !_pause;
 				_gameWindow->Pause(_pause);
 			}
+
 			if (ImGui::Button("Step"))
 			{
 				if(!_pause)

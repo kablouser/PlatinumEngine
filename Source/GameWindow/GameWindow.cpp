@@ -35,8 +35,9 @@ namespace PlatinumEngine
 				Update(deltaTime);
 			}
 			Render(targetSize, _scene);
-			ImGui::End();
 		}
+
+		ImGui::End();
 	}
 
 	void PlatinumEngine::GameWindow::Pause(bool OnPause)
