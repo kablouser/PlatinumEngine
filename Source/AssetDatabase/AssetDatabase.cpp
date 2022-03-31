@@ -8,7 +8,7 @@
 #include <Loaders/LoaderCommon.h>
 #include <Loaders/MeshLoader.h>
 
-using namespace std::experimental;
+using namespace std;
 
 namespace PlatinumEngine
 {

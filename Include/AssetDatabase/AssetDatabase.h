@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 #include <random>
-#include <experimental/filesystem>
+#include <filesystem>
 
 #include <OpenGL/Mesh.h>
 
@@ -21,7 +21,7 @@ namespace PlatinumEngine
 		AssetID id;
 		size_t hash;
 		bool doesExist;
-		std::experimental::filesystem::path path;
+		std::filesystem::path path;
 	};
 
 	/**
@@ -66,7 +66,7 @@ namespace PlatinumEngine
 		 * @param path path to target file
 		 * @return hash value
 		 */
-		static std::size_t HashFile(const std::experimental::filesystem::path& path);
+		static std::size_t HashFile(const std::filesystem::path& path);
 
 		/**
 		 * Converts different system file path formats into a standard
@@ -74,7 +74,7 @@ namespace PlatinumEngine
 		 * @param path to convert
 		 * @return standardised path string
 		 */
-		static std::string StandardisePath(const std::experimental::filesystem::path& path);
+		static std::string StandardisePath(const std::filesystem::path& path);
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Constructors/destructors
@@ -217,7 +217,7 @@ namespace PlatinumEngine
 		 * @param debugMessages if true, messages are logged detailing how currentExistingPaths changes database
 		 */
 		void UpdateWithCurrentPaths(
-				const std::vector<std::experimental::filesystem::path>& currentExistingPaths,
+				const std::vector<std::filesystem::path>& currentExistingPaths,
 				bool debugMessages = true);
 
 		void DeleteLoadedAssets();

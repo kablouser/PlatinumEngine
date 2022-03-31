@@ -153,8 +153,6 @@ set(PROJECT_LIBRARIES
 	"glm;"
 	"assimp;"
 	"libglew_static;"
-	# can't link statically, fun!
-	"stdc++fs;"
   )
 # different targets
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_LIBRARIES})
