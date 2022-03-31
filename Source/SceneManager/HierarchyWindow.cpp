@@ -38,14 +38,29 @@ namespace PlatinumEngine
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Demo"))
 			{
 
-				GameObject* temp = *(GameObject**)payload->Data;
+				GameObject* payloadPointer = *(GameObject**)payload->Data;
 
 				// check move behavior mode
 				// if the mode is to change hierarchy between game objects
 				if(modeForDraggingBehavior == _hierarchyMode)
 				{
-					// change the dragged object's parent
-					temp->SetParent(gameObject, scene);
+
+					// check if the dragged objects is the parent or ancestor of the target object
+					GameObject* temp = gameObject->GetParent();
+					while(temp != nullptr)
+					{
+						if(temp == payloadPointer)
+						{
+							PLATINUM_INFO("Setting a parent object as a child of one of it's children or it's children' children is forbidden.");
+							break;
+						}
+
+						temp = temp->GetParent();
+					}
+
+					if(temp == nullptr)
+						// change the dragged object's parent
+						payloadPointer->SetParent(gameObject, scene);
 				}
 				// if the mode is to change order between game objects
 				else
@@ -53,21 +68,21 @@ namespace PlatinumEngine
 					// check if the two game object have a same parent
 					// when the two game objects do not have same a parent
 					// change the parent of dragged object to be the same as the target object
-					if(temp->GetParent() == gameObject->GetParent())
+					if(payloadPointer->GetParent() == gameObject->GetParent())
 					{
 						
 						// move the position of the dragged objects in the list
 						// move the position of objects with no parent
-						if (temp->GetParent() == nullptr)
+						if (payloadPointer->GetParent() == nullptr)
 						{
-							if (!scene.MoveRootGameObjectPositionInList(gameObject, temp))
+							if (!scene.MoveRootGameObjectPositionInList(gameObject, payloadPointer))
 								PlatinumEngine::Logger::LogInfo("Cannot move game object to the new position.");
 
 						}
 						// move the position of objects with the same parent
 						else
 						{
-							if (!gameObject->GetParent()->MoveChildGameObjectPositionInList(gameObject, temp))
+							if (!gameObject->GetParent()->MoveChildGameObjectPositionInList(gameObject, payloadPointer))
 								PlatinumEngine::Logger::LogInfo("Cannot move game object to the new position.");
 
 						}
@@ -130,7 +145,7 @@ namespace PlatinumEngine
 			// Create Invisible button for achieving dragging tree node to the root game object list behavior
 			ImVec2 windowSize = ImGui::GetContentRegionAvail();
 			
-			ImGui::InvisibleButton(" ", ImVec2(windowSize.x,10));
+			ImGui::InvisibleButton(" ", ImVec2(windowSize.x,150));
 
 			// Add Drag and Drop Events
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
@@ -149,14 +164,14 @@ namespace PlatinumEngine
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Demo"))
 				{
 
-					GameObject* temp = *(GameObject**)payload->Data;
+					GameObject* payloadPointer = *(GameObject**)payload->Data;
 
 					// check move behavior mode
 					// if the mode is to change hierarchy between game objects
 					if (modeForDraggingBehavior == _hierarchyMode)
 					{
 						// change the dragged object's parent
-						temp->SetParent(nullptr, scene);
+						payloadPointer->SetParent(nullptr, scene);
 					}
 				}
 			}
