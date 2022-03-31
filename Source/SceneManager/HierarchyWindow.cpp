@@ -103,14 +103,15 @@ namespace PlatinumEngine
 		// Generate the Hierarchy window
 		if(ImGui::Begin("Hierarchy Window", isOpen))
 		{
-
+			
+			// Gui for choosing hierarchy behaviour mode
 			if (ImGui::RadioButton("Change Hierarchy", modeForDraggingBehavior == _hierarchyMode))
 			{
 				modeForDraggingBehavior = _hierarchyMode;
 			}
 
 			ImGui::SameLine();
-
+			
 			if (ImGui::RadioButton("Change Order", modeForDraggingBehavior == _orderMode))
 			{
 				modeForDraggingBehavior = _orderMode;
@@ -125,8 +126,10 @@ namespace PlatinumEngine
 
 			}
 
-			ImVec2 windowSize = ImGui::GetContentRegionAvail();
 
+			// Create Invisible button for achieving dragging tree node to the root game object list behavior
+			ImVec2 windowSize = ImGui::GetContentRegionAvail();
+			
 			ImGui::InvisibleButton(" ", ImVec2(windowSize.x,10));
 
 			// Add Drag and Drop Events
