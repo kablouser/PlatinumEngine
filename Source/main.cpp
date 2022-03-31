@@ -92,7 +92,6 @@ int main(int, char**)
 
 		//---------TEST-----------
 
-		//Mesh mesh(vertices, indices);
 		for (int i = 0; i < 5; i++)
 		{
 			auto object = scene.AddGameObject("GameObject");
