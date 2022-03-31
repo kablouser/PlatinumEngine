@@ -13,14 +13,14 @@ namespace PlatinumEngine
 								SceneEditor *sceneEditor,
 								HierarchyWindow *hierarchy,
 								Logger *logger,
-								InspectorWindow *inspector,
-								Scene& scene):
+								InspectorWindow *inspector
+								):
 								_gameWindow(gameWindow),
 								_sceneEditor(sceneEditor),
 								_hierarchy(hierarchy),
 								_logger(logger),
-								_inspector(inspector),
-								_scene(scene)
+								_inspector(inspector)
+
 	{
 
 	}
@@ -37,8 +37,8 @@ namespace PlatinumEngine
 		//window section
 		if (_showWindowGame) 			ShowWindowGame(&_showWindowGame);
 		if (_showWindowScene) 			ShowWindowScene(&_showWindowScene);
-		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy, _scene);
-		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector);
+		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy, scene);
+		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector, scene);
 		if (_showWindowProject) 		ShowWindowProject(&_showWindowProject);
 		if (_showWindowAnimation) 		ShowWindowAnimation(&_showWindowAnimation);
 		if (_showWindowAudio) 			ShowWindowAudio(&_showWindowAudio);
@@ -95,11 +95,11 @@ namespace PlatinumEngine
 				}
 				if (ImGui::MenuItem("Hierarchy", "Ctrl+2", &_showWindowHierarchy))
 				{
-					ShowWindowHierarchy(&_showWindowHierarchy, _scene);
+					ShowWindowHierarchy(&_showWindowHierarchy, scene);
 				}
 				if (ImGui::MenuItem("Inspector", "Ctrl+3", &_showWindowInspector))
 				{
-					ShowWindowInspector(&_showWindowInspector);
+					ShowWindowInspector(&_showWindowInspector, scene);
 				}
 				if (ImGui::MenuItem("Project", "Ctrl+4", &_showWindowProject))
 				{}
@@ -291,10 +291,11 @@ namespace PlatinumEngine
 	}
 
 	//Please implement Inspector Window below
-	void WindowManager::ShowWindowInspector(bool* outIsOpen)
+	void WindowManager::ShowWindowInspector(bool* outIsOpen, Scene &scene)
 	{
 		//TODO:
-		_inspector->ShowGUIWindow(outIsOpen);
+		_inspector->SetActiveGameObject(_hierarchy->selectedGameObject);
+		_inspector->ShowGUIWindow(outIsOpen, scene);
 	}
 
 	//Please implement Audio Window below

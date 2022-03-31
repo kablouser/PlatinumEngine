@@ -20,8 +20,8 @@ namespace PlatinumEngine
 				      SceneEditor *_sceneEditor,
 					  HierarchyWindow *_hierarchy,
 					  Logger *_logger,
-					  InspectorWindow *_inspector,
-					  Scene& scene);
+					  InspectorWindow *_inspector
+					  );
 
 		///-----------------------------------
 		///Main menu bar functions
@@ -43,7 +43,7 @@ namespace PlatinumEngine
 		///-----------------------------------
 		void ShowWindowGame(bool* outIsOpen);
 		void ShowWindowHierarchy(bool* outIsOpen, Scene &scene);
-		void ShowWindowInspector(bool* outIsOpen);
+		void ShowWindowInspector(bool* outIsOpen, Scene &scene);
 		void ShowWindowScene(bool* outIsOpen);
 		void ShowWindowProject(bool* outIsOpen);
 		void ShowWindowAnimation(bool* outIsOpen);
@@ -101,6 +101,5 @@ namespace PlatinumEngine
 		HierarchyWindow *_hierarchy;
 		Logger *_logger;
 		InspectorWindow *_inspector;
-		Scene& _scene;
 	};
 }

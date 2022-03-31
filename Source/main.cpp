@@ -75,7 +75,7 @@ int main(int, char**)
 		PlatinumEngine::HierarchyWindow hierarchyWindow;
 		PlatinumEngine::InspectorWindow inspectorWindow;
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
-		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, scene);
+		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow);
 
 
 		// Main loop
