@@ -51,6 +51,7 @@ namespace PlatinumEngine
 					{
 						if(temp == payloadPointer)
 						{
+							PLATINUM_INFO("Setting a parent object as a child of one of it's children or it's children' children is forbidden.");
 							break;
 						}
 
