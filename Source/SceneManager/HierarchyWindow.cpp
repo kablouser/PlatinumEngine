@@ -103,14 +103,15 @@ namespace PlatinumEngine
 		// Generate the Hierarchy window
 		if(ImGui::Begin("Hierarchy Window", isOpen))
 		{
-
+			
+			// Gui for choosing hierarchy behaviour mode
 			if (ImGui::RadioButton("Change Hierarchy", modeForDraggingBehavior == _hierarchyMode))
 			{
 				modeForDraggingBehavior = _hierarchyMode;
 			}
 
 			ImGui::SameLine();
-
+			
 			if (ImGui::RadioButton("Change Order", modeForDraggingBehavior == _orderMode))
 			{
 				modeForDraggingBehavior = _orderMode;
@@ -123,6 +124,41 @@ namespace PlatinumEngine
 				// Create node for this game object
 				DisplayTreeNote(scene.GetRootGameObject(i),scene, modeForDraggingBehavior);
 
+			}
+
+
+			// Create Invisible button for achieving dragging tree node to the root game object list behavior
+			ImVec2 windowSize = ImGui::GetContentRegionAvail();
+			
+			ImGui::InvisibleButton(" ", ImVec2(windowSize.x,10));
+
+			// Add Drag and Drop Events
+			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+			{
+
+				// Set payload to carry the game object
+				ImGui::SetDragDropPayload("Demo", nullptr, sizeof(void*));
+				std::cout<<"test"<<std::endl;
+				// End the DragDropSource
+				ImGui::EndDragDropSource();
+			}
+			if (ImGui::BeginDragDropTarget())
+			{
+
+				// Check payload and update the parent of the dropped game object node
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Demo"))
+				{
+
+					GameObject* temp = *(GameObject**)payload->Data;
+
+					// check move behavior mode
+					// if the mode is to change hierarchy between game objects
+					if (modeForDraggingBehavior == _hierarchyMode)
+					{
+						// change the dragged object's parent
+						temp->SetParent(nullptr, scene);
+					}
+				}
 			}
 
 		}
