@@ -71,6 +71,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	# order by folder structure
 
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
+	
+	"Source/AssetDatabase/AssetDatabase.cpp;"
 
 	"Source/ComponentComposition/CameraComponent.cpp;"
 	"Source/ComponentComposition/Component.cpp;"

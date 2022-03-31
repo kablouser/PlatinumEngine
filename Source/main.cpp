@@ -14,6 +14,7 @@
 #include <SceneManager/HierarchyWindow.h>
 #include <Logger/Logger.h>
 #include <SceneEditor/SceneEditor.h>
+#include <AssetDatabase/AssetDatabase.h>
 
 
 #include <OpenGL/GLCheck.h>
@@ -23,439 +24,52 @@ static void GlfwErrorCallback(int error, const char* description)
 	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
 }
 
-#include <Helpers/VectorHelpers.h>
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <experimental/filesystem>
-
-#include <cctype>
-#include <random>
-#include <limits>
-
-using std::experimental::filesystem::recursive_directory_iterator;
-
-class AssetsDatabase
+int main(int, char**)
 {
-public:
+	// Assets database use demonstration
+	PlatinumEngine::AssetDatabase assetDatabase;
+	// update will go through folders and scan for new files
+	// and then load all assets using their loaders
+	assetDatabase.Update();
 
-	typedef size_t AssetID;
-
-	struct Asset
+	// get meshes in the database
+	for (auto meshAssetID : assetDatabase.GetMeshAssetIDs())
 	{
-		// note: id is NOT hash
-		AssetID id;
-		size_t hash;
-		bool doesExist;
-		std::experimental::filesystem::path path;
-	};
-
-	// static constexpr aka constant expression means "copy and paste this like a macro"
-
-	// 1MB
-	static constexpr std::uintmax_t BIG_FILE_THRESHOLD_BYTES = 1000000;
-	static constexpr const char* FIRST_LINE = "id, hash, doesExist, path";
-
-	AssetsDatabase() : _nextAssetID(0)
-	{
-	}
-
-	friend std::ostream& operator<<(std::ostream& output, AssetsDatabase& assetsDatabase)
-	{
-		output << FIRST_LINE << std::endl;
-		for(const auto& asset : assetsDatabase._database)
+		// let user choose one of these meshes
 		{
-			output
-				<< asset.id << ','
-				<< asset.hash << ','
-				<< asset.doesExist << ','
-				<< StandardisePath(asset.path) << std::endl;
-		}
-		return output;
-	}
-
-	friend std::istream& operator>>(std::istream& input, AssetsDatabase& assetsDatabase)
-	{
-		// enforce a empty object
-		assetsDatabase._database.clear();
-		assetsDatabase._assetIDsMap.clear();
-
-		{
-			std::string firstLine;
-			std::getline(input, firstLine);
-			if(firstLine != FIRST_LINE)
-			{
-				PLATINUM_WARNING("AssetsDatabase stream input: unexpected first line");
-			}
+			// display name
+			PlatinumEngine::Asset meshAsset;
+			assetDatabase.TryGetAsset(meshAssetID.id, meshAsset);
+			PLATINUM_INFO_STREAM << "We have mesh: " << meshAsset.path.string();
 		}
 
-		Asset asset;
-		std::string filePath;
-		size_t line = 1;
-		while (input >> asset.id && input.get() &&
-			input >> asset.hash && input.get() &&
-			input >> asset.doesExist && input.get() &&
-			std::getline(input, filePath))
+		// get the pointer of the loaded mesh object
+		// can return nullptr
+		PlatinumEngine::Mesh* mesh = assetDatabase[meshAssetID];
+		if (mesh)
 		{
-			// construct path object, could exist or not exist
-			asset.path = std::experimental::filesystem::path(filePath);
+			PLATINUM_INFO_STREAM << "Mesh has " << mesh->vertices.size() << " vertices";
 
-			// find id
-			auto i = assetsDatabase._assetIDsMap.find(asset.id);
-			// if id is unique
-			if (i == assetsDatabase._assetIDsMap.end())
-			{
-				assetsDatabase._database.push_back(asset);
-				assert(assetsDatabase._assetIDsMap.insert({ asset.id, assetsDatabase._database.size() - 1}).second);
-				// it's okay if this overflows
-				assetsDatabase._nextAssetID = std::max(assetsDatabase._nextAssetID, asset.id + 1);
-			}
-			else
-			{
-				// index of existing AssetID in database
-				size_t databaseIndex = i->second;
-				PLATINUM_WARNING_STREAM
-						<< "AssetsDatabase input data is bad. Same AssetID was declared for multiple files: "
-						<< assetsDatabase._database.at(databaseIndex).path
-						<< " and "
-						<< asset.path
-						<< " at line " << line;
-			}
-
-			++line;
-		}
-
-		if (!input.eof())
-			PLATINUM_WARNING_STREAM << "AssetsDatabase input stream has format error at line " << line;
-
-		return input;
-	}
-
-	static std::size_t HashFile(const std::experimental::filesystem::path& path)
-	{
-		if (std::experimental::filesystem::file_size(path) < BIG_FILE_THRESHOLD_BYTES)
-		{
-			// small file
-			// hash file's content
-			std::ifstream fileStream(path);
-			if(fileStream.is_open())
-			{
-				std::stringstream buffer;
-				buffer << fileStream.rdbuf();
-				return std::hash<std::string>{}(buffer.str());
-			}
-			else
-			{
-				// if file cannot open, just hash the same way as BIG FILE
-				PLATINUM_WARNING_STREAM << "Cannot hash file content because it can't open: " << path;
-			}
-		}
-		else
-			PLATINUM_INFO_STREAM << "BIG FILE: " << path;
-
-		// BIG FILE or cannot open file
-		// hash file name
-		return std::hash<std::string>{}(path.filename().string());
-	}
-
-	static std::string StandardisePath(const std::experimental::filesystem::path& path)
-	{
-		std::stringstream buffer;
-		char lastC = 0;
-		for(char c : path.string())
-		{
-			// skip consecutive slashes
-			if(lastC == '/' && (c == '/' || c == '\\'))
-				continue;
-
-			// convert \ into /
-			if (c == '\\')
-			{
-				buffer << '/';
-				lastC = '/';
-			}
-			else
-			{
-				buffer << c;
-				lastC = c;
-			}
-		}
-		return buffer.str();
-	}
-
-	bool TryGetAsset(AssetID id, Asset& outAsset)
-	{
-		auto i = _assetIDsMap.find(id);
-		if (i == _assetIDsMap.end())
-			return false;
-		else
-		{
-			// range-checked indexing
-			outAsset = _database.at(i->second);
-			return true;
+			// render mesh or something, idk
+			// (this is a bad example)
+			// PlatinumEngine::ShaderInput shaderInput;
+			// shaderInput.Set(mesh->vertices, mesh->indices);
+			// shaderInput.Draw();
 		}
 	}
 
-	bool TryGetAsset(const std::string& filePath, Asset& outAsset)
-	{
-		for(auto& i : _database)
-		{
-			if (i.path == filePath)
-			{
-				outAsset = i;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	// nodiscard means compiler creates warning if you don't use this function's return value
-	[[nodiscard]] const std::vector<Asset>& GetDatabase() const
-	{
-		return _database;
-	}
-
-	void Update(const std::vector<std::experimental::filesystem::path>& currentExistingPaths)
-	{
-		// TODO ignore list
-
-		// build map from paths to database index, 1-to-1
-		std::map<std::experimental::filesystem::path, size_t> pathsMap;
-		// build map from hashes to database index, 1-to-many
-		std::multimap<size_t, size_t> hashesMap;
-
-		{
-			size_t databaseIndex = 0;
-			for (auto& asset: _database)
-			{
-				// ensure current database is update to date
-				asset.doesExist = std::experimental::filesystem::exists(asset.path);
-				// if asset no longer exists, keep it in the database still,
-				// asset might "come back" later
-				// "come back" could be moved/renamed
-
-				// if path insert failed because path is not unique
-				assert(pathsMap.insert({ asset.path, databaseIndex }).second);
-				hashesMap.insert({ asset.hash, databaseIndex });
-
-				++databaseIndex;
-			}
-		}
-
-		// add any new assets in currentPaths
-		for(auto& path : currentExistingPaths)
-		{
-			if (!std::experimental::filesystem::exists(path))
-				// programmer made mistake with the input
-				continue;
-
-			size_t hash = HashFile(path);
-
-			auto findPath = pathsMap.find(path);
-			if(findPath == pathsMap.end())
-			{
-				// no path
-
-				// count the number of Assets that exist/don't exist out of the found hashes
-				auto findHashes = hashesMap.equal_range(hash);
-				auto findHashesBegin = findHashes.first;
-				auto findHashesEnd = findHashes.second;
-				size_t existCount = 0;
-				size_t nonExistCount = 0;
-				size_t lastDatabaseIndex = -1;
-				for(auto findHash = findHashesBegin; findHash != findHashesEnd; ++findHash)
-				{
-					size_t databaseIndex = findHash->second;
-					if (_database.at(databaseIndex).doesExist)
-					{
-						++existCount;
-						lastDatabaseIndex = databaseIndex;
-						break;
-					}
-					else
-					{
-						++nonExistCount;
-						lastDatabaseIndex = databaseIndex;
-						if(1 < nonExistCount)
-							break;
-					}
-				}
-
-				if(existCount == 0 && nonExistCount == 0)
-					PLATINUM_INFO_STREAM << "1 Detected new asset, add " << path;
-				else if (existCount == 0 && nonExistCount == 1)
-					PLATINUM_INFO_STREAM << "2 Detected asset was renamed/moved, edit " << path;
-				else
-					PLATINUM_INFO_STREAM << "3 Detected duplicated asset, add " << path;
-
-				if (existCount == 0 && nonExistCount == 1)
-				{
-					// asset previously existed, it was renamed/moved
-					// update path in existing entry
-					_database.at(lastDatabaseIndex).doesExist = true;
-					_database.at(lastDatabaseIndex).path = path;
-				}
-				else
-				{
-					// probably new asset or
-					// asset duplicated in another path
-
-					// add new asset
-					// hmmm ... looks like Vulkan ...
-					Asset asset
-							{
-									GenerateAssetID(),
-									hash,
-									true,
-									path
-							};
-
-					_database.push_back(asset);
-					assert(_assetIDsMap.insert({asset.id, _database.size() - 1}).second);
-					assert(pathsMap.insert({path, _database.size() - 1}).second);
-					hashesMap.insert({asset.hash, _database.size() - 1});
-				}
-			}
-			else
-			{
-				// found path
-				size_t databaseIndex = findPath->second;
-				// compare hash of current path with existing Asset
-				if (hash == _database.at(databaseIndex).hash)
-				{
-					// good, nothing to do
-					PLATINUM_INFO_STREAM << "4 Detected existing asset, no change " << path;
-				}
-				else
-				{
-					// hash is different to existing Asset
-
-					// count the number of Assets that exist/don't exist out of the found hashes
-					auto findHashes = hashesMap.equal_range(hash);
-					auto findHashesBegin = findHashes.first;
-					auto findHashesEnd = findHashes.second;
-					size_t existCount = 0;
-					size_t nonExistCount = 0;
-					for(auto findHash = findHashesBegin; findHash != findHashesEnd; ++findHash)
-					{
-						size_t differentHashDatabaseIndex = findHash->second;
-						if (_database.at(differentHashDatabaseIndex).doesExist)
-						{
-							++existCount;
-							break;
-						}
-						else
-						{
-							++nonExistCount;
-							if(1 < nonExistCount)
-								break;
-						}
-					}
-
-					if(existCount == 0 && nonExistCount == 0)
-						PLATINUM_INFO_STREAM << "5 Existing asset edited, edit " << path;
-					else if (existCount == 0 && nonExistCount == 1)
-						PLATINUM_INFO_STREAM << "6 Detected asset was renamed/moved 2, edit " << path;
-					else
-						PLATINUM_INFO_STREAM << "7 Detected duplicated asset 2, edit " << path;
-
-					if (existCount == 0 && nonExistCount == 0)
-					{
-						// existing asset edited
-						// update existing entry
-						_database.at(databaseIndex).hash = hash;
-						_database.at(databaseIndex).doesExist = true;
-					}
-					else if (existCount == 0 && nonExistCount == 1)
-					{
-						// asset previously existed, it was renamed/moved
-						// update path in existing entry
-						_database.at(databaseIndex).path = path;
-						_database.at(databaseIndex).doesExist = true;
-					}
-					else
-					{
-						// asset duplicated in another path
-						_database.at(databaseIndex).hash = hash;
-						_database.at(databaseIndex).doesExist = true;
-					}
-				}
-			}
-		}
-	}
-
-	// TODO function to purge all
-
-private:
-
-	std::vector<Asset> _database;
-	// maps assetID to database index
-	std::map<AssetID, size_t> _assetIDsMap;
-	size_t _nextAssetID;
-
-	size_t GenerateAssetID()
-	{
-		while(0 < _assetIDsMap.count(_nextAssetID))
-		{
-			// consider random? better cross-project ID-ing
-			++_nextAssetID;
-		}
-		size_t returnID = _nextAssetID;
-		++_nextAssetID;
-		return returnID;
-	}
-};
-
-
-int main()
-{
-	const std::string ASSETS_DATABASE = "./Assets/AssetsDatabase.txt";
-	const std::string ASSETS_FOLDER = "./Assets";
-
-	AssetsDatabase assetsDatabase;
-
-	{
-		std::ifstream inputFile(ASSETS_DATABASE);
-		if (inputFile.is_open())
-			inputFile >> assetsDatabase;
-	}
-
-	{
-		std::vector<std::experimental::filesystem::path> currentExistingPaths;
-		for (recursive_directory_iterator i(ASSETS_FOLDER), end; i != end; ++i)
-		{
-			if (!is_directory(i->path()))
-			{
-				currentExistingPaths.push_back(i->path());
-			}
-		}
-		assetsDatabase.Update(currentExistingPaths);
-	}
-
-	{
-		std::ofstream outputFile(ASSETS_DATABASE);
-		if(outputFile.is_open())
-			outputFile << assetsDatabase;
-	}
-
-    return EXIT_SUCCESS;
-}
-
-
-int main2(int, char**)
-{
 	// Setup window
 	glfwSetErrorCallback(GlfwErrorCallback);
 	if (!glfwInit())
 		return EXIT_FAILURE;
 
 	// OpenGL+GLSL versions
-    const char* glsl_version = "#version 330";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
+	const char* glsl_version = "#version 330";
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
 
 	// Create window with graphics context
 	GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
