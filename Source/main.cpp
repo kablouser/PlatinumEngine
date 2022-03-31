@@ -84,9 +84,9 @@ int main(int, char**)
 		PlatinumEngine::HierarchyWindow hierarchyWindow;
 
 		bool isInspectorWindowOpen = true;
-		PlatinumEngine::InspectorWindow inspectorWindow(scene);
+		PlatinumEngine::InspectorWindow inspectorWindow;
 
-		PlatinumEngine::WindowManager windowManager(scene);
+		PlatinumEngine::WindowManager windowManager;
 
 		// Main loop
 		while (!glfwWindowShouldClose(window))
@@ -108,20 +108,19 @@ int main(int, char**)
 			if(isInputWindowOpen)
 				inputManager.ShowGUIWindow(&isInputWindowOpen);
 
-			if(isInputWindowOpen)
-				inputManager.ShowGUIWindow(&isInputWindowOpen);
 			if(isHierarchyWindowOpen)
 			{
 				hierarchyWindow.ShowGUIWindow(&isHierarchyWindowOpen, scene);
 				inspectorWindow.SetActiveGameObject(hierarchyWindow.selectedGameObject);
-
-				if(isInspectorWindowOpen)
-					inspectorWindow.ShowGUIWindow(&isInspectorWindowOpen);
 			}
+
+			if(isInspectorWindowOpen)
+				inspectorWindow.ShowGUIWindow(&isInspectorWindowOpen, scene);
+
 			if(isLoggerOpen)
 				logger.ShowGUIWindow(&isLoggerOpen);
 
-			windowManager.ShowGUI();
+			windowManager.ShowGUI(scene);
 			//ImGui::ShowDemoWindow();
 			//--------------------------------------------------------------------------------------------------------------
 			// END OF GUI

@@ -9,14 +9,10 @@
 
 namespace PlatinumEngine
 {
-	WindowManager::WindowManager(Scene& scene) : _scene(scene)
-	{
-	}
-
 	///--------------------------------------------------------------------------
 	/// this function will create a basic window when you open the Platinum Engine
 	///--------------------------------------------------------------------------
-	void WindowManager::ShowGUI()
+	void WindowManager::ShowGUI(Scene &scene)
 	{
 		///-----------------------------------------------------------------------
 		///ifs in main menu window list to call the function inside
@@ -37,13 +33,13 @@ namespace PlatinumEngine
 		///-------------------------------------------------------------------
 		/// set up the main menu bar
 		///-------------------------------------------------------------------
-		SetUpMainMenu();
+		SetUpMainMenu(scene);
 	}
 
 	///--------------------------------------------------------------------------
 	/// Set up the main menu for basic Window
 	///--------------------------------------------------------------------------
-	void WindowManager::SetUpMainMenu()
+	void WindowManager::SetUpMainMenu(Scene &scene)
 	{
 		if (ImGui::BeginMainMenuBar())
 		{
@@ -68,7 +64,7 @@ namespace PlatinumEngine
 			///---------------------------------------------------------------
 			if (ImGui::BeginMenu("GameObject"))
 			{
-				ShowMenuGameObject();
+				ShowMenuGameObject(scene);
 				ImGui::EndMenu();
 			}
 			///---------------------------------------------------------------
@@ -136,11 +132,11 @@ namespace PlatinumEngine
 	/// this function helps to create a list of
 	/// operations of "GameObject" in the menu Bar
 	///--------------------------------------------------------------------------
-	void WindowManager::ShowMenuGameObject()
+	void WindowManager::ShowMenuGameObject(Scene &scene)
 	{
 		if (ImGui::MenuItem("Create Empty"))
 		{
-			_scene.AddGameObject();
+			scene.AddGameObject();
 		}
 
 		if (ImGui::BeginMenu("3D Object"))

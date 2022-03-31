@@ -6,33 +6,37 @@
 
 using namespace PlatinumEngine;
 
-InspectorWindow::InspectorWindow(Scene& scene) : _scene(scene)
-{
-}
-
-void InspectorWindow::ShowGUIWindow(bool* isOpen)
+void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 {
 	ImGui::Begin("Inspector Window", isOpen);
 
 	if (_activeGameObject)
 	{
-		ImGui::Text("Object Name: ");
+		ImGui::Text("Name: ");
 		ImGui::SameLine();
 		static char objectNameBuffer[128];
 		strcpy(objectNameBuffer, _activeGameObject->name.c_str());
 		ImGui::InputText("##input name", objectNameBuffer, IM_ARRAYSIZE(objectNameBuffer));
 		_activeGameObject->name = std::string{objectNameBuffer};
 
-		// Now render each component gui
-		if (_activeGameObject->GetComponent<RenderComponent>()!= nullptr)
-			ShowMeshRenderComponent();
+		ImGui::SameLine();
 
-		if (_activeGameObject->GetComponent<TransformComponent>()!= nullptr)
-			ShowTransformComponent();
+		if (ImGui::Checkbox("##IsEnabled", &_isObjectEnabled))
+		{
+			_activeGameObject->SetEnabled(_isObjectEnabled, scene);
+		}
+
+		// Now render each component gui
+		if (_activeGameObject->GetComponent<RenderComponent>() != nullptr)
+			ShowMeshRenderComponent(scene);
+
+		if (_activeGameObject->GetComponent<TransformComponent>() != nullptr)
+			ShowTransformComponent(scene);
 
 		ImGui::Separator();
 		if (_isAddComponentWindowOpen)
-			ShowAddComponent();
+			ShowAddComponent(scene);
+
 		if (ImGui::Button("Add Component")) {
 			_isAddComponentWindowOpen = !_isAddComponentWindowOpen;
 		}
@@ -44,18 +48,24 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen)
 void InspectorWindow::SetActiveGameObject(GameObject* gameObject)
 {
 	_activeGameObject = gameObject;
+
+	// Get states of gameObject if not null
+	if (gameObject)
+	{
+		_isObjectEnabled = gameObject->IsEnabled();
+	}
 }
 
-void InspectorWindow::ShowMeshRenderComponent()
+void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 {
 	ImGui::Separator();
 	static char meshBuffer[128];
 	bool isHeaderOpen = ImGui::CollapsingHeader("Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
-	if (ImGui::Button("X")) {
+	if (ImGui::Button("X##RemoveRenderComponent")) {
 		// remove component
-		_scene.RemoveComponent(*_activeGameObject->GetComponent<RenderComponent>());
+		scene.RemoveComponent(*_activeGameObject->GetComponent<RenderComponent>());
 		return;
 	}
 	if (isHeaderOpen)
@@ -82,21 +92,21 @@ void InspectorWindow::ShowMeshRenderComponent()
 	strncpy(meshBuffer, _meshFileName.c_str(), sizeof(meshBuffer));
 }
 
-void InspectorWindow::ShowTransformComponent()
+void InspectorWindow::ShowTransformComponent(Scene& scene)
 {
 	// If this gui is being shown, assumption that object has transform component
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader("Transform Component", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
-	if (ImGui::Button("X")) {
+	if (ImGui::Button("X##RemoveTransformComponent")) {
 		// remove component
-		_scene.RemoveComponent(*_activeGameObject->GetComponent<TransformComponent>());
+		scene.RemoveComponent(*_activeGameObject->GetComponent<TransformComponent>());
 		return;
 	}
 	if (isHeaderOpen)
 	{
-		ImGui::PushItemWidth(80);
+		ImGui::PushItemWidth(50);
 		ImGui::Text("Position: ");
 		ImGui::SameLine();
 		ImGui::Text("X");
@@ -145,7 +155,7 @@ void InspectorWindow::ShowTransformComponent()
 	}
 }
 
-void InspectorWindow::ShowAddComponent()
+void InspectorWindow::ShowAddComponent(Scene& scene)
 {
 	if (ImGui::BeginChild("ComponentSelector"))
 	{
@@ -186,12 +196,12 @@ void InspectorWindow::ShowAddComponent()
 			if (strcmp(selectedComponent, "Mesh Render Component") == 0)
 			{
 				// Add Render Component
-				_scene.AddComponent<RenderComponent>(_activeGameObject);
+				scene.AddComponent<RenderComponent>(_activeGameObject);
 			}
 			else if (strcmp(selectedComponent, "Transform Component") == 0)
 			{
 				// Add Transform Component
-				_scene.AddComponent<TransformComponent>(_activeGameObject);
+				scene.AddComponent<TransformComponent>(_activeGameObject);
 			}
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;
