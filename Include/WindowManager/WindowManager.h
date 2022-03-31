@@ -5,13 +5,23 @@
 #pragma once
 #include <WindowManager/Filedialog.h>
 #include <SceneManager/Scene.h>
+#include <GameWindow/GameWindow.h>
+#include <SceneEditor/SceneEditor.h>
+#include <Inspector/InspectorWindow.h>
+#include <SceneManager/HierarchyWindow.h>
+#include <Logger/Logger.h>
 
 namespace PlatinumEngine
 {
 	class WindowManager
 	{
 	public:
-		WindowManager() = default;
+		WindowManager(GameWindow* gameWindow,
+				      SceneEditor *_sceneEditor,
+					  HierarchyWindow *_hierarchy,
+					  Logger *_logger,
+					  InspectorWindow *_inspector
+					  );
 
 		///-----------------------------------
 		///Main menu bar functions
@@ -24,35 +34,36 @@ namespace PlatinumEngine
 		void SetUpMainMenu(Scene &scene);
 
         //file section
-        void LoadFile();
-        void SaveFile();
+        static void LoadFile();
+        static void SaveFile();
 
         //shortcuts for main menu bars
-//		void DoShortCut(sf::Event event);
 		///-----------------------------------
 		///sub menu item functions to open corresponding window
 		///-----------------------------------
-		static void ShowWindowGame(bool* outIsOpen);
-		static void ShowWindowHierarchy(bool* outIsOpen);
-		static void ShowWindowInspector(bool* outIsOpen);
-		static void ShowWindowScene(bool* outIsOpen);
-		static void ShowWindowProject(bool* outIsOpen);
-		static void ShowWindowAnimation(bool* outIsOpen);
-		static void ShowWindowLight(bool* outIsOpen);
-		static void ShowWindowAudio(bool* outIsOpen);
+		void ShowWindowGame(bool* outIsOpen);
+		void ShowWindowHierarchy(bool* outIsOpen, Scene &scene);
+		void ShowWindowInspector(bool* outIsOpen, Scene &scene);
+		void ShowWindowScene(bool* outIsOpen);
+		void ShowWindowProject(bool* outIsOpen);
+		void ShowWindowAnimation(bool* outIsOpen);
+		void ShowWindowLight(bool* outIsOpen);
+		void ShowWindowAudio(bool* outIsOpen);
+		void ShowLogger(bool* outIsOpen);
 
-	public:
+	private:
 		///-----------------------------------------------------------------------
 		///bools in main menu window list
 		///-----------------------------------------------------------------------
-		bool _showWindowGame                 = false;
-		bool _showWindowScene                = false;
-		bool _showWindowInspector            = false;
-		bool _showWindowHierarchy            = false;
+		bool _showWindowGame                 = true;
+		bool _showWindowScene                = true;
+		bool _showWindowInspector            = true;
+		bool _showWindowHierarchy            = true;
 		bool _showWindowProject              = false;
 		bool _showWindowAnimation            = false;
 		bool _showWindowAudio                = false;
 		bool _showWindowLight                = false;
+		bool _showLogger					 = true;
 
 		///-----------------------------------------------------------------------
 		///bools in main menu GameObject list
@@ -73,5 +84,22 @@ namespace PlatinumEngine
 		///-----------------------------------------------------------------------
 	    bool _showFileLoad          		 = false;
 	    bool _showFileSave                   = false;
+
+        ///-----------------------------------------------------------------------
+		///bools in main menu that controls the play/pause/step function of GameWindow
+		///-----------------------------------------------------------------------
+		bool _pause							 = true;
+		bool _step							 = false;
+
+
+	private:
+		///-----------------------------------------------------------------------
+		///pointers to the constructor of each window need to be shown
+		///-----------------------------------------------------------------------
+		GameWindow *_gameWindow;
+		SceneEditor *_sceneEditor;
+		HierarchyWindow *_hierarchy;
+		Logger *_logger;
+		InspectorWindow *_inspector;
 	};
 }
