@@ -17,20 +17,22 @@ namespace PlatinumEngine
 	class InspectorWindow
 	{
 	public:
-		InspectorWindow(const Scene &scene);
-		void ShowGUIWindow(bool* isOpen);
+		InspectorWindow() = default;
+		void ShowGUIWindow(bool* isOpen, Scene& scene);
 		void SetActiveGameObject(GameObject* gameObject);
 	private:
 		// TODO: Add specific component guis as components are created
-		void ShowMeshComponent();
-		void ShowTransformComponent();
+		void ShowMeshRenderComponent(Scene& scene);
+		void ShowTransformComponent(Scene& scene);
 
 		// Shown when add component button pressed
-		void ShowAddComponent();
+		void ShowAddComponent(Scene& scene);
 	private:
-		Scene &_scene;
 		GameObject* _activeGameObject = nullptr;
 		std::string _meshFileName;
 		bool _isAddComponentWindowOpen = false;
+
+		// Have to keep track of if object enabled ourselves as isEnabled is a private member of game object
+		bool _isObjectEnabled;
 	};
 }

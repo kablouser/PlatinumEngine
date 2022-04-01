@@ -9,10 +9,27 @@
 
 namespace PlatinumEngine
 {
+	WindowManager::WindowManager(GameWindow* gameWindow,
+								SceneEditor *sceneEditor,
+								HierarchyWindow *hierarchy,
+								Logger *logger,
+								InspectorWindow *inspector
+								):
+								_gameWindow(gameWindow),
+								_sceneEditor(sceneEditor),
+								_hierarchy(hierarchy),
+								_logger(logger),
+								_inspector(inspector)
+
+	{
+
+	}
+	/// this is a bool parameter used for disable or enable the pause and step button
+	static bool enablePauseButton = true;
 	///--------------------------------------------------------------------------
 	/// this function will create a basic window when you open the Platinum Engine
 	///--------------------------------------------------------------------------
-	void WindowManager::ShowGUI()
+	void WindowManager::ShowGUI(Scene &scene)
 	{
 		///-----------------------------------------------------------------------
 		///ifs in main menu window list to call the function inside
@@ -20,26 +37,26 @@ namespace PlatinumEngine
 		//window section
 		if (_showWindowGame) 			ShowWindowGame(&_showWindowGame);
 		if (_showWindowScene) 			ShowWindowScene(&_showWindowScene);
-		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy);
-		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector);
+		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy, scene);
+		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector, scene);
 		if (_showWindowProject) 		ShowWindowProject(&_showWindowProject);
 		if (_showWindowAnimation) 		ShowWindowAnimation(&_showWindowAnimation);
 		if (_showWindowAudio) 			ShowWindowAudio(&_showWindowAudio);
 		if (_showWindowLight) 			ShowWindowLight(&_showWindowLight);
-
+		if (_showLogger)   				ShowLogger(&_showLogger);
 		if (_showFileLoad) 				LoadFile();
 		if (_showFileSave) 				SaveFile();
 
 		///-------------------------------------------------------------------
 		/// set up the main menu bar
 		///-------------------------------------------------------------------
-		SetUpMainMenu();
+		SetUpMainMenu(scene);
 	}
 
 	///--------------------------------------------------------------------------
 	/// Set up the main menu for basic Window
 	///--------------------------------------------------------------------------
-	void WindowManager::SetUpMainMenu()
+	void WindowManager::SetUpMainMenu(Scene &scene)
 	{
 		if (ImGui::BeginMainMenuBar())
 		{
@@ -64,7 +81,7 @@ namespace PlatinumEngine
 			///---------------------------------------------------------------
 			if (ImGui::BeginMenu("GameObject"))
 			{
-				ShowMenuGameObject();
+				ShowMenuGameObject(scene);
 				ImGui::EndMenu();
 			}
 			///---------------------------------------------------------------
@@ -73,15 +90,23 @@ namespace PlatinumEngine
 			if (ImGui::BeginMenu("Window"))
 			{
 				if (ImGui::MenuItem("Game", "Ctrl+1", &_showWindowGame))
-				{}
+				{
+					ShowWindowGame(&_showWindowGame);
+				}
 				if (ImGui::MenuItem("Hierarchy", "Ctrl+2", &_showWindowHierarchy))
-				{}
+				{
+					ShowWindowHierarchy(&_showWindowHierarchy, scene);
+				}
 				if (ImGui::MenuItem("Inspector", "Ctrl+3", &_showWindowInspector))
-				{}
+				{
+					ShowWindowInspector(&_showWindowInspector, scene);
+				}
 				if (ImGui::MenuItem("Project", "Ctrl+4", &_showWindowProject))
 				{}
 				if (ImGui::MenuItem("Scene", "Ctrl+5", &_showWindowScene))
-				{}
+				{
+					ShowWindowScene(&_showWindowScene);
+				}
 				if (ImGui::MenuItem("Animation", "Ctrl+6", &_showWindowAnimation))
 				{}
 				if (ImGui::MenuItem("Audio", "Ctrl+7", &_showWindowAudio))
@@ -90,6 +115,40 @@ namespace PlatinumEngine
 				{}
 				ImGui::EndMenu();
 			}
+
+			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 130.f);
+
+			///------------------------------------------------------------------
+			/// This section is for main menu bar to control the game view play/pause/step
+			///------------------------------------------------------------------
+			if (ImGui::Button("Play"))
+			{
+				_gameWindow->_onUpdate = !_gameWindow->_onUpdate;
+				if(_gameWindow->_onUpdate)
+				{
+					enablePauseButton = !enablePauseButton;
+				}
+				else if(!_gameWindow->_onUpdate)
+				{
+					enablePauseButton = true;
+				}
+			}
+
+  			// activate or inactive pause and step button
+			ImGui::BeginDisabled(enablePauseButton);
+			if (ImGui::Button("Pause"))
+			{
+				_pause = !_pause;
+				_gameWindow->Pause(_pause);
+			}
+			if (ImGui::Button("Step"))
+			{
+				if(!_pause)
+					_pause = true;
+				_gameWindow->Step();
+			}
+			ImGui::EndDisabled();
+
 			ImGui::EndMainMenuBar();
 		}
 	}
@@ -126,20 +185,25 @@ namespace PlatinumEngine
 			ImGuiFileDialog::Instance()->OpenDialog("SaveFileKey","Save File",".*",".");
 		}
 
+		ImGui::Separator();
+
+		if(ImGui::MenuItem("Quit", "Ctrl+Q"))
+		{
+			std::exit(0);
+		}
 	}
 
 	///--------------------------------------------------------------------------
 	/// this function helps to create a list of
 	/// operations of "GameObject" in the menu Bar
 	///--------------------------------------------------------------------------
-	void WindowManager::ShowMenuGameObject()
+	void WindowManager::ShowMenuGameObject(Scene &scene)
 	{
 		if (ImGui::MenuItem("Create Empty"))
-		{}
-		if (ImGui::MenuItem("Create Empty Child"))
-		{}
-		if (ImGui::MenuItem("Create Empty Parent"))
-		{}
+		{
+			scene.AddGameObject();
+		}
+
 		if (ImGui::BeginMenu("3D Object"))
 		{
 			if (ImGui::MenuItem("Cube"))
@@ -216,19 +280,22 @@ namespace PlatinumEngine
 	//Please implement Game Window below
 	void WindowManager::ShowWindowGame(bool* outIsOpen)
 	{
-		//TODO:
+		_gameWindow->ShowGuiWindow(outIsOpen);
 	}
 
 	//Please implement Scene Window below
 	void WindowManager::ShowWindowScene(bool* outIsOpen)
 	{
 		//TODO:
+		_sceneEditor->ShowGUIWindow(outIsOpen);
 	}
 
 	//Please implement Inspector Window below
-	void WindowManager::ShowWindowInspector(bool* outIsOpen)
+	void WindowManager::ShowWindowInspector(bool* outIsOpen, Scene &scene)
 	{
 		//TODO:
+		_inspector->SetActiveGameObject(_hierarchy->selectedGameObject);
+		_inspector->ShowGUIWindow(outIsOpen, scene);
 	}
 
 	//Please implement Audio Window below
@@ -238,9 +305,15 @@ namespace PlatinumEngine
 	}
 
 	//Please implement Hierarchy Window below
-	void WindowManager::ShowWindowHierarchy(bool* outIsOpen)
+	void WindowManager::ShowWindowHierarchy(bool* outIsOpen, Scene &scene)
 	{
 		//TODO:
+		_hierarchy->ShowGUIWindow(outIsOpen, scene);
+	}
+
+	void WindowManager::ShowLogger(bool* outIsOpen)
+	{
+		_logger->ShowGUIWindow(outIsOpen);
 	}
 
 

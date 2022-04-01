@@ -14,10 +14,10 @@
 #include <SceneManager/HierarchyWindow.h>
 #include <Logger/Logger.h>
 #include <SceneEditor/SceneEditor.h>
+#include <GameWindow/GameWindow.h>
 
 
 #include <OpenGL/GLCheck.h>
-
 static void GlfwErrorCallback(int error, const char* description)
 {
 	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
@@ -67,43 +67,16 @@ int main(int, char**)
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
 		// construct logger before everything to save all logs
-		bool isLoggerOpen = true;
+
 		PlatinumEngine::Logger logger;
-
-		bool isRasterRendererOpen = true;
 		PlatinumEngine::Renderer rasterRenderer;
-
-		bool isInputWindowOpen = true;
 		PlatinumEngine::InputManager inputManager;
-
-		bool isSceneEditorOpen = true;
 		PlatinumEngine::Scene scene;
 		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer);
-
-		bool isHierarchyWindowOpen = true;
 		PlatinumEngine::HierarchyWindow hierarchyWindow;
-
-		bool isInspectorWindowOpen = true;
-		PlatinumEngine::InspectorWindow inspectorWindow(scene);
-
-		PlatinumEngine::WindowManager windowManager;
-
-
-		//---------TEST-----------
-
-		for (int i = 0; i < 5; i++)
-		{
-			scene.AddGameObject("GameObject");
-		}
-
-		for (int i = 0; i < 5; i++)
-		{
-			scene.AddGameObject(std::string("GameObject2").append(std::to_string(i)), scene.GetRootGameObject(i));
-		}
-
-		//--------END TEST----------
-
-
+		PlatinumEngine::InspectorWindow inspectorWindow;
+		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
+		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow);
 
 		// Main loop
 		while (!glfwWindowShouldClose(window))
@@ -119,26 +92,7 @@ int main(int, char**)
 			// GUI HERE
 			//--------------------------------------------------------------------------------------------------------------
 			ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-			if (isSceneEditorOpen)
-				sceneEditor.ShowGUIWindow(&isSceneEditorOpen);
-
-			if(isInputWindowOpen)
-				inputManager.ShowGUIWindow(&isInputWindowOpen);
-
-			if(isInputWindowOpen)
-				inputManager.ShowGUIWindow(&isInputWindowOpen);
-			if(isHierarchyWindowOpen)
-			{
-				hierarchyWindow.ShowGUIWindow(&isHierarchyWindowOpen, scene);
-				inspectorWindow.SetActiveGameObject(hierarchyWindow.selectedGameObject);
-
-				if(isInspectorWindowOpen)
-					inspectorWindow.ShowGUIWindow(&isInspectorWindowOpen);
-			}
-			if(isLoggerOpen)
-				logger.ShowGUIWindow(&isLoggerOpen);
-
-			windowManager.ShowGUI();
+			windowManager.ShowGUI(scene);
 			//ImGui::ShowDemoWindow();
 			//--------------------------------------------------------------------------------------------------------------
 			// END OF GUI
