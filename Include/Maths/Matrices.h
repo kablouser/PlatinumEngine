@@ -147,6 +147,10 @@ namespace PlatinumEngine
 
 			Mat4& operator=(const Mat4& otherMatrix);
 
+			void Inverse();
+
+			void Transpose();
+
 			void SetIdentityMatrix();
 
 			void SetTranslationMatrix(Vec3 translationDirection);
@@ -188,6 +192,10 @@ namespace PlatinumEngine
 			Mat3 operator-(Mat3 otherMatrix);
 
 			Mat3& operator=(const Mat3& otherMatrix);
+
+			void Inverse();
+
+			void Transpose();
 
 			void SetIdentityMatrix();
 
@@ -380,4 +388,17 @@ namespace PlatinumEngine
 	}
 }
 
+//--------------------------------------
+// Functions to process matrix3 and 4
+//--------------------------------------
+namespace PlatinumEngine
+{
+	namespace Maths
+	{
+		Mat3 Inverse(Mat3 matrix3x3);
+		Mat3 Transpose(Mat3 matrix3x3);
 
+		Mat4 Inverse(Mat4 matrix4x4);
+		Mat4 Transpose(Mat4 matrix4x4);
+	}
+}
