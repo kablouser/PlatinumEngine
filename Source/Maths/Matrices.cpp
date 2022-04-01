@@ -124,6 +124,29 @@ namespace PlatinumEngine
 
 		}
 
+		void Mat4::Inverse()
+		{
+			glm::mat4x4 glmMatrix4 = glm::make_mat4(this->matrix);
+
+			glmMatrix4 = glm::inverse(glmMatrix4);
+
+			float* inverseMatrix4Array = glm::value_ptr(glmMatrix4);
+
+			this->ConvertFromArray(inverseMatrix4Array, 16);
+
+		}
+
+		void Mat4::Transpose()
+		{
+			glm::mat4x4 glmMatrix4 = glm::make_mat4(this->matrix);
+
+			glmMatrix4 = glm::transpose(glmMatrix4);
+
+			float* transposeMatrix4Array = glm::value_ptr(glmMatrix4);
+
+			this->ConvertFromArray(transposeMatrix4Array, 16);
+		}
+
 		void Mat4::SetIdentityMatrix()
 		{
 
@@ -328,6 +351,28 @@ namespace PlatinumEngine
 
 		}
 
+		void Mat3::Inverse()
+		{
+			glm::mat3x3 glmMatrix3 = glm::make_mat3(this->matrix);
+
+			glmMatrix3 = glm::inverse(glmMatrix3);
+
+			float* inverseMatrix3Array = glm::value_ptr(glmMatrix3);
+
+			this->ConvertFromArray(inverseMatrix3Array, 9);
+		}
+
+		void Mat3::Transpose()
+		{
+			glm::mat3x3 glmMatrix3 = glm::make_mat3(this->matrix);
+
+			glmMatrix3 = glm::transpose(glmMatrix3);
+
+			float* transposedMatrix3Array = glm::value_ptr(glmMatrix3);
+
+			this->ConvertFromArray(transposedMatrix3Array, 9);
+		}
+
 		void Mat3::SetIdentityMatrix()
 		{
 			float identityMatrix[] = { 1, 0, 0,
@@ -365,6 +410,66 @@ namespace PlatinumEngine
 
 			this->ConvertFromArray(scaleMatrix, 9);
       
+		}
+
+	}
+}
+
+
+namespace PlatinumEngine
+{
+	namespace Maths
+	{
+		Mat3 Inverse(Mat3 matrix3x3)
+		{
+			glm::mat3x3 glmMatrix3 = glm::make_mat3(matrix3x3.matrix);
+
+			glmMatrix3 = glm::inverse(glmMatrix3);
+
+			float* inverseMatrix3Array = glm::value_ptr(glmMatrix3);
+
+			matrix3x3.ConvertFromArray(inverseMatrix3Array, 9);
+
+			return matrix3x3;
+		}
+
+		Mat3 Transpose(Mat3 matrix3x3)
+		{
+			glm::mat3x3 glmMatrix3 = glm::make_mat3(matrix3x3.matrix);
+
+			glmMatrix3 = glm::transpose(glmMatrix3);
+
+			float* transposedMatrix3Array = glm::value_ptr(glmMatrix3);
+
+			matrix3x3.ConvertFromArray(transposedMatrix3Array, 9);
+
+			return matrix3x3;
+
+		}
+
+		Mat4 Inverse(Mat4 matrix4x4)
+		{
+			glm::mat4x4 glmMatrix4 = glm::make_mat4(matrix4x4.matrix);
+
+			glmMatrix4 = glm::inverse(glmMatrix4);
+
+			float* inverseMatrix4Array = glm::value_ptr(glmMatrix4);
+
+			matrix4x4.ConvertFromArray(inverseMatrix4Array, 16);
+
+			return matrix4x4;
+		}
+		Mat4 Transpose(Mat4 matrix4x4)
+		{
+			glm::mat4x4 glmMatrix4 = glm::make_mat4(matrix4x4.matrix);
+
+			glmMatrix4 = glm::transpose(glmMatrix4);
+
+			float* transposeMatrix4Array = glm::value_ptr(glmMatrix4);
+
+			matrix4x4.ConvertFromArray(transposeMatrix4Array, 16);
+
+			return matrix4x4;
 		}
 
 	}
