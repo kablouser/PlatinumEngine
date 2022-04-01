@@ -7,7 +7,10 @@
 #include <imgui.h>
 #include "WindowManager/Filedialog.h"
 #include <ComponentComposition/Component.h>
+#include <ComponentComposition/RenderComponent.h>
+#include <ComponentComposition/TransformComponent.h>
 #include <ComponentComposition/GameObject.h>
+#include <SceneManager/SceneManager.h>
 
 namespace PlatinumEngine
 {
@@ -15,36 +18,21 @@ namespace PlatinumEngine
 	{
 	public:
 		InspectorWindow() = default;
-		void ShowGUIWindow(bool* isOpen);
+		void ShowGUIWindow(bool* isOpen, Scene& scene);
 		void SetActiveGameObject(GameObject* gameObject);
 	private:
 		// TODO: Add specific component guis as components are created
-		void ShowMeshComponent();
-		void ShowTransformComponent();
+		void ShowMeshRenderComponent(Scene& scene);
+		void ShowTransformComponent(Scene& scene);
+
+		// Shown when add component button pressed
+		void ShowAddComponent(Scene& scene);
 	private:
 		GameObject* _activeGameObject = nullptr;
 		std::string _meshFileName;
-	};
+		bool _isAddComponentWindowOpen = false;
 
-	// FOR TESTING
-	class MeshComponent : public Component
-	{
-	public:
-		MeshComponent() = default;
-	};
-
-	class TransformComponent : public Component
-	{
-	public:
-		TransformComponent() = default;
-		float position[3] = {0.0f, 0.0f, 0.0f};
-		float rotation[3] = {0.0f, 0.0f, 0.0f};
-		float scale[3] = {1.0f, 1.0f, 1.0f};
-	};
-
-	class AnotherComponent : public Component
-	{
-	public:
-		AnotherComponent() = default;
+		// Have to keep track of if object enabled ourselves as isEnabled is a private member of game object
+		bool _isObjectEnabled;
 	};
 }

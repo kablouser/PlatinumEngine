@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(PlatinumEngine VERSION 0.0.2)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_OSX_ARCHITECTURES arm64)
+set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
 # static libraries please
 set(BUILD_SHARED_LIBS FALSE)
 # make executable run in project's root directory
@@ -113,9 +113,9 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	
 	"Source/WindowManager/Filedialog.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
+	
+	"Source/GameWindow/GameWindow.cpp;"
 	)
-
-
 
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 
@@ -131,10 +131,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/In
 set(UNIT_TESTS
 	"Test/TestTemplate.cpp;"
 	"Test/Maths/VectorsTest.cpp;"
-	"Test/Maths/MatricesTest.cpp;"  
+	"Test/Maths/MatricesTest.cpp;"
 	"Test/SceneEditor/EditorCameraTest.cpp;"
   "Test/TestScene.cpp;"
-  )
+	)
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 
 target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")

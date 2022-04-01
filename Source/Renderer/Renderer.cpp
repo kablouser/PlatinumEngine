@@ -190,6 +190,5 @@ namespace PlatinumEngine
 		_unlitShader.SetUniform("isPointLight", true);
 	}
 
-
 }
 //}
