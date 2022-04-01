@@ -35,7 +35,7 @@ namespace PlatinumEngine
 	Maths::Mat4 CameraComponent::CalculateObliqueMatrix(Maths::Vec4 clipPlane)
 	{
 		Maths::Mat4 projectionMatrix = GetProjectionMatrix();
-		Maths::Vec4 q = projectionMatrix.inverse * Maths::Vec4(sgn(clipPlane.x), sgn(clipPlane.y), 1.0f, 1.0f);
+		Maths::Vec4 q = Maths::Inverse(projectionMatrix) * Maths::Vec4(sgn(clipPlane.x), sgn(clipPlane.y), 1.0f, 1.0f);
 		Maths::Vec4 c = clipPlane * (2.0F / (Maths::Dot (clipPlane, q)));
 		// third row = clip plane - fourth row
 		projectionMatrix[2][0] = c.x - projectionMatrix[3][0];
@@ -135,14 +135,12 @@ namespace PlatinumEngine
 
 	Maths::Mat4 CameraComponent::GetCameraToWorldMatrix()
 	{
-		Maths::Mat4 m = GetWorldToCameraMatrix();
-		m.Invert_Full();
-		return m;
+		return Maths::Inverse(GetWorldToCameraMatrix());
 	}
 
 	Maths::Mat4 CameraComponent::GetClipToWorldMatrix()
 	{
-		return Maths::Mat4.Invert_Full(GetWorldToClipMatrix());
+		return Maths::Inverse(GetWorldToClipMatrix());
 	}
 
 	bool CameraComponent::CameraProject(Maths::Vec3 p, Maths::Mat4 cameraToWorld, Maths::Mat4 worldToClip,

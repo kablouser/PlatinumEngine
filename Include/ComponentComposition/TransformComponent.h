@@ -4,6 +4,7 @@
 #include "Maths/Quaternion.h"
 #include "Maths/Matrices.h"
 #include "ComponentComposition/Component.h"
+#include "ComponentComposition/GameObject.h"
 
 namespace PlatinumEngine
 {

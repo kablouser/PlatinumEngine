@@ -127,9 +127,10 @@ namespace PlatinumEngine
 	//Transforms point from world space to local space
 	Maths::Vec3 TransformComponent::InverseTransformPoint(Maths::Vec3 point)
 	{
+		GameObject* parent = GetGameObject()->GetParent();
 		Maths::Vec3 newPosition, localPosition;
 		if (parent)
-			localPosition = parent.InverseTransformPoint(point);
+			localPosition = parent->GetComponent<TransformComponent>()->InverseTransformPoint(point);
 		else
 			localPosition = point;
 		localPosition  -= _localposition;
@@ -143,9 +144,7 @@ namespace PlatinumEngine
 	//Returns matrix with translation, rotation, scale
 	Maths::Mat4 TransformComponent::GetWorldToLocalMatrix()
 	{
-		Maths::Mat4 m = GetLocalToWorldMatrix();
-		m.Invert_Full();
-		return m;
+		return Maths::Inverse(GetLocalToWorldMatrix());
 	}
 
 	Maths::Mat4 TransformComponent::GetLocalToWorldMatrix()
@@ -154,8 +153,9 @@ namespace PlatinumEngine
 		t.SetTranslationMatrix(_localposition);
 		t.SetRotationMatrix(rotation.EulerAngles());
 		t.SetScaleMatrix(scale);
+		GameObject* parent = GetGameObject()->GetParent();
 		if(parent)
-			t = parent.GetLocalToWorldMatrix()*t;
+			t = parent->GetComponent<TransformComponent>()->GetLocalToWorldMatrix()*t;
 		return t;
 	}
 
@@ -168,11 +168,12 @@ namespace PlatinumEngine
 
 	Maths::Quaternion TransformComponent::GetWorldRotation()
 	{
+		GameObject* parent = GetGameObject()->GetParent();
 		Maths::Quaternion worldRot = rotation;
-		while(parent)
+		while(parent != nullptr)
 		{
-			worldRot *= rotation;
-			parent = parent.parent;
+			worldRot *= parent->GetComponent<TransformComponent>()->rotation;
+			parent = parent->GetParent();
 		}
 		return worldRot;
 	}
