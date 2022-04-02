@@ -4,8 +4,8 @@
 
 #include <SceneEditor/SceneEditor.h>
 #include <imgui.h>
-
-
+#include "ComponentComposition/RenderComponent.h"
+#include "ComponentComposition/Objects.h"
 namespace PlatinumEngine{
 
 

@@ -14,6 +14,7 @@ namespace PlatinumEngine
 	RenderComponent::RenderComponent(Mesh &mesh)
 	{
 		_mesh = mesh;
+		_shaderInput.Set(_mesh.vertices, _mesh.indices);
 		// _material = material;
 	}
 
