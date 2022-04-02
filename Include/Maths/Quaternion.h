@@ -14,7 +14,7 @@ namespace PlatinumEngine
 		public:
 			Quaternion();
 			Quaternion(float x, float y, float z, float w);
-			Quaternion(float yaw, float pitch, float roll);
+			Quaternion(float roll, float pitch, float yaw);
 			Quaternion(Vec3 euler);
 			~Quaternion();
 
@@ -52,6 +52,7 @@ namespace PlatinumEngine
 			static Quaternion RotationMatrix(Mat4 matrix);
 			static Mat4 QuaternionToMatrix(Quaternion q);
 			static Quaternion MatrixToQuaternion(Mat4 matrix);
+			static Vec3 MatrixToEuler(Mat4 matrix);
 			static Quaternion FromToRotation (Vec3 from, Vec3 to);
 			static Mat4 FromToRotationMatrix (Vec3 from, Vec3 to);
 			static Quaternion LookRotation(Vec3 forward, Vec3 up);
@@ -66,12 +67,16 @@ namespace PlatinumEngine
 			static bool LookRotationToMatrix (Vec3 viewVec, Vec3 upVec,Mat4& m);
 			static Mat4 SetBasis(Vec3 inX, Vec3 inY, Vec3 inZ);
 			static bool Approximately(float a, float b);
+			static void MakePositive(Vec3& euler);
 
 		private:
 			static Vec3 _forward;
 			static Vec3 _up;
 			static Vec3 _right;
 			static float _eps;
+			static float _PI;
+			static float _DEG2RAD;
+			static float _RAD2DEG;
 
 		};
 	}

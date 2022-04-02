@@ -7,8 +7,8 @@ namespace PlatinumEngine
 	TransformComponent::TransformComponent()
 	{
 		position = Maths::Vec3();
-		rotation = Maths::Quaternion();
-		scale = Maths::Vec3();
+		rotation = Maths::Quaternion::identity;
+		scale = Maths::Vec3(1.f,1.f,1.f);
 		_localposition = Maths::Vec3();
 	}
 	TransformComponent::~TransformComponent()
@@ -44,7 +44,7 @@ namespace PlatinumEngine
 	//Transformations are Local unless space is specified
 	void TransformComponent::Rotate(Maths::Vec3 euler)
 	{
-		Maths::Quaternion eulerRot = Maths::Quaternion::EulerToQuat(euler);
+		Maths::Quaternion eulerRot = Maths::Quaternion::EulerToQuat(euler*(_PI/180.f));
 		rotation *= eulerRot;
 	}
 	void TransformComponent::Rotate(Maths::Quaternion q)
@@ -57,7 +57,7 @@ namespace PlatinumEngine
 	}
 	void TransformComponent::Rotate(Maths::Vec3 euler, relativeTo space)
 	{
-		Maths::Quaternion eulerRot = Maths::Quaternion::EulerToQuat(euler);
+		Maths::Quaternion eulerRot = Maths::Quaternion::EulerToQuat(euler*(_PI/180.f));
 		if(space==relativeTo::LOCAL)
 			rotation *= eulerRot;
 		else
@@ -81,6 +81,7 @@ namespace PlatinumEngine
 	//Rotates by an angle around an axis passing through a point
 	void TransformComponent::RotateAround(Maths::Vec3 point, Maths::Vec3 axis, float angle)
 	{
+		angle *= (_PI / 180.f);
 		Maths::Quaternion q = Maths::Quaternion::AngleAxis(axis, angle);
 		position = q * (position-point) + point;
 		rotation *= q;
@@ -88,24 +89,9 @@ namespace PlatinumEngine
 
 	void TransformComponent::LookAt(Maths::Vec3 target)
 	{
-		Maths::Vec3 forwardVector = target - position;
-		forwardVector = Maths::Normalise(forwardVector);
-		Maths::Vec3 f = forward(), u = up();
-		float dot = Maths::Dot(f, forwardVector);
-		if (abs(dot - (-1.0f)) < _eps)
-		{
-			Rotate(Maths::Quaternion(u.x, u.y, u.z, _PI));
-			return;
-		}
-		if (abs(dot - (1.0f)) < _eps)
-		{
-			Rotate(Maths::Quaternion::identity);
-			return;
-		}
-		float rotAngle = (float)acos(dot);
-		Maths::Vec3 rotAxis = Maths::Cross(forward(), forwardVector);
-		rotAxis = Maths::Normalise(rotAxis);
-		Rotate(Maths::Quaternion::AngleAxis(rotAxis, rotAngle));
+		Maths::Vec3 dir = target-position;
+		dir = Maths::Normalise(dir);
+		rotation = Maths::Quaternion::FromToRotation(forward(), dir);
 	}
 
 	//Transforms direction from local space to world space

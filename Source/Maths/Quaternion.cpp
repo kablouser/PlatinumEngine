@@ -1,4 +1,6 @@
 #include <Maths/Quaternion.h>
+
+
 namespace PlatinumEngine
 {
 	namespace Maths
@@ -6,12 +8,12 @@ namespace PlatinumEngine
 		Quaternion::Quaternion(): x(0.f), y(0.f), z(0.f), w(0.f)
 		{
 		}
-		Quaternion::Quaternion(float x, float y, float z, float w): x(x), y(y), z(z), w(w)
+		Quaternion::Quaternion(float w, float x, float y, float z): x(x), y(y), z(z), w(w)
 		{
 		}
-		Quaternion::Quaternion(float yaw, float pitch, float roll)
+		Quaternion::Quaternion(float roll, float pitch, float yaw)
 		{
-			Quaternion q = EulerToQuat(Vec3(yaw,pitch,roll));
+			Quaternion q = EulerToQuat(Vec3(roll,pitch,yaw)*_DEG2RAD);
 			x = q.x;
 			y = q.y;
 			z = q.z;
@@ -19,7 +21,7 @@ namespace PlatinumEngine
 		}
 		Quaternion::Quaternion(Vec3 euler)
 		{
-			Quaternion q = EulerToQuat(euler);
+			Quaternion q = EulerToQuat(euler*_DEG2RAD);
 			x = q.x;
 			y = q.y;
 			z = q.z;
@@ -32,10 +34,11 @@ namespace PlatinumEngine
 
 		void Quaternion::operator *=(const Quaternion &q)
 		{
-			w = w*q.w - x*q.x - y*q.y - z*q.z;
-			x = w*q.x + x*q.w + y*q.z - z*q.y;
-			y = w*q.y + y*q.w + z*q.x - x*q.z;
-			z = w*q.z + z*q.w + x*q.y - y*q.x;
+			float rw = w*q.w - x*q.x - y*q.y - z*q.z;
+			float rx = w*q.x + x*q.w + y*q.z - z*q.y;
+			float ry = w*q.y + y*q.w + z*q.x - x*q.z;
+			float rz = w*q.z + z*q.w + x*q.y - y*q.x;
+			w = rw; x = rx; y = ry; z = rz;
 		}
 		void Quaternion::operator *=(const float value)
 		{
@@ -147,10 +150,10 @@ namespace PlatinumEngine
 		{
 			switch(i)
 			{
-				case 0: return x;
-				case 1: return y;
-				case 2: return z;
-				case 3: return w;
+				case 0: return w;
+				case 1: return x;
+				case 2: return y;
+				case 3: return z;
 				default:
 					throw std::exception();
 			}
@@ -175,7 +178,7 @@ namespace PlatinumEngine
 		}
 		Vec3 Quaternion::EulerAngles()
 		{
-			return QuatToEuler(Quaternion(x,y,z,w));
+			return QuatToEuler(Quaternion(w,x,y,z))*(180.f / _PI);
 		}
 		Vec4 Quaternion::ToVec4()
 		{
@@ -183,7 +186,7 @@ namespace PlatinumEngine
 		}
 		std::string Quaternion::ToString()
 		{
-			return "X:"+std::to_string(x)+" Y:"+std::to_string(y)+" Z:"+std::to_string(z)+" W:"+std::to_string(w);
+			return "W: "+std::to_string(w)+", X: "+std::to_string(x)+", Y: "+std::to_string(y)+", Z: "+std::to_string(z);
 		}
 
 		// Static Methods
@@ -293,35 +296,26 @@ namespace PlatinumEngine
 		}
 		Vec3 Quaternion::QuatToEuler(Quaternion q)
 		{
-			float t0 = 2. * (q.w*q.x + q.y*q.z);
-			float t1 = 1.f - 2.f * (q.x*q.x + q.y*q.y);
-			float roll = atan2(t0, t1);
-			float t2 = 2.f * (q.w*q.y - q.z*q.x);
-			t2 = t2>1.f?1.f:t2;
-			t2 = t2<-1.f?-1.f:t2;
-			float pitch = asin(t2);
-			float t3 = 2.f * (q.w*q.z + q.x*q.y);
-			float t4 = 1.f - 2.f * (q.y*q.y + q.z*q.z);
-			float yaw = atan2(t3, t4);
-			Vec3 v(yaw, pitch, roll);
+			Mat4 m = QuaternionToMatrix(q);
+			Vec3 v = MatrixToEuler (m);
 			return v;
 		}
 		Quaternion Quaternion::EulerToQuat(Vec3 euler)
 		{
-			float yaw = euler.x/2.f, pitch = euler.y/2.f, roll = euler.z/2.f;
+			float roll = euler.x/2.f, pitch = euler.y/2.f, yaw = euler.z/2.f;
 			float sinroll = sin(roll), sinpitch = sin(pitch), sinyaw = sin(yaw);
 			float cosroll = cos(roll), cospitch = cos(pitch), cosyaw = cos(yaw);
-			float qx = sinroll * cospitch * cosyaw - cosroll * sinpitch * sinyaw;
-			float qy = cosroll * sinpitch * cosyaw + sinroll * cospitch * sinyaw;
-			float qz = cosroll * cospitch * sinyaw - sinroll * sinpitch * cosyaw;
-			float qw = cosroll * cospitch * cosyaw + sinroll * sinpitch * sinyaw;
-			return Quaternion(qx, qy, qz, qw);
+			float qx = sinroll * cospitch * cosyaw + cosroll * sinpitch * sinyaw;
+			float qy = cosroll * sinpitch * cosyaw - sinroll * cospitch * sinyaw;
+			float qz = cosroll * cospitch * sinyaw + sinroll * sinpitch * cosyaw;
+			float qw = cosroll * cospitch * cosyaw - sinroll * sinpitch * sinyaw;
+			return Quaternion(qw, qx, qy, qz);
 		}
 		Quaternion Quaternion::AngleAxis(Vec3 axis, float angle)
 		{
 			float halfAngle = angle * .5f;
 			float s = sin(halfAngle);
-			Quaternion q = Quaternion(axis.x * s, axis.y * s, axis.z * s, cos(halfAngle));
+			Quaternion q = Quaternion(cos(halfAngle), axis.x * s, axis.y * s, axis.z * s);
 			return q;
 		}
 
@@ -397,63 +391,91 @@ namespace PlatinumEngine
 			float wz = q.w * z;
 
 			// Calculate 3x3 matrix from orthonormal basis
-			m[0][0] = 1.0f - (yy + zz);
-			m[0][1] = xy + wz;
-			m[0][2] = xz - wy;
-			m[0][3] = 0.0F;
-			m[1][0] = xy - wz;
-			m[1][1] = 1.0f - (xx + zz);
-			m[1][2] = yz + wx;
-			m[1][3] = 0.0F;
-			m[2][0] = xz + wy;
-			m[2][1] = yz - wx;
-			m[2][2] = 1.0f - (xx + yy);
-			m[2][3] = 0.0F;
-			m[3][0] = 0.0F;
-			m[3][1] = 0.0F;
-			m[3][2] = 0.0F;
-			m[3][3] = 1.0F;
+			m[0][0] = 1.f - (yy + zz);
+			m[1][0] = xy + wz;
+			m[2][0] = xz - wy;
+			m[3][0] = 0.f;
+			m[0][1] = xy - wz;
+			m[1][1] = 1.f - (xx + zz);
+			m[2][1] = yz + wx;
+			m[3][1] = 0.f;
+			m[0][2] = xz + wy;
+			m[1][2] = yz - wx;
+			m[2][2] = 1.f - (xx + yy);
+			m[3][2] = 0.f;
+			m[0][3] = 0.f;
+			m[1][3] = 0.f;
+			m[2][3] = 0.f;
+			m[3][3] = 1.f;
 			return m;
 		}
 		//Returns a Quaternion from a rotation matrix
 		Quaternion Quaternion::MatrixToQuaternion(Mat4 matrix)
 		{
 			Quaternion q;
-			float fTrace = matrix[0][0] + matrix[1][1] + matrix[2][2];
-			float fRoot;
-
-			if ( fTrace > 0.0f )
+			float tr = matrix[0][0] + matrix[1][1] + matrix[2][2];
+			if (tr > 0) {
+				float S = sqrt(tr+1.0) * 2; // S=4*qw
+				q.w = 0.25 * S;
+				q.x = (matrix[2][1] - matrix[1][2]) / S;
+				q.y = (matrix[0][2] - matrix[2][0]) / S;
+				q.z = (matrix[1][0] - matrix[0][1]) / S;
+			}
+			else if ((matrix[0][0] > matrix[1][1])&(matrix[0][0] > matrix[2][2]))
 			{
-				// |w| > 1/2, may as well choose w > 1/2
-				fRoot = sqrt (fTrace + 1.0f);  // 2w
-				q.w = 0.5f*fRoot;
-				fRoot = 0.5f/fRoot;  // 1/(4w)
-				q.x = (matrix[2][1] - matrix[1][2])*fRoot;
-				q.y = (matrix[0][2] - matrix[2][0])*fRoot;
-				q.z = (matrix[1][0] - matrix[0][1])*fRoot;
+				float S = sqrt(1.0 + matrix[0][0] - matrix[1][1] - matrix[2][2]) * 2; // S=4*qx
+				q.w = (matrix[2][1] - matrix[1][2]) / S;
+				q.x = 0.25 * S;
+				q.y = (matrix[0][1] + matrix[1][0]) / S;
+				q.z = (matrix[0][2] + matrix[2][0]) / S;
+			}
+			else if (matrix[1][1] > matrix[2][2])
+			{
+				float S = sqrt(1.0 + matrix[1][1] - matrix[0][0] - matrix[2][2]) * 2; // S=4*qy
+				q.w = (matrix[0][2] - matrix[2][0]) / S;
+				q.x = (matrix[0][1] + matrix[1][0]) / S;
+				q.y = 0.25 * S;
+				q.z = (matrix[1][2] + matrix[2][1]) / S;
 			}
 			else
 			{
-				// |w| <= 1/2
-				int s_iNext[] = { 1, 2, 0 };
-				int i = 0;
-				if ( matrix[1][1] > matrix[0][0] )
-					i = 1;
-				if ( matrix[2][2] > matrix[i][i] )
-					i = 2;
-				int j = s_iNext[i];
-				int k = s_iNext[j];
-
-				fRoot = sqrt (matrix[i][i] - matrix[j][j] - matrix[k][k] + 1.0f);
-				//float* apkQuat[3] = { &q.x, &q.y, &q.z };
-				//Assert (fRoot >= Vector3.kEpsilon);
-				q[i] = 0.5f*fRoot;
-				fRoot = 0.5f / fRoot;
-				q.w = (matrix[k][j] - matrix[j][k]) * fRoot;
-				q[j] = (matrix[j][i] + matrix[i][j])*fRoot;
-				q[k] = (matrix[k][i] + matrix[i][k])*fRoot;
+				float S = sqrt(1.0 + matrix[2][2] - matrix[0][0] - matrix[1][1]) * 2; // S=4*qz
+				q.w = (matrix[1][0] - matrix[0][1]) / S;
+				q.x = (matrix[0][2] + matrix[2][0]) / S;
+				q.y = (matrix[1][2] + matrix[2][1]) / S;
+				q.z = 0.25 * S;
 			}
-			q = Normalise(q);
+			return Normalise(q);
+		}
+		//Returns a Vec3 (XYZ ORDER) from a rotation matrix
+		Vec3 Quaternion::MatrixToEuler(Mat4 matrix)
+		{
+			Vec3 v;
+			if ( matrix[0][2] < 0.999F )
+			{
+				if ( matrix[0][2] > -0.999F )
+				{
+					v.y = asin(matrix[0][2]);
+					v.x = atan2(-matrix[1][2], matrix[2][2]);
+					v.z = atan2(-matrix[0][1], matrix[0][0]);
+					MakePositive(v);
+				}
+				else
+				{
+					v.y = -_PI * 0.5F;
+					v.x = -atan2(matrix[1][0], matrix[1][1]);
+					v.z = 0.0F;
+					MakePositive(v);
+				}
+			}
+			else
+			{
+				v.y = _PI * 0.5F;
+				v.x = atan2(matrix[1][0],matrix[1][1]);
+				v.z = 0.0F;
+				MakePositive(v);
+			}
+			return v;
 		}
 		//Creates a Quaternion which rotates from fromDirection to toDirection
 		Quaternion Quaternion::FromToRotation(Vec3 from, Vec3 to)
@@ -462,6 +484,7 @@ namespace PlatinumEngine
 			m = FromToRotationMatrix(from, to);
 			Quaternion q;
 			q = MatrixToQuaternion(m);
+			std::cout<<"ROT: "<<q.ToString()<<"\n";
 			return q;
 		}
 		//Creates a Matrix which rotates from fromDirection to toDirection
@@ -472,12 +495,9 @@ namespace PlatinumEngine
 			float e,h;
 			v = Maths::Cross(from, to);
 			e = Maths::Dot(from, to);
-			if(e>1.f-_eps)     /* "from" almost or equal to "to"-vector? */
-			{
-				m.SetIdentityMatrix();
-				/* return identity */
-			}
-			else if(e<-1.f+_eps) /* "from" almost or equal to negated "to"? */
+			if(e>(1.f-_eps))     //"from" almost or equal to "to"-vector?
+				m.SetIdentityMatrix(); //return identity
+			else if(e<(-1.f+_eps)) // "from" almost or equal to negated "to"?
 			{
 				Vec3 up, left;
 				float invlen;
@@ -532,6 +552,7 @@ namespace PlatinumEngine
 			m[1][3] = 0.f;
 			m[2][3] = 0.f;
 			m[3][0] = 0.f;		m[3][1] = 0.f;		m[3][2] = 0.f;		m[3][3] = 1.f;
+			return m;
 		}
 		//Creates a Quaternion with the specified forward and up directions
 		Quaternion Quaternion::LookRotation(Vec3 forward, Vec3 up)
@@ -549,6 +570,7 @@ namespace PlatinumEngine
 			}
 			return q;
 		}
+		//Creates a Quaternion with the specified forward direction
 		Quaternion Quaternion::LookRotation(Vec3 forward)
 		{
 			return LookRotation(forward, _up);
@@ -609,10 +631,28 @@ namespace PlatinumEngine
 		{
 			return fabs(b - a) < fmax( 0.000001f * fmax(fabs(a), fabs(b)), _eps*8);
 		}
+		//Makes any negative angles positive
+		void Quaternion::MakePositive(Vec3& euler)
+		{
+			const float negativeFlip = -0.0001F;
+			const float positiveFlip = (_PI * 2.0F) - 0.0001F;
+			if (euler.x < negativeFlip)
+				euler.x += 2.0f * _PI;
+			else if (euler.x > positiveFlip)
+				euler.x -= 2.0f * _PI;
+			if (euler.y < negativeFlip)
+				euler.y += 2.0f * _PI;
+			else if (euler.y > positiveFlip)
+				euler.y -= 2.0f * _PI;
+			if (euler.z < negativeFlip)
+				euler.z += 2.0f * _PI;
+			else if (euler.z > positiveFlip)
+				euler.z -= 2.0f * _PI;
+		}
 
 		//Public static Variables
 
-		Quaternion Quaternion::identity = Quaternion(0.f,0.f,0.f,1.f);
+		Quaternion Quaternion::identity = Quaternion(1.f,0.f,0.f,0.f);
 
 		//Private static Variables
 
@@ -620,5 +660,9 @@ namespace PlatinumEngine
 		Vec3 Quaternion::_up = Vec3(0.f,1.f,0.f);
 		Vec3 Quaternion::_right = Vec3(1.f,0.f,0.f);
 		float Quaternion::_eps = 0.0000001f;
+		float Quaternion::_PI = 3.1415926535897932f;
+		float Quaternion::_DEG2RAD = _PI / 180.f;
+		float Quaternion::_RAD2DEG = 180.f / _PI;
 	}
+
 }
