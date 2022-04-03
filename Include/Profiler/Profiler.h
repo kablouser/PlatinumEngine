@@ -17,7 +17,7 @@ namespace PlatinumEngine
 			explicit Section(const std::string& uniqueName);
 			~Section();
 		private:
-			size_t _nameIndex;
+			size_t _sectionIndex;
 			std::chrono::time_point<std::chrono::high_resolution_clock> _startTime;
 		};
 

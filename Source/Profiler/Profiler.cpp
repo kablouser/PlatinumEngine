@@ -8,47 +8,77 @@
 
 #include <imgui.h>
 #include <implot.h>
+#include <GLFW/glfw3.h>
 
-// TODO remove
-#include <Logger/Logger.h>
+#include <Helpers/CircularBuffer.h>
 
 // private namespace, things in this cannot be used outside this file
 namespace
 {
-	unsigned int MAX_RECORD_LENGTH = 60 * 10; // 60 fps for 10 seconds
+	constexpr unsigned int MAX_RECORD_LENGTH = 60 * 10; // 60 fps for 10 seconds
 
-	struct SectionRecord
+	class FrameRecord
 	{
-		size_t nameIndex = 0;
-		double duration = 0.0;
-	};
-
-	struct FrameRecord
-	{
+	public:
 		double timeStart = 0.0;
 		double duration = 0.0;
 		double durationRecordedBySections = 0.0;
 	};
 
-	bool isFrameCreated = false;
-	FrameRecord workingFrameRecord;
-	std::vector<FrameRecord> finishedFrameRecords;
-
-	std::map<std::string, size_t> sectionNameIndices;
-	std::vector<std::string> sectionNames;
-
-	ImPlotPoint FrameRecordGetter(void* user_data, int index)
+	class SectionRecord
 	{
-		FrameRecord& record = finishedFrameRecords.at(index);
-		return {
-				static_cast<double>(index),
-				record.duration
-		};
+	public:
+		double timeStart = -1.0;
+		double duration = 0.0;
+		double durationCumulative = 0.0;
+	};
+
+	class FrameHistory
+	{
+	public:
+		bool isWorking = false;
+		FrameRecord workingRecord;
+		PlatinumEngine::CircularBuffer<FrameRecord, MAX_RECORD_LENGTH> history;
+	};
+
+	class SectionHistory
+	{
+	public:
+		std::string name;
+		bool isWorking = false;
+		SectionRecord workingRecord;
+		PlatinumEngine::CircularBuffer<SectionRecord, MAX_RECORD_LENGTH> history;
+	};
+
+	FrameHistory frameHistory;
+
+	std::map<std::string, size_t> sectionNameToIndices;
+	std::vector<SectionHistory> sectionHistories;
+
+	ImPlotPoint FramePlotGetter(void* _, int index)
+	{
+		FrameRecord& frameRecord = frameHistory.history.GetFromEnd(index);
+		return { frameRecord.timeStart, frameRecord.duration };
 	}
 
-	ImPlotPoint FrameRecordGetterFromEnd(void* user_data, int index)
+	ImPlotPoint FramePlotReferenceGetter(void* _, int index)
 	{
-		return FrameRecordGetter(user_data, finishedFrameRecords.size() - index - 1);
+		FrameRecord& frameRecord = frameHistory.history.GetFromEnd(index);
+		return { frameRecord.timeStart, 0.0 };
+	}
+
+	ImPlotPoint SectionPlotGetter(void* sectionIndexData, int index)
+	{
+		size_t sectionIndex = (size_t)sectionIndexData;
+		SectionRecord& sectionRecord = sectionHistories.at(sectionIndex).history.GetFromEnd(index);
+		return { sectionRecord.timeStart, sectionRecord.durationCumulative };
+	}
+
+	ImPlotPoint SectionPlotReferenceGetter(void* sectionIndexData, int index)
+	{
+		size_t sectionIndex = (size_t)sectionIndexData;
+		SectionRecord& sectionRecord = sectionHistories.at(sectionIndex).history.GetFromEnd(index);
+		return { sectionRecord.timeStart, 0.0 };
 	}
 }
 
@@ -57,57 +87,78 @@ namespace PlatinumEngine
 	Profiler::Section::Section(const std::string& uniqueName) :
 			_startTime(std::chrono::high_resolution_clock::now())
 	{
-		auto insertName = sectionNameIndices.insert({ uniqueName, 0 });
-		auto sectionNameIndex = insertName.first;
+		auto insertName = sectionNameToIndices.insert({ uniqueName, 0 });
+		auto sectionIndex = insertName.first;
 		bool isInserted = insertName.second;
 		if (isInserted)
 		{
-			sectionNames.push_back(uniqueName);
-			_nameIndex = sectionNameIndex->second = sectionNames.size() - 1;
+			sectionHistories.push_back({ uniqueName, true, { glfwGetTime() }, });
+			_sectionIndex = sectionIndex->second = sectionHistories.size() - 1;
 		}
 		else
 		{
-			_nameIndex = sectionNameIndex->second;
+			_sectionIndex = sectionIndex->second;
+			SectionHistory& sectionHistory = sectionHistories.at(_sectionIndex);
+			// if this fails, the section has started somewhere else already, only 1 section per uniqueName
+			assert(!sectionHistory.isWorking);
+			sectionHistory.isWorking = true;
+			if (sectionHistory.workingRecord.timeStart == -1.0)
+				sectionHistory.workingRecord.timeStart = glfwGetTime();
 		}
 	}
 
 	Profiler::Section::~Section()
 	{
+		SectionHistory& sectionHistory = sectionHistories.at(_sectionIndex);
+		// should be created, because this object has been constructed
+		// if this assertion fails, something has gone horribly wrong
+		assert(sectionHistory.isWorking);
+		sectionHistory.isWorking = false;
 		std::chrono::duration<double, std::milli> doubleMilliseconds =
 				std::chrono::high_resolution_clock::now() - _startTime;
-//		workingFrameRecord.sectionRecords.push_back({
-//				_nameIndex,
-//				doubleMilliseconds.count()
-//		});
+		sectionHistory.workingRecord.duration += doubleMilliseconds.count();
 	}
 
 	Profiler::Frame::Frame() :
 			_startTime(std::chrono::high_resolution_clock::now())
 	{
 		// there should only be 1 frame at a time
-		assert(!isFrameCreated);
-		isFrameCreated = true;
-		workingFrameRecord = {};
+		assert(!frameHistory.isWorking);
+		frameHistory.isWorking = true;
+		frameHistory.workingRecord = { glfwGetTime() };
 	}
 
 	Profiler::Frame::~Frame()
 	{
 		// should be created, because this object has been constructed
 		// if this assertion fails, something has gone horribly wrong
-		assert(isFrameCreated);
-		isFrameCreated = false;
-
+		assert(frameHistory.isWorking);
+		frameHistory.isWorking = false;
 		std::chrono::duration<double, std::milli> doubleMilliseconds =
 				std::chrono::high_resolution_clock::now() - _startTime;
-		workingFrameRecord.duration = doubleMilliseconds.count();
-		workingFrameRecord.durationRecordedBySections = 0.0;
-//		for (auto& section: workingFrameRecord.sectionRecords)
-//			workingFrameRecord.durationRecordedBySections += section.duration;
+		frameHistory.workingRecord.duration = doubleMilliseconds.count();
+		frameHistory.workingRecord.durationRecordedBySections = 0.0;
 
-		finishedFrameRecords.emplace_back(workingFrameRecord);
+		for (SectionHistory& sectionHistory: sectionHistories)
+		{
+			// all sections should be finished by now
+			assert(!sectionHistory.isWorking);
+			frameHistory.workingRecord.durationRecordedBySections += sectionHistory.workingRecord.duration;
+			// cumulative total
+			sectionHistory.workingRecord.durationCumulative = frameHistory.workingRecord.durationRecordedBySections;
+			sectionHistory.history.Add(sectionHistory.workingRecord);
+			sectionHistory.workingRecord = {};
+			// TODO testing for programming error
+			assert(sectionHistory.workingRecord.timeStart == -1.0);
+		}
+
+		frameHistory.history.Add(frameHistory.workingRecord);
+		frameHistory.workingRecord = {};
+		// TODO testing for programming error
+		assert(frameHistory.workingRecord.timeStart == 0.0);
 	}
 
-	Profiler::Profiler() : _showCounter(0)
+	Profiler::Profiler() : _showCounter()
 	{
 	}
 
@@ -115,71 +166,81 @@ namespace PlatinumEngine
 	{
 		if (ImGui::Begin("Profiler", outIsOpen))
 		{
+			static float historySeconds = 2;
+			static bool isProfilerPlotHovered = false;
+			static ImPlotPoint plotMousePosition;
+			ImGui::SliderFloat("History", &historySeconds, 0.1, 15);
 
-//			if (++_showCounter % 10 == 0)
-//			{
-//				_showText.clear();
-//				if (!finishedFrameRecords.empty())
-//				{
-//					size_t newestFrame = finishedFrameRecords.size() - 1;
-//
-//					std::ostringstream stringStream;
-//					double recordedFraction =
-//							finishedFrameRecords[newestFrame].durationRecordedBySections /
-//							finishedFrameRecords[newestFrame].duration;
-//
-//					stringStream << "Frame" << newestFrame << ": "
-//								 << finishedFrameRecords[newestFrame].duration << "ms"
-//								 << '(' << recordedFraction << ')';
-//					for (auto& section: finishedFrameRecords[newestFrame].sectionRecords)
-//					{
-//						stringStream << std::endl
-//									 << "Section " << sectionNames[section.nameIndex] << ": " << section.duration
-//									 << "ms";
-//					}
-//					_showText = stringStream.str();
-//				}
-//			}
-//
-//			ImGui::Text("%s", _showText.c_str());
-
-//			if (ImPlot::BeginPlot("Profiler Plot", { -1, -1 }))
-//			{
-//				ImPlot::PlotLineG(
-//						"Times Line Graph",
-//						FrameRecordGetter,
-//						nullptr,
-//						finishedFrameRecords.size());
-//				ImPlot::EndPlot();
-//			}
-
-			static int history = 100;
-			ImGui::SliderInt("History",&history,1,1000,"%i history");
-
-			const ImPlotAxisFlags flags = ImPlotAxisFlags_NoTickLabels;
-
-			int currentFrame;
-			if(finishedFrameRecords.size() == 0)
-				currentFrame = 0;
-			else
-				currentFrame = finishedFrameRecords.size() - 1;
-
-			if (ImPlot::BeginPlot("##ProfilerPlot", ImVec2(-1, -1)))
+			if (isProfilerPlotHovered)
 			{
-				ImPlot::SetupAxes(NULL, NULL, flags, flags);
-				ImPlot::SetupAxisLimits(ImAxis_X1, currentFrame - history, currentFrame, ImGuiCond_Always);
-				ImPlot::SetupAxisLimits(ImAxis_Y1, 0.0, 40.0);
+//				ImGui::SameLine();
+//				ImGui::Text("x:%f y:%f", plotMousePosition.x, plotMousePosition.y);
+			}
 
-				int drawCount = finishedFrameRecords.size() < history ?
-								finishedFrameRecords.size() :
-								history;
+			if (ImPlot::BeginPlot("##ProfilerPlot", ImVec2(-1, -1), ImPlotFlags_NoBoxSelect))
+			{
+				int drawCount = static_cast<int>(frameHistory.history.Size());
 
-				ImPlot::PlotLineG(
-						"Times Line Graph",
-						FrameRecordGetterFromEnd,
-						nullptr,
-						drawCount);
+				double currentTime;
+				if (0 < drawCount)
+					currentTime = frameHistory.history.GetFromEnd(0).timeStart;
+				else
+					currentTime = 0.0;
+
+				ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_NoTickLabels, ImPlotAxisFlags_LockMin);
+				ImPlot::SetupAxisLimits(ImAxis_X1, currentTime - historySeconds, currentTime, ImGuiCond_Always);
+				ImPlot::SetupAxisLimits(ImAxis_Y1, 0.0, 30.0);
+
+				isProfilerPlotHovered = ImPlot::IsPlotHovered();
+				plotMousePosition = ImPlot::GetPlotMousePos();
+
+				if (0 < drawCount)
+				{
+					ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
+					std::string randomName = "Frame duration " + std::to_string(rand());
+					ImPlot::PlotShadedG(
+							randomName.c_str(),
+							FramePlotGetter,
+							nullptr,
+							FramePlotReferenceGetter,
+							nullptr,
+							drawCount);
+					// reverse order, because draw back to front
+					// they are in accumulative order
+					for (size_t i = sectionHistories.size() - 1; i < sectionHistories.size(); --i)
+					{
+						ImPlot::PlotShadedG(
+								sectionHistories[i].name.c_str(),
+								SectionPlotGetter,
+								(void*)i,
+								SectionPlotReferenceGetter,
+								(void*)i,
+								drawCount);
+					}
+					ImPlot::PopStyleVar();
+
+					ImPlot::PlotLineG(
+							"Frame duration",
+							FramePlotGetter,
+							nullptr,
+							drawCount);
+					// reverse order, because draw back to front
+					// they are in accumulative order
+					for (size_t i = sectionHistories.size() - 1; i < sectionHistories.size(); --i)
+					{
+						ImPlot::PlotLineG(
+								sectionHistories[i].name.c_str(),
+								SectionPlotGetter,
+								(void*)i,
+								drawCount);
+					}
+				}
+
 				ImPlot::EndPlot();
+			}
+			else
+			{
+				isProfilerPlotHovered = false;
 			}
 		}
 		ImGui::End();

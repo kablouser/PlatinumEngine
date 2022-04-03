@@ -23,13 +23,57 @@ namespace PlatinumEngine
 		{
 		}
 
-		CircularBuffer(CircularBuffer&) = delete;
+		CircularBuffer(const CircularBuffer<T, MAX_SIZE>& copyFrom) :
+				_next(copyFrom._next),
+				_isMaxed(copyFrom._isMaxed)
+		{
+			for (size_t i = 0; i < MAX_SIZE; ++i)
+				_buffer[i] = copyFrom._buffer[i];
+		}
 
-		CircularBuffer(CircularBuffer&&) = delete;
+		CircularBuffer(CircularBuffer<T, MAX_SIZE>&& moveFrom) noexcept:
+				_next(moveFrom._next),
+				_isMaxed(moveFrom._isMaxed)
+		{
+			moveFrom._next = 0;
+			moveFrom._isMaxed = false;
+			for (size_t i = 0; i < MAX_SIZE; ++i)
+			{
+				_buffer[i] = moveFrom._buffer[i];
+				moveFrom._buffer[i] = {};
+			}
+		}
 
-		CircularBuffer<T, MAX_SIZE>& operator=(CircularBuffer<T, MAX_SIZE>&) = delete;
+		CircularBuffer<T, MAX_SIZE>& operator=(const CircularBuffer<T, MAX_SIZE>& copyFrom)
+		{
+			if (&copyFrom == this)
+				return *this;
 
-		CircularBuffer<T, MAX_SIZE>& operator=(CircularBuffer<T, MAX_SIZE>&&) = delete;
+			_next = copyFrom._next;
+			_isMaxed = copyFrom._isMaxed;
+			for (size_t i = 0; i < MAX_SIZE; ++i)
+				_buffer[i] = copyFrom._buffer[i];
+
+			return *this;
+		}
+
+		CircularBuffer<T, MAX_SIZE>& operator=(CircularBuffer<T, MAX_SIZE>&& moveFrom)
+		{
+			if (&moveFrom == this)
+				return *this;
+
+			_next = moveFrom._next;
+			_isMaxed = moveFrom._isMaxed;
+			moveFrom._next = 0;
+			moveFrom._isMaxed = false;
+			for (size_t i = 0; i < MAX_SIZE; ++i)
+			{
+				_buffer[i] = moveFrom._buffer[i];
+				moveFrom._buffer[i] = {};
+			}
+
+			return *this;
+		}
 
 		size_t Size()
 		{
