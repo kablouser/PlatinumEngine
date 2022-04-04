@@ -35,7 +35,6 @@ namespace PlatinumEngine
 		void ShowGUIWindow(bool* outIsOpen);
 
 	private:
-		unsigned int _showCounter;
-		std::string _showText;
+		int _showFrames;
 	};
 }
