@@ -83,7 +83,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		}
 	}
 
-	if(ImGuiFileDialog::Instance()->Display("getFileName", ImGuiWindowFlags_NoCollapse, FileDialog::MIN_SIZE, FileDialog::MAX_SIZE))
+	if(ImGuiFileDialog::Instance()->Display("getFileName", ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking, FileDialog::MIN_SIZE, FileDialog::MAX_SIZE))
 	{
 		if(ImGuiFileDialog::Instance()->IsOk())
 		{

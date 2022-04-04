@@ -12,7 +12,7 @@ namespace PlatinumEngine
 	{
 		std::string filePath;
 
-		if(ImGuiFileDialog::Instance()->Display("SaveFileKey", ImGuiWindowFlags_NoCollapse, MIN_SIZE, MAX_SIZE))
+		if(ImGuiFileDialog::Instance()->Display("SaveFileKey", ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking, MIN_SIZE, MAX_SIZE))
 		{
 			if(ImGuiFileDialog::Instance()->IsOk())
 			{
@@ -28,7 +28,7 @@ namespace PlatinumEngine
 	{
 		std::string filePathName;
 
-		if(ImGuiFileDialog::Instance()->Display("LoadFileKey", ImGuiWindowFlags_NoCollapse, MIN_SIZE, MAX_SIZE))
+		if(ImGuiFileDialog::Instance()->Display("LoadFileKey", ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking, MIN_SIZE, MAX_SIZE))
 		{
 			if(ImGuiFileDialog::Instance()->IsOk())
 			{
