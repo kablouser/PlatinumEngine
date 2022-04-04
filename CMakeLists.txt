@@ -28,11 +28,6 @@ FetchContent_Declare(imgui GIT_REPOSITORY https://github.com/ocornut/imgui.git G
 FetchContent_MakeAvailable(imgui)
 add_subdirectory("ImGui CMake")
 #-----------------------------
-# ImGuiFileDialog
-FetchContent_Declare(imguifiledialog GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog.git GIT_TAG v0.6.3)
-FetchContent_MakeAvailable(imguifiledialog)
-include_directories(${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src)
-#-----------------------------
 # GLM
 FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git GIT_TAG 0.9.9.8)
 FetchContent_MakeAvailable(glm)
@@ -68,7 +63,7 @@ FetchContent_MakeAvailable(glew)
 set(PROJECT_SOURCES_WITHOUT_MAIN
 	# order by folder structure
 
-	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
+    "lib/ImGuiFileDialog/ImGuiFileDialog.cpp;"
 
 	"Source/ComponentComposition/CameraComponent.cpp;"
 	"Source/ComponentComposition/Component.cpp;"
@@ -115,8 +110,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 
-
-target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/lib/ImGuiFileDialog")
 #-----------------------------
 
 
