@@ -2,11 +2,13 @@
 # Initialising stuff
 #-----------------------------
 cmake_minimum_required(VERSION 3.21)
-project(PlatinumEngine VERSION 0.0.1)
-set(CMAKE_CXX_STANDARD 14)
+project(PlatinumEngine VERSION 0.0.2)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
 # static libraries please
 set(BUILD_SHARED_LIBS FALSE)
+# make executable run in project's root directory
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 # FetchContent to fetch git repos remotely
 include(FetchContent)
 # enable CTest
@@ -69,6 +71,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	# order by folder structure
 
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
+	
+	"Source/AssetDatabase/AssetDatabase.cpp;"
 
 	"Source/ComponentComposition/CameraComponent.cpp;"
 	"Source/ComponentComposition/Component.cpp;"

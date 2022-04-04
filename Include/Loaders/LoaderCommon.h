@@ -7,11 +7,15 @@
 #include <string>
 #include <vector>
 
-// For now to avoid anything weird explicitly only allow these files to be loaded
-const std::vector<std::string> ALLOWED_EXTENSIONS{"obj"};
 
 namespace PlatinumEngine
 {
+	// TODO change extensions to ".obj" instead of just "obj"
+	// because C++ filesystem get extensions returns ".obj" so it's easier to use
+	// also create a enum extensions allowed, makes programming less error prone
+
+	// For now to avoid anything weird explicitly only allow these files to be loaded
+	static const std::vector<std::string> ALLOWED_EXTENSIONS {"obj"};
 
 	/**
 	 * Returns the extensions of the given filepath

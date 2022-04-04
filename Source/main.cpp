@@ -14,6 +14,7 @@
 #include <SceneManager/HierarchyWindow.h>
 #include <Logger/Logger.h>
 #include <SceneEditor/SceneEditor.h>
+#include <AssetDatabase/AssetDatabase.h>
 #include <GameWindow/GameWindow.h>
 
 
@@ -26,17 +27,49 @@ static void GlfwErrorCallback(int error, const char* description)
 
 int main(int, char**)
 {
+	// Assets database use demonstration
+	PlatinumEngine::AssetDatabase assetDatabase;
+	// update will go through folders and scan for new files
+	// and then load all assets using their loaders
+	assetDatabase.Update();
+
+	// get meshes in the database
+	for (auto meshAssetID : assetDatabase.GetMeshAssetIDs())
+	{
+		// let user choose one of these meshes
+		{
+			// display name
+			PlatinumEngine::Asset meshAsset;
+			assetDatabase.TryGetAsset(meshAssetID.id, meshAsset);
+			PLATINUM_INFO_STREAM << "We have mesh: " << meshAsset.path.string();
+		}
+
+		// get the pointer of the loaded mesh object
+		// can return nullptr
+		PlatinumEngine::Mesh* mesh = assetDatabase[meshAssetID];
+		if (mesh)
+		{
+			PLATINUM_INFO_STREAM << "Mesh has " << mesh->vertices.size() << " vertices";
+
+			// render mesh or something, idk
+			// (this is a bad example)
+			// PlatinumEngine::ShaderInput shaderInput;
+			// shaderInput.Set(mesh->vertices, mesh->indices);
+			// shaderInput.Draw();
+		}
+	}
+
 	// Setup window
 	glfwSetErrorCallback(GlfwErrorCallback);
 	if (!glfwInit())
 		return EXIT_FAILURE;
 
 	// OpenGL+GLSL versions
-    const char* glsl_version = "#version 330";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
+	const char* glsl_version = "#version 330";
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
 
 	// Create window with graphics context
 	GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
