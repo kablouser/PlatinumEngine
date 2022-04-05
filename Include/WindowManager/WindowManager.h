@@ -8,6 +8,7 @@
 #include <GameWindow/GameWindow.h>
 #include <SceneEditor/SceneEditor.h>
 #include <Inspector/InspectorWindow.h>
+#include <Project/ProjectWindow.h>
 #include <SceneManager/HierarchyWindow.h>
 #include <Profiler/Profiler.h>
 #include <Logger/Logger.h>
@@ -22,7 +23,8 @@ namespace PlatinumEngine
 					  HierarchyWindow *hierarchy,
 					  Logger *logger,
 					  InspectorWindow *inspector,
-					  Profiler *profiler
+					  Profiler *profiler,
+					  ProjectWindow *projectWindow
 					  );
 
 		///-----------------------------------
@@ -62,7 +64,7 @@ namespace PlatinumEngine
 		bool _showWindowScene                = true;
 		bool _showWindowInspector            = true;
 		bool _showWindowHierarchy            = true;
-		bool _showWindowProject              = false;
+		bool _showWindowProject              = true;
 		bool _showWindowAnimation            = false;
 		bool _showWindowAudio                = false;
 		bool _showWindowLight                = false;
@@ -105,5 +107,6 @@ namespace PlatinumEngine
 		Logger *_logger;
 		InspectorWindow *_inspector;
 		Profiler *_profiler;
+		ProjectWindow *_projectWindow;
 	};
 }
