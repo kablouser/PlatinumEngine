@@ -10,6 +10,33 @@
 
 using namespace std;
 
+// private namespace, cannot be used outside this source file
+namespace
+{
+	/**
+	 * FNV-1a
+	 * Fowler–Noll–Vo hash function
+	 * @param text to hash
+	 * @return 64 bit hash
+	 */
+	inline uint64_t Hash(const std::string& text)
+	{
+		// 64 bit params
+		uint64_t constexpr fnv_prime = 1099511628211ULL;
+		uint64_t constexpr fnv_offset_basis = 14695981039346656037ULL;
+
+		uint64_t hash = fnv_offset_basis;
+
+		for(auto c: text)
+		{
+			hash ^= c;
+			hash *= fnv_prime;
+		}
+
+		return hash;
+	}
+}
+
 namespace PlatinumEngine
 {
 	//--------------------------------------------------------------------------------------------------------------
@@ -96,7 +123,7 @@ namespace PlatinumEngine
 			{
 				std::stringstream buffer;
 				buffer << fileStream.rdbuf();
-				return std::hash<std::string>{}(buffer.str());
+				return Hash(buffer.str());
 			}
 			else
 			{
@@ -107,7 +134,7 @@ namespace PlatinumEngine
 
 		// BIG FILE or cannot open file
 		// hash file name
-		return std::hash<std::string>{}(path.filename().string());
+		return Hash(path.filename().string());
 	}
 
 	std::string AssetDatabase::StandardisePath(const filesystem::path& path)
