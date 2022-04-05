@@ -10,6 +10,33 @@
 
 using namespace std;
 
+// private namespace, cannot be used outside this source file
+namespace
+{
+	/**
+	 * FNV-1a
+	 * Fowler–Noll–Vo hash function
+	 * @param text to hash
+	 * @return 64 bit hash
+	 */
+	inline uint64_t Hash(const std::string& text)
+	{
+		// 64 bit params
+		uint64_t constexpr fnv_prime = 1099511628211ULL;
+		uint64_t constexpr fnv_offset_basis = 14695981039346656037ULL;
+
+		uint64_t hash = fnv_offset_basis;
+
+		for(auto c: text)
+		{
+			hash ^= c;
+			hash *= fnv_prime;
+		}
+
+		return hash;
+	}
+}
+
 namespace PlatinumEngine
 {
 	//--------------------------------------------------------------------------------------------------------------
@@ -85,7 +112,7 @@ namespace PlatinumEngine
 		return input;
 	}
 
-	std::size_t AssetDatabase::HashFile(const filesystem::path& path)
+	HashType AssetDatabase::HashFile(const filesystem::path& path)
 	{
 		if (filesystem::file_size(path) < BIG_FILE_THRESHOLD_BYTES)
 		{
@@ -96,7 +123,7 @@ namespace PlatinumEngine
 			{
 				std::stringstream buffer;
 				buffer << fileStream.rdbuf();
-				return std::hash<std::string>{}(buffer.str());
+				return Hash(buffer.str());
 			}
 			else
 			{
@@ -107,7 +134,7 @@ namespace PlatinumEngine
 
 		// BIG FILE or cannot open file
 		// hash file name
-		return std::hash<std::string>{}(path.filename().string());
+		return Hash(path.filename().string());
 	}
 
 	std::string AssetDatabase::StandardisePath(const filesystem::path& path)
@@ -141,7 +168,7 @@ namespace PlatinumEngine
 
 	AssetDatabase::AssetDatabase() :
 			_generator(std::random_device()()),
-			_anyNumber(std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max()),
+			_anyNumber(std::numeric_limits<HashType>::min(), std::numeric_limits<HashType>::max()),
 			_assetsFolderPath("./Assets"),
 			_assetDatabasePath("./Assets/AssetDatabase.csv")
 	{
@@ -199,8 +226,8 @@ namespace PlatinumEngine
 	//--------------------------------------------------------------------------------------------------------------
 
 	void AssetDatabase::CountHashesInMap(
-			std::multimap<size_t, size_t>& hashesMap,
-			size_t hash,
+			std::multimap<HashType, size_t>& hashesMap,
+			HashType hash,
 			size_t& outExistCount,
 			size_t& outNonExistCount,
 			size_t& outLastDatabaseIndex)
@@ -377,9 +404,9 @@ namespace PlatinumEngine
 	// Internal
 	//--------------------------------------------------------------------------------------------------------------
 
-	size_t AssetDatabase::GenerateAssetID()
+	AssetID AssetDatabase::GenerateAssetID()
 	{
-		size_t assetID;
+		AssetID assetID;
 		do
 		{
 			assetID = _anyNumber(_generator);
@@ -404,7 +431,7 @@ namespace PlatinumEngine
 		// build map from paths to database index, 1-to-1
 		std::map<filesystem::path, size_t> pathsMap;
 		// build map from hashes to database index, 1-to-many
-		std::multimap<size_t, size_t> hashesMap;
+		std::multimap<HashType, size_t> hashesMap;
 
 		{
 			size_t databaseIndex = 0;
@@ -439,7 +466,7 @@ namespace PlatinumEngine
 				// don't store the assets database file
 				continue;
 
-			size_t hash = HashFile(path);
+			HashType hash = HashFile(path);
 
 			auto findPath = pathsMap.find(path);
 			if (findPath == pathsMap.end())
