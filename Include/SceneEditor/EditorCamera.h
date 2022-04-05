@@ -100,6 +100,9 @@ namespace PlatinumEngine
 		void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
 		void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
 
+		const Maths::Vec3& GetCameraPosition();
+
+
 		// CONSTRUCTOR
 		EditorCamera();
 
@@ -111,7 +114,6 @@ namespace PlatinumEngine
 		Maths::Vec3 _eulerAngle;
 		Maths::Vec3 _translationValue;
 		Maths::Vec3 _cameraPosition;
-
 
 
 		// device input data
