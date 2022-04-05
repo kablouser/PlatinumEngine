@@ -208,6 +208,5 @@ namespace PlatinumEngine
 			}
 		}
 		ImGui::End();
-		ImPlot::ShowDemoWindow(nullptr);
 	}
 }

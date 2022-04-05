@@ -148,10 +148,6 @@ int main(int, char**)
 					PlatinumEngine::Profiler::Section windowManagerSection("Window Manager");
 					windowManager.ShowGUI(scene);
 				}
-				{
-					PlatinumEngine::Profiler::Section demoSection("Show Demo");
-					ImGui::ShowDemoWindow();
-				}
 
 				{
 					PlatinumEngine::Profiler::Section profilerSection("Profiler");
