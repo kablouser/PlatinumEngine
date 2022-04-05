@@ -14,12 +14,13 @@ namespace PlatinumEngine
 	//--------------------------------------------------------------------------------------------------------------
 
 	typedef size_t AssetID;
+	typedef uint64_t HashType;
 
 	struct Asset
 	{
 		// note: id is NOT hash
 		AssetID id;
-		size_t hash;
+		HashType hash;
 		bool doesExist;
 		std::filesystem::path path;
 	};
@@ -66,7 +67,7 @@ namespace PlatinumEngine
 		 * @param path path to target file
 		 * @return hash value
 		 */
-		static std::size_t HashFile(const std::filesystem::path& path);
+		static HashType HashFile(const std::filesystem::path& path);
 
 		/**
 		 * Converts different system file path formats into a standard
@@ -126,8 +127,8 @@ namespace PlatinumEngine
 		 * @param outLastDatabaseIndex output last database index before loop terminated, -1 if loop never started
 		 */
 		void CountHashesInMap(
-				std::multimap<size_t, size_t>& hashesMap,
-				size_t hash,
+				std::multimap<HashType, size_t>& hashesMap,
+				HashType hash,
 				size_t& outExistCount,
 				size_t& outNonExistCount,
 				size_t& outLastDatabaseIndex);
@@ -190,7 +191,7 @@ namespace PlatinumEngine
 
 		// random number generator
 		std::mt19937 _generator;
-		std::uniform_int_distribution<size_t> _anyNumber;
+		std::uniform_int_distribution<AssetID> _anyNumber;
 
 		// pointers to loaded in assets
 		std::vector<void*> _loadedAssets;
@@ -204,7 +205,7 @@ namespace PlatinumEngine
 		/**
 		 * @return an unique AssetID that's not in database currently
 		 */
-		size_t GenerateAssetID();
+		AssetID GenerateAssetID();
 
 		/**
 		 * Clears _assetIDsMap and rebuilds its structure
