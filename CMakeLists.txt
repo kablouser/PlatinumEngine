@@ -35,6 +35,11 @@ FetchContent_Declare(imguifiledialog GIT_REPOSITORY https://github.com/aiekick/I
 FetchContent_MakeAvailable(imguifiledialog)
 include_directories(${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src)
 #-----------------------------
+# Immediate Mode Plotting (implot)
+FetchContent_Declare(implot GIT_REPOSITORY https://github.com/epezent/implot.git GIT_TAG v0.13)
+FetchContent_MakeAvailable(implot)
+add_subdirectory("ImPlot CMake")
+#-----------------------------
 # GLM
 FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git GIT_TAG 0.9.9.8)
 FetchContent_MakeAvailable(glm)
@@ -102,6 +107,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/ShaderProgram.cpp;"
 	"Source/OpenGL/Texture.cpp;"
 	
+	"Source/Profiler/Profiler.cpp;"
+	
 	"Source/Renderer/Renderer.cpp;"
 	
 	"Source/SceneEditor/EditorCamera.cpp;"
@@ -150,6 +157,7 @@ set(PROJECT_LIBRARIES
 	# CMake is so stupid
 	"glfw;"
 	"imgui;"
+	"implot;"
 	"glm;"
 	"assimp;"
 	"libglew_static;"
