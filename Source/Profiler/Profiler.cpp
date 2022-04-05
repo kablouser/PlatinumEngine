@@ -125,20 +125,21 @@ namespace PlatinumEngine
 		frameHistory.isWorking = false;
 		if (isRecording)
 		{
-			std::chrono::duration<double, std::milli> doubleMilliseconds =
-					std::chrono::high_resolution_clock::now() - _startTime;
-			double frameDuration = doubleMilliseconds.count();
+			double cumulativeDurations = 0.0;
 
 			for (SectionHistory& sectionHistory: sectionHistories)
 			{
 				// all sections should be finished by now
 				assert(!sectionHistory.isWorking);
-				frameDuration += sectionHistory.workingDuration;
+				cumulativeDurations += sectionHistory.workingDuration;
 				// cumulative total
-				sectionHistory.savedCumulativeDurations.Add(frameDuration);
+				sectionHistory.savedCumulativeDurations.Add(cumulativeDurations);
 				sectionHistory.workingDuration = {};
 			}
 
+			std::chrono::duration<double, std::milli> doubleMilliseconds =
+					std::chrono::high_resolution_clock::now() - _startTime;
+			double frameDuration = doubleMilliseconds.count();
 			frameHistory.savedDurations.Add(frameDuration);
 			++frameHistory.workingFrame;
 		}
