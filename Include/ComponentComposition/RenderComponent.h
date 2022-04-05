@@ -7,17 +7,17 @@
 #include "Component.h"
 #include "Renderer/Renderer.h"
 #include "Loaders/MeshLoader.h"
+#include <AssetDatabase/AssetHelper.h>
+
 namespace PlatinumEngine
 {
 	class RenderComponent: public Component
 	{
 	public:
 		RenderComponent();
-		~RenderComponent();
-		RenderComponent(Mesh &mesh);
 
 		// update mesh from mesh loader
-		void LoadMesh(const std::string &filePath);
+		void setMesh(Mesh* mesh);
 
 		// return mesh
 		Mesh& GetMesh();
@@ -26,7 +26,7 @@ namespace PlatinumEngine
 		void OnRender(Scene& scene, Renderer &render) override;
 
 	private:
-		Mesh _mesh;
+		Mesh* _mesh;
 		ShaderInput _shaderInput;
 	};
 }
