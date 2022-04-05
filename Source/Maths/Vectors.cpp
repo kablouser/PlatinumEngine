@@ -116,7 +116,20 @@ Vec3& Vec3::operator/=(const float t)
 {
 	return *this *= 1.0f/t;
 }
+Vec3& Vec3::unit()
+{
+	auto length = CalcLength();
+	return *this /= length;
+}
 
+bool Vec3::operator==(Vec3 v) const
+{
+	return x == v.x && y == v.y && z == v.z;
+}
+bool Vec3::operator!=(Vec3 v) const
+{
+	return x != v.x || y != v.y || z != v.z;
+}
 // Vec2 constructors
 Vec2::Vec2() : glm::vec2(0.0f, 0.0f) {}
 Vec2::Vec2(const float x, const float y) : glm::vec2(x, y) {}
