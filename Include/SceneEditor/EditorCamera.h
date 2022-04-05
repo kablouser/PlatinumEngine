@@ -13,13 +13,15 @@ namespace PlatinumEngine
 	public:
 		// VARIABLE
 
-		// Camera relative Matrix
+		// view Matrix stuff
 		Maths::Mat4 viewMatrix4;
+
+		// projection stuff
 		Maths::Mat4 projectionMatrix4;
+		float nearPanel;
 
 		// Flags
 		bool isOrthogonal;
-
 		enum AxisType{horizontalAxis, verticalAxis};
 
 
@@ -108,8 +110,9 @@ namespace PlatinumEngine
 		// transformation
 		Maths::Vec3 _eulerAngle;
 		Maths::Vec3 _translationValue;
-		Maths::Vec3 _cameraPosition; // need this position is because we need to adjust the camera position
-									 // after the user change the fov of the camera)
+		Maths::Vec3 _cameraPosition;
+
+
 
 		// device input data
 		float _translationSpeed = 0.005;

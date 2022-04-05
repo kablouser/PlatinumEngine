@@ -25,9 +25,9 @@ namespace PlatinumEngine
 		if(ImGui::Begin("Game View", outIsOpen))
 		{
 			auto targetSize = ImGui::GetContentRegionAvail();
-			_mouseButtonType = _inputManager->GetMouseDown();
-			_mouseMoveDelta = _inputManager->GetMouseMoveVector();
-			_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
+			//_mouseButtonType = _inputManager->GetMouseDown();
+			//_mouseMoveDelta = _inputManager->GetMouseMoveVector();
+			//_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
 
 			if(_onUpdate && _onPlay)
 			{

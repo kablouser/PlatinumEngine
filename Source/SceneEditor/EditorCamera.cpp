@@ -27,7 +27,8 @@ namespace PlatinumEngine
 			  _translationValue(0.f, 0.f, 10.f),
 			  viewMatrix4(1.f),
 			  projectionMatrix4(1.f),
-			  isOrthogonal(false)
+			  isOrthogonal(false),
+			  nearPanel(4.f)
 	{}
 
 
@@ -176,13 +177,14 @@ namespace PlatinumEngine
 
 	void EditorCamera::SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
 	{
-
+		nearPanel = zNear;
 		projectionMatrix4.SetOrthogonalMatrix( left,  right,  bottom,  top,  zNear,  zFar);
 
 	}
 
 	void EditorCamera::SetPerspectiveMatrix(float fovy, float aspect, float near, float far)
 	{
+		nearPanel = near;
 		projectionMatrix4.SetPerspectiveMatrix( fovy,  aspect,  near,  far);
 
 	}

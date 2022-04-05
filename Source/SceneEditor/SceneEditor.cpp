@@ -245,11 +245,14 @@ namespace PlatinumEngine{
 
 
 			_renderer->Begin();
-                        // Update rendering information to renderer
-                        _scene->Render(*_renderer);
+
+			// Update rendering information to renderer
+			_scene->Render(*_renderer);
+
 			_renderer->SetModelMatrix();
 			_renderer->SetViewMatrix(_camera.viewMatrix4);
 			_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
+
 			_renderer->SetLightProperties();
 			_renderer->End();
 
