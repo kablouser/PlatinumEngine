@@ -14,12 +14,12 @@
 #include <SceneManager/HierarchyWindow.h>
 #include <Logger/Logger.h>
 #include <SceneEditor/SceneEditor.h>
-#include <AssetDatabase/AssetDatabase.h>
 #include <GameWindow/GameWindow.h>
 #include <Profiler/Profiler.h>
-
+#include <AssetDatabase/AssetHelper.h>
 
 #include <OpenGL/GLCheck.h>
+
 static void GlfwErrorCallback(int error, const char* description)
 {
 	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
@@ -28,6 +28,7 @@ static void GlfwErrorCallback(int error, const char* description)
 
 int main(int, char**)
 {
+	/*
 	// Assets database use demonstration
 	PlatinumEngine::AssetDatabase assetDatabase;
 	// update will go through folders and scan for new files
@@ -59,7 +60,7 @@ int main(int, char**)
 			// shaderInput.Draw();
 		}
 	}
-
+*/
 	// Setup window
 	glfwSetErrorCallback(GlfwErrorCallback);
 	if (!glfwInit())
@@ -102,14 +103,15 @@ int main(int, char**)
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
 		// construct logger before everything to save all logs
-
+		PlatinumEngine::AssetDatabase assetDatabase;
+		PlatinumEngine::AssetHelper assetHelper;
 		PlatinumEngine::Logger logger;
 		PlatinumEngine::Renderer rasterRenderer;
 		PlatinumEngine::InputManager inputManager;
 		PlatinumEngine::Scene scene;
 		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer);
 		PlatinumEngine::HierarchyWindow hierarchyWindow;
-		PlatinumEngine::InspectorWindow inspectorWindow;
+		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper);
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow);
 
@@ -178,6 +180,7 @@ int main(int, char**)
 			}
 			// don't include swap buffers function in the frame for profiling
 			// swap buffers waits for vsync
+	
 			glfwSwapBuffers(window);
 		}
 

@@ -6,6 +6,7 @@
 
 using namespace PlatinumEngine;
 
+InspectorWindow::InspectorWindow(AssetHelper* assetHelper):_assetHelper(assetHelper) {}
 void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 {
 
@@ -60,6 +61,7 @@ void InspectorWindow::SetActiveGameObject(GameObject* gameObject)
 
 void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 {
+
 	ImGui::Separator();
 	static char meshBuffer[128];
 	bool isHeaderOpen = ImGui::CollapsingHeader("Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap);
@@ -76,22 +78,19 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::SameLine();
 		ImGui::InputText("##Mesh Name",meshBuffer,64);
 		ImGui::SameLine();
+
 		if(ImGui::Button("Choose mesh"))
 		{
-			// TODO: When file manager added, use file manager to select a mesh
-			ImGuiFileDialog::Instance()->OpenDialog("getFileName","Choose Mesh",".obj",".");
+			ImGui::OpenPopup("Select Mesh");
 		}
-	}
 
-	if(ImGuiFileDialog::Instance()->Display("getFileName", ImGuiWindowFlags_NoCollapse, FileDialog::MIN_SIZE, FileDialog::MAX_SIZE))
-	{
-		if(ImGuiFileDialog::Instance()->IsOk())
+		if(bool isOpen = _assetHelper->ShowGuiWindow(); _assetHelper->GetMesh() != nullptr&&isOpen == true)
 		{
-			_meshFileName = ImGuiFileDialog ::Instance()->GetCurrentFileName();
+			_activeGameObject->GetComponent<RenderComponent>()->setMesh(nullptr);
+			_activeGameObject->GetComponent<RenderComponent>()->setMesh(_assetHelper->GetMesh());
 		}
-		ImGuiFileDialog::Instance()->Close();
+
 	}
-	strncpy(meshBuffer, _meshFileName.c_str(), sizeof(meshBuffer));
 }
 
 void InspectorWindow::ShowTransformComponent(Scene& scene)
