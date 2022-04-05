@@ -20,21 +20,15 @@ namespace PlatinumEngine
 		 */
 		 bool ShowGuiWindow();
 
-		 Mesh* GetMesh();
 		/**
-		 * Loop through the database and
-		 * save the filepath of the _asset to _assetFilePath
-		 * save the mesh
-		 */
-		void LoopDatabase();
-
-
+ 		* return the private _mesh parameter
+ 		* @return
+ 		*/
+		 Mesh* GetMesh();
 
 	private:
 		Mesh* _mesh = nullptr;
 		AssetDatabase _assetDatabase;
 		Asset _asset;
-		char _meshBuffer[128];
-
 	};
 }

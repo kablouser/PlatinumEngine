@@ -12,18 +12,23 @@ namespace PlatinumEngine
 	bool AssetHelper::ShowGuiWindow()
 	{
 		bool isAssetSelected = false;
-
+		static ImGuiTextFilter filter;
 		if(ImGui::BeginPopupModal("Select Mesh", nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			ImGui::InputText("##Search", _meshBuffer, sizeof(_meshBuffer));
+			filter.Draw();
+			std::vector<std::string> filePath;
 			ImGui::Separator();
 			for(auto meshAssetID : _assetDatabase.GetMeshAssetIDs())
 			{
 				_assetDatabase.TryGetAsset(meshAssetID.id, _asset);
-				if(ImGui::Selectable(_asset.path.c_str()))
+
+				if(filter.PassFilter(_asset.path.c_str()))
 				{
-					_mesh = _assetDatabase[meshAssetID];
-					isAssetSelected= true;
+					if(ImGui::Selectable(_asset.path.c_str()))
+					{
+						_mesh = _assetDatabase[meshAssetID];
+						isAssetSelected= true;
+					}
 				}
 			}
 			ImGui::EndPopup();
