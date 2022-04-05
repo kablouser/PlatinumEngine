@@ -16,6 +16,7 @@
 #include <SceneEditor/SceneEditor.h>
 #include <GameWindow/GameWindow.h>
 #include <Profiler/Profiler.h>
+
 #include <AssetDatabase/AssetHelper.h>
 
 #include <OpenGL/GLCheck.h>
