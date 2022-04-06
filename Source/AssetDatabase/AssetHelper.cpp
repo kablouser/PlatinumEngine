@@ -21,7 +21,9 @@ namespace PlatinumEngine
 			ImGui::Separator();
 			if(ImGui::Selectable("None"))
 			{
-
+				_mesh= nullptr;
+				isAssetSelected= true;
+				_filePath = "";
 			}
 			for(auto meshAssetID : _assetDatabase.GetMeshAssetIDs())
 			{
