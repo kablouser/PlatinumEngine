@@ -10,7 +10,7 @@ InspectorWindow::InspectorWindow(AssetHelper* assetHelper):_assetHelper(assetHel
 void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 {
 
-	if(ImGui::Begin("Inspector Window", isOpen))
+	if(ImGui::Begin(ICON_KI_EXCLAMATION_CIRCLE " Inspector Window", isOpen))
 	{
 		if (_activeGameObject)
 		{

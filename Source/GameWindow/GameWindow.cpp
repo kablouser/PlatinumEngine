@@ -22,7 +22,7 @@ namespace PlatinumEngine
 
 	void PlatinumEngine::GameWindow::ShowGuiWindow(bool* outIsOpen)
 	{
-		if(ImGui::Begin("Game View", outIsOpen))
+		if(ImGui::Begin(ICON_KI_GAMEPAD " Game View", outIsOpen))
 		{
 			auto targetSize = ImGui::GetContentRegionAvail();
 

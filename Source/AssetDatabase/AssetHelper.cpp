@@ -15,7 +15,7 @@ namespace PlatinumEngine
 		static ImGuiTextFilter filter;
 		if(ImGui::BeginPopupModal("Select Mesh", nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			filter.Draw();
+			filter.Draw(ICON_KI_SEARCH);
 			std::vector<std::string> filePath;
 			ImGui::Separator();
 			for(auto meshAssetID : _assetDatabase.GetMeshAssetIDs())

@@ -10,7 +10,7 @@
 #include <GLFW/glfw3.h>
 
 #include <Helpers/CircularBuffer.h>
-
+#include <IconsKenney.h>
 // private namespace, things in this cannot be used outside this file
 namespace
 {
@@ -150,7 +150,7 @@ namespace PlatinumEngine
 
 	void Profiler::ShowGUIWindow(bool* outIsOpen)
 	{
-		if (ImGui::Begin("Profiler", outIsOpen))
+		if (ImGui::Begin(ICON_KI_SIGNAL_HIGH " Profiler", outIsOpen))
 		{
 			bool isPaused = !isRecording;
 			ImGui::Checkbox("Pause", &isPaused);
