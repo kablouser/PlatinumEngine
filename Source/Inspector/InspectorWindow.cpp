@@ -84,7 +84,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			ImGui::OpenPopup("Select Mesh");
 		}
 
-		if(bool isOpen = _assetHelper->ShowGuiWindow(); _assetHelper->GetMesh() != nullptr&&isOpen == true)
+		bool isPopUpOpen = _assetHelper->ShowGuiWindow();
+		if(isPopUpOpen == true)
 		{
 			_activeGameObject->GetComponent<RenderComponent>()->SetMesh(nullptr);
 			_activeGameObject->GetComponent<RenderComponent>()->SetMesh(_assetHelper->GetMesh());
