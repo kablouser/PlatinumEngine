@@ -2,7 +2,7 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
-#include <iostream>
+#include <implot.h>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -16,6 +16,7 @@
 #include <SceneEditor/SceneEditor.h>
 #include <AssetDatabase/AssetDatabase.h>
 #include <GameWindow/GameWindow.h>
+#include <Profiler/Profiler.h>
 
 
 #include <OpenGL/GLCheck.h>
@@ -85,6 +86,7 @@ int main(int, char**)
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
+		ImPlot::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
@@ -111,38 +113,71 @@ int main(int, char**)
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow);
 
+		bool isProfilerOpen = true;
+		PlatinumEngine::Profiler profiler;
+
 		// Main loop
 		while (!glfwWindowShouldClose(window))
 		{
-			glfwPollEvents();
+			{
+				PlatinumEngine::Profiler::Frame frame;
 
-			// Start the Dear ImGui frame
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
+				{
+					PlatinumEngine::Profiler::Section pollEventsSection("Poll Events");
+					glfwPollEvents();
+				}
 
-			//--------------------------------------------------------------------------------------------------------------
-			// GUI HERE
-			//--------------------------------------------------------------------------------------------------------------
-			ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-			windowManager.ShowGUI(scene);
-			//ImGui::ShowDemoWindow();
-			//--------------------------------------------------------------------------------------------------------------
-			// END OF GUI
-			//--------------------------------------------------------------------------------------------------------------
+				{
+					PlatinumEngine::Profiler::Section imguiSetupSection("ImGui Frame Setup");
+					// Start the Dear ImGui frame
+					ImGui_ImplOpenGL3_NewFrame();
+					ImGui_ImplGlfw_NewFrame();
+					ImGui::NewFrame();
+				}
 
-			// Rendering
-			ImGui::Render();
+				//--------------------------------------------------------------------------------------------------------------
+				// GUI HERE
+				//--------------------------------------------------------------------------------------------------------------
+				{
+					PlatinumEngine::Profiler::Section dockingSection("Docking");
+					ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+				}
+				{
+					PlatinumEngine::Profiler::Section windowManagerSection("Window Manager");
+					windowManager.ShowGUI(scene);
+				}
+				{
+					PlatinumEngine::Profiler::Section demoSection("Show Demo");
+					ImGui::ShowDemoWindow();
+				}
 
-			int display_w, display_h;
-			glfwGetFramebufferSize(window, &display_w, &display_h);
-			GL_CHECK(glViewport(0, 0, display_w, display_h));
-			ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-			GL_CHECK(glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w));
-			GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
+				{
+					PlatinumEngine::Profiler::Section profilerSection("Profiler");
+					if (isProfilerOpen)
+						profiler.ShowGUIWindow(&isProfilerOpen);
+				}
+				//--------------------------------------------------------------------------------------------------------------
+				// END OF GUI
+				//--------------------------------------------------------------------------------------------------------------
 
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+				// Rendering
+				{
+					PlatinumEngine::Profiler::Section imguiRenderingSection("ImGui Rendering");
+					ImGui::Render();
 
+					int display_w, display_h;
+					glfwGetFramebufferSize(window, &display_w, &display_h);
+					GL_CHECK(glViewport(0, 0, display_w, display_h));
+					ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+					GL_CHECK(glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,
+							clear_color.z * clear_color.w, clear_color.w));
+					GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
+
+					ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+				}
+			}
+			// don't include swap buffers function in the frame for profiling
+			// swap buffers waits for vsync
 			glfwSwapBuffers(window);
 		}
 
@@ -152,6 +187,7 @@ int main(int, char**)
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
+		ImPlot::DestroyContext();
 	}
 
 	// Cleanup glfw
