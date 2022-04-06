@@ -22,7 +22,7 @@ namespace PlatinumEngine
 			{
 				_assetDatabase.TryGetAsset(meshAssetID.id, _asset);
 
-				if(filter.PassFilter(_asset.path.c_str()))
+				if(filter.PassFilter(_asset.path.string().c_str()))
 				{
 					if(ImGui::Selectable(_asset.path.c_str()))
 					{
