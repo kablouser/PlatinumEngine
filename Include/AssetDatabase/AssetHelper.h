@@ -26,9 +26,10 @@ namespace PlatinumEngine
  		*/
 		 Mesh* GetMesh();
 
+		 std::string GetFilePath();
 	private:
 		Mesh* _mesh = nullptr;
 		AssetDatabase _assetDatabase;
-		Asset _asset;
+		std::string _filePath;
 	};
 }

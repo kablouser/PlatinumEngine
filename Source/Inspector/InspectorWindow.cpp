@@ -86,10 +86,10 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 
 		if(bool isOpen = _assetHelper->ShowGuiWindow(); _assetHelper->GetMesh() != nullptr&&isOpen == true)
 		{
-			_activeGameObject->GetComponent<RenderComponent>()->setMesh(nullptr);
-			_activeGameObject->GetComponent<RenderComponent>()->setMesh(_assetHelper->GetMesh());
+			_activeGameObject->GetComponent<RenderComponent>()->SetMesh(nullptr);
+			_activeGameObject->GetComponent<RenderComponent>()->SetMesh(_assetHelper->GetMesh());
+			strcpy(meshBuffer, _assetHelper->GetFilePath().c_str());
 		}
-
 	}
 }
 

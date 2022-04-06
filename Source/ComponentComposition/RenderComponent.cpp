@@ -7,7 +7,7 @@ namespace PlatinumEngine
 {
 	RenderComponent::RenderComponent()
 	{
-		setMesh(nullptr);
+		SetMesh(nullptr);
 	}
 
 	void RenderComponent::OnRender(Scene& scene, Renderer &render)
@@ -15,7 +15,7 @@ namespace PlatinumEngine
 		_shaderInput.Draw();
 	}
 
-	void RenderComponent::setMesh(Mesh* mesh)
+	void RenderComponent::SetMesh(Mesh* mesh)
 	{
 		_mesh = mesh;
 		if(mesh != nullptr)

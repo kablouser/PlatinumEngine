@@ -17,7 +17,7 @@ namespace PlatinumEngine
 		RenderComponent();
 
 		// update mesh from mesh loader
-		void setMesh(Mesh* mesh);
+		void SetMesh(Mesh* mesh);
 
 		// return mesh
 		Mesh& GetMesh();
