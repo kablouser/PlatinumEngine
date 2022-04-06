@@ -5,10 +5,19 @@
 #pragma once
 
 // Platinum Library
-#include <Renderer/Renderer.h>
+
+// Scene editor
 #include <SceneEditor/EditorCamera.h>
-#include <SceneManager/Scene.h>
+
+// Renderer
+#include <Renderer/Renderer.h>
 #include <OpenGL/Framebuffer.h>
+
+// Game object related
+#include <SceneManager/Scene.h>
+#include <ComponentComposition/RenderComponent.h>
+
+// Input manager
 #include <InputManager/InputManager.h>
 
 namespace PlatinumEngine
@@ -32,15 +41,16 @@ namespace PlatinumEngine
 		 */
 		void Update(ImVec2 targetSize);
 
-
 		void SelectGameObjectFromScene()
 		{
-			ImVec2 mouseClickedPosition;
+			ImVec2 mouseClickedPosition = _inputManager->GetMousePosition();
 
-			DoRayCasting(mouseClickedPosition);
+			if(GameObject* result = DoRayCasting(mouseClickedPosition);
+			result != nullptr)
+				std::cout<< result->name << std::endl;
 		}
 
-		void DoRayCasting(ImVec2 clickedPosition)
+		GameObject* DoRayCasting(ImVec2& clickedPosition)
 		{
 			//-----------------//
 			// Calculate ray   //
@@ -55,48 +65,171 @@ namespace PlatinumEngine
 			else
 			{
 				// turning screen coordinate 2d back to the near panel (of the frustum) coordinate 2d
-				float nearPanelCoordinate_x = (clickedPosition.x * 2 / _framebufferWidth) - 1;
-				float nearPanelCoordinate_y = (clickedPosition.y * 2 / _framebufferHeight) - 1;
+				float nearPanelCoordinateForClickedPosition_x =(clickedPosition.x *2.f / (float)_framebufferWidth)- 1.f;
+				float nearPanelCoordinateForClickedPosition_y =(clickedPosition.y * 2.f / (float)_framebufferHeight)- 1.f;
+
 				// Clipping space
-				PlatinumEngine::Maths::Vec4 finalCoordiante(nearPanelCoordinate_x, nearPanelCoordinate_y, _camera.nearPanel, 1.0f);
+				PlatinumEngine::Maths::Vec4 worldCoordinateForClickedPositionCandidate4D(nearPanelCoordinateForClickedPosition_x,
+						nearPanelCoordinateForClickedPosition_y, 1.0f, 1.0f);
 
 				// View space
-				finalCoordiante = PlatinumEngine::Maths::Inverse(_camera.projectionMatrix4) * finalCoordiante;
+				worldCoordinateForClickedPositionCandidate4D = PlatinumEngine::Maths::Inverse(_camera.projectionMatrix4) * worldCoordinateForClickedPositionCandidate4D;
 
 				// World space
-				finalCoordiante = PlatinumEngine::Maths::Inverse(_camera.viewMatrix4) * finalCoordiante;
+				worldCoordinateForClickedPositionCandidate4D = PlatinumEngine::Maths::Inverse(_camera.viewMatrix4) * worldCoordinateForClickedPositionCandidate4D;
+
+				PlatinumEngine::Maths::Vec3 worldCoordinateForClickedPosition(
+						worldCoordinateForClickedPositionCandidate4D.x/worldCoordinateForClickedPositionCandidate4D.w,
+						worldCoordinateForClickedPositionCandidate4D.y/worldCoordinateForClickedPositionCandidate4D.w,
+						worldCoordinateForClickedPositionCandidate4D.z/worldCoordinateForClickedPositionCandidate4D.w);
+
 
 				// Calculate ray
-				finalCoordiante = finalCoordiante ; // - _camera.GetPosition();
-
+				ray = worldCoordinateForClickedPosition - _camera.GetCameraPosition();
 			}
 
 
-			//---------------------------------------------//
-			// Loop through the primitives in an object    //
-			//---------------------------------------------//
+			//----------------------------------------//
+			// Loop through Every root game object    //
+			//----------------------------------------//
 
-			// get all the game object from scene class
+			// variable that store the current selected game object
+			GameObject* currentSelectedGameobject = nullptr;
+			float closetZValue = (float)_far;
+
+			// loop through all the root game object from scene class
 			unsigned int numberOfRootGameobject = _scene->GetRootGameObjectsCount();
 
-			for(int gameObjectIndex; gameObjectIndex < numberOfRootGameobject; gameObjectIndex++)
+			for(int gameObjectIndex =0; gameObjectIndex < numberOfRootGameobject; gameObjectIndex++)
 			{
+				// get current game object
 				GameObject* currentGameobject = _scene->GetRootGameObject(gameObjectIndex);
+
+				// check if the object enable
 				if(currentGameobject->IsEnabledInHierarchy())
 				{
-					CheckIntersectionWithTrianglePrimitiveForGameobject(currentGameobject);
+					// get result for whether this game object or one of its children is selected
+					currentSelectedGameobject = CheckIntersectionWithTrianglePrimitiveForGameobject(currentGameobject, ray,
+							_camera.GetCameraPosition(), currentSelectedGameobject, closetZValue);
+
 				}
 			}
+			return currentSelectedGameobject;
 		}
 
 		// for trianlge mesh only
-		void CheckIntersectionWithTrianglePrimitiveForGameobject(GameObject* inGameobject)
+		GameObject* CheckIntersectionWithTrianglePrimitiveForGameobject(GameObject* currentCheckingGameobject, PlatinumEngine::Maths::Vec3 inRay,
+				const PlatinumEngine::Maths::Vec3& inCameraPosition, GameObject* currentSelectedGameObject, float& closestZValueForCrossPoint)
 		{
-			//-----------------------------------//
-			// check if they have mesh component //
-			//-----------------------------------//
-		}
 
+			// check if the game object enable
+			if(!currentCheckingGameobject->IsEnabledInHierarchy())
+				return currentSelectedGameObject;
+
+			//------------------//
+			// Do intersection  //
+			//------------------//
+
+			// check if the game object has mesh component
+			if( auto renderComponent = currentCheckingGameobject->GetComponent<RenderComponent>(); renderComponent!= nullptr)
+			{
+				// fetch mesh
+				Mesh mesh = renderComponent->GetMesh();
+
+				// loop all the vertices
+				for(int count =0; count < mesh.indices.size(); count+=3)
+				{
+					//----------------------------------//
+					// Do ray and triangle intersection //
+					//----------------------------------//
+
+					// build the PCS using the triangle primitive
+					Maths::Vec3 originForPCS = mesh.vertices[mesh.indices[count + 0]].position;
+
+					Maths::Vec3 axisUForPCS = (mesh.vertices[mesh.indices[count + 1]].position - originForPCS);
+					float lengthU = sqrtf(LengthSquared(axisUForPCS));
+					axisUForPCS = axisUForPCS/lengthU;
+
+					Maths::Vec3 axisNForPCS = Cross(axisUForPCS, (mesh.vertices[mesh.indices[count + 2]].position - originForPCS));
+					float lengthN = sqrtf(LengthSquared(axisNForPCS));
+					axisNForPCS = axisNForPCS/lengthN;
+
+					Maths::Vec3 axisWForPCS = Cross(axisUForPCS, axisNForPCS);
+					float lengthW = sqrtf(LengthSquared(axisWForPCS));
+					axisWForPCS = axisWForPCS/lengthW;
+
+					// find the intersection point for ray and the panel that contains the triangle
+					Maths::Vec3 vectorBetweenOriginForPCSandCameraPosition = originForPCS - inCameraPosition;
+
+					float rateForLineApproachingPanel = Maths::Dot(vectorBetweenOriginForPCSandCameraPosition, axisNForPCS) / Maths::Dot(inRay, axisNForPCS);
+
+					Maths::Vec3 crossPoint = inCameraPosition + inRay * rateForLineApproachingPanel;
+
+					// Convert the cross point and the vertices of the triangle into PCS coordinate
+					Maths::Mat3 PCSMatrix3x3(std::array<float, 9>({
+							axisUForPCS.x, axisWForPCS.x, axisNForPCS.x,
+							axisUForPCS.y, axisWForPCS.y, axisNForPCS.y,
+							axisUForPCS.z, axisWForPCS.z, axisNForPCS.z
+							}).data());
+					// 1. cross point
+					Maths::Vec3 crossPointPCS = PCSMatrix3x3 * (crossPoint - originForPCS);
+
+					// 2. triangle vertices
+					Maths::Vec3 vertex0 = PCSMatrix3x3 * (mesh.vertices[mesh.indices[count + 0]].position - originForPCS);
+					Maths::Vec3 vertex1 = PCSMatrix3x3 * (mesh.vertices[mesh.indices[count + 1]].position - originForPCS);
+					Maths::Vec3 vertex2 = PCSMatrix3x3 * (mesh.vertices[mesh.indices[count + 2]].position - originForPCS);
+
+					// Do barycentric interpolation to check
+					Maths::Vec3 xValueForBarycentricInterpolation((vertex0 - vertex1).x, (vertex0 - vertex2).x, (crossPointPCS - vertex0).x);
+					xValueForBarycentricInterpolation = xValueForBarycentricInterpolation / sqrtf(LengthSquared(xValueForBarycentricInterpolation));
+
+					Maths::Vec3 yValueForBarycentricInterpolation((vertex0 - vertex1).y, (vertex0 - vertex2).y, (crossPointPCS - vertex0).y);
+					yValueForBarycentricInterpolation = yValueForBarycentricInterpolation/ sqrtf(LengthSquared(yValueForBarycentricInterpolation));
+
+					// Use the features of cross product to calculate the coefficients for interpolation
+					Maths::Vec3 coefficientForInterpolation = Maths::Cross(xValueForBarycentricInterpolation , yValueForBarycentricInterpolation);
+
+					// make sure the z is not zero
+					if(coefficientForInterpolation.z != 0)
+					{
+						// check if the final coefficients for interpolation are all positive
+						if (1.f - ((coefficientForInterpolation.x + coefficientForInterpolation.y) /
+								 coefficientForInterpolation.z) > 0.f
+							&& coefficientForInterpolation.x / coefficientForInterpolation.z > 0.f
+							&& coefficientForInterpolation.y / coefficientForInterpolation.z > 0.f)
+						{
+							// compare z value for the current cross point and the current farthest z value from previous cross point
+
+							//1. if the clipping space pointing with the same direction of left-hand coordinate
+							if (_far - _near > 0 && closestZValueForCrossPoint > crossPoint.z)
+							{
+								// update the selected game object and the closet z value if the current checking object is the closet
+								currentSelectedGameObject = currentCheckingGameobject;
+								closestZValueForCrossPoint = crossPointPCS.z;
+							}
+							//2. if the clipping space pointing with the same direction of right-hand coordinate
+							else if (_far - _near < 0 && closestZValueForCrossPoint < crossPoint.z)
+							{
+								// update the selected game object and the closet z value if the current checking object is the closet
+								currentSelectedGameObject = currentCheckingGameobject;
+								closestZValueForCrossPoint = crossPointPCS.z;
+							}
+
+						}
+					}
+				}
+			}
+
+			// Keep checking the children of currentCheckingGameobject
+			// if children exist, call this function for every child
+			for(int counter = 0; counter < currentCheckingGameobject->GetChildrenCount()>0; counter++)
+			{
+				currentSelectedGameObject = CheckIntersectionWithTrianglePrimitiveForGameobject(currentCheckingGameobject->GetChild(counter), inRay,
+						inCameraPosition, currentSelectedGameObject, closestZValueForCrossPoint);
+			}
+
+			return currentSelectedGameObject;
+		}
 
 		// ___CONSTRUCTOR___
 		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer);
@@ -122,10 +255,13 @@ namespace PlatinumEngine
 		int _near;
 		int _far;
 
+		// Values for input control
 		ImVec2 _mouseMoveDelta;
 		int _mouseButtonType;
 		float _wheelValueDelta;
 
+		// Value for ray casting
+		GameObject* selectedGameobject;
 
 		// output of OpenGL rendering
 		Framebuffer _renderTexture;

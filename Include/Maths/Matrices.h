@@ -82,6 +82,7 @@ namespace PlatinumEngine
 			//___CONSTRUCTOR___
 			Matrix(); // create empty matrix
 			explicit Matrix(T valueForPacking); // fill the matrix (the std::vector) with valueForPacking
+			explicit Matrix(T* matrixArray); // fill the matrix with array
 
 			//___VARIABLE___
 			T matrix[numberOfRow * numberOfColumn];
@@ -262,6 +263,12 @@ namespace PlatinumEngine
 			// fill the diagonal with the valueForPacking
 			for (int i = 0; i < diagonalLength; i++)
 				(*this)[i][i] = valueForPacking;
+		}
+
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		Matrix<numberOfRow, numberOfColumn, T>::Matrix(T* matrixArray)
+		{
+			std::memcpy(this->matrix, matrixArray, numberOfRow * numberOfColumn *sizeof(T));
 		}
 
 

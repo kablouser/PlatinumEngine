@@ -149,7 +149,6 @@ namespace PlatinumEngine{
 
 	void SceneEditor::Update(ImVec2 targetSize)
 	{
-		std::cout<<_camera.GetCameraPosition()<<std::endl;
 		//--------------------------------------
 		// check if mouse is inside the screen
 		//--------------------------------------
@@ -159,6 +158,7 @@ namespace PlatinumEngine{
 				&& _inputManager->GetMousePosition().y >= 0.f
 				&& ImGui::IsWindowFocused())
 		{
+
 			//---------------------
 			// update view matrix
 			//---------------------
@@ -205,23 +205,23 @@ namespace PlatinumEngine{
 		// check camera type
 		if (_camera.isOrthogonal)
 		{
-
 			// update as orthogonal projection matrix
 			_camera.SetOrthogonalMatrix(-targetSize.x / 20.f, targetSize.x / 20.f,
 					-targetSize.y / 20.f, targetSize.y / 20.f, (float)_near, (float)_far);
-
 		}
 		else
 		{
-
 			// update as perspective projection matrix
 			_camera.SetPerspectiveMatrix(3.14159265f * (float)_fov / 180.f,
 					targetSize.x / targetSize.y,
 					(float)_near, (float)_far);
-
 		}
 
-
+		//---------------------------------------------
+		// check if the mouse is selecting game object
+		//---------------------------------------------
+		if(_inputManager->IsMouseDown(1))
+			SelectGameObjectFromScene();
 
 		//--------------------
 		// Render Objects

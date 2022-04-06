@@ -29,7 +29,9 @@ namespace PlatinumEngine
 			  viewMatrix4(1.f),
 			  projectionMatrix4(1.f),
 			  isOrthogonal(false),
-			  nearPanel(4.f)
+			  _nearPanelForClippingSpace(4.f),
+			  _farPanelForClippingSpace(10000.f),
+			  _fov(40)
 	{}
 
 
@@ -184,20 +186,32 @@ namespace PlatinumEngine
 	void EditorCamera::SetFrustumMatrix(float left, const float right, float bottom, float top, float near, float far)
 	{
 
+		// update projection matrix
 		projectionMatrix4.SetFrustumMatrix( left,  right,  bottom,  top,  near,  far);
 
 	}
 
 	void EditorCamera::SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
 	{
-		nearPanel = zNear;
+		// store the near and far panel values
+		_nearPanelForClippingSpace = zNear;
+		_farPanelForClippingSpace = zFar;
+		_fov = -1;
+
+		// update projection matrix
 		projectionMatrix4.SetOrthogonalMatrix( left,  right,  bottom,  top,  zNear,  zFar);
 
 	}
 
 	void EditorCamera::SetPerspectiveMatrix(float fovy, float aspect, float near, float far)
 	{
-		nearPanel = near;
+
+		// store the near and far panel values
+		_nearPanelForClippingSpace = near;
+		_farPanelForClippingSpace = far;
+		_fov = fovy;
+
+		// update projection matrix
 		projectionMatrix4.SetPerspectiveMatrix( fovy,  aspect,  near,  far);
 
 	}
@@ -205,6 +219,21 @@ namespace PlatinumEngine
 	const Maths::Vec3& EditorCamera::GetCameraPosition()
 	{
 		return _cameraPosition;
+	}
+
+	const float& EditorCamera::GetNearPanelForClippingSpace()
+	{
+		return _nearPanelForClippingSpace;
+	}
+
+	const float& EditorCamera::GetFarPanelForClippingSpace()
+	{
+		return _farPanelForClippingSpace;
+	}
+
+	const float& EditorCamera::GetFovForPerspectiveProjection()
+	{
+		return _fov;
 	}
 
 }

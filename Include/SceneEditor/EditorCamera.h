@@ -18,7 +18,7 @@ namespace PlatinumEngine
 
 		// projection stuff
 		Maths::Mat4 projectionMatrix4;
-		float nearPanel;
+
 
 		// Flags
 		bool isOrthogonal;
@@ -96,11 +96,28 @@ namespace PlatinumEngine
 		 * @param far
 		 * ...
 		 */
-		void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far);
+		void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far); // TODO: maybe deleted
 		void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
 		void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
 
+		/**
+		 * Get camera position const reference
+		 * @return : camera position const reference
+		 */
 		const Maths::Vec3& GetCameraPosition();
+
+		/**
+		 * Get near/far panel z value for the clipping space
+		 * @return : near/far panel z value for the clipping space
+		 */
+		const float& GetNearPanelForClippingSpace();
+		const float& GetFarPanelForClippingSpace();
+
+		/**
+		 * Get fov value
+		 * @return : fov value
+		 */
+		const float& GetFovForPerspectiveProjection();
 
 
 		// CONSTRUCTOR
@@ -114,6 +131,11 @@ namespace PlatinumEngine
 		Maths::Vec3 _eulerAngle;
 		Maths::Vec3 _translationValue;
 		Maths::Vec3 _cameraPosition;
+
+		// camera
+		float _nearPanelForClippingSpace;
+		float _farPanelForClippingSpace;
+		float _fov;
 
 
 		// device input data
