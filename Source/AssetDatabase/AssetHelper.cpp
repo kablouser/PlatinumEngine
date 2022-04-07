@@ -28,13 +28,12 @@ namespace PlatinumEngine
 			for(auto meshAssetID : _assetDatabase.GetMeshAssetIDs())
 			{
 				_assetDatabase.TryGetAsset(meshAssetID.id, asset);
-
 				if(filter.PassFilter(asset.path.string().c_str()))
 				{
 					if(ImGui::Selectable(asset.path.string().c_str()))
 					{
 						_mesh = _assetDatabase[meshAssetID];
-						_filePath = asset.path.string();
+						_filePath = asset.path.filename().string();
 						isAssetSelected= true;
 					}
 				}

@@ -53,9 +53,6 @@ namespace PlatinumEngine
 
 	void GameWindow::Render(ImVec2 targetSize, Scene* scene)
 	{
-		_framebufferWidth = (int)targetSize.x;
-		_framebufferHeight = (int)targetSize.y;
-		_renderTexture.Create(_framebufferWidth, _framebufferHeight);
 		if(1.0f < targetSize.x && 1.0f < targetSize.y)
 		{
 			// resize framebuffer if necessary

@@ -9,7 +9,6 @@ using namespace PlatinumEngine;
 InspectorWindow::InspectorWindow(AssetHelper* assetHelper):_assetHelper(assetHelper) {}
 void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 {
-
 	if(ImGui::Begin(ICON_KI_EXCLAMATION_CIRCLE " Inspector Window", isOpen))
 	{
 		if (_activeGameObject)
@@ -63,7 +62,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 {
 
 	ImGui::Separator();
-	static char meshBuffer[128];
+	static char meshBuffer[64];
 	bool isHeaderOpen = ImGui::CollapsingHeader("Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
@@ -76,7 +75,9 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 	{
 		ImGui::Text("Mesh");
 		ImGui::SameLine();
-		ImGui::InputText("##Mesh Name",meshBuffer,64);
+		ImGui::PushItemWidth(160.0f);
+		ImGui::InputText("##Mesh Name",meshBuffer,64, ImGuiInputTextFlags_ReadOnly);
+		ImGui::PopItemWidth();
 		ImGui::SameLine();
 
 		if(ImGui::Button("Choose mesh"))
