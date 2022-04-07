@@ -75,7 +75,7 @@ int main(int, char**)
 		// construct logger before everything to save all logs
 		PlatinumEngine::Profiler profiler;
 		PlatinumEngine::AssetDatabase assetDatabase;
-		PlatinumEngine::AssetHelper assetHelper;
+		PlatinumEngine::AssetHelper assetHelper(&assetDatabase);
 		PlatinumEngine::Logger logger;
 		PlatinumEngine::InputManager inputManager;
 		PlatinumEngine::Renderer rasterRenderer;
