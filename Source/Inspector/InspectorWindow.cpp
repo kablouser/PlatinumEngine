@@ -8,7 +8,6 @@ using namespace PlatinumEngine;
 
 void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 {
-
 	if(ImGui::Begin("Inspector Window", isOpen))
 	{
 		if (_activeGameObject)
