@@ -2,54 +2,45 @@
 
 namespace PlatinumEngine
 {
-	AssetHelper::AssetHelper():_assetDatabase()
+	AssetHelper::AssetHelper(AssetDatabase* assetDatabase):_assetDatabase(assetDatabase)
 	{
-		_assetDatabase.Update();
+		_assetDatabase->Update();
 	}
 
 	AssetHelper::~AssetHelper() {}
 
-	bool AssetHelper::ShowGuiWindow()
+	std::tuple<bool, Mesh*, std::string> AssetHelper::ShowGuiWindow()
 	{
 		bool isAssetSelected = false;
 		static ImGuiTextFilter filter;
 		Asset asset;
+		Mesh* mesh;
+		std::string returnFilePath;
 		if(ImGui::BeginPopupModal("Select Mesh", nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			filter.Draw(ICON_KI_SEARCH);
-			std::vector<std::string> filePath;
 			ImGui::Separator();
 			if(ImGui::Selectable("None"))
 			{
-				_mesh= nullptr;
+				mesh= nullptr;
 				isAssetSelected= true;
-				_filePath = "";
+				returnFilePath = "";
 			}
-			for(auto meshAssetID : _assetDatabase.GetMeshAssetIDs())
+			for(auto meshAssetID : _assetDatabase->GetMeshAssetIDs())
 			{
-				_assetDatabase.TryGetAsset(meshAssetID.id, asset);
+				_assetDatabase->TryGetAsset(meshAssetID.id, asset);
 				if(filter.PassFilter(asset.path.string().c_str()))
 				{
 					if(ImGui::Selectable(asset.path.string().c_str()))
 					{
-						_mesh = _assetDatabase[meshAssetID];
-						_filePath = asset.path.filename().string();
+						mesh = (*_assetDatabase)[meshAssetID];
+						returnFilePath = asset.path.filename().string();
 						isAssetSelected= true;
 					}
 				}
 			}
 			ImGui::EndPopup();
 		}
-		return isAssetSelected;
-	}
-
-	Mesh* AssetHelper::GetMesh()
-	{
-		return _mesh;
-	}
-
-	std::string AssetHelper::GetFilePath()
-	{
-		return _filePath;
+		return {isAssetSelected, mesh, returnFilePath};
 	}
 }

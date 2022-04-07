@@ -85,12 +85,11 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			ImGui::OpenPopup("Select Mesh");
 		}
 
-		bool isPopUpOpen = _assetHelper->ShowGuiWindow();
-		if(isPopUpOpen == true)
+		auto asset_Helper = _assetHelper->ShowGuiWindow();
+		if(std::get<0>(asset_Helper) == true)
 		{
-			_activeGameObject->GetComponent<RenderComponent>()->SetMesh(nullptr);
-			_activeGameObject->GetComponent<RenderComponent>()->SetMesh(_assetHelper->GetMesh());
-			strcpy(meshBuffer, _assetHelper->GetFilePath().c_str());
+			_activeGameObject->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+			strcpy(meshBuffer, std::get<2>(asset_Helper).c_str());
 		}
 	}
 }

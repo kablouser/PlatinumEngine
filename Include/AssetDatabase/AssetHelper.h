@@ -7,29 +7,23 @@
 #include <AssetDatabase/AssetDatabase.h>
 #include <imgui.h>
 #include <IconsKenney.h>
+#include <tuple>
+
 namespace PlatinumEngine
 {
 	class AssetHelper
 	{
 	public:
-		AssetHelper();
+		AssetHelper(AssetDatabase* assetDatabase);
 		~AssetHelper();
 		/**
 		 * Responsible for the pop up window opened by
 		 * the render component in Inspector Window
 		 */
-		 bool ShowGuiWindow();
-
-		/**
- 		* return the private _mesh parameter
- 		* @return
- 		*/
-		 Mesh* GetMesh();
+		 std::tuple<bool, Mesh*, std::string> ShowGuiWindow();
 
 		 std::string GetFilePath();
 	private:
-		Mesh* _mesh = nullptr;
-		AssetDatabase _assetDatabase;
-		std::string _filePath;
+		AssetDatabase* _assetDatabase;
 	};
 }
