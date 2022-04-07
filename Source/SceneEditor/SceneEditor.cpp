@@ -2,9 +2,12 @@
 // Created by Shihua on 02/03/2022.
 //
 
-#include <SceneEditor/SceneEditor.h>
+// imgui library
 #include <imgui.h>
 
+// Platinum library
+#include <SceneEditor/SceneEditor.h>
+#include <ComponentComposition/TransformComponent.h>
 
 namespace PlatinumEngine{
 
@@ -306,7 +309,6 @@ namespace PlatinumEngine{
 					worldCoordinateForClickedPositionCandidate4D.y/worldCoordinateForClickedPositionCandidate4D.w,
 					worldCoordinateForClickedPositionCandidate4D.z/worldCoordinateForClickedPositionCandidate4D.w);
 
-
 			// Calculate ray
 			ray = worldCoordinateForClickedPosition - _camera.GetCameraPosition();
 		}
@@ -362,24 +364,81 @@ namespace PlatinumEngine{
 			// loop all the vertices
 			for(int count =0; count < mesh.indices.size(); count+=3)
 			{
+				//----------------------------------------------------------------//
+				// Find the world coordinate of the object (after transformation) //
+				//----------------------------------------------------------------//
+
+				Maths::Vec3 vertex0, vertex1, vertex2;
+
+				// check if the game object has transformation components
+				if( auto transformComponent = currentCheckingGameobject->GetComponent<TransformComponent>(); transformComponent!= nullptr)
+				{
+					Maths::Mat4 translationMatrix, rotationMatrix, scaleMatrix;
+					translationMatrix.SetTranslationMatrix(transformComponent->position);
+					rotationMatrix.SetRotationMatrix(transformComponent->rotation.EulerAngles());
+					scaleMatrix.SetScaleMatrix(transformComponent->scale);
+
+					Maths::Vec4 temporaryMatrix;
+
+					// get the world coordinate of vertex 0
+					temporaryMatrix = rotationMatrix * translationMatrix * scaleMatrix * Maths::Vec4(mesh.vertices[mesh.indices[count + 0]].position.x,
+							mesh.vertices[mesh.indices[count + 0]].position.y, mesh.vertices[mesh.indices[count + 0]].position.z, 1.0f);
+					temporaryMatrix = temporaryMatrix/temporaryMatrix.w;
+					vertex0 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
+
+					// get the world coordinate of vertex 1
+					temporaryMatrix = rotationMatrix * translationMatrix * scaleMatrix * Maths::Vec4(mesh.vertices[mesh.indices[count + 1]].position.x,
+							mesh.vertices[mesh.indices[count + 1]].position.y, mesh.vertices[mesh.indices[count + 1]].position.z, 1.0f);
+					temporaryMatrix = temporaryMatrix/temporaryMatrix.w;
+					vertex1 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
+
+					// get the world coordinate of vertex 2
+					temporaryMatrix = rotationMatrix * translationMatrix * scaleMatrix * Maths::Vec4(mesh.vertices[mesh.indices[count + 2]].position.x,
+							mesh.vertices[mesh.indices[count + 2]].position.y, mesh.vertices[mesh.indices[count + 2]].position.z, 1.0f);
+					temporaryMatrix = temporaryMatrix/temporaryMatrix.w;
+					vertex2 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
+				}
+				else
+				{
+					vertex0 = mesh.vertices[mesh.indices[count + 0]].position;
+					vertex1 = mesh.vertices[mesh.indices[count + 1]].position;
+					vertex2 = mesh.vertices[mesh.indices[count + 2]].position;
+				}
+
 				//----------------------------------//
 				// Do ray and triangle intersection //
 				//----------------------------------//
 
 				// build the PCS using the triangle primitive
-				Maths::Vec3 originForPCS = mesh.vertices[mesh.indices[count + 0]].position;
 
-				Maths::Vec3 axisUForPCS = (mesh.vertices[mesh.indices[count + 1]].position - originForPCS);
-				float lengthU = sqrtf(LengthSquared(axisUForPCS));
-				axisUForPCS = axisUForPCS/lengthU;
+				// origin of PCS
+				Maths::Vec3 originForPCS = vertex0;
 
-				Maths::Vec3 axisNForPCS = Cross(axisUForPCS, (mesh.vertices[mesh.indices[count + 2]].position - originForPCS));
-				float lengthN = sqrtf(LengthSquared(axisNForPCS));
-				axisNForPCS = axisNForPCS/lengthN;
-
+				// not normalized axis of PCS
+				Maths::Vec3 axisUForPCS = (vertex1 - originForPCS);
+				Maths::Vec3 axisNForPCS = Cross(axisUForPCS, (vertex2 - originForPCS));
 				Maths::Vec3 axisWForPCS = Cross(axisUForPCS, axisNForPCS);
+
+				// length of axis
+				float lengthU = sqrtf(LengthSquared(axisUForPCS));
+				float lengthN = sqrtf(LengthSquared(axisNForPCS));
 				float lengthW = sqrtf(LengthSquared(axisWForPCS));
+
+				// if the length of the axis is 0, the primitive is not a valid triangle primitive
+				if(lengthU == 0 || lengthN == 0 || lengthW == 0)
+				{
+					PLATINUM_ERROR("You are clicking on an object with invalid triangle primitive.");
+					return currentSelectedGameObject;
+				}
+
+				// if the length of the three axes are not 0, normalize them
+				axisUForPCS = axisUForPCS/lengthU;
+				axisNForPCS = axisNForPCS/lengthN;
 				axisWForPCS = axisWForPCS/lengthW;
+
+
+
+				// find cross point
 
 				// find the intersection point for ray and the panel that contains the triangle
 				Maths::Vec3 vectorBetweenOriginForPCSandCameraPosition = originForPCS - inCameraPosition;
@@ -388,10 +447,15 @@ namespace PlatinumEngine{
 
 				// make sure the ray is not contained by the same panel as the triangle primitive
 				if(rateForLineApproachingPanel != 0)
+				{
 					rateForLineApproachingPanel = Maths::Dot(vectorBetweenOriginForPCSandCameraPosition, axisNForPCS) / rateForLineApproachingPanel;
+				}
 				else
+				{
 					return currentSelectedGameObject;
+				}
 
+				// calculate the cross point
 				Maths::Vec3 crossPoint = inCameraPosition + inRay * rateForLineApproachingPanel;
 
 				//------------------------------------//
@@ -408,19 +472,29 @@ namespace PlatinumEngine{
 				Maths::Vec3 crossPointPCS = PCSMatrix3x3 * (crossPoint - originForPCS);
 
 				// 2. triangle vertices
-				Maths::Vec3 vertex0 = PCSMatrix3x3 * (mesh.vertices[mesh.indices[count + 0]].position - originForPCS);
-				Maths::Vec3 vertex1 = PCSMatrix3x3 * (mesh.vertices[mesh.indices[count + 1]].position - originForPCS);
-				Maths::Vec3 vertex2 = PCSMatrix3x3 * (mesh.vertices[mesh.indices[count + 2]].position - originForPCS);
+				Maths::Vec3 vertex0PCS = PCSMatrix3x3 * (vertex0 - originForPCS);
+				Maths::Vec3 vertex1PCS = PCSMatrix3x3 * (vertex1 - originForPCS);
+				Maths::Vec3 vertex2PCS = PCSMatrix3x3 * (vertex2 - originForPCS);
 
 				// Do barycentric interpolation to check
-				Maths::Vec3 xValueForBarycentricInterpolation((vertex0 - vertex1).x, (vertex0 - vertex2).x, (crossPointPCS - vertex0).x);
-				xValueForBarycentricInterpolation = xValueForBarycentricInterpolation / sqrtf(LengthSquared(xValueForBarycentricInterpolation));
+				Maths::Vec3 xValueOfVerticesPCS((vertex0PCS - vertex1PCS).x, (vertex0PCS - vertex2PCS).x, (crossPointPCS - vertex0PCS).x);
+				float lengthOfXValueOfVerticesPCS = sqrtf(LengthSquared(xValueOfVerticesPCS));
 
-				Maths::Vec3 yValueForBarycentricInterpolation((vertex0 - vertex1).y, (vertex0 - vertex2).y, (crossPointPCS - vertex0).y);
-				yValueForBarycentricInterpolation = yValueForBarycentricInterpolation/ sqrtf(LengthSquared(yValueForBarycentricInterpolation));
+				Maths::Vec3 yValueOfVerticesPCS((vertex0PCS - vertex1PCS).y, (vertex0PCS - vertex2PCS).y, (crossPointPCS - vertex0PCS).y);
+				float lengthOfYValueOfVerticesPCS = sqrtf(LengthSquared(yValueOfVerticesPCS));
+
+				// if the length of the axis is 0, the primitive is not a valid triangle primitive
+				if(lengthOfXValueOfVerticesPCS == 0 || lengthOfYValueOfVerticesPCS == 0)
+				{
+					PLATINUM_ERROR("You are clicking on an object with invalid triangle primitive.");
+					return currentSelectedGameObject;
+				}
+
+				xValueOfVerticesPCS = xValueOfVerticesPCS / lengthOfXValueOfVerticesPCS;
+				yValueOfVerticesPCS = yValueOfVerticesPCS/ lengthOfYValueOfVerticesPCS;
 
 				// Use the features of cross product to calculate the coefficients for interpolation
-				Maths::Vec3 coefficientForInterpolation = Maths::Cross(xValueForBarycentricInterpolation , yValueForBarycentricInterpolation);
+				Maths::Vec3 coefficientForInterpolation = Maths::Cross(xValueOfVerticesPCS , yValueOfVerticesPCS);
 
 				// make sure the z is not zero
 				if(coefficientForInterpolation.z != 0)
