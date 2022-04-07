@@ -46,13 +46,13 @@ namespace PlatinumEngine
 			static float Angle(Quaternion a, Quaternion b);
 			static Quaternion Lerp(Quaternion a, Quaternion b, float t);
 			static Quaternion Slerp(Quaternion a, Quaternion b, float t);
-			static Vec3 QuatToEuler(Quaternion q);
-			static Quaternion EulerToQuat(Vec3 euler);
 			static Quaternion AngleAxis(Vec3 axis, float angle);
-			static Quaternion RotationMatrix(Mat4 matrix);
+			static Vec3 QuaternionToEuler(Quaternion q);
+			static Quaternion EulerToQuaternion(Vec3 euler);
 			static Mat4 QuaternionToMatrix(Quaternion q);
 			static Quaternion MatrixToQuaternion(Mat4 matrix);
 			static Vec3 MatrixToEuler(Mat4 matrix);
+			static Mat4 EulerToMatrix(Vec3 euler);
 			static Quaternion FromToRotation (Vec3 from, Vec3 to);
 			static Mat4 FromToRotationMatrix (Vec3 from, Vec3 to);
 			static Quaternion LookRotation(Vec3 forward, Vec3 up);

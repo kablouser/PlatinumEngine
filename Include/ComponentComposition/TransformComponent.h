@@ -34,6 +34,7 @@ namespace PlatinumEngine
 		void Rotate(Maths::Vec3 axis, float angle, relativeTo space);
 		void RotateAround(Maths::Vec3 point, Maths::Vec3 axis, float angle);
 		void LookAt(Maths::Vec3 target);
+
 		Maths::Vec3 TransformDirection(Maths::Vec3 dir);
 		Maths::Vec3 InverseTransformDirection(Maths::Vec3 dir);
 		Maths::Vec3 TransformPoint(Maths::Vec3 point);

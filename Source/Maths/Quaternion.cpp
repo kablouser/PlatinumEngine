@@ -13,7 +13,7 @@ namespace PlatinumEngine
 		}
 		Quaternion::Quaternion(float roll, float pitch, float yaw)
 		{
-			Quaternion q = EulerToQuat(Vec3(roll,pitch,yaw)*_DEG2RAD);
+			Quaternion q = EulerToQuaternion(Vec3(roll,pitch,yaw)*_DEG2RAD);
 			x = q.x;
 			y = q.y;
 			z = q.z;
@@ -21,7 +21,7 @@ namespace PlatinumEngine
 		}
 		Quaternion::Quaternion(Vec3 euler)
 		{
-			Quaternion q = EulerToQuat(euler*_DEG2RAD);
+			Quaternion q = EulerToQuaternion(euler*_DEG2RAD);
 			x = q.x;
 			y = q.y;
 			z = q.z;
@@ -178,7 +178,7 @@ namespace PlatinumEngine
 		}
 		Vec3 Quaternion::EulerAngles()
 		{
-			return QuatToEuler(Quaternion(w,x,y,z))*(180.f / _PI);
+			return QuaternionToEuler(Quaternion(w,x,y,z))*(180.f / _PI);
 		}
 		Vec4 Quaternion::ToVec4()
 		{
@@ -191,6 +191,9 @@ namespace PlatinumEngine
 
 		// Static Methods
 
+		//Quaternion related functions
+
+		//Sets the quaternion to be of unit length
 		Quaternion Quaternion::Normalise(Quaternion &q)
 		{
 			float n = q.Length();
@@ -198,6 +201,7 @@ namespace PlatinumEngine
 			Quaternion r = q * invN;
 			return r;
 		}
+		//Returns the conjugate of quaternion
 		Quaternion Quaternion::Conjugate(Quaternion &q)
 		{
 			Quaternion r;
@@ -207,6 +211,7 @@ namespace PlatinumEngine
 			r.w = q.w;
 			return r;
 		}
+		//Returns the inverse of quaternion
 		Quaternion Quaternion::Inverse(Quaternion &q)
 		{
 			float n=q.Length();
@@ -214,10 +219,12 @@ namespace PlatinumEngine
 			Quaternion r = Conjugate(q) * n;
 			return r;
 		}
+		//Returns the angle (radians) between 2 quaternions
 		float Quaternion::Angle(Quaternion a, Quaternion b)
 		{
 			return 2 * acos(abs(glm::clamp(a.Dot(b),- 1.f,1.f)));
 		}
+		//Linear interpolation of 2 quaternions
 		Quaternion Quaternion::Lerp(Quaternion a, Quaternion b, float t)
 		{
 			float num = t;
@@ -246,6 +253,7 @@ namespace PlatinumEngine
 			q.w *= num3;
 			return q;
 		}
+		//Spherical interpolation of 2 quaternions
 		Quaternion Quaternion::Slerp(Quaternion a, Quaternion b, float t)
 		{
 			if ( t == 0 ) return a;
@@ -294,13 +302,26 @@ namespace PlatinumEngine
 			r.z = ( a.z * ratioA + r.z * ratioB );
 			return r;
 		}
-		Vec3 Quaternion::QuatToEuler(Quaternion q)
+
+		//Functions related to Quaternion creation and conversion
+
+		//Creates a quaternion with the given axis and angle values
+		Quaternion Quaternion::AngleAxis(Vec3 axis, float angle)
+		{
+			float halfAngle = angle * .5f;
+			float s = sin(halfAngle);
+			Quaternion q = Quaternion(cos(halfAngle), axis.x * s, axis.y * s, axis.z * s);
+			return q;
+		}
+		//Returns a Quaternion from Vec3 euler angles
+		Vec3 Quaternion::QuaternionToEuler(Quaternion q)
 		{
 			Mat4 m = QuaternionToMatrix(q);
 			Vec3 v = MatrixToEuler (m);
 			return v;
 		}
-		Quaternion Quaternion::EulerToQuat(Vec3 euler)
+		//Returns a Vec3 (XYZ ORDER) from a Quaternion
+		Quaternion Quaternion::EulerToQuaternion(Vec3 euler)
 		{
 			float roll = euler.x/2.f, pitch = euler.y/2.f, yaw = euler.z/2.f;
 			float sinroll = sin(roll), sinpitch = sin(pitch), sinyaw = sin(yaw);
@@ -311,67 +332,6 @@ namespace PlatinumEngine
 			float qw = cosroll * cospitch * cosyaw - sinroll * sinpitch * sinyaw;
 			return Quaternion(qw, qx, qy, qz);
 		}
-		Quaternion Quaternion::AngleAxis(Vec3 axis, float angle)
-		{
-			float halfAngle = angle * .5f;
-			float s = sin(halfAngle);
-			Quaternion q = Quaternion(cos(halfAngle), axis.x * s, axis.y * s, axis.z * s);
-			return q;
-		}
-
-		Quaternion Quaternion::RotationMatrix(Mat4 matrix)
-		{
-			Quaternion q;
-			float root, half;
-			float scale = matrix[0][0] + matrix[1][1] + matrix[2][2];
-
-			if (scale > 0.0f)
-			{
-				root = sqrt(scale + 1.0f);
-				q.w = root * 0.5f;
-				root = 0.5f / root;
-
-				q.x = (matrix[1][2] - matrix[2][1]) * root;
-				q.y = (matrix[2][0] - matrix[0][2]) * root;
-				q.z = (matrix[0][1] - matrix[1][0]) * root;
-
-				return q;
-			}
-			if ((matrix[0][0] >= matrix[1][1]) && (matrix[0][0] >= matrix[2][2]))
-			{
-				root = sqrt(1.0f + matrix[0][0] - matrix[1][1] - matrix[2][2]);
-				half = 0.5f / root;
-
-				q.x = 0.5f * root;
-				q.y = (matrix[0][1] + matrix[1][0]) * half;
-				q.z = (matrix[0][2] + matrix[2][0]) * half;
-				q.w = (matrix[1][2] - matrix[2][1]) * half;
-
-				return q;
-			}
-			if (matrix[1][1] > matrix[2][2])
-			{
-				root = sqrt(1.0f + matrix[1][1] - matrix[0][0] - matrix[2][2]);
-				half = 0.5f / root;
-
-				q.x = (matrix[1][0] + matrix[0][1]) * half;
-				q.y = 0.5f * root;
-				q.z = (matrix[2][1] + matrix[1][2]) * half;
-				q.w = (matrix[2][0] - matrix[0][2]) * half;
-
-				return q;
-			}
-			root = sqrt(1.0f + matrix[2][2] - matrix[0][0] - matrix[1][1]);
-			half = 0.5f / root;
-
-			q.x = (matrix[2][0] + matrix[0][2]) * half;
-			q.y = (matrix[2][1] + matrix[1][2]) * half;
-			q.z = 0.5f * root;
-			q.w = (matrix[0][1] - matrix[1][0]) * half;
-
-			return q;
-		}
-
 		//Returns a rotation matrix from a Quaternion
 		Mat4 Quaternion::QuaternionToMatrix(Quaternion q)
 		{
@@ -477,6 +437,11 @@ namespace PlatinumEngine
 			}
 			return v;
 		}
+		//Returns a rotation matrix from Vec3 euler angles
+		Mat4 Quaternion::EulerToMatrix(Vec3 euler)
+		{
+			return QuaternionToMatrix(EulerToQuaternion(euler));
+		}
 		//Creates a Quaternion which rotates from fromDirection to toDirection
 		Quaternion Quaternion::FromToRotation(Vec3 from, Vec3 to)
 		{
@@ -576,7 +541,7 @@ namespace PlatinumEngine
 			return LookRotation(forward, _up);
 		}
 
-		//Private Methods
+		//Private Methods (Helper functions)
 
 		//Returns a Quaternion if we can calculate
 		bool Quaternion::LookRotationToQuaternion(Vec3 viewVec, Vec3 upVec, Quaternion& q)

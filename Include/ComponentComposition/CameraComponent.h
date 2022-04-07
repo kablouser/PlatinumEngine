@@ -42,12 +42,11 @@ namespace PlatinumEngine
 		Maths::Vec3 WorldToScreenPoint(Maths::Vec3 position);
 		Maths::Vec3 WorldToViewportPoint(Maths::Vec3 position);
 
-		Maths::Vec4 GetScreenViewportRect();
 		Maths::Mat4 GetWorldToClipMatrix();
+		Maths::Mat4 GetClipToWorldMatrix();
 		Maths::Mat4 GetProjectionMatrix();
 		Maths::Mat4 GetWorldToCameraMatrix();
 		Maths::Mat4 GetCameraToWorldMatrix();
-		Maths::Mat4 GetClipToWorldMatrix();
 
 		bool CameraProject(Maths::Vec3 p, Maths::Mat4 cameraToWorld, Maths::Mat4 worldToClip, Maths::Vec2 viewport, Maths::Vec3& outP);
 		bool CameraUnProject(Maths::Vec3 p, Maths::Mat4 cameraToWorld, Maths::Mat4 clipToWorld, Maths::Vec2 viewport, Maths::Vec3& outP);

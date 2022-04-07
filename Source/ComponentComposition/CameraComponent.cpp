@@ -18,6 +18,7 @@ namespace PlatinumEngine
 	CameraComponent::~CameraComponent()
 	{}
 
+	//Copy values from another camera
 	void CameraComponent::CopyFrom(CameraComponent other)
 	{
 		projection = other.projection;
@@ -58,13 +59,14 @@ namespace PlatinumEngine
 			aspectRatio = 1.0f;
 	}
 
+	//Transform point from screen to viewport coordinates
 	Maths::Vec3 CameraComponent::ScreenToViewportPoint(Maths::Vec3 position)
 	{
 		float nx = (position.x - viewportPos.x) / viewportSize.x;
 		float ny = (position.y - viewportPos.y) / viewportSize.y;
 		return Maths::Vec3(nx, ny, position.z);
 	}
-
+	//Transform point from screen to world coordinates
 	Maths::Vec3 CameraComponent::ScreenToWorldPoint(Maths::Vec3 position)
 	{
 		Maths::Vec3 o;
@@ -75,20 +77,20 @@ namespace PlatinumEngine
 		}
 		return o;
 	}
-
+	//Transform point from viewport to screen coordinates
 	Maths::Vec3 CameraComponent::ViewportToScreenPoint(Maths::Vec3 position)
 	{
 		float nx = position.x * viewportSize.x + viewportPos.x;
 		float ny = position.y * viewportSize.y + viewportPos.y;
 		return Maths::Vec3(nx, ny, position.z);
 	}
-
+	//Transform point from viewport to world coordinates
 	Maths::Vec3 CameraComponent::ViewportToWorldPoint(Maths::Vec3 position)
 	{
 		Maths::Vec3 screenPoint = ViewportToScreenPoint (position);
 		return ScreenToWorldPoint (screenPoint);
 	}
-
+	//Transform point from world to screen coordinates
 	Maths::Vec3 CameraComponent::WorldToScreenPoint(Maths::Vec3 position)
 	{
 		Maths::Vec3 o;
@@ -96,23 +98,23 @@ namespace PlatinumEngine
 		CameraProject( position, GetCameraToWorldMatrix(), clipToWorld, viewportSize, o);
 		return o;
 	}
-
+	//Transform point from world to viewport coordinates
 	Maths::Vec3 CameraComponent::WorldToViewportPoint(Maths::Vec3 position)
 	{
 		Maths::Vec3 screenPoint = WorldToScreenPoint (position);
 		return ScreenToViewportPoint (screenPoint);
 	}
-
-	Maths::Vec4 CameraComponent::GetScreenViewportRect()
-	{
-		return Maths::Vec4(viewportPos.x, viewportPos.y, viewportSize.x, viewportSize.y);
-	}
-
+	//Returns matrix that convert from world space to clip space
 	Maths::Mat4 CameraComponent::GetWorldToClipMatrix()
 	{
 		return (GetProjectionMatrix() * GetWorldToCameraMatrix());
 	}
-
+	//Returns matrix that convert from clip space to world space
+	Maths::Mat4 CameraComponent::GetClipToWorldMatrix()
+	{
+		return Maths::Inverse(GetWorldToClipMatrix());
+	}
+	//Returns the projection matrix
 	Maths::Mat4 CameraComponent::GetProjectionMatrix()
 	{
 		float m_Aspect = (float)viewportSize.x / viewportSize.y;
@@ -123,7 +125,7 @@ namespace PlatinumEngine
 			projectionMatrix.SetOrthogonalMatrix( -size * m_Aspect, size * m_Aspect, -size, size, nearClippingPlane, farClippingPlane );
 		return projectionMatrix;
 	}
-
+	//Returns matrix that convert from world coordinates to camera coordinates
 	Maths::Mat4 CameraComponent::GetWorldToCameraMatrix()
 	{
 		Maths::Mat4 worldToCameraMatrix;
@@ -132,17 +134,12 @@ namespace PlatinumEngine
 		worldToCameraMatrix = worldToCameraMatrix * tc->GetWorldToLocalMatrixNoScale();
 		return worldToCameraMatrix;
 	}
-
+	//Returns matrix that convert from camera coordinates to world coordinates
 	Maths::Mat4 CameraComponent::GetCameraToWorldMatrix()
 	{
 		return Maths::Inverse(GetWorldToCameraMatrix());
 	}
-
-	Maths::Mat4 CameraComponent::GetClipToWorldMatrix()
-	{
-		return Maths::Inverse(GetWorldToClipMatrix());
-	}
-
+	//Projects 3D space onto the 2D screen
 	bool CameraComponent::CameraProject(Maths::Vec3 p, Maths::Mat4 cameraToWorld, Maths::Mat4 worldToClip,
 			Maths::Vec2 viewport, Maths::Vec3& outP)
 	{
@@ -167,7 +164,7 @@ namespace PlatinumEngine
 		outP = Maths::Vec3( 0.0f, 0.0f, 0.0f );
 		return false;
 	}
-
+	//UnProjects 3D space from the 2D screen
 	bool CameraComponent::CameraUnProject(Maths::Vec3 p, Maths::Mat4 cameraToWorld, Maths::Mat4 clipToWorld,
 			Maths::Vec2 viewport, Maths::Vec3& outP)
 	{
@@ -236,12 +233,12 @@ namespace PlatinumEngine
 		}
 		return false;
 	}
-
+	//Z axis (forward vector) of camera
 	Maths::Vec3 CameraComponent::GetAxisZ(Maths::Mat4 m)
 	{
 		return Maths::Vec3(m[0][2], m[1][2], m[2][2]);
 	}
-
+	//Camera position
 	Maths::Vec3 CameraComponent::GetPosition(Maths::Mat4 m)
 	{
 		return Maths::Vec3(m[0][3], m[1][3], m[2][3]);

@@ -18,6 +18,7 @@ namespace PlatinumEngine
 	//Public Methods
 
 	//Transformations are Global unless space is specified
+
 	void TransformComponent::Translate(Maths::Vec3 translation)
 	{
 		position += translation;
@@ -42,9 +43,10 @@ namespace PlatinumEngine
 	}
 
 	//Transformations are Local unless space is specified
+
 	void TransformComponent::Rotate(Maths::Vec3 euler)
 	{
-		Maths::Quaternion eulerRot = Maths::Quaternion::EulerToQuat(euler*(_PI/180.f));
+		Maths::Quaternion eulerRot = Maths::Quaternion::EulerToQuaternion(euler*(_PI/180.f));
 		rotation *= eulerRot;
 	}
 	void TransformComponent::Rotate(Maths::Quaternion q)
@@ -57,7 +59,7 @@ namespace PlatinumEngine
 	}
 	void TransformComponent::Rotate(Maths::Vec3 euler, relativeTo space)
 	{
-		Maths::Quaternion eulerRot = Maths::Quaternion::EulerToQuat(euler*(_PI/180.f));
+		Maths::Quaternion eulerRot = Maths::Quaternion::EulerToQuaternion(euler*(_PI/180.f));
 		if(space==relativeTo::LOCAL)
 			rotation *= eulerRot;
 		else
@@ -86,7 +88,7 @@ namespace PlatinumEngine
 		position = q * (position-point) + point;
 		rotation *= q;
 	}
-
+	//Calculates a rotation that points in the direction of the target
 	void TransformComponent::LookAt(Maths::Vec3 target)
 	{
 		Maths::Vec3 dir = target-position;
@@ -126,7 +128,9 @@ namespace PlatinumEngine
 
 	//Returns matrix with translation and rotation but no scaling
 	Maths::Mat4 TransformComponent::GetWorldToLocalMatrixNoScale()
-	{	return SetTRInverse(position, rotation);	}
+	{
+		return SetTRInverse(position, rotation);
+	}
 	//Returns matrix with translation, rotation, scale
 	Maths::Mat4 TransformComponent::GetWorldToLocalMatrix()
 	{
@@ -144,14 +148,14 @@ namespace PlatinumEngine
 			t = parent->GetComponent<TransformComponent>()->GetLocalToWorldMatrix()*t;
 		return t;
 	}
-
+	//Local position w.r.t parent (if any)
 	Maths::Vec3 TransformComponent::GetLocalPosition()
 	{
 		Maths::Vec4 v = GetWorldToLocalMatrix()*Maths::Vec4(position.x,position.y,position.z,1.f);
 		_localposition = Maths::Vec3(v.x,v.y,v.z);
 		return _localposition;
 	}
-
+	//World rotation w.r.t world
 	Maths::Quaternion TransformComponent::GetWorldRotation()
 	{
 		GameObject* parent = GetGameObject()->GetParent();
@@ -166,17 +170,29 @@ namespace PlatinumEngine
 
 	//Get/Set vectors w.r.t the object
 	Maths::Vec3 TransformComponent::forward()
-	{	return rotation * _forward;	}
+	{
+		return rotation * _forward;
+	}
 	void TransformComponent::forward(Maths::Vec3 v)
-	{	rotation = Maths::Quaternion::LookRotation(v);	}
+	{
+		rotation = Maths::Quaternion::LookRotation(v);
+	}
 	Maths::Vec3 TransformComponent::up()
-	{	return rotation * _up;	}
+	{
+		return rotation * _up;
+	}
 	void TransformComponent::up(Maths::Vec3 v)
-	{	rotation = Maths::Quaternion::FromToRotation(_up, v);	}
+	{
+		rotation = Maths::Quaternion::FromToRotation(_up, v);
+	}
 	Maths::Vec3 TransformComponent::right()
-	{	return rotation * _right;	}
+	{
+		return rotation * _right;
+	}
 	void TransformComponent::right(Maths::Vec3 v)
-	{	rotation = Maths::Quaternion::FromToRotation(_right, v);	}
+	{
+		rotation = Maths::Quaternion::FromToRotation(_right, v);
+	}
 
 	//Private Methods
 
