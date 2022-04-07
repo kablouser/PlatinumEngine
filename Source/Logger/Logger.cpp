@@ -7,7 +7,7 @@
 #include <sstream>
 // for displaying gui controls
 #include <imgui.h>
-
+#include <IconsKenney.h>
 namespace
 {
 	// Static here make this only visible inside this source file
@@ -123,7 +123,7 @@ namespace PlatinumEngine
 
 	void Logger::ShowGUIWindow(bool* isOpen)
 	{
-		if(ImGui::Begin("Logger", isOpen))
+		if(ImGui::Begin(ICON_KI_EXCLAMATION_TRIANGLE " Logger", isOpen))
 		{
 			if (ImGui::Button("Clear"))
 				savedLogs.clear();

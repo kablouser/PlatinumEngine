@@ -38,3 +38,5 @@ PlatinumEngine
 
 # imgui config
 imgui.ini
+
+**/.DS_Store

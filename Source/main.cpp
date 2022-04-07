@@ -8,18 +8,13 @@
 #include <GLFW/glfw3.h>
 
 #include <InputManager/InputManager.h>
-#include <Inspector/InspectorWindow.h>
 #include <Renderer/Renderer.h>
 #include <WindowManager/WindowManager.h>
-#include <SceneManager/HierarchyWindow.h>
-#include <Logger/Logger.h>
-#include <SceneEditor/SceneEditor.h>
-#include <AssetDatabase/AssetDatabase.h>
-#include <GameWindow/GameWindow.h>
-#include <Profiler/Profiler.h>
 
+#include <AssetDatabase/AssetHelper.h>
 
 #include <OpenGL/GLCheck.h>
+
 static void GlfwErrorCallback(int error, const char* description)
 {
 	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
@@ -28,38 +23,6 @@ static void GlfwErrorCallback(int error, const char* description)
 
 int main(int, char**)
 {
-	// Assets database use demonstration
-	PlatinumEngine::AssetDatabase assetDatabase;
-	// update will go through folders and scan for new files
-	// and then load all assets using their loaders
-	assetDatabase.Update();
-
-	// get meshes in the database
-	for (auto meshAssetID : assetDatabase.GetMeshAssetIDs())
-	{
-		// let user choose one of these meshes
-		{
-			// display name
-			PlatinumEngine::Asset meshAsset;
-			assetDatabase.TryGetAsset(meshAssetID.id, meshAsset);
-			PLATINUM_INFO_STREAM << "We have mesh: " << meshAsset.path.string();
-		}
-
-		// get the pointer of the loaded mesh object
-		// can return nullptr
-		PlatinumEngine::Mesh* mesh = assetDatabase[meshAssetID];
-		if (mesh)
-		{
-			PLATINUM_INFO_STREAM << "Mesh has " << mesh->vertices.size() << " vertices";
-
-			// render mesh or something, idk
-			// (this is a bad example)
-			// PlatinumEngine::ShaderInput shaderInput;
-			// shaderInput.Set(mesh->vertices, mesh->indices);
-			// shaderInput.Draw();
-		}
-	}
-
 	// Setup window
 	glfwSetErrorCallback(GlfwErrorCallback);
 	if (!glfwInit())
@@ -88,6 +51,14 @@ int main(int, char**)
 		ImGui::CreateContext();
 		ImPlot::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+		static const ImWchar icons_ranges[] = { ICON_MIN_KI, ICON_MAX_KI, 0 };
+		ImFontConfig config;
+		config.MergeMode = true;
+		io.Fonts->AddFontFromFileTTF("./Fonts/NotoSansDisplay-Regular.ttf", 18.0f);
+		io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_KI, 16.0f, &config, icons_ranges);             // Merge into first font
+		io.Fonts->Build();
+
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
@@ -102,19 +73,19 @@ int main(int, char**)
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
 		// construct logger before everything to save all logs
-
+		PlatinumEngine::Profiler profiler;
+		PlatinumEngine::AssetDatabase assetDatabase;
+		PlatinumEngine::AssetHelper assetHelper;
 		PlatinumEngine::Logger logger;
-		PlatinumEngine::Renderer rasterRenderer;
 		PlatinumEngine::InputManager inputManager;
+		PlatinumEngine::Renderer rasterRenderer;
 		PlatinumEngine::Scene scene;
 		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer);
 		PlatinumEngine::HierarchyWindow hierarchyWindow;
-		PlatinumEngine::InspectorWindow inspectorWindow;
+		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper);
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
-		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow);
+		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler);
 
-		bool isProfilerOpen = true;
-		PlatinumEngine::Profiler profiler;
 
 		// Main loop
 		while (!glfwWindowShouldClose(window))
@@ -142,20 +113,12 @@ int main(int, char**)
 					PlatinumEngine::Profiler::Section dockingSection("Docking");
 					ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 				}
+				
 				{
 					PlatinumEngine::Profiler::Section windowManagerSection("Window Manager");
 					windowManager.ShowGUI(scene);
 				}
-				{
-					PlatinumEngine::Profiler::Section demoSection("Show Demo");
-					ImGui::ShowDemoWindow();
-				}
 
-				{
-					PlatinumEngine::Profiler::Section profilerSection("Profiler");
-					if (isProfilerOpen)
-						profiler.ShowGUIWindow(&isProfilerOpen);
-				}
 				//--------------------------------------------------------------------------------------------------------------
 				// END OF GUI
 				//--------------------------------------------------------------------------------------------------------------
@@ -178,6 +141,7 @@ int main(int, char**)
 			}
 			// don't include swap buffers function in the frame for profiling
 			// swap buffers waits for vsync
+	
 			glfwSwapBuffers(window);
 		}
 
