@@ -8,6 +8,8 @@
 // Platinum library
 #include <SceneEditor/SceneEditor.h>
 #include <ComponentComposition/TransformComponent.h>
+#include <ComponentComposition/RenderComponent.h>
+
 
 namespace PlatinumEngine{
 
@@ -160,32 +162,18 @@ namespace PlatinumEngine{
 			//---------------------
 
 			// check mouse click to do rotation and translation
-			if (_mouseButtonType == 0) // for rotation
+			if (_mouseButtonType == 0 || _mouseButtonType == 1) // for rotation
 			{
-
 				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
-
-			}
-
-			else if (_mouseButtonType == 1)// for rotation
-			{
-
-				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
-
 			}
 			else if (_mouseButtonType == 2)// translation (up down left right)
 			{
-
 				_camera.TranslationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
-
 			}
-
 			// check this is for moving camera closer/further
 			if (_wheelValueDelta != 0)
 			{
-
 				_camera.TranslationByMouse(_wheelValueDelta);
-
 			}
 
 			// check if there is any keyboard input
@@ -272,7 +260,11 @@ namespace PlatinumEngine{
 		// do ray casting
 		if(GameObject* result = DoRayCasting(mouseClickedPosition);
 				result != nullptr)
+		{
+			selectedGameobject = result;
+
 			PLATINUM_INFO(result->name);
+		}
 	}
 
 
@@ -359,10 +351,13 @@ namespace PlatinumEngine{
 		if( auto renderComponent = currentCheckingGameobject->GetComponent<RenderComponent>(); renderComponent!= nullptr)
 		{
 			// fetch mesh
-			Mesh mesh = renderComponent->GetMesh();
+			Mesh* mesh = &renderComponent->GetMesh();
+
+			if(mesh == nullptr)
+				return currentSelectedGameObject;
 
 			// loop all the vertices
-			for(int count =0; count < mesh.indices.size(); count+=3)
+			for(int count =0; count < mesh->indices.size(); count+=3)
 			{
 				//----------------------------------------------------------------//
 				// Find the world coordinate of the object (after transformation) //
@@ -381,28 +376,28 @@ namespace PlatinumEngine{
 					Maths::Vec4 temporaryMatrix;
 
 					// get the world coordinate of vertex 0
-					temporaryMatrix = rotationMatrix * translationMatrix * scaleMatrix * Maths::Vec4(mesh.vertices[mesh.indices[count + 0]].position.x,
-							mesh.vertices[mesh.indices[count + 0]].position.y, mesh.vertices[mesh.indices[count + 0]].position.z, 1.0f);
+					temporaryMatrix = rotationMatrix * translationMatrix * scaleMatrix * Maths::Vec4(mesh->vertices[mesh->indices[count + 0]].position.x,
+							mesh->vertices[mesh->indices[count + 0]].position.y, mesh->vertices[mesh->indices[count + 0]].position.z, 1.0f);
 					temporaryMatrix = temporaryMatrix/temporaryMatrix.w;
 					vertex0 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
 
 					// get the world coordinate of vertex 1
-					temporaryMatrix = rotationMatrix * translationMatrix * scaleMatrix * Maths::Vec4(mesh.vertices[mesh.indices[count + 1]].position.x,
-							mesh.vertices[mesh.indices[count + 1]].position.y, mesh.vertices[mesh.indices[count + 1]].position.z, 1.0f);
+					temporaryMatrix = rotationMatrix * translationMatrix * scaleMatrix * Maths::Vec4(mesh->vertices[mesh->indices[count + 1]].position.x,
+							mesh->vertices[mesh->indices[count + 1]].position.y, mesh->vertices[mesh->indices[count + 1]].position.z, 1.0f);
 					temporaryMatrix = temporaryMatrix/temporaryMatrix.w;
 					vertex1 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
 
 					// get the world coordinate of vertex 2
-					temporaryMatrix = rotationMatrix * translationMatrix * scaleMatrix * Maths::Vec4(mesh.vertices[mesh.indices[count + 2]].position.x,
-							mesh.vertices[mesh.indices[count + 2]].position.y, mesh.vertices[mesh.indices[count + 2]].position.z, 1.0f);
+					temporaryMatrix = rotationMatrix * translationMatrix * scaleMatrix * Maths::Vec4(mesh->vertices[mesh->indices[count + 2]].position.x,
+							mesh->vertices[mesh->indices[count + 2]].position.y, mesh->vertices[mesh->indices[count + 2]].position.z, 1.0f);
 					temporaryMatrix = temporaryMatrix/temporaryMatrix.w;
 					vertex2 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
 				}
 				else
 				{
-					vertex0 = mesh.vertices[mesh.indices[count + 0]].position;
-					vertex1 = mesh.vertices[mesh.indices[count + 1]].position;
-					vertex2 = mesh.vertices[mesh.indices[count + 2]].position;
+					vertex0 = mesh->vertices[mesh->indices[count + 0]].position;
+					vertex1 = mesh->vertices[mesh->indices[count + 1]].position;
+					vertex2 = mesh->vertices[mesh->indices[count + 2]].position;
 				}
 
 				//----------------------------------//
@@ -546,7 +541,6 @@ namespace PlatinumEngine{
 		// return the selected game object
 		return currentSelectedGameObject;
 	}
-
 }
 
 

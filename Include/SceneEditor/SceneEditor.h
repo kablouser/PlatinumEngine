@@ -15,7 +15,7 @@
 
 // Game object related
 #include <SceneManager/Scene.h>
-#include <ComponentComposition/RenderComponent.h>
+
 
 // Input manager
 #include <InputManager/InputManager.h>
@@ -26,6 +26,8 @@ namespace PlatinumEngine
 	{
 	public:
 		// ___VARIABLE___
+		// Value for ray casting
+		GameObject* selectedGameobject;
 
 		// ___FUNCTION___
 
@@ -43,6 +45,7 @@ namespace PlatinumEngine
 
 		/**
 		 * Function to detect which object shown in scene editor is selected
+		 * @param outSelectedGameobject : the selected game object pointer, which is for output the final selected result
 		 */
 		void SelectGameObjectFromScene();
 
@@ -66,7 +69,6 @@ namespace PlatinumEngine
 		 */
 		GameObject* CheckRayTriangleIntersectionForGameobject(GameObject* currentCheckingGameobject, PlatinumEngine::Maths::Vec3 inRay,
 				const PlatinumEngine::Maths::Vec3& inCameraPosition, GameObject* currentSelectedGameObject, float& closestZValueForCrossPoint);
-
 
 		// ___CONSTRUCTOR___
 		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer);
@@ -96,9 +98,6 @@ namespace PlatinumEngine
 		ImVec2 _mouseMoveDelta;
 		int _mouseButtonType;
 		float _wheelValueDelta;
-
-		// Value for ray casting
-		GameObject* selectedGameobject;
 
 		// output of OpenGL rendering
 		Framebuffer _renderTexture;

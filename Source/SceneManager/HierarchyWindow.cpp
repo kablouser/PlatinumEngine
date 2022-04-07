@@ -18,7 +18,7 @@ namespace PlatinumEngine
 
 		// Check if this node is clicked
 		if(ImGui::IsItemClicked())
-			selectedGameObject = gameObject;
+			*selectedGameObject = gameObject;
 
 
 		// Add Drag and Drop Events
@@ -177,7 +177,7 @@ namespace PlatinumEngine
 	}
 
 	// ---CONSTRUCTOR
-	HierarchyWindow::HierarchyWindow():selectedGameObject(nullptr),modeForDraggingBehavior(_orderMode)
+	HierarchyWindow::HierarchyWindow(GameObject** selectedGameobject):selectedGameObject(selectedGameobject),modeForDraggingBehavior(_orderMode)
 	{}
 
 

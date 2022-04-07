@@ -31,10 +31,10 @@ namespace PlatinumEngine
 		void ShowGUIWindow(bool* isOpen, Scene& scene);
 
 		// ---> CONSTRUCTOR
-		HierarchyWindow();
+		HierarchyWindow(GameObject** selectedGameobject);
 
 		// ---> PARAMETER
-		GameObject* selectedGameObject;
+		GameObject** selectedGameObject;
 
 
 	private:
