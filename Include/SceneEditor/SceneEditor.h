@@ -19,7 +19,7 @@
 
 // Input manager
 #include <InputManager/InputManager.h>
-
+#include <IconsKenney.h>
 namespace PlatinumEngine
 {
 	class SceneEditor

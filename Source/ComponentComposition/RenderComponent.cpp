@@ -7,14 +7,7 @@ namespace PlatinumEngine
 {
 	RenderComponent::RenderComponent()
 	{
-		LoadMesh("D:/Download/fourCubes.obj");
-	}
-	RenderComponent::~RenderComponent() {}
-
-	RenderComponent::RenderComponent(Mesh &mesh)
-	{
-		_mesh = mesh;
-		// _material = material;
+		SetMesh(nullptr);
 	}
 
 	void RenderComponent::OnRender(Scene& scene, Renderer &render)
@@ -22,15 +15,14 @@ namespace PlatinumEngine
 		_shaderInput.Draw();
 	}
 
-	void RenderComponent::LoadMesh(const std::string &filePath)
+	void RenderComponent::SetMesh(Mesh* mesh)
 	{
-		_mesh = Loaders::LoadMesh(filePath);
-		_shaderInput.Set(_mesh.vertices, _mesh.indices);
+		_mesh = mesh;
+		if(mesh != nullptr)
+			_shaderInput.Set(mesh->vertices, mesh->indices);
+		else
+			_shaderInput.Clear();
 	}
 
-	Mesh& RenderComponent::GetMesh()
-	{
-		return _mesh;
-	}
 }
 

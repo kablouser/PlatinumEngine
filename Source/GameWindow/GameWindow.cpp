@@ -22,15 +22,15 @@ namespace PlatinumEngine
 
 	void PlatinumEngine::GameWindow::ShowGuiWindow(bool* outIsOpen)
 	{
-		if(ImGui::Begin("Game View", outIsOpen))
+		if(ImGui::Begin(ICON_KI_GAMEPAD " Game View", outIsOpen))
 		{
 			auto targetSize = ImGui::GetContentRegionAvail();
-			//_mouseButtonType = _inputManager->GetMouseDown();
-			//_mouseMoveDelta = _inputManager->GetMouseMoveVector();
-			//_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
 
 			if(_onUpdate && _onPlay)
 			{
+				//_mouseButtonType = _inputManager->GetMouseDown();
+				//_mouseMoveDelta = _inputManager->GetMouseMoveVector();
+				//_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
 				double deltaTime = glfwGetTime() - _previousTime;
 				Update(deltaTime);
 			}
@@ -53,9 +53,6 @@ namespace PlatinumEngine
 
 	void GameWindow::Render(ImVec2 targetSize, Scene* scene)
 	{
-		_framebufferWidth = (int)targetSize.x;
-		_framebufferHeight = (int)targetSize.y;
-		_renderTexture.Create(_framebufferWidth, _framebufferHeight);
 		if(1.0f < targetSize.x && 1.0f < targetSize.y)
 		{
 			// resize framebuffer if necessary

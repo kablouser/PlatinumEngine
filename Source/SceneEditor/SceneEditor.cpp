@@ -39,7 +39,7 @@ namespace PlatinumEngine{
 		//-------------------------------------------
 		// begin the ImGui Scene Editor Main Window
 		//-------------------------------------------
-		if (ImGui::Begin("Scene Editor", outIsOpen))
+		if (ImGui::Begin(ICON_KI_MOVIE " Scene Editor", outIsOpen))
 		{
 			//-----------
 			// Widgets

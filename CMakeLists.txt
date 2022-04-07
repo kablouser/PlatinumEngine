@@ -31,7 +31,8 @@ FetchContent_MakeAvailable(imgui)
 add_subdirectory("ImGui CMake")
 #-----------------------------
 # ImGuiFileDialog
-FetchContent_Declare(imguifiledialog GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog.git GIT_TAG v0.6.3)
+add_compile_definitions(USE_BOOKMARK)
+FetchContent_Declare(imguifiledialog GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog.git GIT_TAG v0.6.4)
 FetchContent_MakeAvailable(imguifiledialog)
 include_directories(${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src)
 #-----------------------------
@@ -78,7 +79,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
 	
 	"Source/AssetDatabase/AssetDatabase.cpp;"
-
+	"Source/AssetDatabase/AssetHelper.cpp;"
+	
 	"Source/ComponentComposition/CameraComponent.cpp;"
 	"Source/ComponentComposition/Component.cpp;"
 	"Source/ComponentComposition/ComponentType.cpp;"
@@ -127,7 +129,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 
 
-target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts")
 #-----------------------------
 
 
