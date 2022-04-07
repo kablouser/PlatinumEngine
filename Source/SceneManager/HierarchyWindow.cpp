@@ -147,35 +147,30 @@ namespace PlatinumEngine
 			
 			ImGui::InvisibleButton(" ", ImVec2(windowSize.x,150));
 
-			// Add Drag and Drop Events
-			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
-			{
-
-				// Set payload to carry the game object
-				ImGui::SetDragDropPayload("Demo", nullptr, sizeof(void*));
-				std::cout<<"test"<<std::endl;
-				// End the DragDropSource
-				ImGui::EndDragDropSource();
-			}
+			// Add Drop Events
 			if (ImGui::BeginDragDropTarget())
 			{
 
 				// Check payload and update the parent of the dropped game object node
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Demo"))
 				{
-
-					GameObject* payloadPointer = *(GameObject**)payload->Data;
-
-					// check move behavior mode
-					// if the mode is to change hierarchy between game objects
-					if (modeForDraggingBehavior == _hierarchyMode)
+					if(payload->Data != nullptr)
 					{
-						// change the dragged object's parent
-						payloadPointer->SetParent(nullptr, scene);
+						GameObject* payloadPointer = *(GameObject**)payload->Data;
+
+						// check move behavior mode
+						// if the mode is to change hierarchy between game objects
+						if (modeForDraggingBehavior == _hierarchyMode)
+						{
+							// change the dragged object's parent
+							payloadPointer->SetParent(nullptr, scene);
+						}
 					}
 				}
-			}
 
+				// End DragDropTarget
+				ImGui::EndDragDropTarget();
+			}
 		}
 		// End window
 		ImGui::End();
