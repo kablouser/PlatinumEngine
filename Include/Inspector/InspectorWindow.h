@@ -11,6 +11,7 @@
 #include <ComponentComposition/TransformComponent.h>
 #include <ComponentComposition/GameObject.h>
 #include <SceneManager/SceneManager.h>
+#include <OpenGL/Mesh.h>
 
 namespace PlatinumEngine
 {

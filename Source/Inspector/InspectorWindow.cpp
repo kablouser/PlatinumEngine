@@ -42,6 +42,12 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 			{
 				_isAddComponentWindowOpen = !_isAddComponentWindowOpen;
 			}
+
+			if (ImGui::BeginPopupContextWindow())
+			{
+				if (ImGui::Selectable("Add Component")) _isAddComponentWindowOpen = !_isAddComponentWindowOpen;
+				ImGui::EndPopup();
+			}
 		}
 	}
 	ImGui::End();
@@ -81,6 +87,19 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			// TODO: When file manager added, use file manager to select a mesh
 			ImGuiFileDialog::Instance()->OpenDialog("getFileName","Choose Mesh",".obj",".");
 		}
+		if (ImGui::BeginDragDropTarget())
+		{
+			// Check payload and update the parent of the dropped game object node
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MeshPayload"))
+			{
+				Mesh* payloadPointer = *(Mesh**)payload->Data;
+
+
+			}
+
+			// End DragDropTarget
+			ImGui::EndDragDropTarget();
+		}
 	}
 
 	if(ImGuiFileDialog::Instance()->Display("getFileName", ImGuiWindowFlags_NoCollapse, FileDialog::MIN_SIZE, FileDialog::MAX_SIZE))
@@ -113,30 +132,30 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::SameLine();
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Xpos", &_activeGameObject->GetComponent<TransformComponent>()->position[0]);
+		ImGui::DragFloat("##Xpos", &_activeGameObject->GetComponent<TransformComponent>()->position[0], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Ypos", &_activeGameObject->GetComponent<TransformComponent>()->position[1]);
+		ImGui::DragFloat("##Ypos", &_activeGameObject->GetComponent<TransformComponent>()->position[1], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Zpos", &_activeGameObject->GetComponent<TransformComponent>()->position[2]);
+		ImGui::DragFloat("##Zpos", &_activeGameObject->GetComponent<TransformComponent>()->position[2], 0.001f);
 
 		static float eulerRotation[3] = {0.0f, 0.0f, 0.0f};
 		ImGui::Text("Rotation: ");
 		ImGui::SameLine();
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Xrot", &eulerRotation[0]);
+		ImGui::DragFloat("##Xrot", &eulerRotation[0], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Yrot", &eulerRotation[1]);
+		ImGui::DragFloat("##Yrot", &eulerRotation[1], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Zrpt", &eulerRotation[2]);
+		ImGui::DragFloat("##Zrpt", &eulerRotation[2], 0.001f);
 		_activeGameObject->GetComponent<TransformComponent>()->rotation = Maths::Quaternion::EulerToQuat(
 				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2]));
 
@@ -144,15 +163,15 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::SameLine();
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Xscale", &_activeGameObject->GetComponent<TransformComponent>()->scale[0]);
+		ImGui::DragFloat("##Xscale", &_activeGameObject->GetComponent<TransformComponent>()->scale[0], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Yscale", &_activeGameObject->GetComponent<TransformComponent>()->scale[1]);
+		ImGui::DragFloat("##Yscale", &_activeGameObject->GetComponent<TransformComponent>()->scale[1], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Zscale", &_activeGameObject->GetComponent<TransformComponent>()->scale[2]);
+		ImGui::DragFloat("##Zscale", &_activeGameObject->GetComponent<TransformComponent>()->scale[2], 0.001f);
 		ImGui::PopItemWidth();
 	}
 }
