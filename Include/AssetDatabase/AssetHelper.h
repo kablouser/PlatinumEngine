@@ -20,9 +20,8 @@ namespace PlatinumEngine
 		 * Responsible for the pop up window opened by
 		 * the render component in Inspector Window
 		 */
-		 std::tuple<bool, Mesh*, std::string> ShowGuiWindow();
+		 std::tuple<bool, Mesh*> ShowGuiWindow();
 
-		 std::string GetFilePath();
 	private:
 		AssetDatabase* _assetDatabase;
 	};

@@ -24,5 +24,10 @@ namespace PlatinumEngine
 			_shaderInput.Clear();
 	}
 
+	Mesh* RenderComponent::GetMesh()
+	{
+		return _mesh;
+	}
+
 }
 

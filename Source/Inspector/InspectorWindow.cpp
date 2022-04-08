@@ -62,7 +62,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 {
 
 	ImGui::Separator();
-	static char meshBuffer[64];
+	char meshBuffer[64];
 	bool isHeaderOpen = ImGui::CollapsingHeader("Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
@@ -76,7 +76,15 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::Text("Mesh");
 		ImGui::SameLine();
 		ImGui::PushItemWidth(160.0f);
-		ImGui::InputText("##Mesh Name",meshBuffer,64, ImGuiInputTextFlags_ReadOnly);
+
+		// store the current mesh name into mesh buffer, so that we can display it in the input text box
+		if(_activeGameObject->GetComponent<RenderComponent>()->GetMesh() != nullptr)
+			strcpy(meshBuffer,  _activeGameObject->GetComponent<RenderComponent>()->GetMesh()->fileName.c_str());
+		else
+			memset(meshBuffer, 0, 64 * sizeof(char));
+
+		// show text box (read only)
+		ImGui::InputText("##Mesh Name",meshBuffer,sizeof(meshBuffer), ImGuiInputTextFlags_ReadOnly);
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 
@@ -89,7 +97,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		if(std::get<0>(asset_Helper) == true)
 		{
 			_activeGameObject->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
-			strcpy(meshBuffer, std::get<2>(asset_Helper).c_str());
+			strcpy(meshBuffer, _activeGameObject->GetComponent<RenderComponent>()->GetMesh()->fileName.c_str());
 		}
 	}
 }
