@@ -24,7 +24,6 @@ namespace PlatinumEngine
 			{
 				mesh = nullptr;
 				isAssetSelected= true;
-				mesh->fileName = "";
 			}
 			for(auto meshAssetID : _assetDatabase->GetMeshAssetIDs())
 			{

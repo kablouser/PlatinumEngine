@@ -97,7 +97,6 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		if(std::get<0>(asset_Helper) == true)
 		{
 			_activeGameObject->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
-			strcpy(meshBuffer, _activeGameObject->GetComponent<RenderComponent>()->GetMesh()->fileName.c_str());
 		}
 	}
 }
