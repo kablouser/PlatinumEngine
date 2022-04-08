@@ -20,7 +20,7 @@ namespace PlatinumEngine
 		void SetMesh(Mesh* mesh);
 
 		// return mesh
-		Mesh& GetMesh();
+		Mesh* GetMesh();
 
 		// override the OnRender() of the Component
 		void OnRender(Scene& scene, Renderer &render) override;

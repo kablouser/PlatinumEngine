@@ -53,7 +53,6 @@ namespace PlatinumEngine
 
 		// ---> PARAMETER
 		ModeForDraggingBehavior modeForDraggingBehavior;
-
 	};
 
 }

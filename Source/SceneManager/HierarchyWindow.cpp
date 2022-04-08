@@ -11,31 +11,64 @@ namespace PlatinumEngine
 	// ---FUNCTION
 	void HierarchyWindow::DisplayTreeNote(GameObject* gameObject, Scene& scene, ModeForDraggingBehavior modeForDraggingBehavior)
 	{
+
 		// Store the states (is expanded or not) of the node
 		bool is_expanded = ImGui::TreeNodeEx(gameObject,
 				ImGuiTreeNodeFlags_FramePadding|(gameObject->GetChildrenCount()==0 ? ImGuiTreeNodeFlags_Leaf : 0),
-				"%s", gameObject->name.c_str());
+				"%s","");
+
+
+		// this is to make sure the selectable block below is on the same line
+		ImGui::SameLine();
+
+		// push id of current node
+		ImGui::PushID(gameObject);
+
+		// check if the current game object is selected
+		if(*selectedGameObject == gameObject)
+		{
+			// set draw layer
+			ImGui::GetWindowDrawList()->ChannelsSplit(2);
+			ImGui::GetWindowDrawList()->ChannelsSetCurrent(1);
+		}
+
+		// create selectable block
+		ImGui::Selectable(gameObject->name.c_str(), false);
+
+		// check if the current game object is selected
+		if(*selectedGameObject == gameObject)
+		{
+			// highlight the selected selectable block
+			ImGui::GetWindowDrawList()->ChannelsSetCurrent(0);
+			ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), ImGui::GetColorU32(ImGui::GetStyle().Colors[ImGuiCol_HeaderHovered]));
+			ImGui::GetWindowDrawList()->ChannelsMerge();
+		}
 
 		// Check if this node is clicked
 		if(ImGui::IsItemClicked())
+		{
 			*selectedGameObject = gameObject;
+		}
 
 
 		// Add Drag and Drop Events
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 		{
-
 			// Set payload to carry the game object
-			ImGui::SetDragDropPayload("Demo", &gameObject, sizeof(GameObject*));
+			ImGui::SetDragDropPayload("DragGameObject", &gameObject, sizeof(GameObject*));
 
 			// End the DragDropSource
 			ImGui::EndDragDropSource();
 		}
+
+		// pop out ID
+		ImGui::PopID();
+
 		if (ImGui::BeginDragDropTarget())
 		{
 
 			// Check payload and update the parent of the dropped game object node
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Demo"))
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DragGameObject"))
 			{
 
 				GameObject* payloadPointer = *(GameObject**)payload->Data;
@@ -109,7 +142,6 @@ namespace PlatinumEngine
 
 			ImGui::TreePop();
 		}
-
 	}
 
 	void HierarchyWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
@@ -152,7 +184,7 @@ namespace PlatinumEngine
 			{
 
 				// Check payload and update the parent of the dropped game object node
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Demo"))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DragGameObject"))
 				{
 					if(payload->Data != nullptr)
 					{
@@ -177,8 +209,10 @@ namespace PlatinumEngine
 	}
 
 	// ---CONSTRUCTOR
-	HierarchyWindow::HierarchyWindow(GameObject** selectedGameobject):selectedGameObject(selectedGameobject),modeForDraggingBehavior(_orderMode)
-	{}
+	HierarchyWindow::HierarchyWindow(GameObject** selectedGameobject):selectedGameObject(selectedGameobject),
+		modeForDraggingBehavior(_orderMode)
+	{
+	}
 
 
 }

@@ -81,7 +81,7 @@ int main(int, char**)
 		PlatinumEngine::Renderer rasterRenderer;
 		PlatinumEngine::Scene scene;
 		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer);
-		PlatinumEngine::HierarchyWindow hierarchyWindow;
+		PlatinumEngine::HierarchyWindow hierarchyWindow(&sceneEditor.selectedGameobject);
 		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper);
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler);
