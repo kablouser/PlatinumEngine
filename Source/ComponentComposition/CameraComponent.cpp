@@ -4,7 +4,7 @@ namespace PlatinumEngine
 {
     CameraComponent::CameraComponent()
     {
-         projection = projectionType::PERSPECTIVE;
+         projection = ProjectionType::perspective;
 		 backgroundColor = Color(0,0,0,255);
 		 fov = 60;
 		 nearClippingPlane = 0.3f;
@@ -13,7 +13,7 @@ namespace PlatinumEngine
 		 aspectRatio = 1;
 		 viewportSize = Maths::Vec2(1.f,1.f);
 		 viewportPos = Maths::Vec2(0.f,0.f);
-		 clearFlag = clearFlagType::NONE;
+		 clearFlag = ClearFlagType::none;
     }
 	CameraComponent::~CameraComponent()
 	{}
@@ -119,7 +119,7 @@ namespace PlatinumEngine
 	{
 		float m_Aspect = (float)viewportSize.x / viewportSize.y;
 		Maths::Mat4 projectionMatrix;
-		if (projection==projectionType::PERSPECTIVE)
+		if (projection==ProjectionType::perspective)
 			projectionMatrix.SetPerspectiveMatrix( fov, aspectRatio, nearClippingPlane, farClippingPlane );
 		else
 			projectionMatrix.SetOrthogonalMatrix( -size * m_Aspect, size * m_Aspect, -size, size, nearClippingPlane, farClippingPlane );
