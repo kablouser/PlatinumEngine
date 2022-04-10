@@ -43,6 +43,17 @@ namespace PlatinumEngine{
 		//-------------------------------------------
 		if (ImGui::Begin(ICON_KI_MOVIE " Scene Editor", outIsOpen))
 		{
+
+			ImGuizmo::MODE currentGizmoMode(ImGuizmo::LOCAL);
+
+			if(ImGui::IsKeyPressed(GLFW_KEY_Q))
+				currentGizmoOperation = ImGuizmo::TRANSLATE;
+			if(ImGui::IsKeyPressed(GLFW_KEY_W))
+				currentGizmoOperation = ImGuizmo::ROTATE;
+			if(ImGui::IsKeyPressed(GLFW_KEY_E))
+				currentGizmoOperation = ImGuizmo::SCALE;
+			if(ImGui::IsKeyPressed(GLFW_KEY_R))
+				currentGizmoOperation = ImGuizmo::UNIVERSAL;
 			//-----------
 			// Widgets
 			//-----------
@@ -53,8 +64,32 @@ namespace PlatinumEngine{
 				_ifCameraSettingWindowOpen = !_ifCameraSettingWindowOpen;
 
 			}
+			//ImGuizmo
+			ImGui::SameLine();
+			if (ImGui::RadioButton("Translate", currentGizmoOperation == ImGuizmo::TRANSLATE))
+				currentGizmoOperation = ImGuizmo::TRANSLATE;
+			ImGui::SameLine();
+			if (ImGui::RadioButton("Rotate", currentGizmoOperation == ImGuizmo::ROTATE))
+				currentGizmoOperation = ImGuizmo::ROTATE;
+			ImGui::SameLine();
+			if (ImGui::RadioButton("Scale", currentGizmoOperation == ImGuizmo::SCALE))
+				currentGizmoOperation = ImGuizmo::SCALE;
+			ImGui::SameLine();
+			if (ImGui::RadioButton("Universal", currentGizmoOperation == ImGuizmo::UNIVERSAL))
+				currentGizmoOperation = ImGuizmo::UNIVERSAL;
 
-			UseGizmo(_camera.viewMatrix4, _camera.projectionMatrix4, outIsOpen);
+			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 130.f);
+
+			if (currentGizmoOperation != ImGuizmo::SCALE)
+			{
+				if (ImGui::RadioButton("Local", currentGizmoMode == ImGuizmo::LOCAL))
+					currentGizmoMode = ImGuizmo::LOCAL;
+				ImGui::SameLine();
+				if (ImGui::RadioButton("World", currentGizmoMode == ImGuizmo::WORLD))
+					currentGizmoMode = ImGuizmo::WORLD;
+			}
+
+			ImGui::Checkbox("Bound Sizing", &_boundSizing);
 			//-------------
 			// Sub window
 			//-------------
@@ -120,6 +155,7 @@ namespace PlatinumEngine{
 
 			if(ImGui::BeginChild("##e",ImVec2(targetSize.x, targetSize.y), false,ImGuiWindowFlags_NoMove))
 			{
+				//ImGuizmo
 
 				//--------------------------------
 				// update mouse && keyboard input
@@ -134,9 +170,7 @@ namespace PlatinumEngine{
 				//------------------
 				// Update Data
 				//------------------
-				Update(targetSize);
-
-
+				Update(targetSize, currentGizmoMode);
 			}
 			ImGui::EndChild();
 		}
@@ -146,7 +180,9 @@ namespace PlatinumEngine{
 
 	}
 
-	void SceneEditor::Update(ImVec2 targetSize)
+
+
+	void SceneEditor::Update(ImVec2 targetSize, ImGuizmo::MODE currentGizmoMode)
 	{
 		//--------------------------------------
 		// check if mouse is inside the screen
@@ -225,7 +261,7 @@ namespace PlatinumEngine{
 			_renderTexture.Bind();
 			glEnable(GL_DEPTH_TEST);
 			glViewport(0, 0, _framebufferWidth, _framebufferHeight);
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			glClearColor(0.35f, 0.3f, 0.3f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 			// Start rendering (bind a shader)
@@ -251,6 +287,7 @@ namespace PlatinumEngine{
 
 			// display updated framebuffer
 			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize);
+			UseGizmo(_camera.viewMatrix4.matrix, _camera.projectionMatrix4.matrix, currentGizmoMode);
 		}
 
 	}

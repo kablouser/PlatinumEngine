@@ -65,6 +65,10 @@ int main(int, char**)
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
+		//imguizmo
+		float viewManipulateRight = io.DisplaySize.x;
+		float viewManipulateTop = 0;
+
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
 		//ImGui::StyleColorsClassic();
@@ -105,6 +109,7 @@ int main(int, char**)
 					ImGui_ImplOpenGL3_NewFrame();
 					ImGui_ImplGlfw_NewFrame();
 					ImGui::NewFrame();
+					ImGuizmo::BeginFrame();
 				}
 
 				//--------------------------------------------------------------------------------------------------------------
