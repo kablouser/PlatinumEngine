@@ -54,6 +54,7 @@ namespace PlatinumEngine{
 
 			}
 
+			UseGizmo(_camera.viewMatrix4, _camera.projectionMatrix4, outIsOpen);
 			//-------------
 			// Sub window
 			//-------------

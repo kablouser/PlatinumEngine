@@ -68,7 +68,9 @@ FetchContent_MakeAvailable(glew)
 #-----------------------------
 # Add more libraries from git repos here:
 #-----------------------------
-
+# imguizmo
+FetchContent_Declare(imguizmo GIT_REPOSITORY https://github.com/CedricGuillemet/ImGuizmo.git GIT_TAG origin/master)
+FetchContent_MakeAvailable(imguizmo)
 #-----------------------------
 # IMPORTANT SECTION! Source code
 #-----------------------------
@@ -77,6 +79,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	# order by folder structure
 
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
+	"${CMAKE_BINARY_DIR}/_deps/imguizmo-src/ImGuizmo.cpp;"
 	
 	"Source/AssetDatabase/AssetDatabase.cpp;"
 	"Source/AssetDatabase/AssetHelper.cpp;"
@@ -164,6 +167,7 @@ set(PROJECT_LIBRARIES
 	"glfw;"
 	"imgui;"
 	"implot;"
+	"imguizmo;"
 	"glm;"
 	"assimp;"
 	"libglew_static;"
