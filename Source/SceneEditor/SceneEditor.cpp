@@ -5,6 +5,7 @@
 #include <SceneEditor/SceneEditor.h>
 #include <imgui.h>
 
+static ImGuizmo::OPERATION currentGizmoOperation(ImGuizmo::TRANSLATE);
 
 namespace PlatinumEngine{
 
@@ -54,6 +55,7 @@ namespace PlatinumEngine{
 
 			}
 
+			UseGizmo(_camera.viewMatrix4, _camera.projectionMatrix4, outIsOpen);
 			//-------------
 			// Sub window
 			//-------------
@@ -263,6 +265,41 @@ namespace PlatinumEngine{
 			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize);
 		}
 
+	}
+
+	void SceneEditor::UseGizmo(Maths::Mat4 cameraView, Maths::Mat4 cameraProjection, bool* editTransformDecomposition)
+	{
+		static ImGuizmo::MODE currentGizmoMode(ImGuizmo::LOCAL);
+		static float bounds[] = {-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f};
+		static bool boundSizing = false;
+		
+		if(editTransformDecomposition)
+		{
+			if(ImGui::IsKeyPressed(GLFW_KEY_Q))
+				currentGizmoOperation = ImGuizmo::TRANSLATE;
+			if(ImGui::IsKeyPressed(GLFW_KEY_W))
+				currentGizmoOperation = ImGuizmo::ROTATE;
+			if(ImGui::IsKeyPressed(GLFW_KEY_E))
+				currentGizmoOperation = ImGuizmo::SCALE;
+			if (ImGui::RadioButton("Translate", currentGizmoOperation == ImGuizmo::TRANSLATE))
+				currentGizmoOperation = ImGuizmo::TRANSLATE;
+			ImGui::SameLine();
+			if (ImGui::RadioButton("Rotate", currentGizmoOperation == ImGuizmo::ROTATE))
+				currentGizmoOperation = ImGuizmo::ROTATE;
+			ImGui::SameLine();
+			if (ImGui::RadioButton("Scale", currentGizmoOperation == ImGuizmo::SCALE))
+				currentGizmoOperation = ImGuizmo::SCALE;
+			if (ImGui::RadioButton("Universal", currentGizmoOperation == ImGuizmo::UNIVERSAL))
+				currentGizmoOperation = ImGuizmo::UNIVERSAL;
+			if (currentGizmoOperation != ImGuizmo::SCALE)
+			{
+				if (ImGui::RadioButton("Local", currentGizmoMode == ImGuizmo::LOCAL))
+					currentGizmoMode = ImGuizmo::LOCAL;
+				ImGui::SameLine();
+				if (ImGui::RadioButton("World", currentGizmoMode == ImGuizmo::WORLD))
+					currentGizmoMode = ImGuizmo::WORLD;
+			}
+		}
 	}
 }
 

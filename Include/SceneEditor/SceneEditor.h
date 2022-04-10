@@ -11,6 +11,7 @@
 #include <OpenGL/Framebuffer.h>
 #include <InputManager/InputManager.h>
 #include <IconsKenney.h>
+#include "/Users/niyoroshitatsu/Downloads/GithubDesktop/PlatinumEngine/Build/Debug/_deps/imguizmo-src/ImGuizmo.h"
 namespace PlatinumEngine
 {
 	class SceneEditor
@@ -38,9 +39,19 @@ namespace PlatinumEngine
 		// ___DESTRUCTOR___
 		//~SceneEditor();
 
+		/**
+		 * This is a helper function used for creating the gameobject gizmo
+		 * and the viewGizmo on the top right of the scene editor
+		 * @param cameraView
+		 * @param cameraProjection
+		 * @param matrix
+		 * @param editTransformDecpmposition
+		 */
+		void UseGizmo(Maths::Mat4 cameraView, Maths::Mat4 cameraProjection, bool* editTransformDecomposition);
 	private:
 
 		// ___PARAMETERS___
+		//ImGuizmo
 
 		// Flags
 		bool _ifCameraSettingWindowOpen;
