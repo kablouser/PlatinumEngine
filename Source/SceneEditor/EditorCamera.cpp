@@ -38,8 +38,8 @@ namespace PlatinumEngine
 	void EditorCamera::RotationByMouse(Maths::Vec2 delta)
 	{
 		// update euler angles
-		_eulerAngle.x += delta.y * -_rotationSpeed;//* deltaClock.getElapsedTime().asSeconds();
-		_eulerAngle.y += delta.x * _rotationSpeed;//* deltaClock.getElapsedTime().asSeconds();
+		_eulerAngle.x = delta.y * -_rotationSpeed;//* deltaClock.getElapsedTime().asSeconds();
+		_eulerAngle.y = delta.x * _rotationSpeed;//* deltaClock.getElapsedTime().asSeconds();
 
 
 
@@ -52,7 +52,7 @@ namespace PlatinumEngine
 	void EditorCamera::RotateCamera(Maths::Vec3 eulerAngle)
 	{
 		// update translation value
-		_eulerAngle += eulerAngle;
+		_eulerAngle = eulerAngle;
 
 		MoveCamera(PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0),
 				PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0));
@@ -61,8 +61,8 @@ namespace PlatinumEngine
 	void EditorCamera::TranslationByMouse(Maths::Vec2 delta)
 	{
 		// update translation value
-		_translationValue += GetUpDirection() * -delta.y * _translationSpeed;//* deltaClock.getElapsedTime().asSeconds();
-		_translationValue += GetRightDirection() * -delta.x * _translationSpeed;//* deltaClock.getElapsedTime().asSeconds();
+		_translationValue = GetUpDirection() * -delta.y * _translationSpeed;//* deltaClock.getElapsedTime().asSeconds();
+		_translationValue = GetRightDirection() * -delta.x * _translationSpeed;//* deltaClock.getElapsedTime().asSeconds();
 
 
 		// update view matrix
@@ -75,9 +75,9 @@ namespace PlatinumEngine
 	{
 
 		if (wheelDelta > 0)
-			_translationValue += GetForwardDirection() * (-_translationSpeed) * 10.f;//* deltaClock.getElapsedTime().asSeconds();
+			_translationValue = GetForwardDirection() * (-_translationSpeed) * 10.f;//* deltaClock.getElapsedTime().asSeconds();
 		else
-			_translationValue += GetForwardDirection() * (_translationSpeed) * 10.f;//* deltaClock.getElapsedTime().asSeconds();
+			_translationValue = GetForwardDirection() * (_translationSpeed) * 10.f;//* deltaClock.getElapsedTime().asSeconds();
 		// update view matrix
 		MoveCamera(PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0),
 				PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0));
@@ -89,11 +89,11 @@ namespace PlatinumEngine
 
 		// move along forward direction
 
-		_translationValue += -forwardDirectionValue * GetForwardDirection() * _translationSpeed * 5.f;
+		_translationValue = -forwardDirectionValue * GetForwardDirection() * _translationSpeed * 5.f;
 		// * deltaClock.getElapsedTime().asSeconds();
 
 
-		_translationValue += rightDirectionValue * GetRightDirection() * _translationSpeed * 5.f;
+		_translationValue = rightDirectionValue * GetRightDirection() * _translationSpeed * 5.f;
 		// * deltaClock.getElapsedTime().asSeconds();
 
 
@@ -106,7 +106,7 @@ namespace PlatinumEngine
 	void EditorCamera::TranslateCamera(Maths::Vec3 translateMovement)
 	{
 		// update translation value
-		_translationValue += translateMovement;
+		_translationValue = translateMovement;
 
 		MoveCamera(PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0),
 				PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0));
@@ -145,18 +145,22 @@ namespace PlatinumEngine
 
 	void EditorCamera::MoveCamera(PlatinumEngine::Maths::Vec3 eulerAngle, PlatinumEngine::Maths::Vec3 translationValue)
 	{
-		// update euler angle
-		_eulerAngle += eulerAngle;
+		if(eulerAngle.x !=0 || eulerAngle.y !=0 || eulerAngle.z !=0 )
+			// update euler angle
+			_eulerAngle = eulerAngle;
 
 		PlatinumEngine::Maths::Mat4 rotationMat4, translationMat4, translation2Mat4;
 
 		rotationMat4.SetRotationMatrix(-_eulerAngle);
 
+		if(translationValue.x !=0 || translationValue.y !=0 || translationValue.z !=0 )
+		{
+			// update translation value
+			_translationValue.x = translationValue.x;
+			_translationValue.y = translationValue.y;
+			_translationValue.z = translationValue.z;
+		}
 
-		// update translation value
-		_translationValue.x += translationValue.x;
-		_translationValue.y += translationValue.y;
-		_translationValue.z += translationValue.z;
 
 		// get translation matrix
 		translationMat4.SetTranslationMatrix(-_translationValue);
@@ -165,7 +169,7 @@ namespace PlatinumEngine
 
 
 		// calculate the new look at matrix by applying the transformation matrix
-		viewMatrix4 = rotationMat4 * translationMat4;
+		viewMatrix4 = rotationMat4 *viewMatrix4 * translationMat4;
 
 
 	}

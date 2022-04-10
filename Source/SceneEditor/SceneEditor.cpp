@@ -14,7 +14,7 @@ namespace PlatinumEngine{
 			_ifCameraSettingWindowOpen(false),
 			_camera(), _fov(60), _near(4), _far(10000),_inputManager(inputManager), _scene(scene),
 			_mouseMoveDelta(0, 0) ,_mouseButtonType(-1),
-			_wheelValueDelta(0),_renderTexture(), _renderer(renderer)
+			_wheelValueDelta(0),_renderTexture(), _renderer(renderer), _currentGizmoMode(ImGuizmo::LOCAL)
 
 	{
 		_inputManager->CreateAxis(std::string ("HorizontalAxisForEditorCamera"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
@@ -42,7 +42,6 @@ namespace PlatinumEngine{
 		if (ImGui::Begin(ICON_KI_MOVIE " Scene Editor", outIsOpen))
 		{
 
-			ImGuizmo::MODE currentGizmoMode(ImGuizmo::LOCAL);
 
 			if(ImGui::IsKeyPressed(GLFW_KEY_Q))
 				currentGizmoOperation = ImGuizmo::TRANSLATE;
@@ -80,11 +79,11 @@ namespace PlatinumEngine{
 
 			if (currentGizmoOperation != ImGuizmo::SCALE)
 			{
-				if (ImGui::RadioButton("Local", currentGizmoMode == ImGuizmo::LOCAL))
-					currentGizmoMode = ImGuizmo::LOCAL;
+				if (ImGui::RadioButton("Local", _currentGizmoMode == ImGuizmo::LOCAL))
+					_currentGizmoMode = ImGuizmo::LOCAL;
 				ImGui::SameLine();
-				if (ImGui::RadioButton("World", currentGizmoMode == ImGuizmo::WORLD))
-					currentGizmoMode = ImGuizmo::WORLD;
+				if (ImGui::RadioButton("World", _currentGizmoMode == ImGuizmo::WORLD))
+					_currentGizmoMode = ImGuizmo::WORLD;
 			}
 
 			ImGui::Checkbox("Bound Sizing", &_boundSizing);
@@ -168,7 +167,7 @@ namespace PlatinumEngine{
 				//------------------
 				// Update Data
 				//------------------
-				Update(targetSize, currentGizmoMode);
+				Update(targetSize, _currentGizmoMode);
 			}
 			ImGui::EndChild();
 		}
@@ -307,8 +306,8 @@ namespace PlatinumEngine{
 		Maths::Mat4 identityMatrix(1);
 
 		ImGuizmo::SetDrawlist();
-		float windowWidth = (float)ImGui::GetWindowWidth();
-		float windowHeight = (float)ImGui::GetWindowHeight();
+		auto windowWidth = (float)ImGui::GetWindowWidth();
+		auto windowHeight = (float)ImGui::GetWindowHeight();
 		ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 		float viewManipulateRight = ImGui::GetWindowPos().x + windowWidth;
 		float viewManipulateTop = ImGui::GetWindowPos().y;;

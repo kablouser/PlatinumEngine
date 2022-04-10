@@ -58,6 +58,7 @@ namespace PlatinumEngine
 		float _boundsSnap[3] = { 0.1f, 0.1f, 0.1f };
 		bool _boundSizing = false;
 		bool _boundSizingSnap = false;
+		ImGuizmo::MODE _currentGizmoMode;
 
 		// Flags
 		bool _ifCameraSettingWindowOpen;
