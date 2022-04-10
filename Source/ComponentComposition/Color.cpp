@@ -62,39 +62,38 @@ namespace PlatinumEngine
 	}
 	bool Color::operator ==(Color& other)
 	{
-		return (ToPacked() == other.ToPacked());
+		return (r==other.r && g==other.g && b==other.b && a==other.a);
 	}
 	bool Color::operator !=(Color& other)
 	{
-		return (ToPacked() != other.ToPacked());
+		return (r!=other.r || g!=other.g || b!=other.b || a!=other.a);
+		//return !(*this == other);
 	}
 	Color Color::operator *(Color& other)
 	{
-		int red = (r * other.r)/255;
-		int green = (g * other.g)/255;
-		int blue = (b * other.b)/255;
-		int alpha = (a * other.a)/255;
+		float red = r * other.r;
+		float green = g * other.g;
+		float blue = b * other.b;
+		float alpha = a * other.a;
 		return Color(red, green, blue, alpha);
 	}
 	Color Color::operator *(float value)
 	{
-		return Color((int)(r*value), (int)(g*value), (int)(b*value), (int)(a*value));
+		return Color(r*value, g*value, b*value, a*value);
 	}
 	void Color::operator *=(Color& other)
 	{
-		r = (r * other.r)/255;
-		g = (g * other.g)/255;
-		b = (b * other.b)/255;
-		a = (a * other.a)/255;
-		Clamp();
+		r = r * other.r;
+		g = g * other.g;
+		b = b * other.b;
+		a = a * other.a;
 	}
 	void Color::operator *=(float value)
 	{
-		r=(int)(r*value);
-		g=(int)(g*value);
-		b=(int)(b*value);
-		a=(int)(a*value);
-		Clamp();
+		r=r*value;
+		g=g*value;
+		b=b*value;
+		a=a*value;
 	}
 
 	//Conversions
@@ -102,22 +101,21 @@ namespace PlatinumEngine
 	//Returns floating RGBA values (between 0 and 1)
 	Maths::Vec4 Color::ToVec4()
 	{
-		return Maths::Vec4(r/255.f,g/255.f,b/255.f,a/255.f);
+		return Maths::Vec4(r,g,b,a);
 	}
 	//Returns floating RGB values (between 0 and 1)
 	Maths::Vec3 Color::ToVec3()
 	{
-		return Maths::Vec3(r/255.f,g/255.f,b/255.f);
-	}
-	//Returns RGBA values as a string (between 0 and 255)
-	std::string Color::ToString()
-	{
-		return "R:"+std::to_string(r)+" G:"+std::to_string(g)+" B:"+std::to_string(b)+" A:"+std::to_string(a);
+		return Maths::Vec3(r,g,b);
 	}
 	//Returns a packed 32bit integer RGBA value
 	uint32_t Color::ToPacked()
 	{
-		return ((a&0x0ff) << 24) | ((b&0x0ff) << 16) | ((g&0x0ff) << 8) | (r&0x0ff);
+		int red = (int)(r * 255.f);
+		int green = (int)(g * 255.f);
+		int blue = (int)(b * 255.f);
+		int alpha = (int)(a * 255.f);
+		return ((alpha&0x0ff) << 24) | ((blue&0x0ff) << 16) | ((green&0x0ff) << 8) | (red&0x0ff);
 	}
 
 	//Static methods
@@ -126,10 +124,10 @@ namespace PlatinumEngine
 	Color Color::Lerp(Color a, Color b, float t)
 	{
 		Color nc;
-		nc.r = Lerp(a.r,b.r,t);
-		nc.g = Lerp(a.g,b.g,t);
-		nc.b = Lerp(a.b,b.b,t);
-		nc.a = Lerp(a.a,b.a,t);
+		nc.r = Maths::Common::Lerp(a.r,b.r,t);
+		nc.g = Maths::Common::Lerp(a.g,b.g,t);
+		nc.b = Maths::Common::Lerp(a.b,b.b,t);
+		nc.a = Maths::Common::Lerp(a.a,b.a,t);
 		return nc;
 	}
 
@@ -138,27 +136,17 @@ namespace PlatinumEngine
 	//Sets the colors (rgba values are already public but this method can be public too if needed)
 	void Color::Set(int red, int green, int blue, int alpha)
 	{
+		r=red/255.f;
+		g=green/255.f;
+		b=blue/255.f;
+		a=alpha/255.f;
+	}
+	void Color::Set(float red, float green, float blue, float alpha)
+	{
 		r=red;
 		g=green;
 		b=blue;
 		a=alpha;
-		Clamp();
-	}
-	void Color::Set(float red, float green, float blue, float alpha)
-	{
-		red *= 255;
-		green *= 255;
-		blue *= 255;
-		alpha *= 255;
-		Set((int)red,(int)green,(int)blue,(int)alpha);
-	}
-	//Clamps the values between 0-255 (int)
-	void Color::Clamp()
-	{
-		a = std::max(0, std::min(a, 255));
-		r = std::max(0, std::min(r, 255));
-		g = std::max(0, std::min(g, 255));
-		b = std::max(0, std::min(b, 255));
 	}
 
 	//Output operator overloading

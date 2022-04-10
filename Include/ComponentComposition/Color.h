@@ -2,6 +2,8 @@
 
 #include "Maths/Vectors.h"
 #include "ostream"
+#include "math.h"
+#include "Maths/Common.h"
 
 namespace PlatinumEngine
 {
@@ -29,20 +31,17 @@ namespace PlatinumEngine
 
 		Maths::Vec3 ToVec3();
 		Maths::Vec4 ToVec4();
-		std::string ToString();
 		uint32_t ToPacked();
 
 		static Color Lerp(Color a, Color b, float t);
 
 	public:
-		int r, g, b, a;
-		int& x = r, y = g, z = b, w = a;
+		float r, g, b, a;
+		float& x = r, y = g, z = b, w = a;
 
 	private:
 		void Set(int red, int green, int blue, int alpha);
 		void Set(float red, float green, float blue, float alpha);
-		void Clamp();
-		static int Lerp(int a, int b, float t){return (int)(a+t*(b-a));};
 
 	};
 

@@ -1,9 +1,13 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/quaternion.hpp"
 #include "math.h"
 #include "Maths/Vectors.h"
 #include "Maths/Matrices.h"
+#include "ostream"
+#include "Maths/Common.h"
 
 namespace PlatinumEngine
 {
@@ -13,8 +17,8 @@ namespace PlatinumEngine
 		{
 		public:
 			Quaternion();
-			Quaternion(float x, float y, float z, float w);
-			Quaternion(float roll, float pitch, float yaw);
+			Quaternion(float w, float x, float y, float z);
+			Quaternion(float pitch, float yaw, float roll);
 			Quaternion(Vec3 euler);
 			~Quaternion();
 
@@ -33,12 +37,11 @@ namespace PlatinumEngine
 			bool operator ==(const Quaternion &q);
 			float& operator[](int i);
 
-			void Set(float newX, float newY, float newZ, float newW);
+			void Set(float newW, float newX, float newY, float newZ);
 			float Length();
 			float Dot(const Quaternion &q);
 			Vec3 EulerAngles();
 			Vec4 ToVec4();
-			std::string ToString();
 
 			static Quaternion Normalise(Quaternion &q);
 			static Quaternion Conjugate(Quaternion &q);
@@ -54,7 +57,6 @@ namespace PlatinumEngine
 			static Vec3 MatrixToEuler(Mat4 matrix);
 			static Mat4 EulerToMatrix(Vec3 euler);
 			static Quaternion FromToRotation (Vec3 from, Vec3 to);
-			static Mat4 FromToRotationMatrix (Vec3 from, Vec3 to);
 			static Quaternion LookRotation(Vec3 forward, Vec3 up);
 			static Quaternion LookRotation(Vec3 forward);
 
@@ -62,22 +64,7 @@ namespace PlatinumEngine
 			static Quaternion identity;
 			float x,y,z,w;
 
-		private:
-			static bool LookRotationToQuaternion (Vec3 viewVec, Vec3 upVec, Quaternion& q);
-			static bool LookRotationToMatrix (Vec3 viewVec, Vec3 upVec,Mat4& m);
-			static Mat4 SetBasis(Vec3 inX, Vec3 inY, Vec3 inZ);
-			static bool Approximately(float a, float b);
-			static void MakePositive(Vec3& euler);
-
-		private:
-			static Vec3 _forward;
-			static Vec3 _up;
-			static Vec3 _right;
-			static float _eps;
-			static float _PI;
-			static float _DEG2RAD;
-			static float _RAD2DEG;
-
 		};
+		std::ostream& operator <<(std::ostream& os, Quaternion& q);
 	}
 }
