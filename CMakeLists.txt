@@ -136,7 +136,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 
 
-target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts")
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts" "${CMAKE_CURRENT_LIST_DIR}/Build/Debug/_deps/imguizmo-src")
 #-----------------------------
 
 
@@ -167,7 +167,6 @@ set(PROJECT_LIBRARIES
 	"glfw;"
 	"imgui;"
 	"implot;"
-	"imguizmo;"
 	"glm;"
 	"assimp;"
 	"libglew_static;"

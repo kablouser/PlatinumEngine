@@ -11,7 +11,7 @@
 #include <OpenGL/Framebuffer.h>
 #include <InputManager/InputManager.h>
 #include <IconsKenney.h>
-#include "/Users/niyoroshitatsu/Downloads/GithubDesktop/PlatinumEngine/Build/Debug/_deps/imguizmo-src/ImGuizmo.h"
+#include <ImGuizmo.h>
 namespace PlatinumEngine
 {
 	class SceneEditor
@@ -31,7 +31,7 @@ namespace PlatinumEngine
 		/**
 		 * Update data in Scene Editor
 		 */
-		void Update(ImVec2 targetSize);
+		void Update(ImVec2 targetSize, ImGuizmo::MODE currentGizmoMode);
 
 		// ___CONSTRUCTOR___
 		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer);
@@ -45,13 +45,19 @@ namespace PlatinumEngine
 		 * @param cameraView
 		 * @param cameraProjection
 		 * @param matrix
-		 * @param editTransformDecpmposition
+		 * @param editTransformDecomposition
 		 */
-		void UseGizmo(Maths::Mat4 cameraView, Maths::Mat4 cameraProjection, bool* editTransformDecomposition);
+		void UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE);
 	private:
 
 		// ___PARAMETERS___
 		//ImGuizmo
+		bool _useSnap = false;
+		float _snap[3] = { 1.f, 1.f, 1.f };
+		float _bounds[6] = {-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f};
+		float _boundsSnap[3] = { 0.1f, 0.1f, 0.1f };
+		bool _boundSizing = false;
+		bool _boundSizingSnap = false;
 
 		// Flags
 		bool _ifCameraSettingWindowOpen;
