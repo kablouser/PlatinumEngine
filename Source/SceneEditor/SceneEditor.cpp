@@ -12,10 +12,29 @@ namespace PlatinumEngine{
 
 	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer):
 			_ifCameraSettingWindowOpen(false),
-			_camera(), _fov(60), _near(4), _far(10000),_inputManager(inputManager), _scene(scene),
-			_mouseMoveDelta(0, 0) ,_mouseButtonType(-1),
-			_wheelValueDelta(0),_renderTexture(), _renderer(renderer), _currentGizmoMode(ImGuizmo::LOCAL)
+			_camera(), _fov(60), _near(4), _far(10000),
 
+			_inputManager(inputManager),
+			_scene(scene),
+			_renderer(renderer),
+			_renderTexture(),
+
+
+			_mouseMoveDelta(0, 0) ,
+			_mouseButtonType(-1),
+			_wheelValueDelta(0),
+
+			_useSnap(false),
+			_boundSizing(false),
+			_boundSizingSnap(false),
+
+			_currentGizmoMode(ImGuizmo::LOCAL),
+
+			_snap{ 1.f, 1.f, 1.f },
+			_bounds{-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f},
+			_boundsSnap{ 0.1f, 0.1f, 0.1f },
+
+			_currentClickedZone()
 	{
 		_inputManager->CreateAxis(std::string ("HorizontalAxisForEditorCamera"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
 		_inputManager->CreateAxis(std::string ("VerticalAxisForEditorCamera"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
@@ -181,10 +200,10 @@ namespace PlatinumEngine{
 
 	void SceneEditor::Update(ImVec2 targetSize, ImGuizmo::MODE currentGizmoMode)
 	{
-
 		//--------------------------------------
 		// check if mouse is inside the screen
 		//--------------------------------------
+
 		if(_inputManager->GetMousePosition().x <= targetSize.x
 				&& _inputManager->GetMousePosition().x >= 0.f
 				&& _inputManager->GetMousePosition().y <= targetSize.y
@@ -196,20 +215,13 @@ namespace PlatinumEngine{
 			//---------------------
 
 			// check mouse click to do rotation and translation
-			if (_mouseButtonType == 0) // for rotation
+			if (_mouseButtonType == 0 ) // for rotation
 			{
 
 				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
 
 			}
-
-			else if (_mouseButtonType == 1)// for rotation
-			{
-
-				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
-
-			}
-			else if (_mouseButtonType == 2)// translation (up down left right)
+			else if (_mouseButtonType == 1)// translation (up down left right)
 			{
 
 				_camera.TranslationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
@@ -229,6 +241,8 @@ namespace PlatinumEngine{
 				_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
 				_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"), _inputManager->GetAxis("HorizontalAxisForEditorCamera"));
 		}
+
+
 
 		//---------------------------
 		// Update projection matrix
@@ -292,7 +306,8 @@ namespace PlatinumEngine{
 
 
 			// display updated framebuffer
-			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize);
+			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize, ImVec2(0, 1), ImVec2(1, 0));
+
 			UseGizmo(_camera.viewMatrix4.matrix, _camera.projectionMatrix4.matrix, currentGizmoMode);
 		}
 
@@ -300,9 +315,6 @@ namespace PlatinumEngine{
 
 	void SceneEditor::UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE currentGizmoMode)
 	{
-
-
-
 		Maths::Mat4 identityMatrix(1);
 
 		ImGuizmo::SetDrawlist();
@@ -310,12 +322,21 @@ namespace PlatinumEngine{
 		auto windowHeight = (float)ImGui::GetWindowHeight();
 		ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 		float viewManipulateRight = ImGui::GetWindowPos().x + windowWidth;
-		float viewManipulateTop = ImGui::GetWindowPos().y;;
+		float viewManipulateTop = ImGui::GetWindowPos().y;
+
+
+		ImGuizmo::Manipulate(
+				cameraView, cameraProjection, currentGizmoOperation, currentGizmoMode,
+				identityMatrix.matrix, NULL, _useSnap ? &_snap[0] : NULL,
+				_boundSizing ? _bounds : NULL, _boundSizingSnap ? _boundsSnap : NULL);
+
+		ImGuizmo::ViewManipulate(cameraView, sqrt(LengthSquared(_camera.GetForwardDirection())), ImVec2(viewManipulateRight - 128, viewManipulateTop),
+				ImVec2(128, 128), 0x10101010);
+
+		float temp[16];
+		memcpy(temp,cameraView,sizeof(float) * 16);
 
 		ImGuizmo::DrawGrid(cameraView, cameraProjection, identityMatrix.matrix, 100.f);
-		ImGuizmo::Manipulate(cameraView, cameraProjection, currentGizmoOperation, currentGizmoMode, identityMatrix.matrix, NULL, _useSnap ? &_snap[0] : NULL, _boundSizing ? _bounds : NULL, _boundSizingSnap ? _boundsSnap : NULL);
-
-		ImGuizmo::ViewManipulate(cameraView, 8.f, ImVec2(viewManipulateRight - 128, viewManipulateTop), ImVec2(128, 128), 0x10101010);
 	}
 }
 

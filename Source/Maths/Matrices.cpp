@@ -160,7 +160,13 @@ namespace PlatinumEngine
 
 			glm::quat quaternionZ(glm::vec3(0, 0, eulerAngle.z));
 
-			ConvertFromGLM(glm::mat4_cast(quaternionY * quaternionX * quaternionZ));
+
+			glm::mat4x4 rotationMat4 =
+					glm::mat4_cast(quaternionX) * glm::mat4_cast(quaternionY) * glm::mat4_cast(quaternionZ);
+
+
+			// convert glm::mat4 into Mat4
+			float* rotationMatrix = glm::value_ptr(rotationMat4);
 
 		}
 

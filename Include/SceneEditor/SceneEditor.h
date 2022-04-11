@@ -51,17 +51,22 @@ namespace PlatinumEngine
 	private:
 
 		// ___PARAMETERS___
+
 		//ImGuizmo
-		bool _useSnap = false;
-		float _snap[3] = { 1.f, 1.f, 1.f };
-		float _bounds[6] = {-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f};
-		float _boundsSnap[3] = { 0.1f, 0.1f, 0.1f };
-		bool _boundSizing = false;
-		bool _boundSizingSnap = false;
+		float _snap[3];
+		float _bounds[6];
+		float _boundsSnap[3];
+
+		bool _useSnap;
+		bool _boundSizing;
+		bool _boundSizingSnap;
+
 		ImGuizmo::MODE _currentGizmoMode;
 
 		// Flags
 		bool _ifCameraSettingWindowOpen;
+		enum ClickedZoneType{RenderingZone, GizmoZone, NoZoneClicked};
+		ClickedZoneType _currentClickedZone;
 
 		// Managers
 		InputManager* _inputManager;

@@ -42,6 +42,7 @@ FetchContent_MakeAvailable(implot)
 add_subdirectory("ImPlot CMake")
 #-----------------------------
 # GLM
+set(GLM_FORCE_RIGHT_HANDED ON)
 FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git GIT_TAG 0.9.9.8)
 FetchContent_MakeAvailable(glm)
 #-----------------------------
@@ -136,7 +137,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 
 
-target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts" "${CMAKE_CURRENT_LIST_DIR}/Build/Debug/_deps/imguizmo-src")
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts" "${FETCHCONTENT_BASE_DIR}/imguizmo-src")
 #-----------------------------
 
 
@@ -149,7 +150,7 @@ set(UNIT_TESTS
 	"Test/Maths/VectorsTest.cpp;"
 	"Test/Maths/MatricesTest.cpp;"
 	"Test/SceneEditor/EditorCameraTest.cpp;"
-  "Test/TestScene.cpp;"
+  	"Test/TestScene.cpp;"
 	)
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 
