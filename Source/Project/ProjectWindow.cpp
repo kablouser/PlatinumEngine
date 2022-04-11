@@ -4,14 +4,35 @@
 
 #include <Project/ProjectWindow.h>
 
-
 using namespace PlatinumEngine;
 
 void ProjectWindow::ShowGUIWindow(bool* isOpen)
 {
-	if (ImGui::Begin("Project Window"))
+	if (ImGui::Begin(ICON_FA_FOLDER " Project Window"))
 	{
-		ShowTreeNode(std::filesystem::path(_parentFolder));
+		static char assetSelectorBuffer[128];
+		ImGui::InputText("##FilterAssets", assetSelectorBuffer, IM_ARRAYSIZE(assetSelectorBuffer));
+		ImGui::SameLine();
+		ImGui::Text("%s", ICON_KI_SEARCH);
+
+		// If we don't have something to search for, use default assets folder
+		_toFind = assetSelectorBuffer;
+		if (!_toFind.empty())
+		{
+			// Recursively search for the target string in each directory
+			for (std::filesystem::recursive_directory_iterator i(_parentFolder), end; i != end; ++i)
+			{
+				// Find search string in filename, also check if parent path contains search string to avoid adding twice
+				if (i->path().filename().string().find(_toFind) != std::string::npos && (i->path().parent_path().string().find(_toFind) == std::string::npos))
+				{
+					ShowTreeNode(i->path());
+				}
+			}
+		}
+		else
+		{
+			ShowTreeNode(std::filesystem::path(_parentFolder));
+		}
 	}
 
 	ImGui::End();
@@ -29,16 +50,27 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 	// If a directory, need to loop its sub-contents
 	if (is_directory(dir))
 	{
+		// Hide label of node using "##" (this is so we can have fancy icons)
+		bool isExpanded = ImGui::TreeNodeEx((std::string{"##"} + dir.filename().string()).c_str(), flags);
+
 		// Only show sub-contents if tree node is expanded
-		bool isExpanded = ImGui::TreeNodeEx(dir.filename().c_str(), flags);
 		if (isExpanded)
 		{
+			// Add open folder icon and name
+			ImGui::SameLine();
+			ImGui::Text("%s", (std::string{ICON_FA_FOLDER_OPEN} + " " + dir.filename().string()).c_str());
 			for (std::filesystem::directory_iterator i(dir), end; i != end; ++i)
 			{
 				ShowTreeNode(i->path());
 			}
 
 			ImGui::TreePop();
+		}
+		else
+		{
+			// Add closed folder icon and name
+			ImGui::SameLine();
+			ImGui::Text("%s", (std::string{ICON_FA_FOLDER} + " " + dir.filename().string()).c_str());
 		}
 	}
 	else
