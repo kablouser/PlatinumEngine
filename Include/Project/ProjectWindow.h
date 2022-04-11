@@ -7,6 +7,8 @@
 #include <imgui.h>
 #include <filesystem>
 #include <string>
+#include <IconsFontAwesome6.h>
+#include <IconsKenney.h>
 
 namespace PlatinumEngine
 {
@@ -25,5 +27,6 @@ namespace PlatinumEngine
 	private:
 		std::string _parentFolder = "./Assets";
 		std::string _ignoreDatabaseName = "./Assets/AssetDatabase.csv";
+		std::string _toFind = ""; // The folder or file to find in assets (used for search bar)
 	};
 }
