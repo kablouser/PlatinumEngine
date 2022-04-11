@@ -33,6 +33,7 @@ namespace PlatinumEngine{
 			_snap{ 1.f, 1.f, 1.f },
 			_bounds{-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f},
 			_boundsSnap{ 0.1f, 0.1f, 0.1f },
+			_fakeVeiwMatrix{},
 
 			_currentClickedZone()
 	{
@@ -60,8 +61,6 @@ namespace PlatinumEngine{
 		//-------------------------------------------
 		if (ImGui::Begin(ICON_KI_MOVIE " Scene Editor", outIsOpen))
 		{
-
-
 			if(ImGui::IsKeyPressed(GLFW_KEY_Q))
 				currentGizmoOperation = ImGuizmo::TRANSLATE;
 			if(ImGui::IsKeyPressed(GLFW_KEY_W))
@@ -207,8 +206,7 @@ namespace PlatinumEngine{
 		if(_inputManager->GetMousePosition().x <= targetSize.x
 				&& _inputManager->GetMousePosition().x >= 0.f
 				&& _inputManager->GetMousePosition().y <= targetSize.y
-				&& _inputManager->GetMousePosition().y >= 0.f
-				&& ImGui::IsWindowFocused())
+				&& _inputManager->GetMousePosition().y >= 0.f)
 		{
 			//---------------------
 			// update view matrix
@@ -231,16 +229,15 @@ namespace PlatinumEngine{
 			// check this is for moving camera closer/further
 			if (_wheelValueDelta != 0)
 			{
-
 				_camera.TranslationByMouse(_wheelValueDelta);
-
 			}
 
-			// check if there is any keyboard input
-			if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
-				_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
-				_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"), _inputManager->GetAxis("HorizontalAxisForEditorCamera"));
 		}
+
+		// check if there is any keyboard input
+		if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
+			_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
+			_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"), _inputManager->GetAxis("HorizontalAxisForEditorCamera"));
 
 
 
@@ -251,7 +248,6 @@ namespace PlatinumEngine{
 		// check camera type
 		if (_camera.isOrthogonal)
 		{
-
 			// update as orthogonal projection matrix
 			_camera.SetOrthogonalMatrix(-targetSize.x / 20.f, targetSize.x / 20.f,
 					-targetSize.y / 20.f, targetSize.y / 20.f, (float)_near, (float)_far);
@@ -264,7 +260,6 @@ namespace PlatinumEngine{
 			_camera.SetPerspectiveMatrix(3.14159265f * (float)_fov / 180.f,
 					targetSize.x / targetSize.y,
 					(float)_near, (float)_far);
-
 		}
 
 
@@ -308,6 +303,7 @@ namespace PlatinumEngine{
 			// display updated framebuffer
 			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize, ImVec2(0, 1), ImVec2(1, 0));
 
+			// display gizmos
 			UseGizmo(_camera.viewMatrix4.matrix, _camera.projectionMatrix4.matrix, currentGizmoMode);
 		}
 
@@ -330,12 +326,15 @@ namespace PlatinumEngine{
 				identityMatrix.matrix, NULL, _useSnap ? &_snap[0] : NULL,
 				_boundSizing ? _bounds : NULL, _boundSizingSnap ? _boundsSnap : NULL);
 
-		ImGuizmo::ViewManipulate(cameraView, sqrt(LengthSquared(_camera.GetForwardDirection())), ImVec2(viewManipulateRight - 128, viewManipulateTop),
-				ImVec2(128, 128), 0x10101010);
 
-		float temp[16];
-		memcpy(temp,cameraView,sizeof(float) * 16);
+		// don't want the view manipulate gizmo to change the view matrix, so use this to avoid that.
+		memcpy(_fakeVeiwMatrix,cameraView,sizeof(float) * 16);
 
+		// view manipulate gizmo
+		ImGuizmo::ViewManipulate(_fakeVeiwMatrix, sqrt(LengthSquared(_camera.GetForwardDirection())), ImVec2(viewManipulateRight - 100, viewManipulateTop),
+				ImVec2(100, 100), 0x10101010);
+
+		// grid
 		ImGuizmo::DrawGrid(cameraView, cameraProjection, identityMatrix.matrix, 100.f);
 	}
 }

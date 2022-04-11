@@ -26,11 +26,8 @@ namespace PlatinumEngine
 		// FUNCTION
 		/**
 		 * The function calculate the newest view matrix.
-		 * @param eulerAngle
-		 * @param translationValue
 		 */
-		void MoveCamera(Maths::Vec3 eulerAngle,
-				Maths::Vec3 translationValue);
+		void MoveCamera();
 
 
 		/**
@@ -112,7 +109,7 @@ namespace PlatinumEngine
 									 // after the user change the fov of the camera)
 
 		// device input data
-		float _translationSpeed = 0.005;
+		float _translationSpeed = 0.1;
 		float _rotationSpeed = 0.005;
 
 	};

@@ -56,6 +56,7 @@ namespace PlatinumEngine
 		float _snap[3];
 		float _bounds[6];
 		float _boundsSnap[3];
+		float _fakeVeiwMatrix[16];
 
 		bool _useSnap;
 		bool _boundSizing;
