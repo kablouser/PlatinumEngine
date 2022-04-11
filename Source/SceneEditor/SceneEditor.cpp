@@ -38,6 +38,7 @@ namespace PlatinumEngine{
 			_snap{ 1.f, 1.f, 1.f },
 			_bounds{-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f},
 			_boundsSnap{ 0.1f, 0.1f, 0.1f },
+			_fakeVeiwMatrix{},
 
 			_currentClickedZone()
 	{
@@ -62,8 +63,6 @@ namespace PlatinumEngine{
 		//-------------------------------------------
 		if (ImGui::Begin(ICON_KI_MOVIE " Scene Editor", outIsOpen))
 		{
-
-
 			if(ImGui::IsKeyPressed(GLFW_KEY_Q))
 				currentGizmoOperation = ImGuizmo::TRANSLATE;
 			if(ImGui::IsKeyPressed(GLFW_KEY_W))
@@ -209,8 +208,7 @@ namespace PlatinumEngine{
 		if(_inputManager->GetMousePosition().x <= targetSize.x
 				&& _inputManager->GetMousePosition().x >= 0.f
 				&& _inputManager->GetMousePosition().y <= targetSize.y
-				&& _inputManager->GetMousePosition().y >= 0.f
-				&& ImGui::IsWindowFocused())
+				&& _inputManager->GetMousePosition().y >= 0.f)
 		{
 
 			//---------------------
@@ -234,11 +232,12 @@ namespace PlatinumEngine{
 				_camera.TranslationByMouse(_wheelValueDelta);
 			}
 
-			// check if there is any keyboard input
-			if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
-				_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
-				_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"), _inputManager->GetAxis("HorizontalAxisForEditorCamera"));
 		}
+
+		// check if there is any keyboard input
+		if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
+			_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
+			_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"), _inputManager->GetAxis("HorizontalAxisForEditorCamera"));
 
 
 
@@ -311,6 +310,7 @@ namespace PlatinumEngine{
 			// display updated framebuffer
 			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize, ImVec2(0, 1), ImVec2(1, 0));
 
+			// display gizmos
 			UseGizmo(_camera.viewMatrix4.matrix, _camera.projectionMatrix4.matrix, currentGizmoMode);
 		}
 

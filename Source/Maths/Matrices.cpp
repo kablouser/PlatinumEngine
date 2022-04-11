@@ -154,22 +154,14 @@ namespace PlatinumEngine
 		{
 
 			// get rotation matrix (quaternion)
-			glm::quat quaternionX(glm::vec3(eulerAngle.x, 0, 0));
-
-			glm::quat quaternionY(glm::vec3(0, eulerAngle.y, 0));
-
-			glm::quat quaternionZ(glm::vec3(0, 0, eulerAngle.z));
-
-
-			glm::mat4x4 rotationMat4 =
-					glm::mat4_cast(quaternionX) * glm::mat4_cast(quaternionY) * glm::mat4_cast(quaternionZ);
-
+			glm::quat quaternionX(glm::vec3(eulerAngle.x, eulerAngle.y, eulerAngle.z));
+			glm::mat4x4 rotationMat4 = glm::mat4_cast(quaternionX);
 
 			// convert glm::mat4 into Mat4
 			float* rotationMatrix = glm::value_ptr(rotationMat4);
-
+			// set the matrix to be the same the glm rotation matrix
+			this->ConvertFromArray(rotationMatrix, 16);
 		}
-
 		void Mat4::SetRotationMatrix(Quaternion quaternion)
 		{
 			ConvertFromGLM(glm::toMat4(glm::quat(

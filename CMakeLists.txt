@@ -42,9 +42,9 @@ FetchContent_MakeAvailable(implot)
 add_subdirectory("ImPlot CMake")
 #-----------------------------
 # GLM
-set(GLM_FORCE_RIGHT_HANDED ON)
 FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git GIT_TAG 0.9.9.8)
 FetchContent_MakeAvailable(glm)
+add_compile_definitions(GLM_FORCE_LEFT_HANDED)
 #-----------------------------
 # assimp
 set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT FALSE)

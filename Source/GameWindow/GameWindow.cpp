@@ -106,7 +106,7 @@ namespace PlatinumEngine
 
 
 			// display updated framebuffer
-			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize);
+			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize, ImVec2(0, 1), ImVec2(1, 0));
 		}
 	}
 
