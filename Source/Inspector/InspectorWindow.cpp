@@ -91,6 +91,28 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 
 		// show text box (read only)
 		ImGui::InputText("##Mesh Name",meshBuffer,sizeof(meshBuffer), ImGuiInputTextFlags_ReadOnly);
+		if (ImGui::BeginDragDropTarget())
+		{
+			//Accept Mesh's filepath
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MeshPathPayload"))
+			{
+				char* payloadPointer = (char*)payload->Data;
+				int size = payload->DataSize;
+
+				//TESTING
+				std::cout<<"SIZE: "<<size<<"\n";
+				for(int i=0;i<size;i++)
+				{
+					std::cout<<*(payloadPointer+i);
+				}
+				std::cout<<std::endl;
+
+				//Maybe we SetMesh on _activeGameObject
+				//_activeGameObject->GetComponent<RenderComponent>()->SetMesh(mesh);
+			}
+			// End DragDropTarget
+			ImGui::EndDragDropTarget();
+		}
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 
@@ -98,20 +120,6 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		{
 			ImGui::OpenPopup("Select Mesh");
 		}
-		if (ImGui::BeginDragDropTarget())
-		{
-			// Check payload and update the parent of the dropped game object node
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MeshPayload"))
-			{
-				Mesh* payloadPointer = *(Mesh**)payload->Data;
-
-
-			}
-
-			// End DragDropTarget
-			ImGui::EndDragDropTarget();
-		}
-	}
 
 		auto asset_Helper = _assetHelper->ShowGuiWindow();
 		if(std::get<0>(asset_Helper) == true)

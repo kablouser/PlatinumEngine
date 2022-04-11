@@ -3,6 +3,7 @@
 //
 
 #include <Project/ProjectWindow.h>
+#include <iostream>
 
 using namespace PlatinumEngine;
 
@@ -79,8 +80,17 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 		if (dir != _ignoreDatabaseName)
 		{
 			// A path is a leaf of a tree (i.e. it cannot be expanded)
-			ImGui::TreeNodeEx(dir.filename().c_str(), flags | ImGuiTreeNodeFlags_Leaf);
+			ImGui::TreeNodeEx(dir.filename().string().c_str(), flags | ImGuiTreeNodeFlags_Leaf);
 			ImGui::TreePop();
+
+			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+			{
+				// Set payload to carry the filepath
+				//TODO: if(type is Mesh) then we set payload data to the full path [Need to see how to check type also]
+					std::string fp = dir.string();
+					ImGui::SetDragDropPayload("MeshPathPayload", fp.c_str(), fp.length());
+				ImGui::EndDragDropSource();
+			}
 		}
 	}
 }
