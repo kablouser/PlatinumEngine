@@ -17,10 +17,29 @@ namespace PlatinumEngine{
 
 	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer):
 			_ifCameraSettingWindowOpen(false),
-			_camera(), _fov(60), _near(4), _far(10000),_inputManager(inputManager), _scene(scene),
-			_mouseMoveDelta(0, 0) ,_mouseButtonType(-1),
-			_wheelValueDelta(0),_renderTexture(), _renderer(renderer), _currentGizmoMode(ImGuizmo::LOCAL)
+			_camera(), _fov(60), _near(4), _far(10000),
 
+			_inputManager(inputManager),
+			_scene(scene),
+			_renderer(renderer),
+			_renderTexture(),
+
+
+			_mouseMoveDelta(0, 0) ,
+			_mouseButtonType(-1),
+			_wheelValueDelta(0),
+
+			_useSnap(false),
+			_boundSizing(false),
+			_boundSizingSnap(false),
+
+			_currentGizmoMode(ImGuizmo::LOCAL),
+
+			_snap{ 1.f, 1.f, 1.f },
+			_bounds{-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f},
+			_boundsSnap{ 0.1f, 0.1f, 0.1f },
+
+			_currentClickedZone()
 	{
 		_inputManager->CreateAxis(std::string ("HorizontalAxisForEditorCamera"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
 		_inputManager->CreateAxis(std::string ("VerticalAxisForEditorCamera"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
@@ -186,6 +205,7 @@ namespace PlatinumEngine{
 		//--------------------------------------
 		// check if mouse is inside the screen
 		//--------------------------------------
+
 		if(_inputManager->GetMousePosition().x <= targetSize.x
 				&& _inputManager->GetMousePosition().x >= 0.f
 				&& _inputManager->GetMousePosition().y <= targetSize.y
@@ -198,11 +218,13 @@ namespace PlatinumEngine{
 			//---------------------
 
 			// check mouse click to do rotation and translation
-			if (_mouseButtonType == 0 || _mouseButtonType == 1) // for rotation
+			if (_mouseButtonType == 0 ) // for rotation
 			{
+
 				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
+
 			}
-			else if (_mouseButtonType == 2)// translation (up down left right)
+			else if (_mouseButtonType == 1)// translation (up down left right)
 			{
 				_camera.TranslationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
 			}
@@ -217,6 +239,8 @@ namespace PlatinumEngine{
 				_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
 				_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"), _inputManager->GetAxis("HorizontalAxisForEditorCamera"));
 		}
+
+
 
 		//---------------------------
 		// Update projection matrix
@@ -285,7 +309,8 @@ namespace PlatinumEngine{
 
 
 			// display updated framebuffer
-			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize);
+			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize, ImVec2(0, 1), ImVec2(1, 0));
+
 			UseGizmo(_camera.viewMatrix4.matrix, _camera.projectionMatrix4.matrix, currentGizmoMode);
 		}
 
