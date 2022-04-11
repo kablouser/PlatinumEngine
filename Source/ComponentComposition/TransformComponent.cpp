@@ -37,7 +37,7 @@ namespace PlatinumEngine
 
 	void TransformComponent::Rotate(Maths::Vec3 euler, RelativeTo space)
 	{
-		Maths::Quaternion eulerRot = Maths::Quaternion::EulerToQuaternion(euler*(Maths::Common::PI/180.f));
+		Maths::Quaternion eulerRot = Maths::Quaternion::EulerToQuaternion(euler*Maths::Common::DEG2RAD);
 		if(space==RelativeTo::local)
 			rotation *= eulerRot;
 		else
@@ -86,14 +86,6 @@ namespace PlatinumEngine
 		return Maths::Quaternion::Inverse(rotation)*dir;
 	}
 
-	//Returns matrix with translation and rotation but no scaling which converts from world to local space
-	Maths::Mat4 TransformComponent::GetWorldToLocalMatrixNoScale()
-	{
-		Maths::Mat4 invR, invT;
-		invR = Maths::Quaternion::QuaternionToMatrix(Maths::Quaternion::Inverse(rotation));
-		invT.SetTranslationMatrix(-position);
-		return invR*invT;
-	}
 	//Returns matrix with translation, rotation, scale which converts from world to local space
 	Maths::Mat4 TransformComponent::GetWorldToLocalMatrix()
 	{
@@ -108,23 +100,31 @@ namespace PlatinumEngine
 		s.SetScaleMatrix(scale);
 		trs = t*r*s;
 		GameObject* parent = GetGameObject()->GetParent();
-		if(parent)
-			trs = parent->GetComponent<TransformComponent>()->GetLocalToWorldMatrix()*trs;
+		if(parent != nullptr)
+		{
+			TransformComponent* tc = parent->GetComponent<TransformComponent>();
+			if(tc != nullptr)
+				trs = tc->GetLocalToWorldMatrix()*trs;
+		}
 		return trs;
 	}
 	//Local position w.r.t parent (if any)
 	Maths::Vec3 TransformComponent::GetLocalPosition()
 	{
 		GameObject* parent = GetGameObject()->GetParent();
-		if(parent)
+		if(parent != nullptr)
 		{
-			Maths::Vec3 parentpos = parent->GetComponent<TransformComponent>()->position;
-			return (position - parentpos);
+			TransformComponent* tc = parent->GetComponent<TransformComponent>();
+			if(tc != nullptr)
+			{
+				Maths::Vec3 parentpos = tc->position;
+				return (position - parentpos);
+			}
 		}
 		return position;
 	}
 
-	//Get/Set vectors w.r.t the object
+	//Get vectors w.r.t the object
 	Maths::Vec3 TransformComponent::GetForward()
 	{
 		return rotation * Maths::Vec3::forward;

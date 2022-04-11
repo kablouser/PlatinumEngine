@@ -35,7 +35,6 @@ namespace PlatinumEngine
 		Maths::Vec3 TransformDirection(Maths::Vec3 dir);
 		Maths::Vec3 InverseTransformDirection(Maths::Vec3 dir);
 
-		Maths::Mat4 GetWorldToLocalMatrixNoScale();
 		Maths::Mat4 GetWorldToLocalMatrix();
 		Maths::Mat4 GetLocalToWorldMatrix();
 
