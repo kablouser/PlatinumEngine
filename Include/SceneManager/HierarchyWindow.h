@@ -15,7 +15,7 @@
 #include <SceneManager/Scene.h>
 #include <Logger/Logger.h>
 #include <algorithm>
-
+#include <IconsKenney.h>
 namespace PlatinumEngine
 {
 	class HierarchyWindow

@@ -34,3 +34,9 @@ cmake-build-release/
 *.exe
 *.out
 *.app
+PlatinumEngine
+
+# imgui config
+imgui.ini
+
+**/.DS_Store

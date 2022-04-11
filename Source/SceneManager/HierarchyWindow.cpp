@@ -116,7 +116,7 @@ namespace PlatinumEngine
 	{
 
 		// Generate the Hierarchy window
-		if(ImGui::Begin("Hierarchy Window", isOpen))
+		if(ImGui::Begin(ICON_KI_ROWS" Hierarchy Window", isOpen))
 		{
 			
 			// Gui for choosing hierarchy behaviour mode

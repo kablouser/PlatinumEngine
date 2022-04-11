@@ -31,9 +31,15 @@ FetchContent_MakeAvailable(imgui)
 add_subdirectory("ImGui CMake")
 #-----------------------------
 # ImGuiFileDialog
-FetchContent_Declare(imguifiledialog GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog.git GIT_TAG v0.6.3)
+add_compile_definitions(USE_BOOKMARK)
+FetchContent_Declare(imguifiledialog GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog.git GIT_TAG v0.6.4)
 FetchContent_MakeAvailable(imguifiledialog)
 include_directories(${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src)
+#-----------------------------
+# Immediate Mode Plotting (implot)
+FetchContent_Declare(implot GIT_REPOSITORY https://github.com/epezent/implot.git GIT_TAG v0.13)
+FetchContent_MakeAvailable(implot)
+add_subdirectory("ImPlot CMake")
 #-----------------------------
 # GLM
 FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git GIT_TAG 0.9.9.8)
@@ -73,14 +79,14 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
 	
 	"Source/AssetDatabase/AssetDatabase.cpp;"
-
+	"Source/AssetDatabase/AssetHelper.cpp;"
+	
 	"Source/ComponentComposition/CameraComponent.cpp;"
 	"Source/ComponentComposition/Component.cpp;"
 	"Source/ComponentComposition/ComponentType.cpp;"
 	"Source/ComponentComposition/GameObject.cpp;"
 	"Source/ComponentComposition/RenderComponent.cpp;"
 	"Source/ComponentComposition/TransformComponent.cpp;"
-	"Source/ComponentComposition/Objects.cpp;"
 	
 	"Source/InputManager/InputManager.cpp;"
 	
@@ -103,6 +109,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/ShaderProgram.cpp;"
 	"Source/OpenGL/Texture.cpp;"
 	
+	"Source/Profiler/Profiler.cpp;"
+	
 	"Source/Project/ProjectWindow.cpp;"
 	
 	"Source/Renderer/Renderer.cpp;"
@@ -123,7 +131,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 
 
-target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts")
 #-----------------------------
 
 
@@ -153,6 +161,7 @@ set(PROJECT_LIBRARIES
 	# CMake is so stupid
 	"glfw;"
 	"imgui;"
+	"implot;"
 	"glm;"
 	"assimp;"
 	"libglew_static;"

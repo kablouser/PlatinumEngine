@@ -18,7 +18,7 @@ namespace PlatinumEngine {
 	public:
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
-
+		std::string fileName;
 		Mesh();
 		Mesh(std::vector<Vertex> newVertices, std::vector<unsigned int> newIndices);
 		~Mesh();

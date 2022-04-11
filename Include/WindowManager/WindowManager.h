@@ -10,18 +10,20 @@
 #include <Inspector/InspectorWindow.h>
 #include <Project/ProjectWindow.h>
 #include <SceneManager/HierarchyWindow.h>
+#include <Profiler/Profiler.h>
 #include <Logger/Logger.h>
-
+#include <IconsKenney.h>
 namespace PlatinumEngine
 {
 	class WindowManager
 	{
 	public:
-		WindowManager(GameWindow* gameWindow,
+		WindowManager(GameWindow *gameWindow,
 				      SceneEditor *sceneEditor,
 					  HierarchyWindow *hierarchy,
 					  Logger *logger,
 					  InspectorWindow *inspector,
+					  Profiler *profiler,
 					  ProjectWindow *projectWindow
 					  );
 
@@ -33,6 +35,7 @@ namespace PlatinumEngine
 		void ShowMenuFile();
 		void ShowMenuGameObject(Scene &scene);
         void ShowMenuEdit();
+		void ShowMenuWindow(Scene &scene);
 		void SetUpMainMenu(Scene &scene);
 
         //file section
@@ -51,8 +54,8 @@ namespace PlatinumEngine
 		void ShowWindowAnimation(bool* outIsOpen);
 		void ShowWindowLight(bool* outIsOpen);
 		void ShowWindowAudio(bool* outIsOpen);
-		void ShowLogger(bool* outIsOpen);
-
+		void ShowWindowLogger(bool* outIsOpen);
+		void ShowWindowProfiler(bool* outIsOpen);
 	private:
 		///-----------------------------------------------------------------------
 		///bools in main menu window list
@@ -65,8 +68,8 @@ namespace PlatinumEngine
 		bool _showWindowAnimation            = false;
 		bool _showWindowAudio                = false;
 		bool _showWindowLight                = false;
-		bool _showLogger					 = true;
-
+		bool _showWindowLogger				 = false;
+		bool _showWindowProfiler			 = false;
 		///-----------------------------------------------------------------------
 		///bools in main menu GameObject list
 		///-----------------------------------------------------------------------
@@ -103,6 +106,7 @@ namespace PlatinumEngine
 		HierarchyWindow *_hierarchy;
 		Logger *_logger;
 		InspectorWindow *_inspector;
+		Profiler *_profiler;
 		ProjectWindow *_projectWindow;
 	};
 }

@@ -41,7 +41,7 @@ namespace PlatinumEngine{
 		//-------------------------------------------
 		// begin the ImGui Scene Editor Main Window
 		//-------------------------------------------
-		if (ImGui::Begin("Scene Editor", outIsOpen))
+		if (ImGui::Begin(ICON_KI_MOVIE " Scene Editor", outIsOpen))
 		{
 			//-----------
 			// Widgets
@@ -245,8 +245,8 @@ namespace PlatinumEngine{
 
 
 			_renderer->Begin();
-                        // Update rendering information to renderer
-                        _scene->Render(*_renderer);
+			// Update rendering information to renderer
+			_scene->Render(*_renderer);
 			_renderer->SetModelMatrix();
 			_renderer->SetViewMatrix(_camera.viewMatrix4);
 			_renderer->SetProjectionMatrix(_camera.projectionMatrix4);

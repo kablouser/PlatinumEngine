@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <imgui.h>
 #include "WindowManager/Filedialog.h"
 #include <ComponentComposition/Component.h>
 #include <ComponentComposition/RenderComponent.h>
@@ -13,12 +12,14 @@
 #include <SceneManager/SceneManager.h>
 #include <OpenGL/Mesh.h>
 
+#include <IconsFontAwesome6.h>
+
 namespace PlatinumEngine
 {
 	class InspectorWindow
 	{
 	public:
-		InspectorWindow() = default;
+		InspectorWindow(AssetHelper* assetHelper);
 		void ShowGUIWindow(bool* isOpen, Scene& scene);
 		void SetActiveGameObject(GameObject* gameObject);
 	private:
@@ -29,6 +30,7 @@ namespace PlatinumEngine
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);
 	private:
+		AssetHelper* _assetHelper;
 		GameObject* _activeGameObject = nullptr;
 		std::string _meshFileName;
 		bool _isAddComponentWindowOpen = false;
