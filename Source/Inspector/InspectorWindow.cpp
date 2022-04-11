@@ -9,7 +9,7 @@ using namespace PlatinumEngine;
 InspectorWindow::InspectorWindow(AssetHelper* assetHelper):_assetHelper(assetHelper) {}
 void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 {
-	if(ImGui::Begin(ICON_KI_EXCLAMATION_CIRCLE " Inspector Window", isOpen))
+	if(ImGui::Begin(ICON_FA_CIRCLE_INFO " Inspector Window", isOpen))
 	{
 		if (_activeGameObject)
 		{

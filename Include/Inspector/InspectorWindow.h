@@ -11,6 +11,7 @@
 #include <ComponentComposition/GameObject.h>
 #include <SceneManager/SceneManager.h>
 
+#include <IconsFontAwesome6.h>
 
 namespace PlatinumEngine
 {
