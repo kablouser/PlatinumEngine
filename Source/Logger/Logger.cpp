@@ -130,6 +130,24 @@ namespace PlatinumEngine
 			ImGui::SameLine();
 			bool isCheckboxClicked = ImGui::Checkbox("Scroll to bottom", &_scrollToBottom);
 
+			// TODO: If we get a nice way to send stuff to the right without causing an overlap on resize we should do that here
+			// ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 250.f);
+			ImGui::SameLine();
+			if (ImGui::RadioButton("Information", _logLevel == LogType::info))
+			{
+				_logLevel = LogType::info;
+			}
+			ImGui::SameLine();
+			if (ImGui::RadioButton("Warning", _logLevel == LogType::warning))
+			{
+				_logLevel = LogType::warning;
+			}
+			ImGui::SameLine();
+			if (ImGui::RadioButton("Error", _logLevel == LogType::error))
+			{
+				_logLevel = LogType::error;
+			}
+
 			ImGui::Separator();
 
 			ImGui::BeginChild("scrolling");
@@ -139,11 +157,18 @@ namespace PlatinumEngine
 			ImGui::PushItemWidth(-1);
 
 			for (size_t i = 0; i < savedLogs.size(); ++i)
-				ImGui::InputText(
-						savedLogs[i].uniqueID.c_str(),
-						&savedLogs[i].message[0],
-						savedLogs[i].message.size() + 1,
-						ImGuiInputTextFlags_ReadOnly);
+			{
+				// Since LogType enum is in a nice order, simply compare to find current highest log level
+				if (_logLevel <= savedLogs[i].type)
+				{
+					ImGui::InputText(
+							savedLogs[i].uniqueID.c_str(),
+							&savedLogs[i].message[0],
+							savedLogs[i].message.size() + 1,
+							ImGuiInputTextFlags_ReadOnly);
+				}
+			}
+
 			// check if user tried to scroll, but not when checkbox is clicked
 			if (ImGui::GetScrollY() != ImGui::GetScrollMaxY() && !isCheckboxClicked)
 				// let user scroll around

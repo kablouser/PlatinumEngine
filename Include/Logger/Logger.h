@@ -100,8 +100,8 @@ namespace PlatinumEngine
 		unsigned int _nextUniqueID;
 		// should this window scroll to the bottom of the logs?
 		bool _scrollToBottom;
-
-
+		// current log level, info shows info/warnings/errors, warning shows warning/errors and error just errors
+		LogType _logLevel = LogType::error;
 	};
 
 	/**

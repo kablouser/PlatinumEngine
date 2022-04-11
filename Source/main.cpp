@@ -88,7 +88,6 @@ int main(int, char**)
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler);
 
-
 		// Main loop
 		while (!glfwWindowShouldClose(window))
 		{
