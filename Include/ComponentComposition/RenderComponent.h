@@ -22,6 +22,9 @@ namespace PlatinumEngine
 		// load material
 		void LoadMaterial(const MaterialRes& materialRes, Renderer& renderer);
 
+		// load material
+		void LoadMaterial(const MaterialRes& materialRes);
+
 		// return mesh
 		Mesh* GetMesh();
 

@@ -5,7 +5,6 @@
 // For supporting ImGui types
 #include <imgui.h>
 #include <string>
-
 namespace PlatinumEngine
 {
 	class Texture
