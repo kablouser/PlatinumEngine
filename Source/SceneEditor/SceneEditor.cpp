@@ -37,6 +37,8 @@ namespace PlatinumEngine{
 
 			_currentClickedZone()
 	{
+		BuildGrid();
+
 		_inputManager->CreateAxis(std::string ("HorizontalAxisForEditorCamera"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
 		_inputManager->CreateAxis(std::string ("VerticalAxisForEditorCamera"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
 
@@ -288,10 +290,12 @@ namespace PlatinumEngine{
 			_renderer->Begin();
 			// Update rendering information to renderer
 			_scene->Render(*_renderer);
+			_shaderInput.Draw(GL_LINES);
 			_renderer->SetModelMatrix();
 			_renderer->SetViewMatrix(_camera.viewMatrix4);
 			_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
 			_renderer->SetLightProperties();
+			_renderer->SetCameraPosition(_camera.);
 			_renderer->End();
 
 			_renderTexture.Unbind();
@@ -304,7 +308,7 @@ namespace PlatinumEngine{
 			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize, ImVec2(0, 1), ImVec2(1, 0));
 
 			// display gizmos
-			UseGizmo(_camera.viewMatrix4.matrix, _camera.projectionMatrix4.matrix, currentGizmoMode);
+			//UseGizmo(_camera.viewMatrix4.matrix, _camera.projectionMatrix4.matrix, currentGizmoMode);
 		}
 
 	}
