@@ -7,7 +7,7 @@ layout (location = 2) in vec2 inTextureCoordinate;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform vec3 camPos;
+
 
 out vec3 vertexPos;
 out vec3 vertexNormal;

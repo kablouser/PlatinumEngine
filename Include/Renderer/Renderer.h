@@ -90,13 +90,6 @@ namespace PlatinumEngine
 		// update projection matrix in shader
 		void SetProjectionMatrix(Maths::Mat4 mat = Maths::Mat4(1.0));
 
-		// update projection matrix in shader
-		void SetCameraPosition(Maths::Vec3 camPos)
-		{
-			_unlitShader.SetUniform("camPos", camPos);
-		}
-
-
 		void SetLightProperties();
 		// a window for renderer to test
 		void ShowGUIWindow(bool* outIsOpen);
