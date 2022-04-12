@@ -95,6 +95,12 @@ namespace PlatinumEngine
 		void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
 		void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
 
+		/**
+		 * Get camera position const reference
+		 * @return : camera position const reference
+		 */
+		const Maths::Vec3& GetCameraPosition();
+
 		// CONSTRUCTOR
 		EditorCamera();
 
