@@ -105,7 +105,8 @@ namespace PlatinumEngine
 		// transformation
 		Maths::Vec3 _eulerAngle;
 		Maths::Vec3 _translationValue;
-		Maths::Vec3 _cameraPosition;
+		Maths::Vec3 _cameraPosition; // need this position is because we need to adjust the camera position
+									 // after the user change the fov of the camera)
 
 		// device input data
 		float _translationSpeed = 0.1;
