@@ -20,6 +20,18 @@ namespace PlatinumEngine
 		else
 			renderer.SetModelMatrix();
 
+	void RenderComponent::LoadMaterial(const MaterialRes& materialRes)
+	{
+		_material.diffuseTexture.Create(materialRes.diffuseTextureFile);
+		_material.specularTexture.Create(materialRes.specularTextureFile);
+		_material.normalTexture.Create(materialRes.normalTextureFile);
+		// TODO: we can update shininess by changing slider in ImGUI
+		_material.shininessFactor = 32.0f;
+	}
+
+	void RenderComponent::OnRender(Scene& scene, Renderer &render)
+	{
+		render.LoadTexture(_material);
 		_shaderInput.Draw();
 	}
 

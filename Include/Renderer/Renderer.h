@@ -11,6 +11,7 @@
 #include <OpenGL/Framebuffer.h>
 #include <OpenGL/Mesh.h>
 #include <GLFW/glfw3.h>
+#include "OpenGL/Material.h"
 
 namespace PlatinumEngine
 {
@@ -101,6 +102,11 @@ namespace PlatinumEngine
 		 */
 		void LoadMesh(Mesh &mesh);
 
+		/**
+		 * mesh component can call this function to activate texture
+		 * @param material
+		 */
+		void LoadTexture(const Material& material);
 		//TODO: LoadLight
 		/**
 		 * light component can call this function to input light data into shader

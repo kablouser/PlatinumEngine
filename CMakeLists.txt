@@ -67,11 +67,18 @@ set(USE_GLU "Use GLU" ON)
 FetchContent_Declare(glew GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git GIT_TAG glew-cmake-2.2.0)
 FetchContent_MakeAvailable(glew)
 #-----------------------------
-# Add more libraries from git repos here:
-#-----------------------------
 # imguizmo
 FetchContent_Declare(imguizmo GIT_REPOSITORY https://github.com/CedricGuillemet/ImGuizmo.git GIT_TAG origin/master)
 FetchContent_MakeAvailable(imguizmo)
+#-----------------------------
+# stb_image
+FetchContent_Declare(stb GIT_REPOSITORY https://github.com/nothings/stb.git GIT_TAG origin/master)
+FetchContent_MakeAvailable(stb)
+add_subdirectory("stb CMake")
+#-----------------------------
+# Add more libraries from git repos here:
+#-----------------------------
+
 #-----------------------------
 # IMPORTANT SECTION! Source code
 #-----------------------------
@@ -92,6 +99,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/ComponentComposition/GameObject.cpp;"
 	"Source/ComponentComposition/RenderComponent.cpp;"
 	"Source/ComponentComposition/TransformComponent.cpp;"
+#	"Source/ComponentComposition/LightComponent.cpp;"
 	
 	"Source/GameWindow/GameWindow.cpp;"
 	
@@ -116,6 +124,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/ShaderInput.cpp;"
 	"Source/OpenGL/ShaderProgram.cpp;"
 	"Source/OpenGL/Texture.cpp;"
+	"Source/OpenGL/Material.cpp;"
 	
 	"Source/Profiler/Profiler.cpp;"
 	
