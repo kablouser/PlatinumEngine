@@ -96,6 +96,58 @@ namespace PlatinumEngine
 		 * @param editTransformDecomposition
 		 */
 		void UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE);
+
+		void BuildGrid()
+		{
+			std::vector<Vertex> vertices;
+			std::vector<GLuint> indices;
+
+			unsigned int counter = 0;
+
+			for(int x = -25; x<25 ;x+= 5, counter +=4)
+			{
+				vertices.emplace_back(
+					Vertex{
+				Maths::Vec3((float)x, 0.f, -25.f),
+				Maths::Vec3(0.f,1.f,0.f),
+				Maths::Vec2(0.f, 0.f)
+					}
+				);
+
+				vertices.emplace_back(
+					Vertex{
+							Maths::Vec3((float)x, 0.f, 25.f),
+							Maths::Vec3(0.f,0.f,0.f),
+							Maths::Vec2(0.f, 0.f)
+					}
+				);
+
+				vertices.emplace_back(
+					Vertex{
+							Maths::Vec3(-25, 0.f, (float)x),
+							Maths::Vec3(0.f,0.f,0.f),
+							Maths::Vec2(0.f, 0.f)
+					}
+				);
+
+				vertices.emplace_back(
+					Vertex{
+							Maths::Vec3(25.f, 0.f, (float)x),
+							Maths::Vec3(0.f,0.f,0.f),
+							Maths::Vec2(0.f, 0.f)
+					}
+				);
+
+
+				indices.emplace_back(counter);
+				indices.emplace_back(counter+1);
+				indices.emplace_back(counter+2);
+				indices.emplace_back(counter+3);
+			}
+
+			_shaderInput.Set(vertices, indices);
+		}
+
 	private:
 
 		// ___PARAMETERS___

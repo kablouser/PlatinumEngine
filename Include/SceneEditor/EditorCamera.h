@@ -127,13 +127,11 @@ namespace PlatinumEngine
 		// transformation
 		Maths::Vec3 _eulerAngle;
 		Maths::Vec3 _translationValue;
-		//Maths::Vec3 _cameraPosition;
-
+		
 		// camera
 		float _nearPanelForClippingSpace;
 		float _farPanelForClippingSpace;
 		float _fov;
-
 
 		// device input data
 		float _translationSpeed = 0.1;
