@@ -5,6 +5,8 @@
 // Platinum Engine library
 #include <SceneManager/HierarchyWindow.h>
 #include <Logger/Logger.h>
+#include "ComponentComposition/TransformComponent.h"
+#include "ComponentComposition/RenderComponent.h"
 
 namespace PlatinumEngine
 {
@@ -89,6 +91,12 @@ namespace PlatinumEngine
 					}
 				}
 			}
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MeshPathPayload"))
+			{
+				char* payloadPointer = (char*)payload->Data;
+				int size = payload->DataSize;
+				std::cout<<"SIZE: "<<size<<std::endl;
+			}
 
 			// End DragDropTarget
 			ImGui::EndDragDropTarget();
@@ -163,15 +171,29 @@ namespace PlatinumEngine
 				// Check payload and update the parent of the dropped game object node
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Demo"))
 				{
-
 					GameObject* payloadPointer = *(GameObject**)payload->Data;
-
 					// check move behavior mode
 					// if the mode is to change hierarchy between game objects
 					if (modeForDraggingBehavior == _hierarchyMode)
 					{
 						// change the dragged object's parent
 						payloadPointer->SetParent(nullptr, scene);
+					}
+				}
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
+				{
+					char* payloadPointer = (char*)payload->Data;
+					int size = payload->DataSize;
+					std::string filePath = "";
+					for(int i=0;i<size;i++)
+						filePath+=*(payloadPointer+i);
+					std::filesystem::path payloadPath = std::filesystem::path(filePath);
+					if(payloadPath.extension()==".obj")
+					{
+						std::string name = payloadPath.stem().string();
+						GameObject* go = scene.AddGameObject(name);
+						scene.AddComponent<TransformComponent>(go);
+						scene.AddComponent<RenderComponent>(go);
 					}
 				}
 			}

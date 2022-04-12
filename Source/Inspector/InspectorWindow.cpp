@@ -91,24 +91,24 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 
 		// show text box (read only)
 		ImGui::InputText("##Mesh Name",meshBuffer,sizeof(meshBuffer), ImGuiInputTextFlags_ReadOnly);
+		//Enables DragDrop for TextBox
 		if (ImGui::BeginDragDropTarget())
 		{
-			//Accept Mesh's filepath
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MeshPathPayload"))
+			//Accept any regular file (but it will check if it is mesh or not)
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
 			{
 				char* payloadPointer = (char*)payload->Data;
 				int size = payload->DataSize;
-
-				//TESTING
-				std::cout<<"SIZE: "<<size<<"\n";
+				std::string filePath = "";
 				for(int i=0;i<size;i++)
+					filePath+=*(payloadPointer+i);
+				std::filesystem::path payloadPath = std::filesystem::path(filePath);
+				if(payloadPath.extension()==".obj")
 				{
-					std::cout<<*(payloadPointer+i);
+					std::cout<<"NAME: "<<payloadPath.filename().string()<<"\n";
+					//Maybe we SetMesh on _activeGameObject
+					//_activeGameObject->GetComponent<RenderComponent>()->SetMesh(mesh);
 				}
-				std::cout<<std::endl;
-
-				//Maybe we SetMesh on _activeGameObject
-				//_activeGameObject->GetComponent<RenderComponent>()->SetMesh(mesh);
 			}
 			// End DragDropTarget
 			ImGui::EndDragDropTarget();

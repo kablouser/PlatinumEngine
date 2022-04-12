@@ -23,6 +23,7 @@ namespace PlatinumEngine
 
 	private:
 		void ShowTreeNode(std::filesystem::path dir);
+		void DragDropMoveRegularFile(std::filesystem::path dir, const ImGuiPayload* payload);
 
 	private:
 		std::string _parentFolder = "./Assets";
