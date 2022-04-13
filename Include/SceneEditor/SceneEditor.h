@@ -41,7 +41,7 @@ namespace PlatinumEngine
 		/**
 		 * Update data in Scene Editor
 		 */
-		void Update(ImVec2 targetSize, ImGuizmo::MODE currentGizmoMode);
+		void Update(ImVec2 targetSize, ImGuizmo::MODE, ImGuizmo::OPERATION);
 
 		/**
 		 * Function to detect which object shown in scene editor is selected
@@ -95,7 +95,7 @@ namespace PlatinumEngine
 		 * @param matrix
 		 * @param editTransformDecomposition
 		 */
-		void UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE);
+		void UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE, ImGuizmo::OPERATION);
 	private:
 
 		// ___PARAMETERS___
@@ -106,14 +106,14 @@ namespace PlatinumEngine
 		float _snap[3];
 		float _bounds[6];
 		float _boundsSnap[3];
-		float _fakeVeiwMatrix[16];
+		//float _fakeVeiwMatrix[16];
 
 		bool _useSnap;
 		bool _boundSizing;
 		bool _boundSizingSnap;
 
 		ImGuizmo::MODE _currentGizmoMode;
-
+		ImGuizmo::OPERATION _currentGizmoOperation;
 		// Flags
 		bool _ifCameraSettingWindowOpen;
 		enum ClickedZoneType{RenderingZone, GizmoZone, NoZoneClicked};
