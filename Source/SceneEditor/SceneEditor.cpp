@@ -5,7 +5,6 @@
 #include <SceneEditor/SceneEditor.h>
 #include <imgui.h>
 #include <imgui_internal.h>
-static ImGuizmo::OPERATION currentGizmoOperation(ImGuizmo::TRANSLATE);
 
 namespace PlatinumEngine{
 	// ___CONSTRUCTOR___
@@ -29,11 +28,11 @@ namespace PlatinumEngine{
 			_boundSizingSnap(false),
 
 			_currentGizmoMode(ImGuizmo::LOCAL),
+			_currentGizmoOperation(ImGuizmo::TRANSLATE),
 
 			_snap{ 1.f, 1.f, 1.f },
 			_bounds{-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f},
 			_boundsSnap{ 0.1f, 0.1f, 0.1f },
-			_fakeVeiwMatrix{},
 
 			_currentClickedZone()
 	{
@@ -62,13 +61,13 @@ namespace PlatinumEngine{
 		if (ImGui::Begin(ICON_KI_MOVIE " Scene Editor", outIsOpen))
 		{
 			if(ImGui::IsKeyPressed(GLFW_KEY_Q))
-				currentGizmoOperation = ImGuizmo::TRANSLATE;
+				_currentGizmoOperation = ImGuizmo::TRANSLATE;
 			if(ImGui::IsKeyPressed(GLFW_KEY_W))
-				currentGizmoOperation = ImGuizmo::ROTATE;
+				_currentGizmoOperation = ImGuizmo::ROTATE;
 			if(ImGui::IsKeyPressed(GLFW_KEY_E))
-				currentGizmoOperation = ImGuizmo::SCALE;
+				_currentGizmoOperation = ImGuizmo::SCALE;
 			if(ImGui::IsKeyPressed(GLFW_KEY_R))
-				currentGizmoOperation = ImGuizmo::UNIVERSAL;
+				_currentGizmoOperation = ImGuizmo::UNIVERSAL;
 			//-----------
 			// Widgets
 			//-----------
@@ -81,21 +80,21 @@ namespace PlatinumEngine{
 			}
 			//ImGuizmo
 			ImGui::SameLine();
-			if (ImGui::RadioButton("Translate", currentGizmoOperation == ImGuizmo::TRANSLATE))
-				currentGizmoOperation = ImGuizmo::TRANSLATE;
+			if (ImGui::RadioButton("Translate", _currentGizmoOperation == ImGuizmo::TRANSLATE))
+				_currentGizmoOperation = ImGuizmo::TRANSLATE;
 			ImGui::SameLine();
-			if (ImGui::RadioButton("Rotate", currentGizmoOperation == ImGuizmo::ROTATE))
-				currentGizmoOperation = ImGuizmo::ROTATE;
+			if (ImGui::RadioButton("Rotate", _currentGizmoOperation == ImGuizmo::ROTATE))
+				_currentGizmoOperation = ImGuizmo::ROTATE;
 			ImGui::SameLine();
-			if (ImGui::RadioButton("Scale", currentGizmoOperation == ImGuizmo::SCALE))
-				currentGizmoOperation = ImGuizmo::SCALE;
+			if (ImGui::RadioButton("Scale", _currentGizmoOperation == ImGuizmo::SCALE))
+				_currentGizmoOperation = ImGuizmo::SCALE;
 			ImGui::SameLine();
-			if (ImGui::RadioButton("Universal", currentGizmoOperation == ImGuizmo::UNIVERSAL))
-				currentGizmoOperation = ImGuizmo::UNIVERSAL;
+			if (ImGui::RadioButton("Universal", _currentGizmoOperation == ImGuizmo::UNIVERSAL))
+				_currentGizmoOperation = ImGuizmo::UNIVERSAL;
 
 			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 130.f);
 
-			if (currentGizmoOperation != ImGuizmo::SCALE)
+			if (_currentGizmoOperation != ImGuizmo::SCALE)
 			{
 				if (ImGui::RadioButton("Local", _currentGizmoMode == ImGuizmo::LOCAL))
 					_currentGizmoMode = ImGuizmo::LOCAL;
@@ -185,7 +184,7 @@ namespace PlatinumEngine{
 				//------------------
 				// Update Data
 				//------------------
-				Update(targetSize, _currentGizmoMode);
+				Update(targetSize, _currentGizmoMode, _currentGizmoOperation);
 			}
 			ImGui::EndChild();
 		}
@@ -197,33 +196,32 @@ namespace PlatinumEngine{
 
 
 
-	void SceneEditor::Update(ImVec2 targetSize, ImGuizmo::MODE currentGizmoMode)
+	void SceneEditor::Update(ImVec2 targetSize, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
 	{
 		//--------------------------------------
 		// check if mouse is inside the screen
 		//--------------------------------------
-
-		if(_inputManager->GetMousePosition().x <= targetSize.x
-				&& _inputManager->GetMousePosition().x >= 0.f
-				&& _inputManager->GetMousePosition().y <= targetSize.y
-				&& _inputManager->GetMousePosition().y >= 0.f)
+	if(!ImGuizmo::IsUsing())
+	{
+		if (_inputManager->GetMousePosition().x <= targetSize.x
+			&& _inputManager->GetMousePosition().x >= ImGui::GetWindowPos().x
+			&& _inputManager->GetMousePosition().y <= targetSize.y
+			&& _inputManager->GetMousePosition().y >= ImGui::GetWindowPos().y)
 		{
 			//---------------------
 			// update view matrix
 			//---------------------
 
 			// check mouse click to do rotation and translation
-			if (_mouseButtonType == 0 ) // for rotation
-			{
-
-				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
-
-			}
-			else if (_mouseButtonType == 1)// translation (up down left right)
+			if (_mouseButtonType == 0)// translation (up down left right)
 			{
 
 				_camera.TranslationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
 
+			}
+			else if (_mouseButtonType == 1) // for rotation
+			{
+				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
 			}
 
 			// check this is for moving camera closer/further
@@ -233,7 +231,7 @@ namespace PlatinumEngine{
 			}
 
 		}
-
+	}
 		// check if there is any keyboard input
 		if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
 			_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
@@ -304,12 +302,12 @@ namespace PlatinumEngine{
 			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize, ImVec2(0, 1), ImVec2(1, 0));
 
 			// display gizmos
-			UseGizmo(_camera.viewMatrix4.matrix, _camera.projectionMatrix4.matrix, currentGizmoMode);
+			UseGizmo(_camera.viewMatrix4.matrix, _camera.projectionMatrix4.matrix, currentGizmoMode, currentGizmoOperation);
 		}
 
 	}
 
-	void SceneEditor::UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE currentGizmoMode)
+	void SceneEditor::UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
 	{
 		Maths::Mat4 identityMatrix(1);
 
@@ -328,10 +326,10 @@ namespace PlatinumEngine{
 
 
 		// don't want the view manipulate gizmo to change the view matrix, so use this to avoid that.
-		memcpy(_fakeVeiwMatrix,cameraView,sizeof(float) * 16);
+		//memcpy(_fakeVeiwMatrix,cameraView,sizeof(float) * 16);
 
 		// view manipulate gizmo
-		ImGuizmo::ViewManipulate(_fakeVeiwMatrix, sqrt(LengthSquared(_camera.GetForwardDirection())), ImVec2(viewManipulateRight - 100, viewManipulateTop),
+		ImGuizmo::ViewManipulate(cameraView, sqrt(LengthSquared(_camera.GetForwardDirection())), ImVec2(viewManipulateRight - 100, viewManipulateTop),
 				ImVec2(100, 100), 0x10101010);
 
 		// grid
