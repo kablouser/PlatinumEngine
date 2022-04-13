@@ -79,7 +79,7 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 		if (dir != _ignoreDatabaseName)
 		{
 			// A path is a leaf of a tree (i.e. it cannot be expanded)
-			ImGui::TreeNodeEx(dir.filename().c_str(), flags | ImGuiTreeNodeFlags_Leaf);
+			ImGui::TreeNodeEx(dir.filename().string().c_str(), flags | ImGuiTreeNodeFlags_Leaf);
 			ImGui::TreePop();
 		}
 	}
