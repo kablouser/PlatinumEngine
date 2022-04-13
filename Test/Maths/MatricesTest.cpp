@@ -518,5 +518,65 @@ TEST_CASE("MatrixPreset", "[maths][matrices][vector]")
 }
 
 
+TEST_CASE("Test inverse and transpose functions")
+{
+	GIVEN("Two Mat3 and Mat4 variables.")
+	{
+		PlatinumEngine::Maths::Mat3 mat31;
+		mat31.SetRotationMatrix(PlatinumEngine::Maths::Vec3(3.14/6.f, 0.f, 0.f));
+		PlatinumEngine::Maths::Mat3 mat32;
+		mat32.SetRotationMatrix(PlatinumEngine::Maths::Vec3(3.14/6.f, 0.f, 0.f));
+		PlatinumEngine::Maths::Mat4 mat41;
+		mat41.SetRotationMatrix(PlatinumEngine::Maths::Vec3(3.14/6.f, 0.f, 0.f));
+		PlatinumEngine::Maths::Mat4 mat42;
+		mat42.SetRotationMatrix(PlatinumEngine::Maths::Vec3(3.14/6.f, 0.f, 0.f));
+
+		THEN("Apply inverse functions")
+		{
+
+			PlatinumEngine::Maths::Mat3 inverseMatrix3 = PlatinumEngine::Maths::Inverse(mat31);
+			mat32.Inverse();
+
+			std::cout<<mat31<<std::endl;
+			std::cout<<inverseMatrix3<<std::endl;
+			std::cout<<mat32<<std::endl;
+
+
+
+			PlatinumEngine::Maths::Mat4 inverseMatrix4 = PlatinumEngine::Maths::Inverse(mat41);
+			mat42.Inverse();
+
+			std::cout<<mat41<<std::endl;
+			std::cout<<inverseMatrix4<<std::endl;
+			std::cout<<mat42<<std::endl;
+
+		}
+
+		THEN("Apply transpose functions")
+		{
+
+			PlatinumEngine::Maths::Mat3 inverseMatrix3 = PlatinumEngine::Maths::Transpose(mat31);
+			mat32.Transpose();
+
+			std::cout<<mat31<<std::endl;
+			std::cout<<inverseMatrix3<<std::endl;
+			std::cout<<mat32<<std::endl;
+
+
+
+			PlatinumEngine::Maths::Mat4 inverseMatrix4 = PlatinumEngine::Maths::Transpose(mat41);
+			mat42.Transpose();
+
+			std::cout<<mat41<<std::endl;
+			std::cout<<inverseMatrix4<<std::endl;
+			std::cout<<mat42<<std::endl;
+
+		}
+
+	}
+
+}
+
+
 
 //_______END_________

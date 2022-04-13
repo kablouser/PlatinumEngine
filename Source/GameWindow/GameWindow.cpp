@@ -4,6 +4,7 @@
 
 #include "GameWindow/GameWindow.h"
 #include <ComponentComposition/RenderComponent.h>
+#include <ComponentComposition/CameraComponent.h>
 namespace PlatinumEngine
 {
 	PlatinumEngine::GameWindow::GameWindow()
@@ -36,7 +37,7 @@ namespace PlatinumEngine
 			}
 			Render(targetSize, _scene);
 		}
-
+    
 		ImGui::End();
 	}
 
@@ -64,20 +65,44 @@ namespace PlatinumEngine
 			}
 
 			_renderTexture.Bind();
-			glEnable(GL_DEPTH_TEST);
-			glViewport(0, 0, _framebufferWidth, _framebufferHeight);
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-//			Mesh mesh(vertices, indices);
+			// must begin renderer before matrices are set
 			_renderer->Begin();
+			auto camera = _scene->FindFirstComponent<CameraComponent>();
+			if (camera)
+			{
+				glEnable(GL_DEPTH_TEST);
+				glViewport(0, 0, _framebufferWidth, _framebufferHeight);
+
+				switch (camera->clearMode)
+				{
+				case CameraComponent::ClearMode::skybox:
+					break;
+				case CameraComponent::ClearMode::backgroundColor:
+					glClearColor(
+							camera->backgroundColor.r,
+							camera->backgroundColor.g,
+							camera->backgroundColor.b,
+							camera->backgroundColor.a);
+					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+					break;
+				case CameraComponent::ClearMode::none:
+					break;
+				}
+
+				_renderer->SetViewMatrix(camera->GetViewMatrix());
+				_renderer->SetProjectionMatrix(camera->GetProjectionMatrix(
+						{(float)_framebufferWidth, (float)_framebufferHeight}));
+			}
+			else
+			{
+				PLATINUM_WARNING("Scene has no camera component. Cannot render anything.");
+			}
+
 			scene->Render(*_renderer);
 			_renderer->End();
 
 			_renderTexture.Unbind();
 			glDisable(GL_DEPTH_TEST);
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
 
 
 			// display updated framebuffer

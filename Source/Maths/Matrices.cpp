@@ -3,8 +3,12 @@
 //
 
 #include <Maths/Matrices.h>
+#include <Maths/Quaternion.h>
+#include <Maths/Common.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <iterator>
+#include <glm/gtx/quaternion.hpp>
+
 namespace PlatinumEngine
 {
 	namespace Maths
@@ -14,9 +18,9 @@ namespace PlatinumEngine
 
 			Mat4 result;
 
-			for(int i=0;i<4;i++)
+			for (int i = 0; i < 4; i++)
 			{
-				for(int j=0;j<4;j++)
+				for (int j = 0; j < 4; j++)
 				{
 
 					result[i][j] = (*this)[i][j] * scale;
@@ -37,27 +41,16 @@ namespace PlatinumEngine
 			glm::mat4x4 rightMatrix = glm::make_mat4(anotherMat4.matrix);
 			glm::mat4x4 result = leftMatrix * rightMatrix;
 
-
 			// create a new Mat4 object
-
 			Mat4 resultMat4;
-
-			// get the glm::mat4x4 array pointer
-
-			float* resultPtr = glm::value_ptr(result);
-
-			// convert the array into Mat4
-
-			resultMat4.ConvertFromArray(resultPtr, 16);
-
-			// return the final result with the type Mat4
-
+			resultMat4.ConvertFromGLM(result);
 			return resultMat4;
 		}
 
 		Vec4 Mat4::operator*(Vec4 homogeneousVector)
 		{
-			float vectorArray[] = { homogeneousVector.x, homogeneousVector.y, homogeneousVector.z, homogeneousVector.w };
+			float vectorArray[] = { homogeneousVector.x, homogeneousVector.y, homogeneousVector.z,
+									homogeneousVector.w };
 
 			glm::mat4x4 leftMatrix = glm::make_mat4(this->matrix);
 			glm::vec4 rightVector = glm::make_vec4(vectorArray);
@@ -115,13 +108,23 @@ namespace PlatinumEngine
 		Mat4& Mat4::operator=(const Mat4& otherMatrix)
 		{
 
-			if(this == & otherMatrix)
+			if (this == &otherMatrix)
 				return *this;
 
 			std::memcpy(this->matrix, otherMatrix.matrix, 16 * sizeof(float));
 
 			return (*this);
 
+		}
+
+		void Mat4::Inverse()
+		{
+			ConvertFromGLM(glm::inverse((glm::mat4)*this));
+		}
+
+		void Mat4::Transpose()
+		{
+			ConvertFromGLM(glm::transpose((glm::mat4)*this));
 		}
 
 		void Mat4::SetIdentityMatrix()
@@ -157,15 +160,14 @@ namespace PlatinumEngine
 
 			glm::quat quaternionZ(glm::vec3(0, 0, eulerAngle.z));
 
-			glm::mat4x4 rotationMat4 =
-					glm::mat4_cast(quaternionY) * glm::mat4_cast(quaternionX) * glm::mat4_cast(quaternionZ);
+			ConvertFromGLM(glm::mat4_cast(quaternionY * quaternionX * quaternionZ));
 
+		}
 
-			// convert glm::mat4 into Mat4
-			float* rotationMatrix = glm::value_ptr(rotationMat4);
-
-			this->ConvertFromArray(rotationMatrix, 16);
-
+		void Mat4::SetRotationMatrix(Quaternion quaternion)
+		{
+			ConvertFromGLM(glm::toMat4(glm::quat(
+					quaternion.w, quaternion.x, quaternion.y, quaternion.z)));
 		}
 
 		void Mat4::SetScaleMatrix(PlatinumEngine::Maths::Vec3 scale)
@@ -181,36 +183,39 @@ namespace PlatinumEngine
 
 		void Mat4::SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
 		{
-
-			glm::mat4x4 OrthogonalGLM = glm::ortho(left, right, bottom, top, zNear, zFar);
-
-			float* orthogonalMatrix = glm::value_ptr(OrthogonalGLM);
-
-			this->ConvertFromArray(orthogonalMatrix, 16);
-
+			ConvertFromGLM(glm::ortho(left, right, bottom, top, zNear, zFar));
 		}
 
 		void Mat4::SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far)
 		{
-
-			// convert glm::mat4 into Mat4
-			glm::mat4x4 frustumGLM = glm::frustum(left, right, bottom, top, near, far);
-
-			float* frustumMatrix = glm::value_ptr(frustumGLM);
-
-			this->ConvertFromArray(frustumMatrix, 16);
-
+			ConvertFromGLM(glm::frustum(left, right, bottom, top, near, far));
 		}
 
 		void Mat4::SetPerspectiveMatrix(float fovy, float aspect, float near, float far)
 		{
-			// convert glm::mat4 into Mat4
-			glm::mat4x4 frustumGLM = glm::perspective(fovy, aspect, near, far);
+			ConvertFromGLM(glm::perspective(fovy * Common::DEG2RAD, aspect, near, far));
+		}
 
-			float* frustumMatrix = glm::value_ptr(frustumGLM);
+		void Mat4::SetTRSMatrix(
+				PlatinumEngine::Maths::Vec3 translate,
+				PlatinumEngine::Maths::Quaternion rotate,
+				float scale)
+		{
+			glm::mat4x4 trs(1.0f);
+			trs = glm::translate(trs, { translate.x, translate.y, translate.z });
+			trs *= glm::toMat4(glm::quat(rotate.w, rotate.x, rotate.y, rotate.z));
+			trs = glm::scale(trs, { scale, scale, scale });
+			ConvertFromGLM(trs);
+		}
 
-			this->ConvertFromArray(frustumMatrix, 16);
+		Mat4::operator glm::mat4() const
+		{
+			return glm::make_mat4(matrix);
+		}
 
+		void Mat4::ConvertFromGLM(glm::mat4 mat4)
+		{
+			ConvertFromArray(glm::value_ptr(mat4), 16);
 		}
 
 		Mat3 Mat3::operator*(float scale)
@@ -218,9 +223,9 @@ namespace PlatinumEngine
 
 			Mat3 result;
 
-			for(int i=0;i<3;i++)
+			for (int i = 0; i < 3; i++)
 			{
-				for(int j=0;j<3;j++)
+				for (int j = 0; j < 3; j++)
 				{
 
 					result[i][j] = (*this)[i][j] * scale;
@@ -232,7 +237,7 @@ namespace PlatinumEngine
 			return result;
 
 		}
-    
+
 		Mat3 Mat3::operator*(Mat3 anotherMat3)
 		{
 
@@ -241,28 +246,15 @@ namespace PlatinumEngine
 			glm::mat3x3 rightMatrix = glm::make_mat3(anotherMat3.matrix);
 			glm::mat3x3 result = leftMatrix * rightMatrix;
 
-
 			// create a new Mat4 object
-
 			Mat3 resultMat3;
-
-			// get the glm::mat4x4 array pointer
-
-			float* resultPtr = glm::value_ptr(result);
-
-			// convert the array into Mat4
-
-			resultMat3.ConvertFromArray(resultPtr, 9);
-
-			// return the final result with the type Mat4
-
+			resultMat3.ConvertFromGLM(result);
 			return resultMat3;
-
 		}
 
 		Vec3 Mat3::operator*(Vec3 vector)
 		{
-			float vectorArray[] = { vector.x, vector.y, vector.z};
+			float vectorArray[] = { vector.x, vector.y, vector.z };
 
 			glm::mat3x3 leftMatrix = glm::make_mat3(this->matrix);
 			glm::vec3 rightVector = glm::make_vec3(vectorArray);
@@ -319,7 +311,7 @@ namespace PlatinumEngine
 		Mat3& Mat3::operator=(const Mat3& otherMatrix)
 		{
 
-			if(this == & otherMatrix)
+			if (this == &otherMatrix)
 				return *this;
 
 			std::memcpy(this->matrix, otherMatrix.matrix, 9 * sizeof(float));
@@ -328,11 +320,21 @@ namespace PlatinumEngine
 
 		}
 
+		void Mat3::Inverse()
+		{
+			ConvertFromGLM(glm::inverse((glm::mat3)*this));
+		}
+
+		void Mat3::Transpose()
+		{
+			ConvertFromGLM(glm::transpose((glm::mat3)*this));
+		}
+
 		void Mat3::SetIdentityMatrix()
 		{
 			float identityMatrix[] = { 1, 0, 0,
 									   0, 1, 0,
-									   0, 0, 1};
+									   0, 0, 1 };
 
 			this->ConvertFromArray(identityMatrix, 9);
 
@@ -347,14 +349,7 @@ namespace PlatinumEngine
 
 			glm::quat quaternionZ(glm::vec3(0, 0, eulerAngle.z));
 
-			glm::mat3x3 rotationMat3 =
-					glm::mat3_cast(quaternionY) * glm::mat3_cast(quaternionX) * glm::mat3_cast(quaternionZ);
-
-
-			// convert glm::mat4 into Mat4
-			float* rotationMatrix = glm::value_ptr(rotationMat3);
-
-			this->ConvertFromArray(rotationMatrix, 9);
+			ConvertFromGLM(glm::mat3_cast(quaternionY * quaternionX * quaternionZ));
 		}
 
 		void Mat3::SetScaleMatrix(PlatinumEngine::Maths::Vec3 scale)
@@ -364,7 +359,54 @@ namespace PlatinumEngine
 									0, 0, scale.z };
 
 			this->ConvertFromArray(scaleMatrix, 9);
-      
+
+		}
+
+		Mat3::operator glm::mat3() const
+		{
+			return glm::make_mat3(matrix);
+		}
+
+		void Mat3::ConvertFromGLM(glm::mat3 mat3)
+		{
+			this->ConvertFromArray(glm::value_ptr(mat3), 9);
+		}
+
+	}
+}
+
+
+namespace PlatinumEngine
+{
+	namespace Maths
+	{
+		Mat3 Inverse(Mat3 mat3)
+		{
+			Mat3 result;
+			result.ConvertFromGLM(glm::inverse((glm::mat3)mat3));
+			return result;
+		}
+
+		Mat3 Transpose(Mat3 mat3)
+		{
+			Mat3 result;
+			result.ConvertFromGLM(glm::transpose((glm::mat3)mat3));
+			return result;
+
+		}
+
+		Mat4 Inverse(Mat4 mat4)
+		{
+			Mat4 result;
+			result.ConvertFromGLM(glm::inverse((glm::mat4)mat4));
+			return result;
+		}
+
+		Mat4 Transpose(Mat4 mat4)
+		{
+			Mat4 result;
+			result.ConvertFromGLM(glm::transpose((glm::mat4)mat4));
+			return result;
 		}
 
 	}

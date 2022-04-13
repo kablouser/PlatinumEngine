@@ -76,14 +76,14 @@ namespace PlatinumEngine
 		 * If this component is in the scene before the game starts, it's triggered before the 1st frame of the game.
 		 * If this component is added in the middle of the game, it's triggered as soon as it's added.
 		 */
-		virtual void OnStart();
+		virtual void OnStart(Scene& scene);
 
 		/**
 		 * Event triggered when this component is removed while the game is running.
 		 * If this component is removed from the scene in the middle of the game, it's triggered as soon as it's removed.
 		 * If this component is in the scene when the game ends, it's triggered after the final frame of the game.
 		 */
-		virtual void OnEnd();
+		virtual void OnEnd(Scene& scene);
 
 		/**
 		 * Event triggered when _isEnabled state has changed to true while the game is running.
@@ -102,11 +102,26 @@ namespace PlatinumEngine
 		 */
 		virtual void OnUpdate(Scene& scene, double deltaTime);
 
-
 		/**
 		 * Event triggered every render frame. Could render when the game is not running (i.e. in the scene editor).
 		 */
 		virtual void OnRender(Scene& scene, Renderer& renderer);
+
+		//--------------------------------------------------------------------------------------------------------------
+		// Convenience functions
+		//--------------------------------------------------------------------------------------------------------------
+
+		template<class T>
+		T* GetComponent()
+		{
+			return dynamic_cast<T*>(GetComponentInternal(typeid(T)));
+		}
+
+		template<class T>
+		T* GetParentComponent()
+		{
+			return dynamic_cast<T*>(GetParentComponentInternal(typeid(T)));
+		}
 
 	private:
 
@@ -118,6 +133,10 @@ namespace PlatinumEngine
 		// Internal controls
 		//--------------------------------------------------------------------------------------------------------------
 
+		Component* GetComponentInternal(const std::type_info& typeInfo);
+
+		Component* GetParentComponentInternal(const std::type_info& typeInfo);
+
 		/* Calculates whether the current value of IsEnabledInHierarchy using this parent
 		 * relies on parent being in a valid state
 		 */
@@ -128,6 +147,5 @@ namespace PlatinumEngine
 		 * Uses scene to broadcast events when there's a change
 		 */
 		void UpdateIsEnabledInHierarchy(Scene& scene);
-
 	};
 }

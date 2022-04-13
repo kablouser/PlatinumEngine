@@ -28,7 +28,11 @@ namespace PlatinumEngine
 			  viewMatrix4(1.f),
 			  projectionMatrix4(1.f),
 			  isOrthogonal(false)
-	{}
+	{
+		// update view matrix
+		MoveCamera(PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0),
+				PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0));
+	}
 
 
 	void EditorCamera::RotationByMouse(Maths::Vec2 delta)

@@ -25,6 +25,7 @@ namespace PlatinumEngine
 		// TODO: Add specific component guis as components are created
 		void ShowMeshRenderComponent(Scene& scene);
 		void ShowTransformComponent(Scene& scene);
+		void ShowCameraComponent(Scene& scene);
 
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);
