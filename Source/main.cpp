@@ -20,7 +20,6 @@ static void GlfwErrorCallback(int error, const char* description)
 	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
 }
 
-
 int main(int, char**)
 {
 	// Setup window
@@ -86,8 +85,8 @@ int main(int, char**)
 		PlatinumEngine::HierarchyWindow hierarchyWindow;
 		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper);
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
-		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler);
-
+		PlatinumEngine::ProjectWindow projectWindow;
+		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler, &projectWindow);
 
 		// Main loop
 		while (!glfwWindowShouldClose(window))
