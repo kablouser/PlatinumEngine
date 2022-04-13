@@ -2,11 +2,13 @@
 # Initialising stuff
 #-----------------------------
 cmake_minimum_required(VERSION 3.21)
-project(PlatinumEngine VERSION 0.0.1)
-set(CMAKE_CXX_STANDARD 14)
+project(PlatinumEngine VERSION 0.0.2)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
 # static libraries please
 set(BUILD_SHARED_LIBS FALSE)
+# make executable run in project's root directory
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 # FetchContent to fetch git repos remotely
 include(FetchContent)
 # enable CTest
@@ -29,9 +31,15 @@ FetchContent_MakeAvailable(imgui)
 add_subdirectory("ImGui CMake")
 #-----------------------------
 # ImGuiFileDialog
-FetchContent_Declare(imguifiledialog GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog.git GIT_TAG v0.6.3)
+add_compile_definitions(USE_BOOKMARK)
+FetchContent_Declare(imguifiledialog GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog.git GIT_TAG v0.6.4)
 FetchContent_MakeAvailable(imguifiledialog)
 include_directories(${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src)
+#-----------------------------
+# Immediate Mode Plotting (implot)
+FetchContent_Declare(implot GIT_REPOSITORY https://github.com/epezent/implot.git GIT_TAG v0.13)
+FetchContent_MakeAvailable(implot)
+add_subdirectory("ImPlot CMake")
 #-----------------------------
 # GLM
 FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git GIT_TAG 0.9.9.8)
@@ -69,7 +77,10 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	# order by folder structure
 
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
-
+	
+	"Source/AssetDatabase/AssetDatabase.cpp;"
+	"Source/AssetDatabase/AssetHelper.cpp;"
+	
 	"Source/ComponentComposition/CameraComponent.cpp;"
 	"Source/ComponentComposition/Color.cpp;"
 	"Source/ComponentComposition/Component.cpp;"
@@ -102,6 +113,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/ShaderProgram.cpp;"
 	"Source/OpenGL/Texture.cpp;"
 	
+	"Source/Profiler/Profiler.cpp;"
+	
 	"Source/Renderer/Renderer.cpp;"
 	
 	"Source/SceneEditor/EditorCamera.cpp;"
@@ -118,7 +131,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 
 
-target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts")
 #-----------------------------
 
 
@@ -148,6 +161,7 @@ set(PROJECT_LIBRARIES
 	# CMake is so stupid
 	"glfw;"
 	"imgui;"
+	"implot;"
 	"glm;"
 	"assimp;"
 	"libglew_static;"

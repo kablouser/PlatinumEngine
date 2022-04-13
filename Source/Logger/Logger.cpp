@@ -7,7 +7,7 @@
 #include <sstream>
 // for displaying gui controls
 #include <imgui.h>
-
+#include <IconsKenney.h>
 namespace
 {
 	// Static here make this only visible inside this source file
@@ -17,7 +17,6 @@ namespace
 
 	static void LogInConsole(const char* messageType, const char* message, const char* file, unsigned int line,
 			PlatinumEngine::Logger::LogType type)
-
 	{
 		// stringbuilder
 		std::ostringstream outputStringStream;
@@ -124,40 +123,40 @@ namespace PlatinumEngine
 
 	void Logger::ShowGUIWindow(bool* isOpen)
 	{
-		ImGui::Begin("Logger", isOpen);
+		if(ImGui::Begin(ICON_KI_EXCLAMATION_TRIANGLE " Logger", isOpen))
+		{
+			if (ImGui::Button("Clear"))
+				savedLogs.clear();
+			ImGui::SameLine();
+			bool isCheckboxClicked = ImGui::Checkbox("Scroll to bottom", &_scrollToBottom);
 
-		if (ImGui::Button("Clear"))
-			savedLogs.clear();
-		ImGui::SameLine();
-		bool isCheckboxClicked = ImGui::Checkbox("Scroll to bottom", &_scrollToBottom);
+			ImGui::Separator();
 
-		ImGui::Separator();
+			ImGui::BeginChild("scrolling");
+			// make InputText background clear
+			ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(0, 0, 0, 0));
+			// make InputText label go away
+			ImGui::PushItemWidth(-1);
 
-		ImGui::BeginChild("scrolling");
-		// make InputText background clear
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(0, 0, 0, 0));
-		// make InputText label go away
-		ImGui::PushItemWidth(-1);
+			for (size_t i = 0; i < savedLogs.size(); ++i)
+				ImGui::InputText(
+						savedLogs[i].uniqueID.c_str(),
+						&savedLogs[i].message[0],
+						savedLogs[i].message.size() + 1,
+						ImGuiInputTextFlags_ReadOnly);
+			// check if user tried to scroll, but not when checkbox is clicked
+			if (ImGui::GetScrollY() != ImGui::GetScrollMaxY() && !isCheckboxClicked)
+				// let user scroll around
+				_scrollToBottom = false;
 
-		for(size_t i = 0; i < savedLogs.size(); ++i)
-			ImGui::InputText(
-					savedLogs[i].uniqueID.c_str(),
-					&savedLogs[i].message[0],
-					savedLogs[i].message.size() + 1,
-					ImGuiInputTextFlags_ReadOnly);
-		// check if user tried to scroll, but not when checkbox is clicked
-		if(ImGui::GetScrollY() != ImGui::GetScrollMaxY() && !isCheckboxClicked)
-			// let user scroll around
-			_scrollToBottom = false;
+			if (_scrollToBottom)
+				ImGui::SetScrollHereY(1.0f);
 
-		if (_scrollToBottom)
-			ImGui::SetScrollHereY(1.0f);
-
-		// restore settings
-		ImGui::PopItemWidth();
-		ImGui::PopStyleColor();
-		ImGui::EndChild();
-
+			// restore settings
+			ImGui::PopItemWidth();
+			ImGui::PopStyleColor();
+			ImGui::EndChild();
+		}
 		ImGui::End();
 	}
 

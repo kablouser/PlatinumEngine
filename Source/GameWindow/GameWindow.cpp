@@ -23,20 +23,21 @@ namespace PlatinumEngine
 
 	void PlatinumEngine::GameWindow::ShowGuiWindow(bool* outIsOpen)
 	{
-		if(ImGui::Begin("Game View", outIsOpen))
+		if(ImGui::Begin(ICON_KI_GAMEPAD " Game View", outIsOpen))
 		{
 			auto targetSize = ImGui::GetContentRegionAvail();
-			_mouseButtonType = _inputManager->GetMouseDown();
-			_mouseMoveDelta = _inputManager->GetMouseMoveVector();
-			_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
 
 			if(_onUpdate && _onPlay)
 			{
+				//_mouseButtonType = _inputManager->GetMouseDown();
+				//_mouseMoveDelta = _inputManager->GetMouseMoveVector();
+				//_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
 				double deltaTime = glfwGetTime() - _previousTime;
 				Update(deltaTime);
 			}
 			Render(targetSize, _scene);
 		}
+    
 		ImGui::End();
 	}
 

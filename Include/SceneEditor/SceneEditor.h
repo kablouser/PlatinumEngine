@@ -10,7 +10,7 @@
 #include <SceneManager/Scene.h>
 #include <OpenGL/Framebuffer.h>
 #include <InputManager/InputManager.h>
-
+#include <IconsKenney.h>
 namespace PlatinumEngine
 {
 	class SceneEditor

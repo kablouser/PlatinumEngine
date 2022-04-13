@@ -2,7 +2,7 @@
 // for checking errors
 #include <OpenGL/GLCheck.h>
 // for printing errors
-#include <iostream>
+#include <Logger/Logger.h>
 
 namespace PlatinumEngine
 {
@@ -44,7 +44,7 @@ namespace PlatinumEngine
 		GLenum status;
 		GL_CHECK(status = glCheckFramebufferStatus(GL_FRAMEBUFFER));
 		if (status != GL_FRAMEBUFFER_COMPLETE)
-			std::cerr << "Framebuffer not complete!" << std::endl;
+			PLATINUM_WARNING("Framebuffer not complete!");
 
 		// reset global state
 		GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));

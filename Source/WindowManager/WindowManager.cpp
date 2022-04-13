@@ -9,18 +9,19 @@
 
 namespace PlatinumEngine
 {
-	WindowManager::WindowManager(GameWindow* gameWindow,
+	WindowManager::WindowManager(GameWindow *gameWindow,
 								SceneEditor *sceneEditor,
 								HierarchyWindow *hierarchy,
 								Logger *logger,
-								InspectorWindow *inspector
+								InspectorWindow *inspector,
+								Profiler *profiler
 								):
 								_gameWindow(gameWindow),
 								_sceneEditor(sceneEditor),
 								_hierarchy(hierarchy),
 								_logger(logger),
-								_inspector(inspector)
-
+								_inspector(inspector),
+								_profiler(profiler)
 	{
 
 	}
@@ -43,7 +44,8 @@ namespace PlatinumEngine
 		if (_showWindowAnimation) 		ShowWindowAnimation(&_showWindowAnimation);
 		if (_showWindowAudio) 			ShowWindowAudio(&_showWindowAudio);
 		if (_showWindowLight) 			ShowWindowLight(&_showWindowLight);
-		if (_showLogger)   				ShowLogger(&_showLogger);
+		if (_showWindowLogger)   		ShowWindowLogger(&_showWindowLogger);
+		if(_showWindowProfiler) 		ShowWindowProfiler(&_showWindowProfiler);
 		if (_showFileLoad) 				LoadFile();
 		if (_showFileSave) 				SaveFile();
 
@@ -89,30 +91,7 @@ namespace PlatinumEngine
 			///---------------------------------------------------------------
 			if (ImGui::BeginMenu("Window"))
 			{
-				if (ImGui::MenuItem("Game", "Ctrl+1", &_showWindowGame))
-				{
-					ShowWindowGame(&_showWindowGame);
-				}
-				if (ImGui::MenuItem("Hierarchy", "Ctrl+2", &_showWindowHierarchy))
-				{
-					ShowWindowHierarchy(&_showWindowHierarchy, scene);
-				}
-				if (ImGui::MenuItem("Inspector", "Ctrl+3", &_showWindowInspector))
-				{
-					ShowWindowInspector(&_showWindowInspector, scene);
-				}
-				if (ImGui::MenuItem("Project", "Ctrl+4", &_showWindowProject))
-				{}
-				if (ImGui::MenuItem("Scene", "Ctrl+5", &_showWindowScene))
-				{
-					ShowWindowScene(&_showWindowScene);
-				}
-				if (ImGui::MenuItem("Animation", "Ctrl+6", &_showWindowAnimation))
-				{}
-				if (ImGui::MenuItem("Audio", "Ctrl+7", &_showWindowAudio))
-				{}
-				if (ImGui::MenuItem("Lighting", "Ctrl+8", &_showWindowLight))
-				{}
+				ShowMenuWindow(scene);
 				ImGui::EndMenu();
 			}
 
@@ -121,7 +100,7 @@ namespace PlatinumEngine
 			///------------------------------------------------------------------
 			/// This section is for main menu bar to control the game view play/pause/step
 			///------------------------------------------------------------------
-			if (ImGui::Button("Play"))
+			if (ImGui::Button(ICON_KI_CARET_RIGHT "##Play"))
 			{
 				_gameWindow->_onUpdate = !_gameWindow->_onUpdate;
 				if(_gameWindow->_onUpdate)
@@ -136,12 +115,13 @@ namespace PlatinumEngine
 
   			// activate or inactive pause and step button
 			ImGui::BeginDisabled(enablePauseButton);
-			if (ImGui::Button("Pause"))
+			if (ImGui::Button(ICON_KI_PAUSE "##Pause"))
 			{
 				_pause = !_pause;
 				_gameWindow->Pause(_pause);
 			}
-			if (ImGui::Button("Step"))
+
+			if (ImGui::Button(ICON_KI_STEP_FORWARD "##Step"))
 			{
 				if(!_pause)
 					_pause = true;
@@ -246,7 +226,46 @@ namespace PlatinumEngine
 		{}
 	}
 
-
+	void WindowManager::ShowMenuWindow(Scene &scene)
+	{
+		if (ImGui::MenuItem("Game", "Ctrl+1", &_showWindowGame))
+		{
+			ShowWindowGame(&_showWindowGame);
+		}
+		if (ImGui::MenuItem("Hierarchy", "Ctrl+2", &_showWindowHierarchy))
+		{
+			ShowWindowHierarchy(&_showWindowHierarchy, scene);
+		}
+		if (ImGui::MenuItem("Inspector", "Ctrl+3", &_showWindowInspector))
+		{
+			ShowWindowInspector(&_showWindowInspector, scene);
+		}
+		if (ImGui::MenuItem("Project", "Ctrl+4", &_showWindowProject))
+		{}
+		if (ImGui::MenuItem("Scene", "Ctrl+5", &_showWindowScene))
+		{
+			ShowWindowScene(&_showWindowScene);
+		}
+		if (ImGui::MenuItem("Animation", "Ctrl+6", &_showWindowAnimation))
+		{}
+		if (ImGui::MenuItem("Audio", "Ctrl+7", &_showWindowAudio))
+		{}
+		if (ImGui::MenuItem("Lighting", "Ctrl+8", &_showWindowLight))
+		{}
+		ImGui::Separator();
+		if(ImGui::BeginMenu("Analysis"))
+		{
+			if(ImGui::MenuItem("Profiler", "", &_showWindowProfiler))
+			{
+				ShowWindowProfiler(&_showWindowProfiler);
+			}
+			if(ImGui::MenuItem("Logger", "", &_showWindowLogger))
+			{
+				ShowWindowLogger(&_showWindowLogger);
+			}
+			ImGui::EndMenu();
+		}
+	}
 	///--------------------------------------------------------------------------
 	///   ---                                                               ---
 	///   | Section: Please implement GUI in the corresponding function below |
@@ -311,9 +330,14 @@ namespace PlatinumEngine
 		_hierarchy->ShowGUIWindow(outIsOpen, scene);
 	}
 
-	void WindowManager::ShowLogger(bool* outIsOpen)
+	void WindowManager::ShowWindowLogger(bool* outIsOpen)
 	{
 		_logger->ShowGUIWindow(outIsOpen);
+	}
+
+	void WindowManager::ShowWindowProfiler(bool* outIsOpen)
+	{
+		_profiler->ShowGUIWindow(outIsOpen);
 	}
 
 

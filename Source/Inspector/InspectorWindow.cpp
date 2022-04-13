@@ -7,45 +7,47 @@
 
 using namespace PlatinumEngine;
 
+InspectorWindow::InspectorWindow(AssetHelper* assetHelper):_assetHelper(assetHelper) {}
 void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 {
-	ImGui::Begin("Inspector Window", isOpen);
-
-	if (_activeGameObject)
+	if(ImGui::Begin(ICON_FA_CIRCLE_INFO " Inspector Window", isOpen))
 	{
-		ImGui::Text("Name: ");
-		ImGui::SameLine();
-		static char objectNameBuffer[128];
-		strcpy(objectNameBuffer, _activeGameObject->name.c_str());
-		ImGui::InputText("##input name", objectNameBuffer, IM_ARRAYSIZE(objectNameBuffer));
-		_activeGameObject->name = std::string{objectNameBuffer};
-
-		ImGui::SameLine();
-
-		if (ImGui::Checkbox("##IsEnabled", &_isObjectEnabled))
+		if (_activeGameObject)
 		{
-			_activeGameObject->SetEnabled(_isObjectEnabled, scene);
-		}
+			ImGui::Text("Name: ");
+			ImGui::SameLine();
+			static char objectNameBuffer[128];
+			strcpy(objectNameBuffer, _activeGameObject->name.c_str());
+			ImGui::InputText("##input name", objectNameBuffer, IM_ARRAYSIZE(objectNameBuffer));
+			_activeGameObject->name = std::string{ objectNameBuffer };
 
-		// Now render each component gui
-		if (_activeGameObject->GetComponent<RenderComponent>() != nullptr)
-			ShowMeshRenderComponent(scene);
+			ImGui::SameLine();
 
-		if (_activeGameObject->GetComponent<TransformComponent>() != nullptr)
-			ShowTransformComponent(scene);
+			if (ImGui::Checkbox("##IsEnabled", &_isObjectEnabled))
+			{
+				_activeGameObject->SetEnabled(_isObjectEnabled, scene);
+			}
 
-		if (_activeGameObject->GetComponent<CameraComponent>())
-			ShowCameraComponent(scene);
+			// Now render each component gui
+			if (_activeGameObject->GetComponent<RenderComponent>() != nullptr)
+				ShowMeshRenderComponent(scene);
 
-		ImGui::Separator();
-		if (_isAddComponentWindowOpen)
-			ShowAddComponent(scene);
+			if (_activeGameObject->GetComponent<TransformComponent>() != nullptr)
+				ShowTransformComponent(scene);
 
-		if (ImGui::Button("Add Component")) {
-			_isAddComponentWindowOpen = !_isAddComponentWindowOpen;
+		  if (_activeGameObject->GetComponent<CameraComponent>())
+			  ShowCameraComponent(scene);
+
+		  ImGui::Separator();
+		  if (_isAddComponentWindowOpen)
+			  ShowAddComponent(scene);
+
+			if (ImGui::Button("Add Component"))
+			{
+				_isAddComponentWindowOpen = !_isAddComponentWindowOpen;
+			}
 		}
 	}
-
 	ImGui::End();
 }
 
@@ -62,8 +64,9 @@ void InspectorWindow::SetActiveGameObject(GameObject* gameObject)
 
 void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 {
+
 	ImGui::Separator();
-	static char meshBuffer[128];
+	char meshBuffer[64];
 	bool isHeaderOpen = ImGui::CollapsingHeader("Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
@@ -76,24 +79,30 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 	{
 		ImGui::Text("Mesh");
 		ImGui::SameLine();
-		ImGui::InputText("##Mesh Name",meshBuffer,64);
+		ImGui::PushItemWidth(160.0f);
+
+		// store the current mesh name into mesh buffer, so that we can display it in the input text box
+		if(_activeGameObject->GetComponent<RenderComponent>()->GetMesh() != nullptr)
+			strcpy(meshBuffer,  _activeGameObject->GetComponent<RenderComponent>()->GetMesh()->fileName.c_str());
+		else
+			memset(meshBuffer, 0, 64 * sizeof(char));
+
+		// show text box (read only)
+		ImGui::InputText("##Mesh Name",meshBuffer,sizeof(meshBuffer), ImGuiInputTextFlags_ReadOnly);
+		ImGui::PopItemWidth();
 		ImGui::SameLine();
+
 		if(ImGui::Button("Choose mesh"))
 		{
-			// TODO: When file manager added, use file manager to select a mesh
-			ImGuiFileDialog::Instance()->OpenDialog("getFileName","Choose Mesh",".obj",".");
+			ImGui::OpenPopup("Select Mesh");
 		}
-	}
 
-	if(ImGuiFileDialog::Instance()->Display("getFileName", ImGuiWindowFlags_NoCollapse, FileDialog::MIN_SIZE, FileDialog::MAX_SIZE))
-	{
-		if(ImGuiFileDialog::Instance()->IsOk())
+		auto asset_Helper = _assetHelper->ShowGuiWindow();
+		if(std::get<0>(asset_Helper) == true)
 		{
-			_meshFileName = ImGuiFileDialog ::Instance()->GetCurrentFileName();
+			_activeGameObject->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
 		}
-		ImGuiFileDialog::Instance()->Close();
 	}
-	strncpy(meshBuffer, _meshFileName.c_str(), sizeof(meshBuffer));
 }
 
 void InspectorWindow::ShowTransformComponent(Scene& scene)
