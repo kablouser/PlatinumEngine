@@ -65,6 +65,10 @@ Vec4& Vec4::operator/=(const float t)
 Vec3::Vec3() : glm::vec3(0.0f, 0.0f, 0.0f) {}
 Vec3::Vec3(const float x, const float y, const float z) : glm::vec3(x, y, z) {}
 
+Vec3 Vec3::forward = Vec3(0,0,1);
+Vec3 Vec3::up = Vec3(0,1,0);
+Vec3 Vec3::right = Vec3(1,0,0);
+
 namespace PlatinumEngine
 {
 	namespace Maths

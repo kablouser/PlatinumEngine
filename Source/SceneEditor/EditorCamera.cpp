@@ -34,6 +34,7 @@ namespace PlatinumEngine
 	{}
 
 
+
 	void EditorCamera::RotationByMouse(Maths::Vec2 delta)
 	{
 		// update euler angles

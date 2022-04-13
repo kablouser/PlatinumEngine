@@ -3,8 +3,6 @@ namespace PlatinumEngine
 {
 	LightComponent::LightComponent()
 	{}
-	CameraComponent::CameraComponent()
-	{}
 
 
 }

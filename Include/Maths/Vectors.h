@@ -75,6 +75,10 @@ namespace PlatinumEngine {
 		 */
 		class Vec3 : public glm::vec3 {
 		public:
+			static Vec3 forward;
+			static Vec3 up;
+			static Vec3 right;
+		public:
 			Vec3();
 			Vec3(float x, float y, float z);
 			Vec3 operator-() const;

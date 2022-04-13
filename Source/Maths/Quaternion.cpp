@@ -1,16 +1,34 @@
 #include <Maths/Quaternion.h>
+#include <Maths/Common.h>
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/quaternion.hpp"
+
 namespace PlatinumEngine
 {
 	namespace Maths
 	{
-		Quaternion::Quaternion(): x(0.f), y(0.f), z(0.f), w(1.f)
+		Quaternion::Quaternion():w(0.f), x(0.f), y(0.f), z(0.f)
 		{
 		}
-
-		Quaternion::Quaternion(float x, float y, float z, float w): x(x), y(y), z(z), w(w)
+		Quaternion::Quaternion(float w, float x, float y, float z): w(w), x(x), y(y), z(z)
 		{
 		}
-
+		Quaternion::Quaternion(float pitch, float yaw, float roll)
+		{
+			Quaternion q = EulerToQuaternion(Vec3(pitch,yaw,roll)*Common::DEG2RAD);
+			x = q.x;
+			y = q.y;
+			z = q.z;
+			w = q.w;
+		}
+		Quaternion::Quaternion(Vec3 euler)
+		{
+			Quaternion q = EulerToQuaternion(euler*Common::DEG2RAD);
+			x = q.x;
+			y = q.y;
+			z = q.z;
+			w = q.w;
+		}
 		Quaternion::~Quaternion()
 		{}
 
@@ -18,12 +36,12 @@ namespace PlatinumEngine
 
 		void Quaternion::operator *=(const Quaternion &q)
 		{
-			w = w*q.w - x*q.x - y*q.y - z*q.z;
-			x = w*q.x + x*q.w + y*q.z - z*q.y;
-			y = w*q.y + y*q.w + z*q.x - x*q.z;
-			z = w*q.z + z*q.w + x*q.y - y*q.x;
+			float rw = w*q.w - x*q.x - y*q.y - z*q.z;
+			float rx = w*q.x + x*q.w + y*q.z - z*q.y;
+			float ry = w*q.y + y*q.w + z*q.x - x*q.z;
+			float rz = w*q.z + z*q.w + x*q.y - y*q.x;
+			w = rw; x = rx; y = ry; z = rz;
 		}
-
 		void Quaternion::operator *=(const float value)
 		{
 			w = w*value;
@@ -31,7 +49,6 @@ namespace PlatinumEngine
 			y = y*value;
 			z = z*value;
 		}
-
 		void Quaternion::operator *=(const int value)
 		{
 			w = w*value;
@@ -39,7 +56,6 @@ namespace PlatinumEngine
 			y = y*value;
 			z = z*value;
 		}
-
 		void Quaternion::operator +=(const Quaternion &q)
 		{
 			w += q.w;
@@ -47,7 +63,6 @@ namespace PlatinumEngine
 			y += q.y;
 			z += q.z;
 		}
-
 		void Quaternion::operator -=(const Quaternion &q)
 		{
 			w -= q.w;
@@ -55,7 +70,6 @@ namespace PlatinumEngine
 			y -= q.y;
 			z -= q.z;
 		}
-
 		Quaternion Quaternion::operator *(const Quaternion &q)
 		{
 			Quaternion r;
@@ -65,7 +79,6 @@ namespace PlatinumEngine
 			r.z = w*q.z + z*q.w + x*q.y - y*q.x;
 			return r;
 		}
-
 		Quaternion Quaternion::operator *(const float value)
 		{
 			Quaternion r;
@@ -75,7 +88,6 @@ namespace PlatinumEngine
 			r.z = z*value;
 			return r;
 		}
-
 		Quaternion Quaternion::operator *(const int value)
 		{
 			Quaternion r;
@@ -85,7 +97,26 @@ namespace PlatinumEngine
 			r.z = z*value;
 			return r;
 		}
-
+		Vec3 Quaternion::operator*(const Vec3 v)
+		{
+			float rx = x * 2.f;
+			float ry = y * 2.f;
+			float rz = z * 2.f;
+			float xx = x * rx;
+			float yy = y * ry;
+			float zz = z * rz;
+			float xy = x * ry;
+			float xz = x * rz;
+			float yz = y * rz;
+			float wx = w * rx;
+			float wy = w * ry;
+			float wz = w * rz;
+			Vec3 r;
+			r.x = (1.f - (yy + zz)) * v.x + (xy - wz)          * v.y + (xz + wy)          * v.z;
+			r.y = (xy + wz)         * v.x + (1.f - (xx + zz))  * v.y + (yz - wx)          * v.z;
+			r.z = (xz - wy)         * v.x + (yz + wx)          * v.y + (1.f - (xx + yy))  * v.z;
+			return r;
+		}
 		Quaternion Quaternion::operator +(const Quaternion &q)
 		{
 			Quaternion r;
@@ -95,7 +126,6 @@ namespace PlatinumEngine
 			r.z = z + q.z;
 			return r;
 		}
-
 		Quaternion Quaternion::operator -(const Quaternion &q)
 		{
 			Quaternion r;
@@ -105,7 +135,6 @@ namespace PlatinumEngine
 			r.z = z - q.z;
 			return r;
 		}
-
 		void Quaternion::operator =(const Quaternion &q)
 		{
 			w = q.w;
@@ -113,55 +142,58 @@ namespace PlatinumEngine
 			y = q.y;
 			z = q.z;
 		}
-
 		bool Quaternion::operator ==(const Quaternion &q)
 		{
 			if(w==q.w && x==q.x && y==q.y && z==q.z)
 				return true;
 			return false;
 		}
+		float& Quaternion::operator[](int i)
+		{
+			switch(i)
+			{
+				case 0: return w;
+				case 1: return x;
+				case 2: return y;
+				case 3: return z;
+				default:
+					throw std::out_of_range("Invalid Index");
+			}
+		}
 
 		// Public Methods
 
-		void Quaternion::Set(float newX, float newY, float newZ, float newW)
+		void Quaternion::Set(float newW, float newX, float newY, float newZ)
 		{
+			w = newW;
 			x = newX;
 			y = newY;
 			z = newZ;
-			w = newW;
 		}
-
-		float Quaternion::Norm()
+		float Quaternion::Length()
 		{
 			return sqrt(x*x + y*y + z*z + w*w);
 		}
-
 		float Quaternion::Dot(const Quaternion& q)
 		{
 			return (x*q.x + y*q.y + z*q.z + w*q.w);
 		}
-
 		Vec3 Quaternion::EulerAngles()
 		{
-			float t0 = 2. * (w*x + y*z);
-			float t1 = 1.f - 2.f * (x*x + y*y);
-			float roll = atan2(t0, t1);
-			float t2 = 2.f * (w*y - z*x);
-			t2 = t2>1.f?1.f:t2;
-			t2 = t2<-1.f?-1.f:t2;
-			float pitch = asin(t2);
-			float t3 = 2.f * (w*z + x*y);
-			float t4 = 1.f - 2.f * (y*y + z*z);
-			float yaw = atan2(t3, t4);
-			Vec3 v(yaw, pitch, roll);
-			return v;
+			return QuaternionToEuler(Quaternion(w,x,y,z))*Common::RAD2DEG;
+		}
+		Vec4 Quaternion::ToVec4()
+		{
+			return Vec4(w,x,y,z);
 		}
 
 		// Static Methods
 
+		//Quaternion related functions
+
 		Quaternion Quaternion::Normalise(Quaternion &q)
 		{
-			float n = q.Norm();
+			float n = q.Length();
 			float invN = 1.f/n;
 			Quaternion r = q * invN;
 			return r;
@@ -179,7 +211,7 @@ namespace PlatinumEngine
 
 		Quaternion Quaternion::Inverse(Quaternion &q)
 		{
-			float n=q.Norm();
+			float n=q.Length();
 			n=1.f/(n*n);
 			Quaternion r = Conjugate(q) * n;
 			return r;
@@ -188,6 +220,27 @@ namespace PlatinumEngine
 		float Quaternion::Angle(Quaternion a, Quaternion b)
 		{
 			return 2 * acos(abs(glm::clamp(a.Dot(b),- 1.f,1.f)));
+		}
+
+		Quaternion Quaternion::Lerp(Quaternion a, Quaternion b, float t)
+		{
+			float invt = 1.f - t;
+			Quaternion q;
+			if (a.Dot(b) >= 0.f)
+			{
+				q.x = (invt * a.x) + (t * b.x);
+				q.y = (invt * a.y) + (t * b.y);
+				q.z = (invt * a.z) + (t * b.z);
+				q.w = (invt * a.w) + (t * b.w);
+			}
+			else
+			{
+				q.x = (invt * a.x) - (t * b.x);
+				q.y = (invt * a.y) - (t * b.y);
+				q.z = (invt * a.z) - (t * b.z);
+				q.w = (invt * a.w) - (t * b.w);
+			}
+			return Normalise(q);
 		}
 
 		Quaternion Quaternion::Slerp(Quaternion a, Quaternion b, float t)
@@ -216,7 +269,7 @@ namespace PlatinumEngine
 			}
 
 			const float sqrSinHalfTheta = 1.f - cosHalfTheta * cosHalfTheta;
-			if ( sqrSinHalfTheta <= std::numeric_limits<float>::epsilon())
+			if ( sqrSinHalfTheta <= Common::EPS)
 			{
 				const float s = 1.f - t;
 				r.w = s * a.w + t * r.w;
@@ -239,46 +292,91 @@ namespace PlatinumEngine
 			return r;
 		}
 
-		Vec3 Quaternion::QuatToEuler(Quaternion q)
-		{
-			float t0 = 2. * (q.w*q.x + q.y*q.z);
-			float t1 = 1.f - 2.f * (q.x*q.x + q.y*q.y);
-			float roll = atan2(t0, t1);
-			float t2 = 2.f * (q.w*q.y - q.z*q.x);
-			t2 = t2>1.f?1.f:t2;
-			t2 = t2<-1.f?-1.f:t2;
-			float pitch = asin(t2);
-			float t3 = 2.f * (q.w*q.z + q.x*q.y);
-			float t4 = 1.f - 2.f * (q.y*q.y + q.z*q.z);
-			float yaw = atan2(t3, t4);
-			Vec3 v(yaw, pitch, roll);
-			return v;
-		}
-
-		Quaternion Quaternion::EulerToQuat(Vec3 euler)
-		{
-			float yaw = euler.x/2.f, pitch = euler.y/2.f, roll = euler.z/2.f;
-			float sinroll = sin(roll), sinpitch = sin(pitch), sinyaw = sin(yaw);
-			float cosroll = cos(roll), cospitch = cos(pitch), cosyaw = cos(yaw);
-			float qx = sinroll * cospitch * cosyaw - cosroll * sinpitch * sinyaw;
-			float qy = cosroll * sinpitch * cosyaw + sinroll * cospitch * sinyaw;
-			float qz = cosroll * cospitch * sinyaw - sinroll * sinpitch * cosyaw;
-			float qw = cosroll * cospitch * cosyaw + sinroll * sinpitch * sinyaw;
-			return Quaternion(qx, qy, qz, qw);
-		}
+		//Functions related to Quaternion creation and conversion
 
 		Quaternion Quaternion::AngleAxis(Vec3 axis, float angle)
 		{
 			float halfAngle = angle * .5f;
 			float s = sin(halfAngle);
-			Quaternion q;
-			q.x = axis.x * s;
-			q.y = axis.y * s;
-			q.z = axis.z * s;
-			q.w = cos(halfAngle);
+			Quaternion q = Quaternion(cos(halfAngle), axis.x * s, axis.y * s, axis.z * s);
 			return q;
 		}
 
-		Quaternion Quaternion::identity;
+		Vec3 Quaternion::QuaternionToEuler(Quaternion q)
+		{
+			glm::vec3 angles = glm::eulerAngles(glm::quat(q.w,q.x,q.y,q.z));
+			return Vec3(angles.x,angles.y, angles.z) * Common::RAD2DEG;
+		}
+
+		Quaternion Quaternion::EulerToQuaternion(Vec3 euler)
+		{
+			glm::quat q{euler * Common::DEG2RAD};
+			return Quaternion(q.w,q.x,q.y,q.z);
+		}
+
+		Mat4 Quaternion::QuaternionToMatrix(Quaternion q)
+		{
+			glm::mat4 matrix = glm::mat4_cast(glm::quat(q.w,q.x,q.y,q.z));
+			Mat4 m;
+			m[0][0] = matrix[0][0]; m[0][1] = matrix[0][1]; m[0][2] = matrix[0][2]; m[0][3] = matrix[0][3];
+			m[1][0] = matrix[1][0]; m[1][1] = matrix[1][1]; m[1][2] = matrix[1][2]; m[1][3] = matrix[1][3];
+			m[2][0] = matrix[2][0]; m[2][1] = matrix[2][1]; m[2][2] = matrix[2][2]; m[2][3] = matrix[2][3];
+			m[3][0] = matrix[3][0]; m[3][1] = matrix[3][1]; m[3][2] = matrix[3][2]; m[3][3] = matrix[3][3];
+			return m;
+		}
+
+		Quaternion Quaternion::MatrixToQuaternion(Mat4 matrix)
+		{
+			glm::mat4 m;
+			m[0][0] = matrix[0][0]; m[0][1] = matrix[0][1]; m[0][2] = matrix[0][2]; m[0][3] = matrix[0][3];
+			m[1][0] = matrix[1][0]; m[1][1] = matrix[1][1]; m[1][2] = matrix[1][2]; m[1][3] = matrix[1][3];
+			m[2][0] = matrix[2][0]; m[2][1] = matrix[2][1]; m[2][2] = matrix[2][2]; m[2][3] = matrix[2][3];
+			m[3][0] = matrix[3][0]; m[3][1] = matrix[3][1]; m[3][2] = matrix[3][2]; m[3][3] = matrix[3][3];
+			glm::quat q = glm::quat_cast(m);
+			return Quaternion(q.w,q.x,q.y,q.z);
+		}
+
+		Vec3 Quaternion::MatrixToEuler(Mat4 matrix)
+		{
+			Quaternion q = MatrixToQuaternion(matrix);
+			return QuaternionToEuler(q);
+		}
+
+		Mat4 Quaternion::EulerToMatrix(Vec3 euler)
+		{
+			return QuaternionToMatrix(EulerToQuaternion(euler));
+		}
+
+		Quaternion Quaternion::FromToRotation(Vec3 from, Vec3 to)
+		{
+			glm::quat q = glm::rotation(from,to);
+			return Quaternion(q.w,q.x,q.y,q.z);
+		}
+
+		Quaternion Quaternion::LookRotation(Vec3 forward, Vec3 up)
+		{
+			Vec3 x = forward;
+			Vec3 z = Cross(forward,up);
+			Vec3 y = Cross(z,forward);
+			Mat4 m;
+			m[0][0] = x[0];	m[0][1] = x[1];	m[0][2] = x[2];	m[0][3] = 0.0f;
+			m[1][0] = y[0];	m[1][1] = y[1];	m[1][2] = y[2];	m[1][3] = 0.0f;
+			m[2][0] = z[0];	m[2][1] = z[1];	m[2][2] = z[2];	m[2][3] = 0.0f;
+			m[3][0] = 0.0f;	m[3][1] = 0.0f;	m[3][2] = 0.0f;	m[3][3] = 1.0f;
+			return MatrixToQuaternion(m);
+		}
+
+		//Output operator overloading
+
+		std::ostream& operator <<(std::ostream& os, Quaternion& q)
+		{
+			os <<q.w<<", "<<q.x<<", "<<q.y<<", "<<q.z;
+			return os;
+		}
+
+		//Public static Variables
+
+		Quaternion Quaternion::identity = Quaternion(1.f,0.f,0.f,0.f);
 	}
+
 }
