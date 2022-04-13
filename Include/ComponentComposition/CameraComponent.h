@@ -1,24 +1,46 @@
-#ifndef PLATINUMENGINE_CAMERACOMPONENT_H
-#define PLATINUMENGINE_CAMERACOMPONENT_H
+#pragma once
 
 #include "Maths/Vectors.h"
 #include "Maths/Quaternion.h"
 #include "ComponentComposition/Component.h"
+#include "ComponentComposition/Color.h"
+#include "ComponentComposition/GameObject.h"
+#include "ComponentComposition/TransformComponent.h"
 
 namespace PlatinumEngine
 {
-	enum projectionType {PERSPECTIVE, ORTHOGRAPHIC};
-	class CameraComponent: Component
+	class CameraComponent: public Component
 	{
 	public:
-		projectionType projection;
-		Maths::Vec3 backgroundColor;
+
+		enum class ProjectionType {perspective, orthographic};
+		enum class ClearMode {none, backgroundColor, skybox };
+
+		ProjectionType projectionType;
+		ClearMode clearMode;
+		Color backgroundColor;
 		float fov;
-		float aspectRatio;
 		float nearClippingPlane;
 		float farClippingPlane;
-		float size;
+		float orthographicSize;
+
+		CameraComponent();
+
+		Maths::Vec3 ViewportToWorldPoint(
+				const Maths::Vec3& viewportCoordinate,
+				const Maths::Vec2& viewportSize);
+		Maths::Vec3 WorldToViewportPoint(
+				const Maths::Vec3& worldCoordinate,
+				const Maths::Vec2& viewportSize);
+
+		Maths::Mat4 GetWorldToClipMatrix(const Maths::Vec2& viewportSize);
+		Maths::Mat4 GetClipToWorldMatrix(const Maths::Vec2& viewportSize);
+		Maths::Mat4 GetProjectionMatrix(const Maths::Vec2& viewportSize);
+		//Also known as World To Camera Matrix
+		Maths::Mat4 GetViewMatrix();
+		//Also known as View Matrix
+		Maths::Mat4 GetWorldToCameraMatrix();
+		//Also known as Inverse View Matrix
+		Maths::Mat4 GetCameraToWorldMatrix();
 	};
 }
-
-#endif //PLATINUMENGINE_CAMERACOMPONENT_H

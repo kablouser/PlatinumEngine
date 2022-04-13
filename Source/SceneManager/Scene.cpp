@@ -132,7 +132,7 @@ namespace PlatinumEngine
 			{
 				component.OnDisable(*this);
 			}
-			component.OnEnd();
+			component.OnEnd(*this);
 		}
 
 		if (component._gameObject)
@@ -231,7 +231,7 @@ namespace PlatinumEngine
 	{
 		for (auto component: gameObject._components)
 		{
-			component->OnStart();
+			component->OnStart(*this);
 		}
 
 		for (auto child: gameObject._children)
@@ -244,7 +244,7 @@ namespace PlatinumEngine
 	{
 		for (auto component: gameObject._components)
 		{
-			component->OnEnd();
+			component->OnEnd(*this);
 		}
 
 		for (auto child: gameObject._children)
@@ -353,7 +353,7 @@ namespace PlatinumEngine
 
 		if (_isStarted)
 		{
-			component.OnStart();
+			component.OnStart(*this);
 			if (component._isEnabledInHierarchy)
 			{
 				component.OnEnable(*this);
@@ -398,5 +398,39 @@ namespace PlatinumEngine
 		{
 			PLATINUM_ERROR("Hierarchy is invalid: _rootGameObjects is missing an element");
 		}
+	}
+
+	Component* Scene::FindFirstComponentInternal(
+			bool requireEnabled,
+			const std::type_info& typeInfo)
+	{
+		for (auto rootGameObject : _rootGameObjects)
+		{
+			auto first = FindFirstComponentRecurse(requireEnabled, typeInfo, *rootGameObject);
+			if (first)
+				return first;
+		}
+		return nullptr;
+	}
+
+	Component* Scene::FindFirstComponentRecurse(
+			bool requireEnabled,
+			const std::type_info& typeInfo,
+			GameObject& gameObject)
+	{
+		if (requireEnabled && !gameObject._isEnabledInHierarchy)
+			return nullptr;
+
+		auto component = gameObject.GetComponentInternal(typeInfo);
+		if (component)
+			return component;
+
+		for (auto child : gameObject._children)
+		{
+			auto first = FindFirstComponentRecurse(requireEnabled, typeInfo, *child);
+			if (first)
+				return first;
+		}
+		return nullptr;
 	}
 }
