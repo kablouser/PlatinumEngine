@@ -111,6 +111,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	
 	"Source/Profiler/Profiler.cpp;"
 	
+	"Source/Project/ProjectWindow.cpp;"
+	
 	"Source/Renderer/Renderer.cpp;"
 	
 	"Source/SceneEditor/EditorCamera.cpp;"

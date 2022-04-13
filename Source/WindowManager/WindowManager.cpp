@@ -14,17 +14,19 @@ namespace PlatinumEngine
 								HierarchyWindow *hierarchy,
 								Logger *logger,
 								InspectorWindow *inspector,
-								Profiler *profiler
+								Profiler *profiler,
+								ProjectWindow *projectWindow
 								):
 								_gameWindow(gameWindow),
 								_sceneEditor(sceneEditor),
 								_hierarchy(hierarchy),
 								_logger(logger),
 								_inspector(inspector),
-								_profiler(profiler)
+								_profiler(profiler),
+								_projectWindow(projectWindow)
 	{
-
 	}
+
 	/// this is a bool parameter used for disable or enable the pause and step button
 	static bool enablePauseButton = true;
 	///--------------------------------------------------------------------------
@@ -241,7 +243,9 @@ namespace PlatinumEngine
 			ShowWindowInspector(&_showWindowInspector, scene);
 		}
 		if (ImGui::MenuItem("Project", "Ctrl+4", &_showWindowProject))
-		{}
+		{
+			ShowWindowProject(&_showWindowProject);
+		}
 		if (ImGui::MenuItem("Scene", "Ctrl+5", &_showWindowScene))
 		{
 			ShowWindowScene(&_showWindowScene);
@@ -287,7 +291,7 @@ namespace PlatinumEngine
 	//Please implement Project Window below
 	void WindowManager::ShowWindowProject(bool* outIsOpen)
 	{
-		//TODO:
+		_projectWindow->ShowGUIWindow(outIsOpen);
 	}
 
 	//Please implement Light Window below
