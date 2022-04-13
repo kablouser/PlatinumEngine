@@ -227,17 +227,19 @@ namespace PlatinumEngine{
 			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-
+			// Start rendering (bind a shader)
 			_renderer->Begin();
 
 			// Update rendering information to renderer
-			_scene->Render(*_renderer);
-
 			_renderer->SetModelMatrix();
 			_renderer->SetViewMatrix(_camera.viewMatrix4);
 			_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
-
 			_renderer->SetLightProperties();
+
+			// Render game objects
+			_scene->Render(*_renderer);
+
+			// End rendering (unbind a shader)
 			_renderer->End();
 
 			_renderTexture.Unbind();
@@ -408,7 +410,9 @@ namespace PlatinumEngine{
 					// Do ray and triangle intersection //
 					//----------------------------------//
 
-					// build the PCS using the triangle primitive
+					// PCS: Planer Coordinate System
+					// build the PCS using the triangle primitive as a panel that contains two axes (U and V).
+					// and the other axis (N) is the normal of the panel.
 
 					// origin of PCS
 					Maths::Vec3 originForPCS = vertex0;
@@ -436,28 +440,34 @@ namespace PlatinumEngine{
 					axisWForPCS = axisWForPCS / lengthW;
 
 
-
 					// find cross point
 
-					// find the intersection point for ray and the panel that contains the triangle
-					Maths::Vec3 vectorBetweenOriginForPCSandCameraPosition = originForPCS - inCameraPosition;
+					// 1. find the ratio between the ray (regard it as a limited line with a start point which is camera position) projection length
+					// and line (a line that form by the origin of Planer Coordinate System and camera position) projection length
+					float ratioForRayAndPointsDistance = 0;
 
-					float dotForLineApproachingPanel = Maths::Dot(inRay, axisNForPCS);
+					// project the Ray on the axis N of the Planer Coordinate System
+					float lengthOfRayProjectionOnAxisN = Maths::Dot(inRay, axisNForPCS);
 
-					// make sure the ray is not contained by the same panel as the triangle primitive
-					if (dotForLineApproachingPanel != 0)
+					// make sure the ray is not contained by the same panel (the situation when the dot product will be zero)
+					if (lengthOfRayProjectionOnAxisN != 0)
 					{
-						dotForLineApproachingPanel =
-								Maths::Dot(vectorBetweenOriginForPCSandCameraPosition, axisNForPCS) /
-										dotForLineApproachingPanel;
+						// project the line between origin of Planer coordinate system and the camera position (the start point of the ray)
+						// on the axis N of the Planer Coordinate System
+						Maths::Vec3 vectorBetweenPCSOriginAndCameraPosition = originForPCS - inCameraPosition; // use this is because putting `originForPCS - inCameraPosition` directly into Maths::Dots() cause error
+						float lengthOfPointsDistanceProjectionOnAxisN = Maths::Dot(vectorBetweenPCSOriginAndCameraPosition, axisNForPCS);
+
+						// calculate the ratio between the length of the two projections
+						ratioForRayAndPointsDistance = lengthOfPointsDistanceProjectionOnAxisN / lengthOfRayProjectionOnAxisN;
+
 					}
 					else
 					{
 						break;
 					}
 
-					// calculate the cross point
-					Maths::Vec3 crossPoint = inCameraPosition + inRay * dotForLineApproachingPanel;
+					// calculate the cross point by adding vector with the right ratio to the camera position (which is the start point of the Ray)
+					Maths::Vec3 crossPoint = inCameraPosition + inRay * ratioForRayAndPointsDistance;
 
 					//------------------------------------//
 					// Do barycentric interpolation check //
