@@ -98,8 +98,9 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		}
 
 		auto asset_Helper = _assetHelper->ShowGuiWindow();
-		if(std::get<0>(asset_Helper) == true)
+		if(std::get<0>(asset_Helper))
 		{
+			_activeGameObject->GetComponent<RenderComponent>()->SetMesh(nullptr);
 			_activeGameObject->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
 		}
 	}
