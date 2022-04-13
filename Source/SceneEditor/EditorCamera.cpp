@@ -25,7 +25,6 @@ namespace PlatinumEngine
 	EditorCamera::EditorCamera()
 			: _eulerAngle(0.f, 0.f, 0.f),
 			  _translationValue(0.f, 0.f, 10.f),
-			  _cameraPosition(0.f,0.f,0.f),
 			  viewMatrix4(1.f),
 			  projectionMatrix4(1.f),
 			  isOrthogonal(false),
@@ -146,7 +145,6 @@ namespace PlatinumEngine
 	void EditorCamera::MoveCamera(PlatinumEngine::Maths::Vec3 eulerAngle, PlatinumEngine::Maths::Vec3 translationValue)
 	{
 
-
 		// update euler angle
 		_eulerAngle += eulerAngle;
 
@@ -164,22 +162,12 @@ namespace PlatinumEngine
 		// calculate the new look at matrix by applying the transformation matrix
 		viewMatrix4 = rotationMat4Inverse * translationMat4Inverse;
 
-
-
-
 		// get rotation matrix
 		rotationMat4.SetRotationMatrix(_eulerAngle);
 
 		// get translation matrix
 		translationMat4.SetTranslationMatrix(_translationValue);
 
-
-		// update camera position
-		Maths::Vec4 tempVec4 = translationMat4 * rotationMat4 * Maths::Vec4(0.f, 0.f, 0.f, 1.f);
-
-		_cameraPosition.x = tempVec4.x;
-		_cameraPosition.y = tempVec4.y;
-		_cameraPosition.z = tempVec4.z;
 	}
 
 
@@ -218,20 +206,20 @@ namespace PlatinumEngine
 
 	const Maths::Vec3& EditorCamera::GetCameraPosition()
 	{
-		return _cameraPosition;
+		return _translationValue;
 	}
 
-	const float& EditorCamera::GetNearPanelForClippingSpace()
+	float EditorCamera::GetNearPanelForClippingSpace()
 	{
 		return _nearPanelForClippingSpace;
 	}
 
-	const float& EditorCamera::GetFarPanelForClippingSpace()
+	float EditorCamera::GetFarPanelForClippingSpace()
 	{
 		return _farPanelForClippingSpace;
 	}
 
-	const float& EditorCamera::GetFovForPerspectiveProjection()
+	float EditorCamera::GetFovForPerspectiveProjection()
 	{
 		return _fov;
 	}

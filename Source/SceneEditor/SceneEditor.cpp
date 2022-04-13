@@ -204,7 +204,7 @@ namespace PlatinumEngine{
 		//---------------------------------------------
 		// check if the mouse is selecting game object
 		//---------------------------------------------
-		if(_inputManager->IsMouseDown(1))
+		if(_inputManager->IsMouseDown(0))
 			SelectGameObjectFromScene();
 
 		//--------------------
@@ -261,9 +261,7 @@ namespace PlatinumEngine{
 		if(GameObject* result = DoRayCasting(mouseClickedPosition);
 				result != nullptr)
 		{
-			selectedGameobject = result;
-
-			PLATINUM_INFO(result->name);
+			_selectedGameobject = result;
 		}
 	}
 
@@ -312,7 +310,7 @@ namespace PlatinumEngine{
 
 		// variable that store the current selected game object
 		GameObject* currentSelectedGameobject = nullptr;
-		float closetZValue = (float)-_far;
+		float closestZValue = (float)_far;
 
 		// loop through all the root game object from scene class
 		unsigned int numberOfRootGameobject = _scene->GetRootGameObjectsCount();
@@ -327,7 +325,7 @@ namespace PlatinumEngine{
 			{
 				// get result for whether this game object or one of its children is selected
 				currentSelectedGameobject = CheckRayTriangleIntersectionForGameobject(currentGameobject, ray,
-						_camera.GetCameraPosition(), currentSelectedGameobject, closetZValue);
+						_camera.GetCameraPosition(), currentSelectedGameobject, closestZValue);
 			}
 		}
 		return currentSelectedGameobject;
@@ -421,9 +419,9 @@ namespace PlatinumEngine{
 					Maths::Vec3 axisWForPCS = Cross(axisUForPCS, axisNForPCS);
 
 					// length of axis
-					float lengthU = sqrtf(LengthSquared(axisUForPCS));
-					float lengthN = sqrtf(LengthSquared(axisNForPCS));
-					float lengthW = sqrtf(LengthSquared(axisWForPCS));
+					float lengthU = Maths::Length(axisUForPCS);
+					float lengthN = Maths::Length(axisNForPCS);
+					float lengthW = Maths::Length(axisWForPCS);
 
 					// if the length of the axis is 0, the primitive is not a valid triangle primitive
 					if (lengthU == 0 || lengthN == 0 || lengthW == 0)
@@ -444,14 +442,14 @@ namespace PlatinumEngine{
 					// find the intersection point for ray and the panel that contains the triangle
 					Maths::Vec3 vectorBetweenOriginForPCSandCameraPosition = originForPCS - inCameraPosition;
 
-					float rateForLineApproachingPanel = Maths::Dot(inRay, axisNForPCS);
+					float dotForLineApproachingPanel = Maths::Dot(inRay, axisNForPCS);
 
 					// make sure the ray is not contained by the same panel as the triangle primitive
-					if (rateForLineApproachingPanel != 0)
+					if (dotForLineApproachingPanel != 0)
 					{
-						rateForLineApproachingPanel =
+						dotForLineApproachingPanel =
 								Maths::Dot(vectorBetweenOriginForPCSandCameraPosition, axisNForPCS) /
-								rateForLineApproachingPanel;
+										dotForLineApproachingPanel;
 					}
 					else
 					{
@@ -459,18 +457,18 @@ namespace PlatinumEngine{
 					}
 
 					// calculate the cross point
-					Maths::Vec3 crossPoint = inCameraPosition + inRay * rateForLineApproachingPanel;
+					Maths::Vec3 crossPoint = inCameraPosition + inRay * dotForLineApproachingPanel;
 
 					//------------------------------------//
 					// Do barycentric interpolation check //
 					//------------------------------------//
 
 					// Convert the cross point and the vertices of the triangle into PCS coordinate
-					Maths::Mat3 PCSMatrix3x3(std::array<float, 9>({
+					Maths::Mat3 PCSMatrix3x3({
 							axisUForPCS.x, axisWForPCS.x, axisNForPCS.x,
 							axisUForPCS.y, axisWForPCS.y, axisNForPCS.y,
 							axisUForPCS.z, axisWForPCS.z, axisNForPCS.z
-					}).data());
+					});
 					// 1. cross point
 					Maths::Vec3 crossPointPCS = PCSMatrix3x3 * (crossPoint - originForPCS);
 
@@ -482,11 +480,11 @@ namespace PlatinumEngine{
 					// Do barycentric interpolation to check
 					Maths::Vec3 xValueOfVerticesPCS((vertex0PCS - vertex1PCS).x, (vertex0PCS - vertex2PCS).x,
 							(crossPointPCS - vertex0PCS).x);
-					float lengthOfXValueOfVerticesPCS = sqrtf(LengthSquared(xValueOfVerticesPCS));
+					float lengthOfXValueOfVerticesPCS = Maths::Length(xValueOfVerticesPCS);
 
 					Maths::Vec3 yValueOfVerticesPCS((vertex0PCS - vertex1PCS).y, (vertex0PCS - vertex2PCS).y,
 							(crossPointPCS - vertex0PCS).y);
-					float lengthOfYValueOfVerticesPCS = sqrtf(LengthSquared(yValueOfVerticesPCS));
+					float lengthOfYValueOfVerticesPCS = Maths::Length(yValueOfVerticesPCS);
 
 					// if the length of the axis is 0, the primitive is not a valid triangle primitive
 					if (lengthOfXValueOfVerticesPCS == 0 || lengthOfYValueOfVerticesPCS == 0)
@@ -525,9 +523,9 @@ namespace PlatinumEngine{
 							// This part check
 							// check if the current cross point has the closest z value.
 							// check if the current cross point is within clipping space.
-							if (closestZValueForCrossPoint < crossPointViewCoordinate.z &&
-								crossPointViewCoordinate.z >= (float)-_far &&
-								crossPointViewCoordinate.z <= (float)-_near)
+							if (closestZValueForCrossPoint > crossPointViewCoordinate.z &&
+								crossPointViewCoordinate.z <= (float)_far &&
+								crossPointViewCoordinate.z >= (float)_near)
 							{
 								// update the selected game object
 								currentSelectedGameObject = currentCheckingGameobject;
@@ -555,6 +553,16 @@ namespace PlatinumEngine{
 
 		// return the selected game object
 		return currentSelectedGameObject;
+	}
+
+	void SceneEditor::SetSelectedGameobject(GameObject* inGameObject)
+	{
+		_selectedGameobject = inGameObject;
+	}
+
+	GameObject* SceneEditor::GetSelectedGameobject()
+	{
+		return _selectedGameobject;
 	}
 }
 

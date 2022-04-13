@@ -110,14 +110,14 @@ namespace PlatinumEngine
 		 * Get near/far panel z value for the clipping space
 		 * @return : near/far panel z value for the clipping space
 		 */
-		const float& GetNearPanelForClippingSpace();
-		const float& GetFarPanelForClippingSpace();
+		float GetNearPanelForClippingSpace();
+		float GetFarPanelForClippingSpace();
 
 		/**
 		 * Get fov value
 		 * @return : fov value
 		 */
-		const float& GetFovForPerspectiveProjection();
+		float GetFovForPerspectiveProjection();
 
 
 		// CONSTRUCTOR
@@ -130,7 +130,7 @@ namespace PlatinumEngine
 		// transformation
 		Maths::Vec3 _eulerAngle;
 		Maths::Vec3 _translationValue;
-		Maths::Vec3 _cameraPosition;
+		//Maths::Vec3 _cameraPosition;
 
 		// camera
 		float _nearPanelForClippingSpace;

@@ -313,7 +313,7 @@ namespace PlatinumEngine
 	void WindowManager::ShowWindowInspector(bool* outIsOpen, Scene &scene)
 	{
 		//TODO:
-		_inspector->SetActiveGameObject(*_hierarchy->selectedGameObject);
+		_inspector->SetActiveGameObject(_sceneEditor->GetSelectedGameobject());
 		_inspector->ShowGUIWindow(outIsOpen, scene);
 	}
 

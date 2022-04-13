@@ -26,8 +26,7 @@ namespace PlatinumEngine
 	{
 	public:
 		// ___VARIABLE___
-		// Value for ray casting
-		GameObject* selectedGameobject;
+
 
 		// ___FUNCTION___
 
@@ -70,6 +69,19 @@ namespace PlatinumEngine
 		GameObject* CheckRayTriangleIntersectionForGameobject(GameObject* currentCheckingGameobject, PlatinumEngine::Maths::Vec3 inRay,
 				const PlatinumEngine::Maths::Vec3& inCameraPosition, GameObject* currentSelectedGameObject, float& closestZValueForCrossPoint);
 
+		/**
+		 * Update selected game object
+		 * @param inGameObject
+		 */
+		void SetSelectedGameobject(GameObject* inGameObject);
+
+		/**
+		 * Get the private selected game object
+		 * @return
+		 */
+		GameObject* GetSelectedGameobject();
+
+
 		// ___CONSTRUCTOR___
 		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer);
 
@@ -79,6 +91,8 @@ namespace PlatinumEngine
 	private:
 
 		// ___PARAMETERS___
+		// Value for ray casting
+		GameObject* _selectedGameobject;
 
 		// Flags
 		bool _ifCameraSettingWindowOpen;

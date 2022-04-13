@@ -12,6 +12,7 @@
 #include <glm/glm.hpp>
 #include <cstring>
 #include <Maths/Vectors.h>
+#include <array>
 
 //------------------------
 //  Template Class
@@ -82,7 +83,7 @@ namespace PlatinumEngine
 			//___CONSTRUCTOR___
 			Matrix(); // create empty matrix
 			explicit Matrix(T valueForPacking); // fill the matrix (the std::vector) with valueForPacking
-			explicit Matrix(T* matrixArray); // fill the matrix with array
+			explicit Matrix(const std::array<T, numberOfRow* numberOfColumn>& matrixArray); // fill the matrix with array
 
 			//___VARIABLE___
 			T matrix[numberOfRow * numberOfColumn];
@@ -266,9 +267,9 @@ namespace PlatinumEngine
 		}
 
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-		Matrix<numberOfRow, numberOfColumn, T>::Matrix(T* matrixArray)
+		Matrix<numberOfRow, numberOfColumn, T>::Matrix(const std::array<T, numberOfRow* numberOfColumn>& matrixArray)
 		{
-			std::memcpy(this->matrix, matrixArray, numberOfRow * numberOfColumn *sizeof(T));
+			std::memcpy(this->matrix, matrixArray.data(), numberOfRow * numberOfColumn *sizeof(T));
 		}
 
 

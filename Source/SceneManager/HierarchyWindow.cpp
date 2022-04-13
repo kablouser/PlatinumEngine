@@ -25,7 +25,7 @@ namespace PlatinumEngine
 		ImGui::PushID(gameObject);
 
 		// check if the current game object is selected
-		if(*selectedGameObject == gameObject)
+		if(_sceneEditor->GetSelectedGameobject() == gameObject)
 		{
 			// set draw layer
 			ImGui::GetWindowDrawList()->ChannelsSplit(2);
@@ -36,7 +36,7 @@ namespace PlatinumEngine
 		ImGui::Selectable(gameObject->name.c_str(), false);
 
 		// check if the current game object is selected
-		if(*selectedGameObject == gameObject)
+		if(_sceneEditor->GetSelectedGameobject() == gameObject)
 		{
 			// highlight the selected selectable block
 			ImGui::GetWindowDrawList()->ChannelsSetCurrent(0);
@@ -47,7 +47,7 @@ namespace PlatinumEngine
 		// Check if this node is clicked
 		if(ImGui::IsItemClicked())
 		{
-			*selectedGameObject = gameObject;
+			_sceneEditor->SetSelectedGameobject(gameObject);
 		}
 
 
@@ -152,16 +152,16 @@ namespace PlatinumEngine
 		{
 			
 			// Gui for choosing hierarchy behaviour mode
-			if (ImGui::RadioButton("Change Hierarchy", modeForDraggingBehavior == _hierarchyMode))
+			if (ImGui::RadioButton("Change Hierarchy", _modeForDraggingBehavior == _hierarchyMode))
 			{
-				modeForDraggingBehavior = _hierarchyMode;
+				_modeForDraggingBehavior = _hierarchyMode;
 			}
 
 			ImGui::SameLine();
 			
-			if (ImGui::RadioButton("Change Order", modeForDraggingBehavior == _orderMode))
+			if (ImGui::RadioButton("Change Order", _modeForDraggingBehavior == _orderMode))
 			{
-				modeForDraggingBehavior = _orderMode;
+				_modeForDraggingBehavior = _orderMode;
 			}
 
 			// Loop through every root game objects in a scene
@@ -169,7 +169,7 @@ namespace PlatinumEngine
 			{
 
 				// Create node for this game object
-				DisplayTreeNote(scene.GetRootGameObject(i),scene, modeForDraggingBehavior);
+				DisplayTreeNote(scene.GetRootGameObject(i),scene, _modeForDraggingBehavior);
 
 			}
 
@@ -192,7 +192,7 @@ namespace PlatinumEngine
 
 						// check move behavior mode
 						// if the mode is to change hierarchy between game objects
-						if (modeForDraggingBehavior == _hierarchyMode)
+						if (_modeForDraggingBehavior == _hierarchyMode)
 						{
 							// change the dragged object's parent
 							payloadPointer->SetParent(nullptr, scene);
@@ -209,10 +209,7 @@ namespace PlatinumEngine
 	}
 
 	// ---CONSTRUCTOR
-	HierarchyWindow::HierarchyWindow(GameObject** selectedGameobject):selectedGameObject(selectedGameobject),
-		modeForDraggingBehavior(_orderMode)
-	{
-	}
-
-
+	HierarchyWindow::HierarchyWindow(SceneEditor* sceneEditor):_sceneEditor(sceneEditor),
+		_modeForDraggingBehavior(_orderMode)
+	{}
 }
