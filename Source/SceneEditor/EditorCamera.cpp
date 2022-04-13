@@ -30,7 +30,7 @@ namespace PlatinumEngine
 			  isOrthogonal(false)
 	{
 		// update view matrix
-		MoveCamera(PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0),
+		MoveCamera(PlatinumEngine::Maths::Vec3(0.0, 0.0, 0),
 				PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0));
 	}
 

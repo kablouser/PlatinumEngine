@@ -27,7 +27,10 @@ namespace PlatinumEngine
 	{
 		_mesh = mesh;
 		if(mesh != nullptr)
+		{
+			_shaderInput.Clear();
 			_shaderInput.Set(mesh->vertices, mesh->indices);
+		}
 		else
 			_shaderInput.Clear();
 	}
