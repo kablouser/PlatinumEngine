@@ -2,6 +2,8 @@
 // Created by Jinyuan and Shawn on 26/03/2022.
 //
 #include "ComponentComposition/RenderComponent.h"
+#include <Renderer/Renderer.h>
+#include <ComponentComposition/TransformComponent.h>
 
 namespace PlatinumEngine
 {
@@ -17,8 +19,14 @@ namespace PlatinumEngine
 		// _material = material;
 	}
 
-	void RenderComponent::OnRender(Scene& scene, Renderer &render)
+	void RenderComponent::OnRender(Scene& scene, Renderer& renderer)
 	{
+		TransformComponent* transform = GetComponent<TransformComponent>();
+		if (transform)
+			renderer.SetModelMatrix(transform->GetLocalToWorldMatrix());
+		else
+			renderer.SetModelMatrix();
+
 		_shaderInput.Draw();
 	}
 

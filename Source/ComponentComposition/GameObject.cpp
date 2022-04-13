@@ -168,6 +168,14 @@ namespace PlatinumEngine
 		return nullptr;
 	}
 
+	Component* GameObject::GetParentComponentInternal(const std::type_info& typeInfo)
+	{
+		GameObject* parent = GetParent();
+		if (parent)
+			return parent->GetComponentInternal(typeInfo);
+		return nullptr;
+	}
+
 	void GameObject::RemoveChild(GameObject* child)
 	{
 		if (!VectorHelpers::RemoveFirst(_children, child))

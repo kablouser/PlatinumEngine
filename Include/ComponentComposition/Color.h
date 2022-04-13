@@ -37,7 +37,6 @@ namespace PlatinumEngine
 
 	public:
 		float r, g, b, a;
-		float& x = r, y = g, z = b, w = a;
 
 	private:
 		void Set(int red, int green, int blue, int alpha);

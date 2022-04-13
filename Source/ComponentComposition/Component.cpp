@@ -74,11 +74,11 @@ namespace PlatinumEngine
 	// Default empty implementations of events.
 	//------------------------------------------------------------------------------------------------------------------
 
-	void Component::OnStart()
+	void Component::OnStart(Scene& scene)
 	{
 	}
 
-	void Component::OnEnd()
+	void Component::OnEnd(Scene& scene)
 	{
 	}
 
@@ -101,6 +101,22 @@ namespace PlatinumEngine
 	//--------------------------------------------------------------------------------------------------------------
 	// Internal controls
 	//--------------------------------------------------------------------------------------------------------------
+
+	Component* Component::GetComponentInternal(const std::type_info& typeInfo)
+	{
+		GameObject* gameObject = GetGameObject();
+		if (gameObject)
+			return gameObject->GetComponentInternal(typeInfo);
+		return nullptr;
+	}
+
+	Component* Component::GetParentComponentInternal(const std::type_info& typeInfo)
+	{
+		GameObject* gameObject = GetGameObject();
+		if (gameObject)
+			return gameObject->GetParentComponentInternal(typeInfo);
+		return nullptr;
+	}
 
 	bool Component::CalculateIsEnabledInHierarchy() const
 	{

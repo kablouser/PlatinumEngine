@@ -71,11 +71,14 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
 
 	"Source/ComponentComposition/CameraComponent.cpp;"
+	"Source/ComponentComposition/Color.cpp;"
 	"Source/ComponentComposition/Component.cpp;"
 	"Source/ComponentComposition/ComponentType.cpp;"
 	"Source/ComponentComposition/GameObject.cpp;"
 	"Source/ComponentComposition/RenderComponent.cpp;"
 	"Source/ComponentComposition/TransformComponent.cpp;"
+	
+	"Source/GameWindow/GameWindow.cpp;"
 	
 	"Source/InputManager/InputManager.cpp;"
 	
@@ -86,6 +89,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 
 	"Source/Logger/Logger.cpp;"
 	
+	"Source/Maths/Common.cpp;"
 	"Source/Maths/Matrices.cpp;"
 	"Source/Maths/Quaternion.cpp;"
 	"Source/Maths/Vectors.cpp;"
@@ -109,8 +113,6 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	
 	"Source/WindowManager/Filedialog.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
-	
-	"Source/GameWindow/GameWindow.cpp;"
 	)
 
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})

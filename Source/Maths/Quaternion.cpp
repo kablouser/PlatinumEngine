@@ -1,5 +1,7 @@
 #include <Maths/Quaternion.h>
-
+#include <Maths/Common.h>
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/quaternion.hpp"
 
 namespace PlatinumEngine
 {
@@ -189,7 +191,6 @@ namespace PlatinumEngine
 
 		//Quaternion related functions
 
-		//Returns the quaternion of unit length
 		Quaternion Quaternion::Normalise(Quaternion &q)
 		{
 			float n = q.Length();
@@ -197,7 +198,7 @@ namespace PlatinumEngine
 			Quaternion r = q * invN;
 			return r;
 		}
-		//Returns the conjugate of quaternion
+
 		Quaternion Quaternion::Conjugate(Quaternion &q)
 		{
 			Quaternion r;
@@ -207,7 +208,7 @@ namespace PlatinumEngine
 			r.w = q.w;
 			return r;
 		}
-		//Returns the inverse of quaternion
+
 		Quaternion Quaternion::Inverse(Quaternion &q)
 		{
 			float n=q.Length();
@@ -215,12 +216,12 @@ namespace PlatinumEngine
 			Quaternion r = Conjugate(q) * n;
 			return r;
 		}
-		//Returns the angle (radians) between 2 quaternions
+
 		float Quaternion::Angle(Quaternion a, Quaternion b)
 		{
 			return 2 * acos(abs(glm::clamp(a.Dot(b),- 1.f,1.f)));
 		}
-		//Linear interpolation of 2 quaternions
+
 		Quaternion Quaternion::Lerp(Quaternion a, Quaternion b, float t)
 		{
 			float invt = 1.f - t;
@@ -241,7 +242,7 @@ namespace PlatinumEngine
 			}
 			return Normalise(q);
 		}
-		//Spherical interpolation of 2 quaternions
+
 		Quaternion Quaternion::Slerp(Quaternion a, Quaternion b, float t)
 		{
 			if ( t == 0 ) return a;
@@ -293,7 +294,6 @@ namespace PlatinumEngine
 
 		//Functions related to Quaternion creation and conversion
 
-		//Creates a quaternion with the given axis and angle values
 		Quaternion Quaternion::AngleAxis(Vec3 axis, float angle)
 		{
 			float halfAngle = angle * .5f;
@@ -301,19 +301,19 @@ namespace PlatinumEngine
 			Quaternion q = Quaternion(cos(halfAngle), axis.x * s, axis.y * s, axis.z * s);
 			return q;
 		}
-		//Returns a Vec3 (Pitch,Yaw,Roll) from a Quaternion
+
 		Vec3 Quaternion::QuaternionToEuler(Quaternion q)
 		{
 			glm::vec3 angles = glm::eulerAngles(glm::quat(q.w,q.x,q.y,q.z));
-			return Vec3(angles.x,angles.y, angles.z);
+			return Vec3(angles.x,angles.y, angles.z) * Common::RAD2DEG;
 		}
-		//Returns a Quaternion from Vec3 euler angles (Pitch,Yaw,Roll)
+
 		Quaternion Quaternion::EulerToQuaternion(Vec3 euler)
 		{
-			glm::quat q{euler};
+			glm::quat q{euler * Common::DEG2RAD};
 			return Quaternion(q.w,q.x,q.y,q.z);
 		}
-		//Returns a rotation matrix from a Quaternion
+
 		Mat4 Quaternion::QuaternionToMatrix(Quaternion q)
 		{
 			glm::mat4 matrix = glm::mat4_cast(glm::quat(q.w,q.x,q.y,q.z));
@@ -324,7 +324,7 @@ namespace PlatinumEngine
 			m[3][0] = matrix[3][0]; m[3][1] = matrix[3][1]; m[3][2] = matrix[3][2]; m[3][3] = matrix[3][3];
 			return m;
 		}
-		//Returns a Quaternion from a rotation matrix
+
 		Quaternion Quaternion::MatrixToQuaternion(Mat4 matrix)
 		{
 			glm::mat4 m;
@@ -335,24 +335,24 @@ namespace PlatinumEngine
 			glm::quat q = glm::quat_cast(m);
 			return Quaternion(q.w,q.x,q.y,q.z);
 		}
-		//Returns a Vec3 (Pitch,Yaw,Roll) from a rotation matrix
+
 		Vec3 Quaternion::MatrixToEuler(Mat4 matrix)
 		{
 			Quaternion q = MatrixToQuaternion(matrix);
 			return QuaternionToEuler(q);
 		}
-		//Returns a rotation matrix from Vec3 euler angles (Pitch,Yaw,Roll)
+
 		Mat4 Quaternion::EulerToMatrix(Vec3 euler)
 		{
 			return QuaternionToMatrix(EulerToQuaternion(euler));
 		}
-		//Creates a Quaternion which rotates from fromDirection to toDirection
+
 		Quaternion Quaternion::FromToRotation(Vec3 from, Vec3 to)
 		{
 			glm::quat q = glm::rotation(from,to);
 			return Quaternion(q.w,q.x,q.y,q.z);
 		}
-		//Creates a Quaternion with the specified forward and up directions
+
 		Quaternion Quaternion::LookRotation(Vec3 forward, Vec3 up)
 		{
 			Vec3 x = forward;
@@ -364,11 +364,6 @@ namespace PlatinumEngine
 			m[2][0] = z[0];	m[2][1] = z[1];	m[2][2] = z[2];	m[2][3] = 0.0f;
 			m[3][0] = 0.0f;	m[3][1] = 0.0f;	m[3][2] = 0.0f;	m[3][3] = 1.0f;
 			return MatrixToQuaternion(m);
-		}
-		//Creates a Quaternion with the specified forward direction
-		Quaternion Quaternion::LookRotation(Vec3 forward)
-		{
-			return LookRotation(forward, Maths::Vec3::up);
 		}
 
 		//Output operator overloading
