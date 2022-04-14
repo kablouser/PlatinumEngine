@@ -431,15 +431,13 @@ namespace PlatinumEngine{
 					if (auto transformComponent = currentCheckingGameobject->GetComponent<TransformComponent>();
 							transformComponent != nullptr)
 					{
-						Maths::Mat4 translationMatrix, rotationMatrix, scaleMatrix;
-						translationMatrix.SetTranslationMatrix(transformComponent->position);
-						rotationMatrix.SetRotationMatrix(transformComponent->rotation.EulerAngles());
-						scaleMatrix.SetScaleMatrix(transformComponent->scale);
+						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
+
 
 						Maths::Vec4 temporaryMatrix;
 
 						// get the world coordinate of vertex 0
-						temporaryMatrix = rotationMatrix * translationMatrix * scaleMatrix *
+						temporaryMatrix = modelMatrix *
 										  Maths::Vec4(mesh->vertices[mesh->indices[count + 0]].position.x,
 												  mesh->vertices[mesh->indices[count + 0]].position.y,
 												  mesh->vertices[mesh->indices[count + 0]].position.z, 1.0f);
@@ -447,7 +445,7 @@ namespace PlatinumEngine{
 						vertex0 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
 
 						// get the world coordinate of vertex 1
-						temporaryMatrix = rotationMatrix * translationMatrix * scaleMatrix *
+						temporaryMatrix = modelMatrix *
 										  Maths::Vec4(mesh->vertices[mesh->indices[count + 1]].position.x,
 												  mesh->vertices[mesh->indices[count + 1]].position.y,
 												  mesh->vertices[mesh->indices[count + 1]].position.z, 1.0f);
@@ -455,7 +453,7 @@ namespace PlatinumEngine{
 						vertex1 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
 
 						// get the world coordinate of vertex 2
-						temporaryMatrix = rotationMatrix * translationMatrix * scaleMatrix *
+						temporaryMatrix = modelMatrix *
 										  Maths::Vec4(mesh->vertices[mesh->indices[count + 2]].position.x,
 												  mesh->vertices[mesh->indices[count + 2]].position.y,
 												  mesh->vertices[mesh->indices[count + 2]].position.z, 1.0f);
@@ -636,6 +634,35 @@ namespace PlatinumEngine{
 	GameObject* SceneEditor::GetSelectedGameobject()
 	{
 		return _selectedGameobject;
+	}
+
+	void SceneEditor::UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
+	{
+		Maths::Mat4 identityMatrix(1);
+
+		ImGuizmo::SetDrawlist();
+		auto windowWidth = (float)ImGui::GetWindowWidth();
+		auto windowHeight = (float)ImGui::GetWindowHeight();
+		ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+		float viewManipulateRight = ImGui::GetWindowPos().x + windowWidth;
+		float viewManipulateTop = ImGui::GetWindowPos().y;
+
+
+		ImGuizmo::Manipulate(
+				cameraView, cameraProjection, currentGizmoOperation, currentGizmoMode,
+				identityMatrix.matrix, NULL, _useSnap ? &_snap[0] : NULL,
+				_boundSizing ? _bounds : NULL, _boundSizingSnap ? _boundsSnap : NULL);
+
+
+		// don't want the view manipulate gizmo to change the view matrix, so use this to avoid that.
+		//memcpy(_fakeVeiwMatrix,cameraView,sizeof(float) * 16);
+
+		// view manipulate gizmo
+		ImGuizmo::ViewManipulate(cameraView, sqrt(LengthSquared(_camera.GetForwardDirection())), ImVec2(viewManipulateRight - 100, viewManipulateTop),
+				ImVec2(100, 100), 0x10101010);
+		// grid
+		ImGuizmo::DrawGrid(cameraView, cameraProjection, identityMatrix.matrix, 100.f);
+
 	}
 }
 

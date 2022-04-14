@@ -144,14 +144,6 @@ namespace PlatinumEngine
 		rotationMatX	.SetRotationMatrix(Maths::Vec3(_eulerAngle.x, 0, 0 ));
 		rotationMatY	.SetRotationMatrix(Maths::Vec3(0, _eulerAngle.y, 0));
 		translationMat4	.SetTranslationMatrix(_translationValue);
-
-		// update camera position
-		Maths::Vec4 tempVec4 = translationMat4 *  rotationMatY * rotationMatX * Maths::Vec4(0.f, 0.f, 0.f, 1.f);
-
-		_cameraPosition.x = tempVec4.x;
-		_cameraPosition.y = tempVec4.y;
-		_cameraPosition.z = tempVec4.z;
-
 	}
 
 	void EditorCamera::SetFrustumMatrix(float left, const float right, float bottom, float top, float near, float far)

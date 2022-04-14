@@ -100,7 +100,7 @@ namespace PlatinumEngine
 
 		// ___PARAMETERS___
 		// Value for ray casting
-		GameObject* _selectedGameobject;
+		GameObject* _selectedGameobject = nullptr;
 		
 		//ImGuizmo
 		float _snap[3];

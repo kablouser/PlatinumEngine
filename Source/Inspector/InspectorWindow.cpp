@@ -19,7 +19,7 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 			static char objectNameBuffer[128];
 			strcpy(objectNameBuffer, _activeGameObject->name.c_str());
 			ImGui::InputText("##input name", objectNameBuffer, IM_ARRAYSIZE(objectNameBuffer));
-			_activeGameObject->name = std::string{ objectNameBuffer };
+			_activeGameObject->name = std::string( objectNameBuffer );
 
 			ImGui::SameLine();
 
