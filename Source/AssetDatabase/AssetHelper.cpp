@@ -10,7 +10,7 @@ namespace PlatinumEngine
 
 	AssetHelper::~AssetHelper() {}
 
-	std::tuple<bool, Mesh*> AssetHelper::ShowGuiWindow()
+	std::tuple<bool, Mesh*> AssetHelper::ShowMeshGuiWindow()
 	{
 		bool isAssetSelected = false;
 		static ImGuiTextFilter filter;
@@ -47,5 +47,27 @@ namespace PlatinumEngine
 			ImGui::EndPopup();
 		}
 		return {isAssetSelected, mesh};
+	}
+
+	// TODO: This is unDone
+	std::tuple<bool, Material*> AssetHelper::ShowMaterialGuiWindow()
+	{
+		bool isAssetSelected = false;
+		static ImGuiTextFilter filter;
+		Asset asset;
+		Material* material;
+
+		if(ImGui::BeginPopupModal("Select Texture", nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			filter.Draw(ICON_KI_SEARCH);
+			ImGui::Separator();
+			if(ImGui::Selectable("None"))
+			{
+				material = nullptr;
+				isAssetSelected= true;
+			}
+			ImGui::EndPopup();
+		}
+		return {isAssetSelected, material};
 	}
 }

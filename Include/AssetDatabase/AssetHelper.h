@@ -4,6 +4,7 @@
 #pragma once
 
 #include <OpenGL/Mesh.h>
+#include <OpenGL/Material.h>
 #include <AssetDatabase/AssetDatabase.h>
 #include <imgui.h>
 #include <IconsKenney.h>
@@ -20,8 +21,9 @@ namespace PlatinumEngine
 		 * Responsible for the pop up window opened by
 		 * the render component in Inspector Window
 		 */
-		 std::tuple<bool, Mesh*> ShowGuiWindow();
+		 std::tuple<bool, Mesh*> ShowMeshGuiWindow();
 
+		 std::tuple<bool, Material*> ShowMaterialGuiWindow();
 	private:
 		AssetDatabase* _assetDatabase;
 	};

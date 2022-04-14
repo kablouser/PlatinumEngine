@@ -146,7 +146,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 
 
-target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts" "${FETCHCONTENT_BASE_DIR}/imguizmo-src")
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts" "${FETCHCONTENT_BASE_DIR}/imguizmo-src" "${FETCHCONTENT_BASE_DIR}/_deps/stb-src")
 #-----------------------------
 
 

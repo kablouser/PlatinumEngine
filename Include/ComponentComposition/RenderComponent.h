@@ -20,17 +20,19 @@ namespace PlatinumEngine
 		void SetMesh(Mesh* mesh);
 
 		// load material
-		void LoadMaterial(const MaterialRes& materialRes);
+		void LoadMaterial(const MaterialRes& materialRes, Renderer& renderer);
 
 		// return mesh
 		Mesh* GetMesh();
+
+		// return material
+		Material& GetMaterial();
 
 		// override the OnRender() of the Component
 		void OnRender(Scene& scene, Renderer& renderer) override;
 
 	private:
 		Mesh* _mesh;
-		Mesh _mesh;
 		Material _material;
 		ShaderInput _shaderInput;
 	};

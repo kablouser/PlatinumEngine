@@ -67,6 +67,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 
 	ImGui::Separator();
 	char meshBuffer[64];
+	char textureBuffer[64];
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_TABLE_CELLS "  Mesh", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
@@ -78,8 +79,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 	if (isHeaderOpen)
 	{
 		ImGui::Text("Mesh");
-		ImGui::SameLine();
-		ImGui::PushItemWidth(160.0f);
+		ImGui::SameLine(_sameLineMesh);
+		ImGui::PushItemWidth(_itemWidthMesh);
 
 		// store the current mesh name into mesh buffer, so that we can display it in the input text box
 		if(_activeGameObject->GetComponent<RenderComponent>()->GetMesh() != nullptr)
@@ -87,21 +88,39 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		else
 			memset(meshBuffer, 0, 64 * sizeof(char));
 
-		// show text box (read only)
+		// show text box (read only)--------Choose Mesh
 		ImGui::InputText("##Mesh Name",meshBuffer,sizeof(meshBuffer), ImGuiInputTextFlags_ReadOnly);
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 
-		if(ImGui::Button("Choose mesh"))
+		if(ImGui::Button("Select Mesh"))
 		{
 			ImGui::OpenPopup("Select Mesh");
 		}
 
-		auto asset_Helper = _assetHelper->ShowGuiWindow();
+		auto asset_Helper = _assetHelper->ShowMeshGuiWindow();
 		if(std::get<0>(asset_Helper))
 		{
 			_activeGameObject->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
 		}
+
+		//Show text box (read only)----------Choose Material
+		ImGui::Separator();
+		ImGui::Text("Material");
+		ImGui::SameLine(_sameLineMesh);
+		ImGui::PushItemWidth(_itemWidthMesh);
+		ImGui::InputText("##Material Name", textureBuffer, sizeof(textureBuffer), ImGuiInputTextFlags_ReadOnly);
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+		if(ImGui::Button("Select Texture"))
+		{
+			ImGui::OpenPopup("Select Texture");
+		}
+		ImGui::Text("Shininess");
+		ImGui::SameLine(_sameLineMesh);
+		ImGui::PushItemWidth(_itemWidthMesh);
+		ImGui::SliderFloat("##shininess",&(_activeGameObject->GetComponent<RenderComponent>()->GetMaterial().shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
+		ImGui::PopItemWidth();
 	}
 }
 
@@ -121,7 +140,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 	{
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Position: ");
-		ImGui::SameLine();
+		ImGui::SameLine(_sameLineTransform);
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::InputFloat("##Xpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[0]);
@@ -136,7 +155,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 
 		static float eulerRotation[3] = {0.0f, 0.0f, 0.0f};
 		ImGui::Text("Rotation: ");
-		ImGui::SameLine();
+		ImGui::SameLine(_sameLineTransform);
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::InputFloat("##Xrot", &eulerRotation[0]);

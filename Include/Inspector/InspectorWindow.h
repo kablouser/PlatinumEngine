@@ -37,5 +37,10 @@ namespace PlatinumEngine
 
 		// Have to keep track of if object enabled ourselves as isEnabled is a private member of game object
 		bool _isObjectEnabled;
+
+		//ImGui helper parameters
+		float _sameLineMesh = 70.f;
+		float _itemWidthMesh = 160.f;
+		float _sameLineTransform = 70.f;
 	};
 }
