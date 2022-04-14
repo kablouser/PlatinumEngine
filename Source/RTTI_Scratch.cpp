@@ -1,5 +1,4 @@
 #include <string_view>
-<<<<<<< HEAD
 #include <vector>
 #include <iostream>
 #include <functional>
@@ -9,11 +8,6 @@
 template<typename T>
 constexpr auto type_name()
 {
-=======
-
-template <typename T>
-constexpr auto type_name() {
->>>>>>> 2186aba9ac816ed94308baf13fd08cd1c8075ed7
 	std::string_view name, prefix, suffix;
 #ifdef __clang__
 	name = __PRETTY_FUNCTION__;
@@ -33,7 +27,6 @@ constexpr auto type_name() {
 	return name;
 }
 
-<<<<<<< HEAD
 template<class... T>
 std::vector<const char*> getTypeNames()
 {
@@ -89,30 +82,12 @@ private:
 	const std::vector<float>& _toIterateOver;
 	size_t _currentIndex;
 };
-=======
-#include <vector>
-#include <iostream>
-#include <functional>
-
-int main()
-{
-	const volatile int x = 0;
-	std::cout << type_name<decltype(x)>() << std::endl;
-	std::cout << sizeof(std::function<void(void)>) << std::endl;
-}
-
-
-#include <string>
-#include <vector>
-#include <typeindex>
->>>>>>> 2186aba9ac816ed94308baf13fd08cd1c8075ed7
 
 class TypeInfo;
 
 class FieldInfo
 {
 public:
-<<<<<<< HEAD
 	std::string typeName;
 	std::string fieldName;
 	size_t offset;
@@ -121,20 +96,11 @@ public:
 	{
 		return (char*)typeInstance + offset;
 	}
-=======
-	TypeInfo* typeInfo;
-	std::string fieldName;
-
-	void* AccessGeneric(void* instance);
-	int& AccessInt(void* instance);
-	double& AccessDouble(void* instance);
->>>>>>> 2186aba9ac816ed94308baf13fd08cd1c8075ed7
 };
 
 class TypeInfo
 {
 public:
-<<<<<<< HEAD
 	std::string name; // should be unique?
 
 	bool isTemplate;
@@ -245,13 +211,3 @@ int main()
 
 	return 0;
 }
-=======
-	std::string name; // not unique, but "cross-platform"
-	std::type_index index; // unique for each type
-
-	std::vector<FieldInfo> fields;
-
-	void Serialize();
-	void Deserialize();
-};
->>>>>>> 2186aba9ac816ed94308baf13fd08cd1c8075ed7
