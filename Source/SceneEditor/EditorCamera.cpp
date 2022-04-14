@@ -140,10 +140,6 @@ namespace PlatinumEngine
 
 		// calculate the new look at matrix by applying the transformation matrix
 		viewMatrix4 = rotationMatX * rotationMatY * translationMat4;
-
-		rotationMatX	.SetRotationMatrix(Maths::Vec3(_eulerAngle.x, 0, 0 ));
-		rotationMatY	.SetRotationMatrix(Maths::Vec3(0, _eulerAngle.y, 0));
-		translationMat4	.SetTranslationMatrix(_translationValue);
 	}
 
 	void EditorCamera::SetFrustumMatrix(float left, const float right, float bottom, float top, float near, float far)
@@ -195,5 +191,6 @@ namespace PlatinumEngine
 	{
 		return _fov;
 	}
+
 
 }

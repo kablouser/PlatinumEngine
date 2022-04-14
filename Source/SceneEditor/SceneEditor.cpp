@@ -664,6 +664,35 @@ namespace PlatinumEngine{
 		ImGuizmo::DrawGrid(cameraView, cameraProjection, identityMatrix.matrix, 100.f);
 
 	}
+
+	void SceneEditor::UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
+	{
+		Maths::Mat4 identityMatrix(1);
+
+		ImGuizmo::SetDrawlist();
+		auto windowWidth = (float)ImGui::GetWindowWidth();
+		auto windowHeight = (float)ImGui::GetWindowHeight();
+		ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+		float viewManipulateRight = ImGui::GetWindowPos().x + windowWidth;
+		float viewManipulateTop = ImGui::GetWindowPos().y;
+
+
+		ImGuizmo::Manipulate(
+				cameraView, cameraProjection, currentGizmoOperation, currentGizmoMode,
+				identityMatrix.matrix, NULL, _useSnap ? &_snap[0] : NULL,
+				_boundSizing ? _bounds : NULL, _boundSizingSnap ? _boundsSnap : NULL);
+
+
+		// don't want the view manipulate gizmo to change the view matrix, so use this to avoid that.
+		//memcpy(_fakeVeiwMatrix,cameraView,sizeof(float) * 16);
+
+		// view manipulate gizmo
+		ImGuizmo::ViewManipulate(cameraView, sqrt(LengthSquared(_camera.GetForwardDirection())), ImVec2(viewManipulateRight - 100, viewManipulateTop),
+				ImVec2(100, 100), 0x10101010);
+
+		// grid
+		ImGuizmo::DrawGrid(cameraView, cameraProjection, identityMatrix.matrix, 100.f);
+	}
 }
 
 
