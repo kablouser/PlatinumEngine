@@ -27,12 +27,12 @@ namespace PlatinumEngine
 			  _translationValue(0.f, 0.f, 10.f),
 			  viewMatrix4(1.f),
 			  projectionMatrix4(1.f),
-			  isOrthogonal(false)
-	{
-		// update view matrix
-		MoveCamera(PlatinumEngine::Maths::Vec3(0.0, 0.0, 0),
-				PlatinumEngine::Maths::Vec3(0.0, 0.0, 0.0));
-	}
+			  isOrthogonal(false),
+			  _nearPanelForClippingSpace(4.f),
+			  _farPanelForClippingSpace(10000.f),
+			  _fov(40)
+	{}
+
 
 
 	void EditorCamera::RotationByMouse(Maths::Vec2 delta)
@@ -145,28 +145,29 @@ namespace PlatinumEngine
 
 	void EditorCamera::MoveCamera(PlatinumEngine::Maths::Vec3 eulerAngle, PlatinumEngine::Maths::Vec3 translationValue)
 	{
+
 		// update euler angle
 		_eulerAngle += eulerAngle;
 
-		PlatinumEngine::Maths::Mat4 rotationMat4, translationMat4, translation2Mat4;
+		PlatinumEngine::Maths::Mat4 rotationMat4, translationMat4, rotationMat4Inverse, translationMat4Inverse;
 
-		rotationMat4.SetRotationMatrix(-_eulerAngle);
-
+		// get rotation matrix
+		rotationMat4Inverse.SetRotationMatrix(-_eulerAngle);
 
 		// update translation value
-		_translationValue.x += translationValue.x;
-		_translationValue.y += translationValue.y;
-		_translationValue.z += translationValue.z;
+		_translationValue += translationValue;
 
 		// get translation matrix
-		translationMat4.SetTranslationMatrix(-_translationValue);
-
-		// translation2Mat4.SetTranslationMatrix(-_cameraPosition);
-
+		translationMat4Inverse.SetTranslationMatrix(-_translationValue);
 
 		// calculate the new look at matrix by applying the transformation matrix
-		viewMatrix4 = rotationMat4 * translationMat4;
+		viewMatrix4 = rotationMat4Inverse * translationMat4Inverse;
 
+		// get rotation matrix
+		rotationMat4.SetRotationMatrix(_eulerAngle);
+
+		// get translation matrix
+		translationMat4.SetTranslationMatrix(_translationValue);
 
 	}
 
@@ -174,21 +175,54 @@ namespace PlatinumEngine
 	void EditorCamera::SetFrustumMatrix(float left, const float right, float bottom, float top, float near, float far)
 	{
 
+		// update projection matrix
 		projectionMatrix4.SetFrustumMatrix( left,  right,  bottom,  top,  near,  far);
 
 	}
 
 	void EditorCamera::SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
 	{
+		// store the near and far panel values
+		_nearPanelForClippingSpace = zNear;
+		_farPanelForClippingSpace = zFar;
+		_fov = -1;
 
+		// update projection matrix
 		projectionMatrix4.SetOrthogonalMatrix( left,  right,  bottom,  top,  zNear,  zFar);
 
 	}
 
 	void EditorCamera::SetPerspectiveMatrix(float fovy, float aspect, float near, float far)
 	{
+
+		// store the near and far panel values
+		_nearPanelForClippingSpace = near;
+		_farPanelForClippingSpace = far;
+		_fov = fovy;
+
+		// update projection matrix
 		projectionMatrix4.SetPerspectiveMatrix( fovy,  aspect,  near,  far);
 
+	}
+
+	const Maths::Vec3& EditorCamera::GetCameraPosition()
+	{
+		return _translationValue;
+	}
+
+	float EditorCamera::GetNearPanelForClippingSpace()
+	{
+		return _nearPanelForClippingSpace;
+	}
+
+	float EditorCamera::GetFarPanelForClippingSpace()
+	{
+		return _farPanelForClippingSpace;
+	}
+
+	float EditorCamera::GetFovForPerspectiveProjection()
+	{
+		return _fov;
 	}
 
 }

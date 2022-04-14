@@ -39,6 +39,5 @@ namespace PlatinumEngine
 	{
 		return _mesh;
 	}
-
 }
 
