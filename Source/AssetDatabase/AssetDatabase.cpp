@@ -310,14 +310,25 @@ namespace PlatinumEngine
 	void AssetDatabase::ReloadAssets()
 	{
 		// each entry corresponds to the loader in the ALLOWED_EXTENSIONS
-		std::vector<std::function<void*(const std::string& filePath)>> loaders{
+		std::vector<std::function<void*(const std::filesystem::path &filePath)>> loaders{
 				// remember to add the allocated data to its individual list
-				[&](const std::string& filePath) -> void*
+				[&](const std::filesystem::path& filePath) -> void*
 				{
 					Mesh* allocateMesh = new Mesh;
-					*allocateMesh = Loaders::LoadMesh(filePath);
+					*allocateMesh = Loaders::LoadMesh(filePath.string());
 					_loadedMeshAssets.push_back(allocateMesh);
 					return allocateMesh;
+				},
+
+				[&](const std::filesystem::path& filePath) -> void*
+				{
+					PixelData pixelData;
+					Texture* allocateTexture = new Texture;
+					pixelData.Create(filePath.string());
+					allocateTexture->Create(pixelData.width, pixelData.height, (const void*)pixelData.pixelData);
+					_loadedTextureAssets.emplace_back(allocateTexture);
+					allocateTexture->fileName = filePath.filename().string();
+					return allocateTexture;
 				},
 		};
 
@@ -338,7 +349,7 @@ namespace PlatinumEngine
 		{
 			if (_database[i].doesExist)
 			{
-				std::string filePath = _database[i].path.string();
+				auto filePath = _database[i].path;
 				auto findFilePath = fileExtensionToLoader.find(GetExtension(filePath));
 
 				if (findFilePath == fileExtensionToLoader.end())
@@ -392,6 +403,46 @@ namespace PlatinumEngine
 		{
 			if (GetExtension(_database[databaseIndex].path.string()) == "obj")
 				return static_cast<Mesh*>(_loadedAssets[databaseIndex]);
+			else
+				PLATINUM_WARNING_STREAM << "AssetDatabase: can't load get loaded asset because the type you want "
+										   "is different to the type stored";
+		}
+
+		return nullptr;
+	}
+
+	std::vector<TextureAssetID> AssetDatabase::GetTextureAssetIDs(bool requireExist) const
+	{
+		std::vector<TextureAssetID> results;
+		for (const auto& asset: _database)
+		{
+			if (requireExist && !asset.doesExist)
+				continue;
+
+			if (GetExtension(asset.path.string()) == "png")
+			{
+				results.push_back({ asset.id });
+			}
+		}
+		return results;
+	}
+
+	Texture* AssetDatabase::GetLoadedTextureAsset(TextureAssetID textureAssetID)
+	{
+		return (*this)[textureAssetID];
+	}
+
+	Texture* AssetDatabase::operator[](TextureAssetID textureAssetID)
+	{
+		auto findID = _assetIDsMap.find(textureAssetID.id);
+		if (findID == _assetIDsMap.end())
+			return nullptr;
+
+		size_t databaseIndex = findID->second;
+		if (_database[databaseIndex].doesExist)
+		{
+			if (GetExtension(_database[databaseIndex].path.string()) == "png")
+				return static_cast<Texture*>(_loadedAssets[databaseIndex]);
 			else
 				PLATINUM_WARNING_STREAM << "AssetDatabase: can't load get loaded asset because the type you want "
 										   "is different to the type stored";

@@ -10,7 +10,7 @@ namespace PlatinumEngine
 		nearClippingPlane = 0.3f;
 		farClippingPlane = 1000;
 		orthographicSize = 1;
-		clearMode = ClearMode::none;
+		clearMode = ClearMode::backgroundColor;
 	}
 
 	//Transform point from screen to world coordinates

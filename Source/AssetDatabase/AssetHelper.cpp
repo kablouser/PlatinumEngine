@@ -34,7 +34,6 @@ namespace PlatinumEngine
 						if (ImGui::Selectable(asset.path.string().c_str()))
 						{
 							mesh = (*_assetDatabase)[meshAssetID];
-							mesh->fileName = asset.path.filename().string();
 							isAssetSelected = true;
 						}
 					}
@@ -50,12 +49,12 @@ namespace PlatinumEngine
 	}
 
 	// TODO: This is unDone
-	std::tuple<bool, Material*> AssetHelper::ShowMaterialGuiWindow()
+	std::tuple<bool, Texture*> AssetHelper::ShowTextureGuiWindow()
 	{
 		bool isAssetSelected = false;
 		static ImGuiTextFilter filter;
 		Asset asset;
-		Material* material;
+		Texture* texture;
 
 		if(ImGui::BeginPopupModal("Select Texture", nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
 		{
@@ -63,11 +62,29 @@ namespace PlatinumEngine
 			ImGui::Separator();
 			if(ImGui::Selectable("None"))
 			{
-				material = nullptr;
+				texture = nullptr;
 				isAssetSelected= true;
+			}
+			for(auto textureAssetID : _assetDatabase->GetTextureAssetIDs())
+			{
+				if(_assetDatabase->TryGetAsset(textureAssetID.id, asset))
+				{
+					if (filter.PassFilter(asset.path.string().c_str()))
+					{
+						if (ImGui::Selectable(asset.path.string().c_str()))
+						{
+							texture= (*_assetDatabase)[textureAssetID];
+							isAssetSelected = true;
+						}
+					}
+				}
+				else
+				{
+					PLATINUM_ERROR("NO SUCH ASSET FOUND IN ASSET DATABASE!");
+				}
 			}
 			ImGui::EndPopup();
 		}
-		return {isAssetSelected, material};
+		return {isAssetSelected, texture};
 	}
 }

@@ -8,23 +8,27 @@
 namespace PlatinumEngine
 {
 #define INVALID_HANDLE 0
+/*
 	struct MaterialRes
 	{
 		std::string diffuseTextureFile;
 		std::string normalTextureFile;
 		std::string specularTextureFile;
 	};
+*/
+
 	class Material
 	{
 	public:
-		Texture			diffuseTexture;
-		Texture			normalTexture;
-		Texture			specularTexture;
+		Texture*			diffuseTexture;
+		Texture*			normalTexture;
+		Texture*			specularTexture;
 
 		float         	shininessFactor;
 
 		Material();
 		~Material();
+
 	};
 }
 

@@ -16,15 +16,27 @@ namespace PlatinumEngine
 		~Texture();
 
 		void Create(GLsizei width, GLsizei height, const void* pixelData = nullptr);
-		void Create(const std::string& filePath);
+
 
 		GLuint GetOpenGLHandle() const;
 		ImTextureID GetImGuiHandle() const;
 		void Bind() const;
 		void Unbind() const;
-
+		std::string fileName;
 	private:
 
 		GLuint _textureHandle;
+	};
+
+	class PixelData
+	{
+	public:
+		PixelData();
+		~PixelData();
+		void Create(const std::string& filePath);
+
+		int width, height, nrComponents;
+		unsigned char *pixelData;
+
 	};
 }

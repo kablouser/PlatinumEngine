@@ -19,11 +19,7 @@ namespace PlatinumEngine
 		// update mesh from mesh loader
 		void SetMesh(Mesh* mesh);
 
-		// load material
-		void LoadMaterial(const MaterialRes& materialRes, Renderer& renderer);
-
-		// load material
-		void LoadMaterial(const MaterialRes& materialRes);
+		void SetMaterial(Texture* texture);
 
 		// return mesh
 		Mesh* GetMesh();

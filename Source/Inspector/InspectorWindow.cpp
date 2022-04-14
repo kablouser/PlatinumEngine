@@ -98,10 +98,12 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			ImGui::OpenPopup("Select Mesh");
 		}
 
-		auto asset_Helper = _assetHelper->ShowMeshGuiWindow();
-		if(std::get<0>(asset_Helper))
 		{
-			_activeGameObject->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+			auto asset_Helper = _assetHelper->ShowMeshGuiWindow();
+			if (std::get<0>(asset_Helper))
+			{
+				_activeGameObject->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+			}
 		}
 
 		//Show text box (read only)----------Choose Material
@@ -116,10 +118,15 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		{
 			ImGui::OpenPopup("Select Texture");
 		}
+		{
+			auto asset_Helper = _assetHelper->ShowTextureGuiWindow();
+			if (std::get<0>(asset_Helper))
+				_activeGameObject->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
+		}
 		ImGui::Text("Shininess");
 		ImGui::SameLine(_sameLineMesh);
 		ImGui::PushItemWidth(_itemWidthMesh);
-		ImGui::SliderFloat("##shininess",&(_activeGameObject->GetComponent<RenderComponent>()->GetMaterial().shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
+		//ImGui::SliderFloat("##shininess",&(_activeGameObject->GetComponent<RenderComponent>()->GetMaterial().shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 	}
 }

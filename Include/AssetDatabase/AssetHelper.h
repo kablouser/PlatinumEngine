@@ -4,7 +4,7 @@
 #pragma once
 
 #include <OpenGL/Mesh.h>
-#include <OpenGL/Material.h>
+#include <OpenGL/Texture.h>
 #include <AssetDatabase/AssetDatabase.h>
 #include <imgui.h>
 #include <IconsKenney.h>
@@ -23,7 +23,7 @@ namespace PlatinumEngine
 		 */
 		 std::tuple<bool, Mesh*> ShowMeshGuiWindow();
 
-		 std::tuple<bool, Material*> ShowMaterialGuiWindow();
+		 std::tuple<bool, Texture*> ShowTextureGuiWindow();
 	private:
 		AssetDatabase* _assetDatabase;
 	};
