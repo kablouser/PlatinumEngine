@@ -24,15 +24,16 @@ namespace PlatinumEngine
 		// return mesh
 		Mesh* GetMesh();
 
-		// return material
-		Material& GetMaterial();
-
 		// override the OnRender() of the Component
 		void OnRender(Scene& scene, Renderer& renderer) override;
 
+	public:
+		Material material;
+
 	private:
 		Mesh* _mesh;
-		Material _material;
+
+
 		ShaderInput _shaderInput;
 	};
 }

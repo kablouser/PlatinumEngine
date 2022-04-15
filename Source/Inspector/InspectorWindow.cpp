@@ -106,11 +106,19 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			}
 		}
 
+		if(_activeGameObject->GetComponent<RenderComponent>()->material.diffuseTexture != nullptr)
+			strcpy(textureBuffer,  _activeGameObject->GetComponent<RenderComponent>()->material.diffuseTexture->fileName.c_str());
+		else
+			memset(textureBuffer, 0, 64 * sizeof(char));
+
 		//Show text box (read only)----------Choose Material
 		ImGui::Separator();
 		ImGui::Text("Material");
 		ImGui::SameLine(_sameLineMesh);
 		ImGui::PushItemWidth(_itemWidthMesh);
+
+		// store the current material name into mesh buffer, so that we can display it in the input text box
+
 		ImGui::InputText("##Material Name", textureBuffer, sizeof(textureBuffer), ImGuiInputTextFlags_ReadOnly);
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
@@ -126,7 +134,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::Text("Shininess");
 		ImGui::SameLine(_sameLineMesh);
 		ImGui::PushItemWidth(_itemWidthMesh);
-		//ImGui::SliderFloat("##shininess",&(_activeGameObject->GetComponent<RenderComponent>()->GetMaterial().shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
+		ImGui::SliderFloat("##shininess",&(_activeGameObject->GetComponent<RenderComponent>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 	}
 }
