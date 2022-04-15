@@ -24,6 +24,7 @@ namespace PlatinumEngine{
 			_renderer(renderer),
 			_renderTexture(),
 
+			_selectedGameobject(nullptr),
 
 			_mouseMoveDelta(0, 0) ,
 			_mouseButtonType(-1),
