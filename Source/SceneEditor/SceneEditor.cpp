@@ -19,8 +19,9 @@ namespace PlatinumEngine{
 			_ifCameraSettingWindowOpen(false),
 			_camera(), _fov(60), _near(4), _far(10000),_inputManager(inputManager), _scene(scene),
 			_mouseMoveDelta(0, 0) ,_mouseButtonType(-1),
-			_wheelValueDelta(0),_renderTexture(), _renderer(renderer)
+			_wheelValueDelta(0),_renderTexture(), _renderer(renderer),
 
+			_selectedGameobject(nullptr)
 	{
 		_inputManager->CreateAxis(std::string ("HorizontalAxisForEditorCamera"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
 		_inputManager->CreateAxis(std::string ("VerticalAxisForEditorCamera"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
@@ -368,15 +369,13 @@ namespace PlatinumEngine{
 					if (auto transformComponent = currentCheckingGameobject->GetComponent<TransformComponent>();
 							transformComponent != nullptr)
 					{
-						Maths::Mat4 translationMatrix, rotationMatrix, scaleMatrix;
-						translationMatrix.SetTranslationMatrix(transformComponent->position);
-						rotationMatrix.SetRotationMatrix(transformComponent->rotation.EulerAngles());
-						scaleMatrix.SetScaleMatrix(transformComponent->scale);
+						Maths::Mat4 modelMatrix = transformComponent->GetLocalToParentMatrix();
+
 
 						Maths::Vec4 temporaryMatrix;
 
 						// get the world coordinate of vertex 0
-						temporaryMatrix = rotationMatrix * translationMatrix * scaleMatrix *
+						temporaryMatrix = modelMatrix *
 										  Maths::Vec4(mesh->vertices[mesh->indices[count + 0]].position.x,
 												  mesh->vertices[mesh->indices[count + 0]].position.y,
 												  mesh->vertices[mesh->indices[count + 0]].position.z, 1.0f);
@@ -384,7 +383,7 @@ namespace PlatinumEngine{
 						vertex0 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
 
 						// get the world coordinate of vertex 1
-						temporaryMatrix = rotationMatrix * translationMatrix * scaleMatrix *
+						temporaryMatrix = modelMatrix *
 										  Maths::Vec4(mesh->vertices[mesh->indices[count + 1]].position.x,
 												  mesh->vertices[mesh->indices[count + 1]].position.y,
 												  mesh->vertices[mesh->indices[count + 1]].position.z, 1.0f);
@@ -392,7 +391,7 @@ namespace PlatinumEngine{
 						vertex1 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
 
 						// get the world coordinate of vertex 2
-						temporaryMatrix = rotationMatrix * translationMatrix * scaleMatrix *
+						temporaryMatrix = modelMatrix *
 										  Maths::Vec4(mesh->vertices[mesh->indices[count + 2]].position.x,
 												  mesh->vertices[mesh->indices[count + 2]].position.y,
 												  mesh->vertices[mesh->indices[count + 2]].position.z, 1.0f);
