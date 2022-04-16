@@ -5,13 +5,15 @@
 #pragma once
 
 #include "Maths/Matrices.h"
+#include "Maths/Quaternion.h"
+
 
 namespace PlatinumEngine
 {
 	class EditorCamera
 	{
 	public:
-		// VARIABLE
+		// ___VARIABLE___
 
 		// view Matrix stuff
 		Maths::Mat4 viewMatrix4;
@@ -24,12 +26,15 @@ namespace PlatinumEngine
 		bool isOrthogonal;
 		enum AxisType{horizontalAxis, verticalAxis};
 
+		// Translation?
+		float viewPortSize = 100; // for moving closer in orthogonal mode?
+
 
 		// FUNCTION
 		/**
 		 * The function calculate the newest view matrix.
 		 */
-		void MoveCamera();
+		void UpdateViewMatrix();
 
 
 		/**
@@ -37,12 +42,6 @@ namespace PlatinumEngine
 		 * @param delta
 		 */
 		void RotationByMouse(Maths::Vec2 delta);
-
-		/**
-		 * Rotate the camera by euler angle
-		 * @param eulerAngle : the euler angle
-		 */
-		void RotateCamera(Maths::Vec3 eulerAngle);
 
 
 		/**
@@ -67,12 +66,6 @@ namespace PlatinumEngine
 		void TranslationByKeyBoard(float x, float y);
 
 		/**
-		 * Translate
-		 * @param movement : the translation direction with magnitude
-		 */
-		void TranslateCamera(Maths::Vec3 translateMovement);
-
-		/**
 		 * The three functions are to calculate new up/forward/right
 		 * direction by the newest view matrix
 		 * @return glm::vec3 is the new up/forward/right direction
@@ -93,9 +86,9 @@ namespace PlatinumEngine
 		 * @param far
 		 * ...
 		 */
-		void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far); // TODO: maybe deleted
 		void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
 		void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
+
 
 		/**
 		 * Get camera position const reference
@@ -104,38 +97,53 @@ namespace PlatinumEngine
 		const Maths::Vec3& GetCameraPosition();
 
 		/**
-		 * Get near/far panel z value for the clipping space
-		 * @return : near/far panel z value for the clipping space
+		 *
+		 * @param matrixArray
 		 */
-		float GetNearPanelForClippingSpace();
-		float GetFarPanelForClippingSpace();
+		void UpdateCameraQuaternion();
 
 		/**
-		 * Get fov value
-		 * @return : fov value
+		 * Set the flag _IsViewMatrixUsed to be true (meaning the flag is passed into the shader?)
 		 */
-		float GetFovForPerspectiveProjection();
+		void MarkViewMatrixAsUsed();
 
+		/**
+		 * Return the _IsViewMatrixUsed flag
+		 * @return : the _IsViewMatrixUsed flag
+		 */
+		bool CheckIfViewMatrixUsed();
 
-		// CONSTRUCTOR
+		/**
+		 * Set the flag _IsViewMatrixUsed to be false (meaning the flag is passed into the shader?)
+		 */
+		void MarkProjectionMatrixAsUsed();
+
+		/**
+		 * Return the _IsProjectionMatrixUsed flag
+		 * @return : the _IsProjectionMatrixUsed flag
+		 */
+		bool CheckIfProjectionMatrixUsed();
+
+		// ___CONSTRUCTOR___
 		EditorCamera();
 
 
 	private:
-		// PARAMETER
+		// ___PARAMETER___
+
+		// flag
+		bool _IsViewMatrixUsed = false;
+		bool _IsProjectionMatrixUsed = false;
 
 		// transformation
-		Maths::Vec3 _eulerAngle;
+		Maths::Quaternion _quaternion;
 		Maths::Vec3 _translationValue;
-		
-		// camera
-		float _nearPanelForClippingSpace;
-		float _farPanelForClippingSpace;
-		float _fov;
+
+
 
 		// device input data
-		float _translationSpeed = 0.1;
-		float _rotationSpeed = 0.005;
+		float _translationSpeed = 0.05;
+		float _rotationSpeed = 0.002;
 
 	};
 

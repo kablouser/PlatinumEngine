@@ -40,7 +40,9 @@ namespace PlatinumEngine{
 			_bounds{-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f},
 			_boundsSnap{ 0.1f, 0.1f, 0.1f },
 
-			_currentClickedZone()
+			_currentClickedZone(),
+
+			_selectedGameobject(nullptr)
 	{
 		_inputManager->CreateAxis(std::string ("HorizontalAxisForEditorCamera"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
 		_inputManager->CreateAxis(std::string ("VerticalAxisForEditorCamera"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
@@ -111,6 +113,9 @@ namespace PlatinumEngine{
 			// Sub window
 			//-------------
 
+			// Boolean to check if the projection matrix is update
+			bool isProjectionUpdated = false;
+
 			// Camera setting window
 
 			if (_ifCameraSettingWindowOpen)
@@ -122,37 +127,35 @@ namespace PlatinumEngine{
 					// ___Widgets in this window___
 
 					// Button
-
 					if (_camera.isOrthogonal)
 					{
 						if (ImGui::Button("Orthogonal"))
 						{
 							_camera.isOrthogonal = !_camera.isOrthogonal;
+
+							isProjectionUpdated = true;
 						}
 
-						// Text boxes
-
-						ImGui::InputInt("Near", &_near, 16);
-
-						ImGui::InputInt("Far", &_far, 16);
+						// widgets
+						if(ImGui::InputFloat("Near", &_near, 16) || ImGui::InputFloat("Far", &_far, 16))
+						{
+							isProjectionUpdated = true;
+						}
 					}
 					else
 					{
 						if (ImGui::Button("Perspective"))
 						{
 							_camera.isOrthogonal = !_camera.isOrthogonal;
+
+							isProjectionUpdated = true;
 						}
 
-						// Slider
-
-						ImGui::SliderInt("Field of View", &_fov, 4, 160);
-
-
-						// Text boxes
-
-						ImGui::InputInt("Near", &_near, 16);
-
-						ImGui::InputInt("Far", &_far, 16);
+						// widgets
+						if(ImGui::SliderInt("Field of View", &_fov, 4, 179) || ImGui::InputFloat("Near", &_near, 16)||ImGui::InputFloat("Far", &_far, 16))
+						{
+							isProjectionUpdated = true;
+						}
 
 					}
 
@@ -172,22 +175,11 @@ namespace PlatinumEngine{
 
 			if(ImGui::BeginChild("##e",ImVec2(targetSize.x, targetSize.y), false,ImGuiWindowFlags_NoMove))
 			{
-				//ImGuizmo
-
-				//--------------------------------
-				// update mouse && keyboard input
-				//--------------------------------
-				_mouseButtonType = _inputManager->GetMouseDown();
-
-				_mouseMoveDelta = _inputManager->GetMouseMoveVector();
-
-				_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
-
 
 				//------------------
 				// Update Data
 				//------------------
-				Update(targetSize, _currentGizmoMode, _currentGizmoOperation);
+				Update(targetSize, isProjectionUpdated, _currentGizmoMode, _currentGizmoOperation);
 			}
 			ImGui::EndChild();
 		}
@@ -199,17 +191,25 @@ namespace PlatinumEngine{
 
 
 
-	void SceneEditor::Update(ImVec2 targetSize, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
+	void SceneEditor::Update(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
 	{
+
+		//--------------------------------
+		// update mouse && keyboard input
+		//--------------------------------
+		_mouseButtonType = _inputManager->GetMouseDown();
+		_mouseMoveDelta  = _inputManager->GetMouseMoveVector();
+		_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
+
 		//--------------------------------------
 		// check if mouse is inside the screen
 		//--------------------------------------
-	if(!ImGuizmo::IsUsing())
-	{
-		if (_inputManager->GetMousePosition().x <= targetSize.x
-			&& _inputManager->GetMousePosition().x >= ImGui::GetWindowPos().x
-			&& _inputManager->GetMousePosition().y <= targetSize.y
-			&& _inputManager->GetMousePosition().y >= ImGui::GetWindowPos().y)
+
+		if (   _inputManager->GetMousePosition().x <= ImGui::GetWindowContentRegionMax().x
+			&& _inputManager->GetMousePosition().x >= ImGui::GetWindowContentRegionMin().x
+			&& _inputManager->GetMousePosition().y <= ImGui::GetWindowContentRegionMax().y
+			&& _inputManager->GetMousePosition().y >= ImGui::GetWindowContentRegionMin().y
+			&& !ImGuizmo::IsUsing())
 		{
 
 			//---------------------
@@ -219,9 +219,7 @@ namespace PlatinumEngine{
 			// check mouse click to do rotation and translation
 			if (_mouseButtonType == 0)// translation (up down left right)
 			{
-
 				_camera.TranslationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
-
 			}
 			else if (_mouseButtonType == 1) // for rotation
 			{
@@ -234,7 +232,7 @@ namespace PlatinumEngine{
 			}
 
 		}
-	}
+
 		// check if there is any keyboard input
 		if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
 			_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
@@ -247,18 +245,25 @@ namespace PlatinumEngine{
 		//---------------------------
 
 		// check camera type
-		if (_camera.isOrthogonal)
+		if(!_camera.CheckIfProjectionMatrixUsed() || IsProjectionUpdated || _framebufferHeight != targetSize.y || _framebufferWidth != targetSize.x)
 		{
-			// update as orthogonal projection matrix
-			_camera.SetOrthogonalMatrix(-targetSize.x / 20.f, targetSize.x / 20.f,
-					-targetSize.y / 20.f, targetSize.y / 20.f, (float)_near, (float)_far);
-		}
-		else
-		{
-			// update as perspective projection matrix
-			_camera.SetPerspectiveMatrix(3.14159265f * (float)_fov / 180.f,
-					targetSize.x / targetSize.y,
-					(float)_near, (float)_far);
+			if (_camera.isOrthogonal)
+			{
+				// update as orthogonal projection matrix
+				_camera.SetOrthogonalMatrix(
+						-targetSize.x / (2.f * _camera.viewPortSize),
+						targetSize.x / (2.f * _camera.viewPortSize),
+						-targetSize.y / (2.f * _camera.viewPortSize),
+						targetSize.y / (2.f* _camera.viewPortSize),
+						(float)_near, (float)_far);
+			}
+			else
+			{
+				// update as perspective projection matrix
+				_camera.SetPerspectiveMatrix((float)_fov,
+						targetSize.x / targetSize.y,
+						(float)_near, (float)_far);
+			}
 		}
 
 		//---------------------------------------------
@@ -292,8 +297,19 @@ namespace PlatinumEngine{
 
 			// Update rendering information to renderer
 			_renderer->SetModelMatrix();
-			_renderer->SetViewMatrix(_camera.viewMatrix4);
-			_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
+
+			// check if the view matrix is passed to shader
+			if(!_camera.CheckIfViewMatrixUsed())
+			{
+				_renderer->SetViewMatrix(_camera.viewMatrix4);
+				_camera.MarkViewMatrixAsUsed();
+			}
+			if(!_camera.CheckIfProjectionMatrixUsed())
+			{
+				_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
+				_camera.MarkProjectionMatrixAsUsed();
+			}
+
 			_renderer->SetLightProperties();
 
 			// Render game objects
@@ -311,8 +327,12 @@ namespace PlatinumEngine{
 			// display updated framebuffer
 			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize, ImVec2(0, 1), ImVec2(1, 0));
 
+
 			// display gizmos
 			UseGizmo(_camera.viewMatrix4.matrix, _camera.projectionMatrix4.matrix, currentGizmoMode, currentGizmoOperation);
+
+			// update the camera by the view matrix that is updated by gizmo
+			_camera.UpdateCameraQuaternion();
 		}
 
 	}
@@ -320,7 +340,12 @@ namespace PlatinumEngine{
 
 	void SceneEditor::SelectGameObjectFromScene()
 	{
+		// get mouse click position
 		ImVec2 mouseClickedPosition = _inputManager->GetMousePosition();
+
+		// since the display window use coordinate system which is inverse vertically,
+		// we have to inverse the y value
+		mouseClickedPosition.y = (float)_framebufferHeight - mouseClickedPosition.y;
 
 		// do ray casting
 		if(GameObject* result = DoRayCasting(mouseClickedPosition);
@@ -336,36 +361,45 @@ namespace PlatinumEngine{
 		//-----------------//
 		// Calculate ray   //
 		//-----------------//
-		PlatinumEngine::Maths::Vec3 ray;
+		Maths::Vec3 ray;
+		Maths::Vec3 eyePosition; // for orthogonal ray casting
+
+
+		// turning screen coordinate 2d back to the near panel (of the frustum) coordinate 2d
+		float nearPanelCoordinateForClickedPosition_x =(clickedPosition.x *2.f / (float)_framebufferWidth)- 1.f;
+		float nearPanelCoordinateForClickedPosition_y =(clickedPosition.y * 2.f / (float)_framebufferHeight)- 1.f;
+
+		// Clipping space
+		PlatinumEngine::Maths::Vec4 worldCoordinateForClickedPositionCandidate4D(nearPanelCoordinateForClickedPosition_x,
+				nearPanelCoordinateForClickedPosition_y, 1.0f, 1.0f);
+
+		// View space
+		worldCoordinateForClickedPositionCandidate4D = PlatinumEngine::Maths::Inverse(_camera.projectionMatrix4) * worldCoordinateForClickedPositionCandidate4D;
+
+		// World space
+		worldCoordinateForClickedPositionCandidate4D = PlatinumEngine::Maths::Inverse(_camera.viewMatrix4) * worldCoordinateForClickedPositionCandidate4D;
+
+		PlatinumEngine::Maths::Vec3 worldCoordinateForClickedPosition(
+				worldCoordinateForClickedPositionCandidate4D.x/worldCoordinateForClickedPositionCandidate4D.w,
+				worldCoordinateForClickedPositionCandidate4D.y/worldCoordinateForClickedPositionCandidate4D.w,
+				worldCoordinateForClickedPositionCandidate4D.z/worldCoordinateForClickedPositionCandidate4D.w);
+
 
 		// check projection type
 		if(_camera.isOrthogonal)
 		{
-			ray = PlatinumEngine::Maths::Vec3(0.f, 0.f, 1.f);
+			ray = _camera.GetForwardDirection();
+
+			eyePosition = worldCoordinateForClickedPosition;
+
+			eyePosition.z = (float)_near;
 		}
 		else
 		{
-			// turning screen coordinate 2d back to the near panel (of the frustum) coordinate 2d
-			float nearPanelCoordinateForClickedPosition_x =(clickedPosition.x *2.f / (float)_framebufferWidth)- 1.f;
-			float nearPanelCoordinateForClickedPosition_y =(clickedPosition.y * 2.f / (float)_framebufferHeight)- 1.f;
-
-			// Clipping space
-			PlatinumEngine::Maths::Vec4 worldCoordinateForClickedPositionCandidate4D(nearPanelCoordinateForClickedPosition_x,
-					nearPanelCoordinateForClickedPosition_y, 1.0f, 1.0f);
-
-			// View space
-			worldCoordinateForClickedPositionCandidate4D = PlatinumEngine::Maths::Inverse(_camera.projectionMatrix4) * worldCoordinateForClickedPositionCandidate4D;
-
-			// World space
-			worldCoordinateForClickedPositionCandidate4D = PlatinumEngine::Maths::Inverse(_camera.viewMatrix4) * worldCoordinateForClickedPositionCandidate4D;
-
-			PlatinumEngine::Maths::Vec3 worldCoordinateForClickedPosition(
-					worldCoordinateForClickedPositionCandidate4D.x/worldCoordinateForClickedPositionCandidate4D.w,
-					worldCoordinateForClickedPositionCandidate4D.y/worldCoordinateForClickedPositionCandidate4D.w,
-					worldCoordinateForClickedPositionCandidate4D.z/worldCoordinateForClickedPositionCandidate4D.w);
-
 			// Calculate ray
 			ray = worldCoordinateForClickedPosition - _camera.GetCameraPosition();
+
+			eyePosition = _camera.GetCameraPosition() ;
 		}
 
 
@@ -390,7 +424,7 @@ namespace PlatinumEngine{
 			{
 				// get result for whether this game object or one of its children is selected
 				currentSelectedGameobject = CheckRayTriangleIntersectionForGameobject(currentGameobject, ray,
-						_camera.GetCameraPosition(), currentSelectedGameobject, closestZValue);
+						eyePosition, currentSelectedGameobject, closestZValue);
 			}
 		}
 		return currentSelectedGameobject;
@@ -653,46 +687,13 @@ namespace PlatinumEngine{
 				identityMatrix.matrix, NULL, _useSnap ? &_snap[0] : NULL,
 				_boundSizing ? _bounds : NULL, _boundSizingSnap ? _boundsSnap : NULL);
 
-
-		// don't want the view manipulate gizmo to change the view matrix, so use this to avoid that.
-		//memcpy(_fakeVeiwMatrix,cameraView,sizeof(float) * 16);
-
 		// view manipulate gizmo
-		ImGuizmo::ViewManipulate(cameraView, sqrt(LengthSquared(_camera.GetForwardDirection())), ImVec2(viewManipulateRight - 100, viewManipulateTop),
+		ImGuizmo::ViewManipulate(cameraView, 0.001, ImVec2(viewManipulateRight - 100, viewManipulateTop),
 				ImVec2(100, 100), 0x10101010);
-		// grid
-		ImGuizmo::DrawGrid(cameraView, cameraProjection, identityMatrix.matrix, 100.f);
+
 
 	}
 
-	void SceneEditor::UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
-	{
-		Maths::Mat4 identityMatrix(1);
-
-		ImGuizmo::SetDrawlist();
-		auto windowWidth = (float)ImGui::GetWindowWidth();
-		auto windowHeight = (float)ImGui::GetWindowHeight();
-		ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
-		float viewManipulateRight = ImGui::GetWindowPos().x + windowWidth;
-		float viewManipulateTop = ImGui::GetWindowPos().y;
-
-
-		ImGuizmo::Manipulate(
-				cameraView, cameraProjection, currentGizmoOperation, currentGizmoMode,
-				identityMatrix.matrix, NULL, _useSnap ? &_snap[0] : NULL,
-				_boundSizing ? _bounds : NULL, _boundSizingSnap ? _boundsSnap : NULL);
-
-
-		// don't want the view manipulate gizmo to change the view matrix, so use this to avoid that.
-		//memcpy(_fakeVeiwMatrix,cameraView,sizeof(float) * 16);
-
-		// view manipulate gizmo
-		ImGuizmo::ViewManipulate(cameraView, sqrt(LengthSquared(_camera.GetForwardDirection())), ImVec2(viewManipulateRight - 100, viewManipulateTop),
-				ImVec2(100, 100), 0x10101010);
-
-		// grid
-		ImGuizmo::DrawGrid(cameraView, cameraProjection, identityMatrix.matrix, 100.f);
-	}
 }
 
 

@@ -41,7 +41,7 @@ namespace PlatinumEngine
 		/**
 		 * Update data in Scene Editor
 		 */
-		void Update(ImVec2 targetSize, ImGuizmo::MODE, ImGuizmo::OPERATION);
+		void Update(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE, ImGuizmo::OPERATION);
 
 		/**
 		 * Function to detect which object shown in scene editor is selected
@@ -96,11 +96,12 @@ namespace PlatinumEngine
 		 * @param editTransformDecomposition
 		 */
 		void UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE, ImGuizmo::OPERATION);
+
 	private:
 
 		// ___PARAMETERS___
 		// Value for ray casting
-		GameObject* _selectedGameobject = nullptr;
+		GameObject* _selectedGameobject;
 		
 		//ImGuizmo
 		float _snap[3];
@@ -126,9 +127,9 @@ namespace PlatinumEngine
 
 		// Values for Camera
 		EditorCamera _camera;
-		int _fov;
-		int _near;
-		int _far;
+		int   _fov;
+		float _near;
+		float _far;
 
 		// Values for input control
 		ImVec2 _mouseMoveDelta;

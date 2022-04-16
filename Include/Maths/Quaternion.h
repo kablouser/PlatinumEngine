@@ -13,6 +13,7 @@ namespace PlatinumEngine
 		{
 		public:
 			Quaternion();
+			Quaternion(float w, Maths::Vec3 xyz);
 			Quaternion(float w, float x, float y, float z);
 			Quaternion(float pitch, float yaw, float roll);
 			Quaternion(Vec3 euler);

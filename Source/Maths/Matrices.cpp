@@ -8,6 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iterator>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 namespace PlatinumEngine
 {
@@ -216,6 +217,26 @@ namespace PlatinumEngine
 			ConvertFromArray(glm::value_ptr(mat4), 16);
 		}
 
+		void Mat4::Decompose(
+				Maths::Vec3* outTranslation,
+				Maths::Quaternion* outQuaternion) const
+		{
+			glm::vec3 scale;
+			glm::quat quaternion;
+			glm::vec3 translation;
+			glm::vec3 skew;
+			glm::vec4 perspective;
+			glm::decompose(
+					(glm::mat4)*this,
+					scale, quaternion, translation, skew, perspective
+					);
+
+			if (outTranslation)
+				*outTranslation = {translation.x, translation.y , translation.z};
+			if (outQuaternion)
+				*outQuaternion = {quaternion.w, quaternion.x, quaternion.y, quaternion.z};
+		}
+
 		Mat3 Mat3::operator*(float scale)
 		{
 
@@ -348,6 +369,12 @@ namespace PlatinumEngine
 			glm::quat quaternionZ(glm::vec3(0, 0, eulerAngle.z));
 
 			ConvertFromGLM(glm::mat3_cast(quaternionY * quaternionX * quaternionZ));
+		}
+
+		void Mat3::SetRotationMatrix(Quaternion quaternion)
+		{
+			ConvertFromGLM(glm::toMat3(glm::quat(
+					quaternion.w, quaternion.x, quaternion.y, quaternion.z)));
 		}
 
 		void Mat3::SetScaleMatrix(PlatinumEngine::Maths::Vec3 scale)
