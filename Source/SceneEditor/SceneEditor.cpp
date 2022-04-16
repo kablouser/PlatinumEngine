@@ -347,8 +347,8 @@ namespace PlatinumEngine{
 		// we have to inverse the y value
 		mouseClickedPosition.y = (float)_framebufferHeight - mouseClickedPosition.y;
 
-		// do ray casting
-		if(GameObject* result = DoRayCasting(mouseClickedPosition);
+		// check which object is clicked
+		if(GameObject* result = FindClickedObject(mouseClickedPosition);
 				result != nullptr)
 		{
 			_selectedGameobject = result;
@@ -356,50 +356,22 @@ namespace PlatinumEngine{
 	}
 
 
-	GameObject* SceneEditor::DoRayCasting(ImVec2& clickedPosition)
+	GameObject* SceneEditor::FindClickedObject(ImVec2& clickedPosition)
 	{
-		//-----------------//
-		// Calculate ray   //
-		//-----------------//
-		Maths::Vec3 ray;
-		Maths::Vec3 eyePosition; // for orthogonal ray casting
-
-
-		// turning screen coordinate 2d back to the near panel (of the frustum) coordinate 2d
-		float nearPanelCoordinateForClickedPosition_x =(clickedPosition.x *2.f / (float)_framebufferWidth)- 1.f;
-		float nearPanelCoordinateForClickedPosition_y =(clickedPosition.y * 2.f / (float)_framebufferHeight)- 1.f;
-
-		// Clipping space
-		PlatinumEngine::Maths::Vec4 worldCoordinateForClickedPositionCandidate4D(nearPanelCoordinateForClickedPosition_x,
-				nearPanelCoordinateForClickedPosition_y, 1.0f, 1.0f);
-
-		// View space
-		worldCoordinateForClickedPositionCandidate4D = PlatinumEngine::Maths::Inverse(_camera.projectionMatrix4) * worldCoordinateForClickedPositionCandidate4D;
-
-		// World space
-		worldCoordinateForClickedPositionCandidate4D = PlatinumEngine::Maths::Inverse(_camera.viewMatrix4) * worldCoordinateForClickedPositionCandidate4D;
-
-		PlatinumEngine::Maths::Vec3 worldCoordinateForClickedPosition(
-				worldCoordinateForClickedPositionCandidate4D.x/worldCoordinateForClickedPositionCandidate4D.w,
-				worldCoordinateForClickedPositionCandidate4D.y/worldCoordinateForClickedPositionCandidate4D.w,
-				worldCoordinateForClickedPositionCandidate4D.z/worldCoordinateForClickedPositionCandidate4D.w);
-
+		//---------------------------------------//
+		// Calculate ray (only for perspective)  //
+		//---------------------------------------//
+		Maths::Vec3 ray(0.f, 0.f, 0.f);
 
 		// check projection type
-		if(_camera.isOrthogonal)
+		if(!_camera.isOrthogonal)
 		{
-			ray = _camera.GetForwardDirection();
 
-			eyePosition = worldCoordinateForClickedPosition;
+			PlatinumEngine::Maths::Vec3 worldCoordinateForClickedPosition = ConvertScreenCoordinateToWorldCoordinate(
+					{ clickedPosition.x, clickedPosition.y });
 
-			eyePosition.z = (float)_near;
-		}
-		else
-		{
 			// Calculate ray
 			ray = worldCoordinateForClickedPosition - _camera.GetCameraPosition();
-
-			eyePosition = _camera.GetCameraPosition() ;
 		}
 
 
@@ -409,12 +381,14 @@ namespace PlatinumEngine{
 
 		// variable that store the current selected game object
 		GameObject* currentSelectedGameobject = nullptr;
+
+		// value that store the closest z value
 		float closestZValue = (float)_far;
 
 		// loop through all the root game object from scene class
-		unsigned int numberOfRootGameobject = _scene->GetRootGameObjectsCount();
+		unsigned int numberOfRootGameObject = _scene->GetRootGameObjectsCount();
 
-		for(int gameObjectIndex =0; gameObjectIndex < numberOfRootGameobject; gameObjectIndex++)
+		for(int gameObjectIndex =0; gameObjectIndex < numberOfRootGameObject; gameObjectIndex++)
 		{
 			// get current game object
 			GameObject* currentGameobject = _scene->GetRootGameObject(gameObjectIndex);
@@ -422,16 +396,22 @@ namespace PlatinumEngine{
 			// check if the object enable
 			if(currentGameobject->IsEnabledInHierarchy())
 			{
-				// get result for whether this game object or one of its children is selected
-				currentSelectedGameobject = CheckRayTriangleIntersectionForGameobject(currentGameobject, ray,
-						eyePosition, currentSelectedGameobject, closestZValue);
+				// check whether this game object or one of its children is selected
+				if(_camera.isOrthogonal!=true)
+					currentSelectedGameobject = UpdateSelectedGameObject(currentGameobject, ray,
+							_camera.GetCameraPosition(), currentSelectedGameobject, closestZValue);
+				else
+					currentSelectedGameobject = UpdateSelectedGameObject(currentGameobject, currentSelectedGameobject,
+							Maths::Vec2{ clickedPosition.x, clickedPosition.y }, closestZValue);
 			}
 		}
+
+		// return the final selected game object
 		return currentSelectedGameobject;
 	}
 
-	// for trianlge mesh only
-	GameObject* SceneEditor::CheckRayTriangleIntersectionForGameobject(GameObject* currentCheckingGameobject, PlatinumEngine::Maths::Vec3 inRay,
+	// for triangle mesh only
+	GameObject* SceneEditor::UpdateSelectedGameObject(GameObject* currentCheckingGameobject, PlatinumEngine::Maths::Vec3 inRay,
 			const PlatinumEngine::Maths::Vec3& inCameraPosition, GameObject* currentSelectedGameObject, float& closestZValueForCrossPoint)
 	{
 
@@ -456,7 +436,7 @@ namespace PlatinumEngine{
 				for (int count = 0; count < mesh->indices.size(); count += 3)
 				{
 					//----------------------------------------------------------------//
-					// Find the world coordinate of the object (after transformation) //
+					// Get the world coordinate of the object (after transformation)  //
 					//----------------------------------------------------------------//
 
 					Maths::Vec3 vertex0, vertex1, vertex2;
@@ -582,64 +562,36 @@ namespace PlatinumEngine{
 					Maths::Vec3 vertex1PCS = PCSMatrix3x3 * (vertex1 - originForPCS);
 					Maths::Vec3 vertex2PCS = PCSMatrix3x3 * (vertex2 - originForPCS);
 
-					// Do barycentric interpolation to check
-					Maths::Vec3 xValueOfVerticesPCS((vertex0PCS - vertex1PCS).x, (vertex0PCS - vertex2PCS).x,
-							(crossPointPCS - vertex0PCS).x);
-					float lengthOfXValueOfVerticesPCS = Maths::Length(xValueOfVerticesPCS);
+					float x, y, z;
 
-					Maths::Vec3 yValueOfVerticesPCS((vertex0PCS - vertex1PCS).y, (vertex0PCS - vertex2PCS).y,
-							(crossPointPCS - vertex0PCS).y);
-					float lengthOfYValueOfVerticesPCS = Maths::Length(yValueOfVerticesPCS);
-
-					// if the length of the axis is 0, the primitive is not a valid triangle primitive
-					if (lengthOfXValueOfVerticesPCS == 0 || lengthOfYValueOfVerticesPCS == 0)
-					{
-						//PLATINUM_ERROR("You are clicking on an object with invalid triangle primitive.");
-						break;
-					}
-
-					xValueOfVerticesPCS = xValueOfVerticesPCS / lengthOfXValueOfVerticesPCS;
-					yValueOfVerticesPCS = yValueOfVerticesPCS / lengthOfYValueOfVerticesPCS;
-
-					// Use the features of cross product to calculate the coefficients for interpolation
-					Maths::Vec3 coefficientForInterpolation = Maths::Cross(xValueOfVerticesPCS, yValueOfVerticesPCS);
-
-					// make sure the z is not zero
-					if (coefficientForInterpolation.z != 0)
-					{
-						// check if the final coefficients for interpolation are all valid
-						if (1.f - ((coefficientForInterpolation.x + coefficientForInterpolation.y) /
-								   coefficientForInterpolation.z) > 0.f
-							&& coefficientForInterpolation.x / coefficientForInterpolation.z > 0.f
-							&& coefficientForInterpolation.y / coefficientForInterpolation.z > 0.f)
-						{
-
-							//----------------------------------------------------//
-							// Check whether to update the selected game object   //
-							//----------------------------------------------------//
-
-							// transform the object coordinate into view coordinate
-							PlatinumEngine::Maths::Vec4 crossPointViewCoordinate =
-									_camera.viewMatrix4 *
-									PlatinumEngine::Maths::Vec4(crossPoint.x, crossPoint.y, crossPoint.z, 1.0f);
-
-							//crossPointViewCoordinate = crossPointViewCoordinate/crossPointViewCoordinate.w;
-
-							// This part check
-							// check if the current cross point has the closest z value.
-							// check if the current cross point is within clipping space.
-							if (closestZValueForCrossPoint > crossPointViewCoordinate.z &&
-								crossPointViewCoordinate.z <= (float)_far &&
-								crossPointViewCoordinate.z >= (float)_near)
+					if(DoInterpolationCheck(
 							{
-								// update the selected game object
-								currentSelectedGameObject = currentCheckingGameobject;
+									Maths::Vec2{ vertex0PCS.x, vertex0PCS.y} ,
+									Maths::Vec2{ vertex1PCS.x, vertex1PCS.y},
+								 	Maths::Vec2{ vertex2PCS.x, vertex2PCS.y}
+									 },
+							{ crossPointPCS.x, crossPointPCS.y }, x, y, z))
+					{
+						// transform the object coordinate into view coordinate
+						PlatinumEngine::Maths::Vec4 crossPointViewCoordinate =
+								_camera.viewMatrix4 *
+								PlatinumEngine::Maths::Vec4(crossPoint.x, crossPoint.y, crossPoint.z, 1.0f);
 
-								// update the closest z value for cross point
-								closestZValueForCrossPoint = crossPointViewCoordinate.z;
-							}
+						// This part check:
+						// check if the current cross point has the closest z value.
+						// check if the current cross point is within clipping space.
+						if (closestZValueForCrossPoint > crossPointViewCoordinate.z &&
+							crossPointViewCoordinate.z <= (float)_far &&
+							crossPointViewCoordinate.z >= (float)_near)
+						{
+							// update the selected game object
+							currentSelectedGameObject = currentCheckingGameobject;
+
+							// update the closest z value for cross point
+							closestZValueForCrossPoint = crossPointViewCoordinate.z;
 						}
 					}
+
 				}
 			}
 		}
@@ -652,11 +604,207 @@ namespace PlatinumEngine{
 		// if children exist, call this function for every child
 		for(int counter = 0; counter < currentCheckingGameobject->GetChildrenCount(); counter++)
 		{
-			currentSelectedGameObject = CheckRayTriangleIntersectionForGameobject(currentCheckingGameobject->GetChild(counter), inRay,
+			currentSelectedGameObject = UpdateSelectedGameObject(currentCheckingGameobject->GetChild(counter), inRay,
 					inCameraPosition, currentSelectedGameObject, closestZValueForCrossPoint);
 		}
 
 		// return the selected game object
+		return currentSelectedGameObject;
+	}
+
+	bool SceneEditor::DoInterpolationCheck(std::array<Maths::Vec2,3> triangle, Maths::Vec2 point, float& x, float& y, float& z)
+	{
+		// Do barycentric interpolation to check
+		Maths::Vec3 xValueOfTriangle((triangle[0] - triangle[1]).x, (triangle[0] - triangle[2]).x,
+				(point - triangle[0]).x);
+		float lengthOfxValueOfTriangle = Maths::Length(xValueOfTriangle);
+
+		Maths::Vec3 yValueOfTriangle((triangle[0] - triangle[1]).y, (triangle[0] - triangle[2]).y,
+				(point - triangle[0]).y);
+		float lengthOfyValueOfTriangle = Maths::Length(yValueOfTriangle);
+
+		// if the length of the axis is 0, the primitive is not a valid triangle primitive
+		if (lengthOfxValueOfTriangle == 0 || lengthOfyValueOfTriangle == 0)
+		{
+			//PLATINUM_ERROR("You are clicking on an object with invalid triangle primitive.");
+			return false;
+		}
+
+		// normalize the vector
+		xValueOfTriangle = xValueOfTriangle / lengthOfxValueOfTriangle;
+		yValueOfTriangle = yValueOfTriangle / lengthOfyValueOfTriangle;
+
+		// Use the features of cross product to calculate the coefficients for interpolation
+		Maths::Vec3 coefficientForInterpolation = Maths::Cross(xValueOfTriangle, yValueOfTriangle);
+
+		// make sure the z is not zero
+		if (coefficientForInterpolation.z != 0)
+		{
+			x = 1.f - ((coefficientForInterpolation.x + coefficientForInterpolation.y) / coefficientForInterpolation.z);
+
+			y = coefficientForInterpolation.x / coefficientForInterpolation.z;
+
+			z = coefficientForInterpolation.y / coefficientForInterpolation.z;
+
+			// check if the final coefficients for interpolation are all valid
+			if (x > 0.f && y > 0.f && z> 0.f)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	Maths::Vec3 SceneEditor::ConvertWorldCoordinateToScreenCoordinate(const Maths::Vec3& coordinate)
+	{
+		Maths::Vec4 coordinateV4(coordinate.x, coordinate.y, coordinate.z, 1.0f);
+
+		coordinateV4 = _camera.viewMatrix4 * coordinateV4;
+
+		coordinateV4 = _camera.projectionMatrix4 * coordinateV4;
+
+		coordinateV4 = coordinateV4/coordinateV4.w;
+
+		return {(coordinateV4.x + 1)/2.0f * (float)_framebufferWidth, (coordinateV4.y + 1)/2.0f * (float)_framebufferHeight, coordinateV4.z};
+	}
+
+	Maths::Vec3 SceneEditor::ConvertScreenCoordinateToWorldCoordinate(const Maths::Vec2& coordinate)
+	{
+		// turning screen coordinate 2d back to the near panel (of the frustum) coordinate 2d
+		float nearPanelCoordinateForClickedPosition_x =(coordinate.x *2.f / (float)_framebufferWidth)- 1.f;
+		float nearPanelCoordinateForClickedPosition_y =(coordinate.y * 2.f / (float)_framebufferHeight)- 1.f;
+
+		// Clipping space
+		PlatinumEngine::Maths::Vec4 coordinateV4(nearPanelCoordinateForClickedPosition_x,
+				nearPanelCoordinateForClickedPosition_y, 1.0f, 1.0f);
+
+		// View space
+		coordinateV4 = PlatinumEngine::Maths::Inverse(_camera.projectionMatrix4) * coordinateV4;
+
+		// World space
+		coordinateV4 = PlatinumEngine::Maths::Inverse(_camera.viewMatrix4) * coordinateV4;
+
+		return {coordinateV4.x/coordinateV4.w,
+				coordinateV4.y/coordinateV4.w,
+				coordinateV4.z/coordinateV4.w};
+	}
+
+	GameObject* SceneEditor::UpdateSelectedGameObject(GameObject* currentCheckingGameobject, GameObject* currentSelectedGameObject, Maths::Vec2 clickedPosition, float& closestZValueForCrossPoint)
+	{
+		// check if the game object enable
+		if(!currentCheckingGameobject->IsEnabledInHierarchy())
+			return currentSelectedGameObject;
+
+		//------------------//
+		// Do intersection  //
+		//------------------//
+
+		// check if the game object has mesh component
+		if( auto renderComponent = currentCheckingGameobject->GetComponent<RenderComponent>(); renderComponent!= nullptr)
+		{
+			// fetch mesh
+			Mesh* mesh = renderComponent->GetMesh();
+
+			// Make sure there is mesh
+			if (mesh != nullptr)
+			{
+				// loop all the vertices
+				for (int count = 0; count < mesh->indices.size(); count += 3)
+				{
+					//----------------------------------------------------------------//
+					// Get the world coordinate of the object (after transformation)  //
+					//----------------------------------------------------------------//
+
+					// vertices
+					Maths::Vec3 vertex0, vertex1, vertex2;
+
+					// check if the game object has transformation components
+					if (auto transformComponent = currentCheckingGameobject->GetComponent<TransformComponent>();
+							transformComponent != nullptr)
+					{
+						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
+
+
+						Maths::Vec4 temporaryMatrix;
+
+						// get the world coordinate of vertex 0
+						temporaryMatrix = modelMatrix *
+										  Maths::Vec4(mesh->vertices[mesh->indices[count + 0]].position.x,
+												  mesh->vertices[mesh->indices[count + 0]].position.y,
+												  mesh->vertices[mesh->indices[count + 0]].position.z, 1.0f);
+						temporaryMatrix = temporaryMatrix / temporaryMatrix.w;
+						vertex0 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
+
+						// get the world coordinate of vertex 1
+						temporaryMatrix = modelMatrix *
+										  Maths::Vec4(mesh->vertices[mesh->indices[count + 1]].position.x,
+												  mesh->vertices[mesh->indices[count + 1]].position.y,
+												  mesh->vertices[mesh->indices[count + 1]].position.z, 1.0f);
+						temporaryMatrix = temporaryMatrix / temporaryMatrix.w;
+						vertex1 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
+
+						// get the world coordinate of vertex 2
+						temporaryMatrix = modelMatrix *
+										  Maths::Vec4(mesh->vertices[mesh->indices[count + 2]].position.x,
+												  mesh->vertices[mesh->indices[count + 2]].position.y,
+												  mesh->vertices[mesh->indices[count + 2]].position.z, 1.0f);
+						temporaryMatrix = temporaryMatrix / temporaryMatrix.w;
+						vertex2 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
+					}
+					else
+					{
+						vertex0 = mesh->vertices[mesh->indices[count + 0]].position;
+						vertex1 = mesh->vertices[mesh->indices[count + 1]].position;
+						vertex2 = mesh->vertices[mesh->indices[count + 2]].position;
+					}
+
+					//------------------------------------------------------//
+					// Convert the world coordinate into screen coordinate  //
+					//------------------------------------------------------//
+					vertex0 = ConvertWorldCoordinateToScreenCoordinate(vertex0);
+					vertex1 = ConvertWorldCoordinateToScreenCoordinate(vertex1);
+					vertex2 = ConvertWorldCoordinateToScreenCoordinate(vertex2);
+
+					//----------------------------------------------------------------------------//
+					// Do interpolation to check if the clicked position is inside the triangle   //
+					//----------------------------------------------------------------------------//
+					float x, y, z;
+					if(DoInterpolationCheck({Maths::Vec2{vertex0.x, vertex0.y},
+											 Maths::Vec2{ vertex1.x, vertex1.y },
+											 Maths::Vec2{ vertex2.x, vertex2.y }}, clickedPosition, x, y, z))
+					{
+						float zValueForClickedPoint = x * vertex0.z + y * vertex1.z + z * vertex2.z;
+
+						// This part check:
+						// check if the current cross point has the closest z value.
+						// check if the current cross point is within clipping space.
+						if (closestZValueForCrossPoint > zValueForClickedPoint)
+						{
+							// update the selected game object
+							currentSelectedGameObject = currentCheckingGameobject;
+
+							// update the closest z value for cross point
+							closestZValueForCrossPoint = zValueForClickedPoint;
+						}
+					}
+
+				}
+			}
+		}
+
+		//-----------------//
+		// Check children  //
+		//-----------------//
+
+		// Keep checking the children of currentChecking Gameobject
+		// if children exist, call this function for every child
+		for(int counter = 0; counter < currentCheckingGameobject->GetChildrenCount(); counter++)
+		{
+			currentSelectedGameObject = UpdateSelectedGameObject(currentCheckingGameobject->GetChild(counter),
+					currentSelectedGameObject, clickedPosition, closestZValueForCrossPoint);
+		}
+
 		return currentSelectedGameObject;
 	}
 
