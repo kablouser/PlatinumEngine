@@ -1,9 +1,15 @@
 #include <string_view>
 #include <vector>
+#include <map>
+#include <typeindex>
 #include <iostream>
 #include <functional>
 #include <cassert>
 #include <memory>
+
+//-----------------------------------------------------------------------
+// Utility
+//-----------------------------------------------------------------------
 
 template<typename T>
 constexpr auto type_name()
@@ -27,187 +33,341 @@ constexpr auto type_name()
 	return name;
 }
 
-template<class... T>
-std::vector<const char*> getTypeNames()
-{
-	return {typeid(T).name()...};
-}
+// Microsoft implementation
+#define PLATINUM_OFFSETOF(typeName, fieldName)\
+    (size_t)&reinterpret_cast<const volatile char&>((((typeName*)0)->fieldName))
 
-class DynamicFieldIterator
-{
-public:
 
-	// not needed, but C++ is really inconsistent
-	virtual ~DynamicFieldIterator()	{}
+//-----------------------------------------------------------------------
+// Core classes
+//-----------------------------------------------------------------------
 
-	// interface
-  	virtual bool MoveNext() = 0;
-	virtual void* GetCurrent() = 0;
-	virtual size_t GetSize() = 0;
-};
-
-class VectorFieldIterator : public DynamicFieldIterator
-{
-public:
-
-	VectorFieldIterator(const std::vector<float>& toIterateOver) :
-			_toIterateOver(toIterateOver),
-			_currentIndex(0)
-	{
-	}
-
-	bool MoveNext() override
-	{
-		std::cout << "MoveNext" << std::endl;
-		if (_currentIndex < _toIterateOver.size())
-		{
-			++_currentIndex;
-			return true;
-		}
-		return false;
-	}
-
-	void* GetCurrent() override
-	{
-		return (void*)&_toIterateOver.at(_currentIndex);
-	}
-
-	size_t GetSize() override
-	{
-		return _toIterateOver.size();
-	}
-
-private:
-
-	const std::vector<float>& _toIterateOver;
-	size_t _currentIndex;
-};
-
-class TypeInfo;
 
 class FieldInfo
 {
 public:
-	std::string typeName;
+	std::type_index typeIndex;
+
 	std::string fieldName;
 	size_t offset;
 
-	void* AccessField(void* typeInstance)
+	void* AccessField(void* typeInstance) const
 	{
 		return (char*)typeInstance + offset;
 	}
 };
 
+
+class DynamicFieldIterator
+{
+public:
+
+	class DynamicFieldInfo
+	{
+	public:
+		std::type_index typeIndex;
+		void* typeInstance;
+	};
+
+	// allow inherited classes to be destroyed
+	virtual ~DynamicFieldIterator()
+	{
+	}
+
+	// interface
+	virtual bool IsIterating() = 0;
+
+	virtual void MoveNext() = 0;
+
+	virtual DynamicFieldInfo GetCurrent() = 0;
+};
+
 class TypeInfo
 {
 public:
-	std::string name; // should be unique?
 
-	bool isTemplate;
-	std::string templateArgument0;
+	// should be unique?
+	// with its template arguments
+	std::string typeName;
+	std::type_index typeIndex;
 
 	std::vector<FieldInfo> fields;
+
 	// can be elements in an array type
 	// but not in the fields!
-	std::function<std::shared_ptr<DynamicFieldIterator>(void* typeInstance)> getDynamicFieldIterator;
+	std::function<
+			std::unique_ptr<DynamicFieldIterator>(void* typeInstance)>
+			createDynamicFieldIterator;
 
-	void Serialize();
+	std::function<
+			std::ostream&(std::ostream& outputStream, void* typeInstance)>
+			streamOut;
 
-	void Deserialize();
+	TypeInfo(std::type_index newTypeIndex) : typeIndex(newTypeIndex)
+	{
+	}
 
-	void* AccessGeneric(void* typeInstance);
+	TypeInfo(TypeInfo&) = default;
 
-	int& AccessInt(void* typeInstance);
+	TypeInfo(TypeInfo&&) = default;
 
-	double& AccessDouble(void* typeInstance);
+	TypeInfo& operator=(TypeInfo&) = default;
+
+	TypeInfo& operator=(TypeInfo&&) = default;
+
+	//-----------------------------------------------------------------------
+	// POD type support
+	//-----------------------------------------------------------------------
+
+	template<typename T>
+	TypeInfo& WithField(std::string fieldName, size_t offset)
+	{
+		fields.push_back(FieldInfo{ std::type_index(typeid(T)), fieldName, offset });
+		return *this;
+	}
 };
+
+//-----------------------------------------------------------------------
+// Vector support
+//-----------------------------------------------------------------------
+
+template<typename T>
+class VectorDynamicFieldIterator : public DynamicFieldIterator
+{
+public:
+
+	VectorDynamicFieldIterator(const std::vector<T>* toIterateOver) :
+			_toIterateOver(toIterateOver),
+			_currentIndex(0)
+	{
+	}
+
+	bool IsIterating() override
+	{
+		return _currentIndex < _toIterateOver->size();
+	}
+
+	void MoveNext() override
+	{
+		++_currentIndex;
+	}
+
+	DynamicFieldInfo GetCurrent() override
+	{
+		return { std::type_index(typeid(T)), (void*)&_toIterateOver->at(_currentIndex) };
+	}
+
+private:
+
+	const std::vector<T>* _toIterateOver;
+	size_t _currentIndex;
+};
+
+class TypeDatabase
+{
+public:
+
+	template<typename T>
+	TypeInfo& BeginTypeInfo()
+	{
+		std::string typeName = std::string(type_name<T>());
+		std::type_index typeIndex = std::type_index(typeid(T));
+		size_t countTypeNames = typeNames.count(typeName);
+		size_t countTypeIndices = typeIndices.count(typeIndex);
+		if (0 == countTypeNames && 0 == countTypeIndices)
+		{
+			typeNames[typeName] = typeIndices[typeIndex] = typeInfos.size();
+			typeInfos.emplace_back(typeIndex);
+			TypeInfo& typeInfo = typeInfos[typeInfos.size() - 1];
+			typeInfo.typeName = std::move(typeName);
+			return typeInfo;
+		}
+		else
+		{
+			// TODO replace with PLATINUM_WARNING
+			std::cout << "TypeDatabase WARNING: type already exists in database " << typeName << std::endl;
+			// typeName already exists in database, return the existing entry
+			if (countTypeNames == 0)
+				return typeInfos.at(typeNames[typeName]);
+			else
+				return typeInfos.at(typeIndices[typeIndex]);
+		}
+	}
+
+	template<typename T>
+	void CreateVectorTypeInfo()
+	{
+		BeginTypeInfo<std::vector<T>>().createDynamicFieldIterator =
+				[](void* typeInstance) -> std::unique_ptr<DynamicFieldIterator>
+				{
+					return std::make_unique<VectorDynamicFieldIterator<T>>
+							((const std::vector<T>*)typeInstance);
+				};
+	}
+
+	template<typename T>
+	void CreatePrimitiveTypeInfo()
+	{
+		static_assert(std::is_fundamental<T>::value);
+		//std::ostream&(std::ostream& outputStream, void* typeInstance)>
+		BeginTypeInfo<T>().streamOut =
+				[](std::ostream& outputStream, void* typeInstance) -> std::ostream&
+				{
+					outputStream << *(T*)typeInstance;
+					return outputStream;
+				};
+	}
+
+	std::pair<bool, const TypeInfo*> TryGetTypeInfo(const std::string& typeName)
+	{
+		auto iterator = typeNames.find(typeName);
+		if (iterator == typeNames.end())
+			return { false, nullptr };
+		else
+			return { true, &typeInfos.at(iterator->second) };
+	}
+
+	std::pair<bool, const TypeInfo*> TryGetTypeInfo(std::type_index typeIndex)
+	{
+		auto iterator = typeIndices.find(typeIndex);
+		if (iterator == typeIndices.end())
+			return { false, nullptr };
+		else
+			return { true, &typeInfos.at(iterator->second) };
+	}
+
+	template<typename T>
+	std::pair<bool, const TypeInfo*> TryGetTypeInfo()
+	{
+		return TryGetTypeInfo(std::type_index(typeid(T)));
+	}
+
+	const char* GetTypeIndexName(std::type_index typeIndex)
+	{
+		auto[success, typeInfo] = TryGetTypeInfo(typeIndex);
+		if (success)
+			return typeInfo->typeName.c_str();
+		else
+			return typeIndex.name();
+	}
+
+	std::ostream& StreamOutTypeInfo(std::ostream& ostream, const TypeInfo& typeInfo)
+	{
+		ostream << typeInfo.typeName << std::endl
+				<< '{' << std::endl;
+
+		for (auto& i: typeInfo.fields)
+		{
+			ostream << '\t' <<
+					GetTypeIndexName(i.typeIndex) << ' ' <<
+					i.fieldName << ' ' <<
+					i.offset << ';' << std::endl;
+		}
+
+		ostream << '}' << std::endl;
+
+		return ostream;
+	}
+
+	template<typename T>
+	std::ostream& StreamOutTypeInstance(std::ostream& ostream, T* typeInstance)
+	{
+		StreamOutTypeInstance(ostream, typeInstance, std::type_index(typeid(*typeInstance)), 0);
+		ostream << ';' << std::endl;
+		return ostream;
+	}
+
+private:
+
+	std::vector<TypeInfo> typeInfos;
+	std::map<std::string, size_t> typeNames;
+	std::map<std::type_index, size_t> typeIndices;
+
+	std::ostream& StreamOutTypeInstance(
+			std::ostream& ostream,
+			void* typeInstance,
+			std::type_index typeIndex,
+			unsigned int indents)
+	{
+		auto[success, typeInfo] = TryGetTypeInfo(typeIndex);
+		if (success)
+		{
+			if (typeInfo->streamOut)
+			{
+				typeInfo->streamOut(ostream, typeInstance);
+			}
+			else
+			{
+				if (0 < indents)
+					ostream << std::endl;
+				std::string tabs(indents, '\t');
+
+				ostream << tabs << '{' << std::endl;
+
+				for (auto& field: typeInfo->fields)
+				{
+					ostream << tabs << '\t' << GetTypeIndexName(field.typeIndex) << ' ' << field.fieldName << " = ";
+					StreamOutTypeInstance(ostream, field.AccessField(typeInstance), field.typeIndex, indents + 1);
+					ostream << ';' << std::endl;
+				}
+
+				if (typeInfo->createDynamicFieldIterator)
+				{
+					for (auto iterator = typeInfo->createDynamicFieldIterator(typeInstance);
+						 iterator->IsIterating(); iterator->MoveNext())
+					{
+						auto dynamicField = iterator->GetCurrent();
+						ostream << tabs << '\t';
+						StreamOutTypeInstance(ostream, dynamicField.typeInstance, dynamicField.typeIndex, indents + 1);
+						ostream << ',' << std::endl;
+					}
+				}
+
+				ostream << tabs << '}';
+			}
+		}
+		else
+		{
+			ostream << "?";
+		}
+		return ostream;
+	}
+};
+
 
 int main()
 {
-	const volatile static int x = 0;
-	std::cout << "type name = " << type_name<decltype(x)>() << std::endl;
-
-	float myFloat;
-	TypeInfo floatTypeInfo{
-			"float",
-			false,
-			{},
-			{}
-	};
-
 	struct MyStruct
 	{
 		float field0;
 		float field1;
-	};
-	TypeInfo myStructTypeInfo{
-		"MyStruct",
-		false,
-		{},
-		{
-				{"float", "field0", offsetof(MyStruct, field0)},
-				{"float", "field1", offsetof(MyStruct, field1)}
-		}
+		std::vector<double> someValues;
 	};
 
-	{
-		MyStruct myStructInstance;
-		auto field0TrueOff = (char*)&myStructInstance.field0 - (char*)&myStructInstance;
-		auto field1TrueOff = (char*)&myStructInstance.field1 - (char*)&myStructInstance;
-		assert(field0TrueOff == myStructTypeInfo.fields[0].offset && "field0 offset test");
-		assert(field1TrueOff == myStructTypeInfo.fields[1].offset && "field1 offset test");
-	}
+	TypeDatabase db;
 
-	class BaseClass
-	{
-	public:
-		float baseField0;
+	db.BeginTypeInfo<MyStruct>()
+			.WithField<float>("field0", PLATINUM_OFFSETOF(MyStruct, field0))
+			.WithField<float>("field1", PLATINUM_OFFSETOF(MyStruct, field1))
+			.WithField<std::vector<double>>("someValues", PLATINUM_OFFSETOF(MyStruct, someValues));
 
-		virtual void Method()
-		{
+	db.CreateVectorTypeInfo<int>();
+	db.CreateVectorTypeInfo<double>();
 
-		};
+	db.CreatePrimitiveTypeInfo<double>();
+	db.CreatePrimitiveTypeInfo<float>();
+	db.CreatePrimitiveTypeInfo<int>();
+
+	db.StreamOutTypeInfo(std::cout, *db.TryGetTypeInfo<MyStruct>().second);
+	db.StreamOutTypeInfo(std::cout, *db.TryGetTypeInfo<std::vector<int>>().second);
+
+	MyStruct test{
+			69.0f, 420.0f, {1,1,2,3,5,8,13}
 	};
+	db.StreamOutTypeInstance(std::cout, &test);
 
-	class ChildClass : public BaseClass
-	{
-	public:
-		float childField0;
-
-		void Method() override
-		{
-
-		}
-	};
-
-	ChildClass *dangerousPointer = 0;
-	TypeInfo myChildClassTypeInfo{
-			"ChildClass",
-			false,
-			{},
-			{
-					{"float", "baseField0", (size_t)&dangerousPointer->baseField0 },
-					{"float", "childField0", (size_t)&dangerousPointer->childField0 }
-			}
-	};
-
-	{
-		ChildClass myChildClassInstance;
-		auto field0TrueOff = (char*)&myChildClassInstance.baseField0 - (char*)&myChildClassInstance;
-		auto field1TrueOff = (char*)&myChildClassInstance.childField0 - (char*)&myChildClassInstance;
-		assert(field0TrueOff == myChildClassTypeInfo.fields[0].offset && "base field0 offset test");
-		assert(field1TrueOff == myChildClassTypeInfo.fields[1].offset && "child field0 offset test");
-
-		std::cout << "field0 true off " << field0TrueOff << std::endl;
-		std::cout << "field1 true off " << field1TrueOff << std::endl;
-	}
-
-	std::vector<float> myFloats {0,1,2};
-	std::shared_ptr<DynamicFieldIterator> iterator = std::make_shared<VectorFieldIterator>(myFloats);
-
-
-
-	decltype(iterator);
+	std::vector<int> myList{ 0, 1, 2, 3 };
+	db.StreamOutTypeInstance(std::cout, &myList);
 
 	return 0;
 }
