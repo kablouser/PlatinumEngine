@@ -2,39 +2,79 @@
 
 namespace PlatinumEngine
 {
-	AudioComponent::AudioComponent(std::string sample)
+	AudioComponent::AudioComponent(std::string sample, AudioType audioType, bool loop)
 	{
-		//if( SDL_Init( SDL_INIT_AUDIO ) < 0 ) printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
+		//SDL Initialization to be done here?
+		//if(SDL_Init(SDL_INIT_AUDIO)<0) printf("SDL could not initialize! SDL Error: %s\n",SDL_GetError());
+		//if(Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,1024)<0) printf("Failed to open audio! Mix Error: %s\n",Mix_GetError());
+
 		_sample = sample;
+		_audioType = audioType;
+		_isLooping = loop;
+
+		if(_audioType==AudioType::clip)
+			_sound = Mix_LoadWAV(_sample.c_str());
+		else
+			_music = Mix_LoadMUS(_sample.c_str());
 	}
 	AudioComponent::~AudioComponent()
 	{
-		SDL_CloseAudioDevice(_deviceId);
-		SDL_FreeWAV(_wavBuffer);
-		SDL_Quit();
+		//Should Quit be called here?
+		//Mix_Quit();
+		//SDL_Quit();
+		Mix_FreeChunk(_sound);
+		Mix_FreeMusic(_music);
 	}
 
 	void AudioComponent::Play()
 	{
-		SDL_LoadWAV(_sample.c_str(), &_wavSpec, &_wavBuffer, &_wavLength);
-		_deviceId = SDL_OpenAudioDevice(NULL, 0, &_wavSpec, NULL, 0);
-		int success = SDL_QueueAudio(_deviceId, _wavBuffer, _wavLength);
-		SDL_PauseAudioDevice(_deviceId, 0);
+		_channel = -1;
+		if(_audioType==AudioType::clip)
+		{
+			if(_isLooping)
+				_channel = Mix_PlayChannel(-1, _sound, -1);
+			else
+				_channel = Mix_PlayChannel(-1, _sound, 0);
+		}
+		else
+		{
+			if(_isLooping)
+				_channel = Mix_PlayMusic( _music, -1);
+			else
+				_channel = Mix_PlayMusic( _music, 0);
+		}
 	}
 
 	void AudioComponent::Pause()
 	{
-		SDL_PauseAudioDevice(_deviceId, 1);
+		if(_audioType==AudioType::clip)
+			Mix_Pause(_channel);
+		else
+			Mix_PauseMusic();
+	}
+
+	void AudioComponent::Resume()
+	{
+		if(_audioType==AudioType::clip)
+			Mix_Resume(_channel);
+		else
+			Mix_ResumeMusic();
 	}
 
 	void AudioComponent::Stop()
 	{
-		SDL_CloseAudioDevice(_deviceId);
+		if(_audioType==AudioType::clip)
+			Mix_HaltChannel(_channel);
+		else
+			Mix_HaltMusic();
 	}
 
-	void AudioComponent::SetVolume(float volume)
+	void AudioComponent::SetVolume(int volume)
 	{
-		//SDL_MixAudio(_wavBuffer,_wavBuffer,_wavLength, volume);
+		if(_audioType==AudioType::clip)
+			Mix_Volume(_channel, volume);
+		else
+			Mix_VolumeMusic(volume);
 	}
 
 	void AudioComponent::SetLoop(bool loop)
