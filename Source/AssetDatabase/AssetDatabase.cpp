@@ -351,7 +351,7 @@ namespace PlatinumEngine
 			if (_database[i].doesExist)
 			{
 				auto filePath = _database[i].path;
-				auto findFilePath = fileExtensionToLoader.find(GetExtension(filePath));
+				auto findFilePath = fileExtensionToLoader.find(GetExtension(filePath.string()));
 
 				if (findFilePath == fileExtensionToLoader.end())
 				{
