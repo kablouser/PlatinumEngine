@@ -41,9 +41,7 @@ namespace PlatinumEngine{
 			_bounds{-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f},
 			_boundsSnap{ 0.1f, 0.1f, 0.1f },
 
-			_currentClickedZone(),
-
-			_selectedGameobject(nullptr)
+			_currentClickedZone()
 	{
 		_inputManager->CreateAxis(std::string ("HorizontalAxisForEditorCamera"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
 		_inputManager->CreateAxis(std::string ("VerticalAxisForEditorCamera"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
