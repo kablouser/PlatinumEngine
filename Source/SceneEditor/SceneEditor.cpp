@@ -76,37 +76,67 @@ namespace PlatinumEngine{
 			// Widgets
 			//-----------
 
-			if (ImGui::Button("Camera Setting"))
+			if (ImGui::Button(ICON_FA_CAMERA_ROTATE "##Camera Setting"))
 			{
-
 				_ifCameraSettingWindowOpen = !_ifCameraSettingWindowOpen;
 
 			}
 			//ImGuizmo
 			ImGui::SameLine();
-			if (ImGui::RadioButton("Translate", _currentGizmoOperation == ImGuizmo::TRANSLATE))
-				_currentGizmoOperation = ImGuizmo::TRANSLATE;
-			ImGui::SameLine();
-			if (ImGui::RadioButton("Rotate", _currentGizmoOperation == ImGuizmo::ROTATE))
-				_currentGizmoOperation = ImGuizmo::ROTATE;
-			ImGui::SameLine();
-			if (ImGui::RadioButton("Scale", _currentGizmoOperation == ImGuizmo::SCALE))
-				_currentGizmoOperation = ImGuizmo::SCALE;
-			ImGui::SameLine();
-			if (ImGui::RadioButton("Universal", _currentGizmoOperation == ImGuizmo::UNIVERSAL))
-				_currentGizmoOperation = ImGuizmo::UNIVERSAL;
-
-			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 130.f);
-
 			if (_currentGizmoOperation != ImGuizmo::SCALE)
 			{
+				/*
 				if (ImGui::RadioButton("Local", _currentGizmoMode == ImGuizmo::LOCAL))
 					_currentGizmoMode = ImGuizmo::LOCAL;
 				ImGui::SameLine();
 				if (ImGui::RadioButton("World", _currentGizmoMode == ImGuizmo::WORLD))
 					_currentGizmoMode = ImGuizmo::WORLD;
-			}
+*/
+				if (ImGui::Button(_imGuiButton ? ICON_FA_CUBE "##Local###ViewMode" : ICON_FA_EARTH_ASIA "##Global###ViewMode"))
+				{
+					_imGuiButton = !_imGuiButton;
+					if (_imGuiButton)
+					{
+						_currentGizmoMode = ImGuizmo::LOCAL;
+					}
+					else if (!_imGuiButton)
+					{
+						_currentGizmoMode = ImGuizmo::WORLD;
+					}
+				}
+				if (ImGui::IsItemHovered())
+				{
+					if(_imGuiButton)
+						ImGui::SetTooltip("Local gizmo");
+					if(!_imGuiButton)
+						ImGui::SetTooltip("Global gizmo");
+				}
 
+			}
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT "##Translate"))
+				_currentGizmoOperation = ImGuizmo::TRANSLATE;
+			if(ImGui::IsItemHovered())
+				ImGui::SetTooltip("Translate");
+
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_ROTATE "##Rotate"))
+				_currentGizmoOperation = ImGuizmo::ROTATE;
+			if(ImGui::IsItemHovered())
+				ImGui::SetTooltip("Rotate");
+
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_CROP_SIMPLE "##Scale"))
+				_currentGizmoOperation = ImGuizmo::SCALE;
+			if(ImGui::IsItemHovered())
+				ImGui::SetTooltip("Scale");
+
+			ImGui::SameLine();
+			if (ImGui::Button( ICON_FA_MICROCHIP "##Universal"))
+				_currentGizmoOperation = ImGuizmo::UNIVERSAL;
+			if(ImGui::IsItemHovered())
+				ImGui::SetTooltip("translate, rotate and scale");
+			ImGui::SameLine();
 			ImGui::Checkbox("Bound Sizing", &_boundSizing);
 			//-------------
 			// Sub window
@@ -288,7 +318,7 @@ namespace PlatinumEngine{
 			_renderTexture.Bind();
 			glEnable(GL_DEPTH_TEST);
 			glViewport(0, 0, _framebufferWidth, _framebufferHeight);
-			glClearColor(0.35f, 0.3f, 0.3f, 1.0f);
+			glClearColor(0.2784f, 0.2784f, 0.2784f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 			// Start rendering (bind a shader)

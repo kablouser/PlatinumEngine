@@ -20,6 +20,7 @@
 // Input manager
 #include <InputManager/InputManager.h>
 #include <IconsKenney.h>
+#include <IconsFontAwesome6.h>
 #include <ImGuizmo.h>
 namespace PlatinumEngine
 {
@@ -130,7 +131,6 @@ namespace PlatinumEngine
 		 */
 		void UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE, ImGuizmo::OPERATION);
 
-
 		// ___CONSTRUCTOR___
 		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer);
 
@@ -144,7 +144,7 @@ namespace PlatinumEngine
 		float _bounds[6];
 		float _boundsSnap[3];
 
-		//float _fakeVeiwMatrix[16];
+		bool _imGuiButton;
 		bool _useSnap;
 		bool _boundSizing;
 

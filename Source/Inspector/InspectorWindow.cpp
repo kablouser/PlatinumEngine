@@ -143,7 +143,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 {
 	// If this gui is being shown, assumption that object has transform component
 	ImGui::Separator();
-	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT "  Transform", ImGuiTreeNodeFlags_AllowItemOverlap);
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_MAXIMIZE "  Transform", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveTransformComponent")) {
