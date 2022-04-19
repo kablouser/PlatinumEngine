@@ -1,6 +1,8 @@
 #include <string_view>
+#include <utility>
 #include <vector>
 #include <map>
+#include <optional>
 #include <typeindex>
 #include <iostream>
 #include <functional>
@@ -37,11 +39,9 @@ constexpr auto type_name()
 #define PLATINUM_OFFSETOF(typeName, fieldName)\
     (size_t)&reinterpret_cast<const volatile char&>((((typeName*)0)->fieldName))
 
-
 //-----------------------------------------------------------------------
 // Core classes
 //-----------------------------------------------------------------------
-
 
 class FieldInfo
 {
@@ -56,7 +56,6 @@ public:
 		return (char*)typeInstance + offset;
 	}
 };
-
 
 class DynamicFieldIterator
 {
@@ -90,6 +89,7 @@ public:
 	// with its template arguments
 	std::string typeName;
 	std::type_index typeIndex;
+	std::optional<std::type_index> inheritedType;
 
 	std::vector<FieldInfo> fields;
 
@@ -116,13 +116,22 @@ public:
 	TypeInfo& operator=(TypeInfo&&) = default;
 
 	//-----------------------------------------------------------------------
-	// POD type support
+	// Factory pattern thingy
 	//-----------------------------------------------------------------------
+
+	template<typename T>
+	TypeInfo& WithInherit()
+	{
+		// only 1 inherited type allowed
+		assert(!inheritedType.has_value());
+		inheritedType = std::type_index(typeid(T));
+		return *this;
+	}
 
 	template<typename T>
 	TypeInfo& WithField(std::string fieldName, size_t offset)
 	{
-		fields.push_back(FieldInfo{ std::type_index(typeid(T)), fieldName, offset });
+		fields.push_back(FieldInfo{ std::type_index(typeid(T)), std::move(fieldName), offset });
 		return *this;
 	}
 };
@@ -209,7 +218,6 @@ public:
 	void CreatePrimitiveTypeInfo()
 	{
 		static_assert(std::is_fundamental<T>::value);
-		//std::ostream&(std::ostream& outputStream, void* typeInstance)>
 		BeginTypeInfo<T>().streamOut =
 				[](std::ostream& outputStream, void* typeInstance) -> std::ostream&
 				{
@@ -218,7 +226,20 @@ public:
 				};
 	}
 
-	std::pair<bool, const TypeInfo*> TryGetTypeInfo(const std::string& typeName)
+	template<typename T>
+	std::ostream& StreamOutTypeInstance(std::ostream& ostream, T* typeInstance)
+	{
+		ostream << '{' << std::endl;
+		StreamOutTypeInstanceInternal(
+				ostream,
+				typeInstance,
+				std::type_index(typeid(*typeInstance)),
+				1);
+		ostream << '}' << std::endl;
+		return ostream;
+	}
+
+	std::pair<bool, const TypeInfo*> GetTypeInfo(const std::string& typeName)
 	{
 		auto iterator = typeNames.find(typeName);
 		if (iterator == typeNames.end())
@@ -227,7 +248,13 @@ public:
 			return { true, &typeInfos.at(iterator->second) };
 	}
 
-	std::pair<bool, const TypeInfo*> TryGetTypeInfo(std::type_index typeIndex)
+	template<typename T>
+	std::pair<bool, const TypeInfo*> GetTypeInfo()
+	{
+		return GetTypeInfo(std::type_index(typeid(T)));
+	}
+
+	std::pair<bool, const TypeInfo*> GetTypeInfo(const std::type_index& typeIndex)
 	{
 		auto iterator = typeIndices.find(typeIndex);
 		if (iterator == typeIndices.end())
@@ -237,43 +264,31 @@ public:
 	}
 
 	template<typename T>
-	std::pair<bool, const TypeInfo*> TryGetTypeInfo()
+	const char* GetTypeIndexName()
 	{
-		return TryGetTypeInfo(std::type_index(typeid(T)));
+		return GetTypeIndexName(std::type_index(typeid(T)));
 	}
 
-	const char* GetTypeIndexName(std::type_index typeIndex)
+	const char* GetTypeIndexName(const std::type_index& typeIndex)
 	{
-		auto[success, typeInfo] = TryGetTypeInfo(typeIndex);
+		auto[success, typeInfo] = GetTypeInfo(typeIndex);
 		if (success)
 			return typeInfo->typeName.c_str();
 		else
 			return typeIndex.name();
 	}
 
-	std::ostream& StreamOutTypeInfo(std::ostream& ostream, const TypeInfo& typeInfo)
+	template<typename T>
+	std::ostream& StreamOutTypeInfo(std::ostream& ostream)
 	{
-		ostream << typeInfo.typeName << std::endl
-				<< '{' << std::endl;
-
-		for (auto& i: typeInfo.fields)
-		{
-			ostream << '\t' <<
-					GetTypeIndexName(i.typeIndex) << ' ' <<
-					i.fieldName << ' ' <<
-					i.offset << ';' << std::endl;
-		}
-
-		ostream << '}' << std::endl;
-
-		return ostream;
+		return StreamOutTypeInfo(ostream, std::type_index(typeid(T)));
 	}
 
-	template<typename T>
-	std::ostream& StreamOutTypeInstance(std::ostream& ostream, T* typeInstance)
+	std::ostream& StreamOutTypeInfo(std::ostream& ostream, const std::type_index& typeIndex)
 	{
-		StreamOutTypeInstance(ostream, typeInstance, std::type_index(typeid(*typeInstance)), 0);
-		ostream << ';' << std::endl;
+		ostream << '{' << std::endl;
+		StreamOutTypeInfoInternal(ostream, typeIndex, 1);
+		ostream << '}' << std::endl;
 		return ostream;
 	}
 
@@ -283,13 +298,42 @@ private:
 	std::map<std::string, size_t> typeNames;
 	std::map<std::type_index, size_t> typeIndices;
 
-	std::ostream& StreamOutTypeInstance(
+	std::ostream& StreamOutTypeInfoInternal(
 			std::ostream& ostream,
-			void* typeInstance,
-			std::type_index typeIndex,
+			const std::type_index& typeIndex,
 			unsigned int indents)
 	{
-		auto[success, typeInfo] = TryGetTypeInfo(typeIndex);
+		std::string tabs(indents, '\t');
+		auto[success, typeInfo] = GetTypeInfo(typeIndex);
+		if (success)
+		{
+			if (typeInfo->inheritedType.has_value())
+			{
+				StreamOutTypeInfoInternal(ostream, *typeInfo->inheritedType, indents);
+			}
+
+			for (auto& field: typeInfo->fields)
+			{
+				ostream << tabs <<
+						GetTypeIndexName(field.typeIndex) << ' ' <<
+						field.fieldName << ' ' <<
+						field.offset << ';' << std::endl;
+			}
+		}
+		else
+		{
+			ostream << tabs << '?' << std::endl;
+		}
+		return ostream;
+	}
+
+	std::ostream& StreamOutTypeInstanceInternal(
+			std::ostream& ostream,
+			void* typeInstance,
+			const std::type_index& typeIndex,
+			unsigned int indents)
+	{
+		auto[success, typeInfo] = GetTypeInfo(typeIndex);
 		if (success)
 		{
 			if (typeInfo->streamOut)
@@ -298,16 +342,26 @@ private:
 			}
 			else
 			{
-				if (0 < indents)
-					ostream << std::endl;
 				std::string tabs(indents, '\t');
 
-				ostream << tabs << '{' << std::endl;
+				if (typeInfo->inheritedType.has_value())
+				{
+					ostream << "what?" << std::endl;
+					StreamOutTypeInstanceInternal(
+							ostream,
+							typeInstance,
+							*typeInfo->inheritedType,
+							indents);
+				}
 
 				for (auto& field: typeInfo->fields)
 				{
 					ostream << tabs << '\t' << GetTypeIndexName(field.typeIndex) << ' ' << field.fieldName << " = ";
-					StreamOutTypeInstance(ostream, field.AccessField(typeInstance), field.typeIndex, indents + 1);
+					StreamOutTypeInstanceInternal(
+							ostream,
+							field.AccessField(typeInstance),
+							field.typeIndex,
+							0);
 					ostream << ';' << std::endl;
 				}
 
@@ -317,18 +371,19 @@ private:
 						 iterator->IsIterating(); iterator->MoveNext())
 					{
 						auto dynamicField = iterator->GetCurrent();
-						ostream << tabs << '\t';
-						StreamOutTypeInstance(ostream, dynamicField.typeInstance, dynamicField.typeIndex, indents + 1);
+						StreamOutTypeInstanceInternal(
+								ostream,
+								dynamicField.typeInstance,
+								dynamicField.typeIndex,
+								indents + 1);
 						ostream << ',' << std::endl;
 					}
 				}
-
-				ostream << tabs << '}';
 			}
 		}
 		else
 		{
-			ostream << "?";
+			ostream << '?';
 		}
 		return ostream;
 	}
@@ -358,16 +413,82 @@ int main()
 	db.CreatePrimitiveTypeInfo<float>();
 	db.CreatePrimitiveTypeInfo<int>();
 
-	db.StreamOutTypeInfo(std::cout, *db.TryGetTypeInfo<MyStruct>().second);
-	db.StreamOutTypeInfo(std::cout, *db.TryGetTypeInfo<std::vector<int>>().second);
+	db.StreamOutTypeInfo<MyStruct>(std::cout);
+	db.StreamOutTypeInfo<std::vector<int>>(std::cout);
 
 	MyStruct test{
-			69.0f, 420.0f, {1,1,2,3,5,8,13}
+			69.0f, 420.0f, { 1, 1, 2, 3, 5, 8, 13 }
 	};
 	db.StreamOutTypeInstance(std::cout, &test);
-
 	std::vector<int> myList{ 0, 1, 2, 3 };
 	db.StreamOutTypeInstance(std::cout, &myList);
+
+	std::cout << "=======================================" << std::endl;
+
+	class AbstractClass
+	{
+	public:
+		float time;
+		MyStruct data;
+
+		virtual void Get() = 0;
+	};
+
+	class ChildClass : public AbstractClass
+	{
+	public:
+		int counter;
+
+		void Get()
+		{
+		};
+	};
+
+	class FurtherChildClass : public ChildClass
+	{
+	public:
+		int reset;
+
+		void Get()
+		{
+		}
+	};
+
+	db.BeginTypeInfo<AbstractClass>()
+			.WithField<float>("time", PLATINUM_OFFSETOF(AbstractClass, time))
+			.WithField<MyStruct>("data", PLATINUM_OFFSETOF(AbstractClass, data));
+	db.BeginTypeInfo<ChildClass>()
+			.WithInherit<AbstractClass>()
+			.WithField<int>("counter", PLATINUM_OFFSETOF(ChildClass, counter));
+	db.BeginTypeInfo<FurtherChildClass>()
+			.WithInherit<ChildClass>()
+			.WithField<int>("reset", PLATINUM_OFFSETOF(FurtherChildClass, reset));
+
+	db.StreamOutTypeInfo<AbstractClass>(std::cout);
+	db.StreamOutTypeInfo<ChildClass>(std::cout);
+	db.StreamOutTypeInfo<FurtherChildClass>(std::cout);
+	struct Anon{ };
+	db.StreamOutTypeInfo<Anon>(std::cout);
+
+	ChildClass what = {};
+	what.data.field0 = 256;
+	what.data.field1 = 1024;
+	what.time = 69.88f;
+	what.counter = 420;
+
+	FurtherChildClass what2 = {};
+	what2.data.field0 = 256;
+	what2.data.field1 = 1024;
+	what2.time = 69.88f;
+	what2.counter = 420;
+	what2.reset = 920;
+
+//	db.StreamOutTypeInstance(std::cout, &what);
+//	db.StreamOutTypeInstance(std::cout, &what2);
+//
+//	db.StreamOutTypeInstance(std::cout, (ChildClass*)&what2);
+
+	// TODO implement properly and see what needs extending
 
 	return 0;
 }

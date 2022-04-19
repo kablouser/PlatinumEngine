@@ -172,3 +172,5 @@ set(PROJECT_LIBRARIES
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_LIBRARIES})
 target_link_libraries(tests PRIVATE ${PROJECT_LIBRARIES} Catch2::Catch2WithMain)
 #-----------------------------
+
+add_executable(RTTI Source/RTTI_Scratch.cpp)
