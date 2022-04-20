@@ -76,6 +76,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 	char meshBuffer[64];
 	char textureBuffer[64];
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_VECTOR_SQUARE "  Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+	char normalTextureBuffer[64];
+	
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveRenderComponent")) {
@@ -140,6 +142,11 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		else
 			memset(textureBuffer, 0, 64 * sizeof(char));
 
+		if(_activeGameObject->GetComponent<RenderComponent>()->material.normalTexture != nullptr)
+			strcpy(normalTextureBuffer,  _activeGameObject->GetComponent<RenderComponent>()->material.normalTexture->fileName.c_str());
+		else
+			memset(normalTextureBuffer, 0, 64 * sizeof(char));
+
 		//Show text box (read only)----------Choose Material
 		ImGui::Separator();
 		ImGui::Text("Material");
@@ -165,6 +172,24 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::PushItemWidth(_itemWidthMesh);
 		ImGui::SliderFloat("##shininess",&(_activeGameObject->GetComponent<RenderComponent>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
+
+		ImGui::Text("%s", "Normal Map");
+		ImGui::SameLine(_sameLineMesh);
+		ImGui::PushItemWidth(_itemWidthMesh);
+		ImGui::InputText("##Normal Map Name", normalTextureBuffer, sizeof(normalTextureBuffer), ImGuiInputTextFlags_ReadOnly);
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+		if(ImGui::Button("Select Normal Map"))
+		{
+			ImGui::OpenPopup("Select Normal Texture");
+		}
+		{
+			auto asset_Helper = _assetHelper->ShowNormalTextureGuiWindow();
+			if (std::get<0>(asset_Helper))
+				_activeGameObject->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
+		}
+		ImGui::SameLine();
+		ImGui::Checkbox("##UseNormalTexture", &(_activeGameObject->GetComponent<RenderComponent>()->material.useNormalTexture));
 	}
 }
 

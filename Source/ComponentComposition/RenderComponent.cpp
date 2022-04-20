@@ -30,6 +30,11 @@ namespace PlatinumEngine
 		material.diffuseTexture = texture;
 	}
 
+	void RenderComponent::SetNormalMap(Texture* texture)
+	{
+		material.normalTexture = texture;
+	}
+
 	void RenderComponent::SetMesh(Mesh* mesh)
 	{
 		_mesh = mesh;

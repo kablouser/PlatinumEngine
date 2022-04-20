@@ -48,7 +48,7 @@ namespace PlatinumEngine
 			}
 		}
 
-		Mesh LoadMesh(const std::string &filePath, const bool JoinVertices)
+		Mesh LoadMesh(const std::string &filePath, const bool JoinVertices, const bool CalcTangents)
 		{
 			// First check if the file is okay
 			if (!ExtensionAllowed(GetExtension(filePath)))
@@ -63,6 +63,10 @@ namespace PlatinumEngine
 			if (JoinVertices)
 			{
 				flags = flags | aiProcess_JoinIdenticalVertices;
+			}
+			if (CalcTangents)
+			{
+				flags = flags | aiProcess_CalcTangentSpace;
 			}
 
 			// Crate scene from file
@@ -110,6 +114,18 @@ namespace PlatinumEngine
 				{
 					vertex.textureCoords.x = 0.0f;
 					vertex.textureCoords.y = 0.0f;
+				}
+				if (mesh->mTangents)
+				{
+					vertex.tangent.x = mesh->mTangents[i].x;
+					vertex.tangent.y = mesh->mTangents[i].y;
+					vertex.tangent.z = mesh->mTangents[i].z;
+				}
+				else
+				{
+					vertex.tangent.x = 0.0f;
+					vertex.tangent.y = 0.0f;
+					vertex.tangent.z = 0.0f;
 				}
 
 				outMesh.vertices.emplace_back(vertex);

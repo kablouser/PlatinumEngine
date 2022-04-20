@@ -26,6 +26,8 @@ namespace PlatinumEngine
 
 		float         	shininessFactor;
 
+		bool useNormalTexture = false;
+
 		Material();
 		~Material();
 

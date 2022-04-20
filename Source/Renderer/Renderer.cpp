@@ -17,7 +17,7 @@ const std::string UNLIT_VERTEX_SHADER =
 #include <Shaders/Unlit/Unlit.vert>
 ;
 const std::string UNLIT_FRAGMENT_SHADER =
-#include <Shaders/Unlit/Unlit.frag>
+#include <Shaders/Unlit/Test.frag>
 ;
 const std::string SKYBOX_VERTEX_SHADER =
 #include <Shaders/Unlit/SkyBoxShader.vert>
@@ -180,6 +180,7 @@ namespace PlatinumEngine
 		{
 			glActiveTexture(GL_TEXTURE0);
 			material.diffuseTexture->Bind();
+			_unlitShader.SetUniform("ourTexture", 0);
 		}
 		// bind specular map
 		if(material.specularTexture)
@@ -192,8 +193,15 @@ namespace PlatinumEngine
 		{
 			glActiveTexture(GL_TEXTURE2);
 			material.normalTexture->Bind();
+			_unlitShader.SetUniform("normalMap", 2);
+			if (material.useNormalTexture)
+				_unlitShader.SetUniform("useNormalMap", true);
+			else
+				_unlitShader.SetUniform("useNormalMap", false);
+		} else {
+			_unlitShader.SetUniform("useNormalMap", false);
 		}
-		_unlitShader.SetUniform("shininess", material.shininessFactor);
+//		_unlitShader.SetUniform("shininess", material.shininessFactor);
 	}
 
 	// update model matrix in shader
@@ -298,21 +306,25 @@ namespace PlatinumEngine
 	//--------------------------------------------------------------------------------------------------------------
 	void Renderer::SetLightProperties()
 	{
-		pointLight.lightPos = Maths::Vec3(0.9f * (float)std::cos(glfwGetTime()),0.9f * (float)std::sin(glfwGetTime()),0.9f);
+//		pointLight.lightPos = Maths::Vec3(0.9f * (float)std::cos(glfwGetTime()),0.9f * (float)std::sin(glfwGetTime()),0.9f);
+		pointLight.lightPos = Maths::Vec3(0.0f, 0.0f, 2.0f);
+		_unlitShader.SetUniform("lightColor", Maths::Vec3(1.0f, 1.0f, 1.0f));
+		_unlitShader.SetUniform("lightPos", pointLight.lightPos);
+		_unlitShader.SetUniform("viewPos", Maths::Vec3(0.0, 0.0, 10.0));
 		// set basic properties
-		_unlitShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
+//		_unlitShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
+//
+//		_unlitShader.SetUniform("pointLight.position", pointLight.lightPos);
+//		_unlitShader.SetUniform("pointLight.ambient", pointLight.ambientStrength);
+//		_unlitShader.SetUniform("pointLight.diffuse", pointLight.diffuseStrength);
+//		_unlitShader.SetUniform("pointLight.specular", pointLight.specularStrength);
+//
+//		_unlitShader.SetUniform("pointLight.constant", pointLight.constant);
+//		_unlitShader.SetUniform("pointLight.linear", pointLight.linear);
+//		_unlitShader.SetUniform("pointLight.quadratic", pointLight.quadratic);
+//		_unlitShader.SetUniform("viewPosition", Maths::Vec3(0.0, 0.0, 10.0));
 
-		_unlitShader.SetUniform("pointLight.position", pointLight.lightPos);
-		_unlitShader.SetUniform("pointLight.ambient", pointLight.ambientStrength);
-		_unlitShader.SetUniform("pointLight.diffuse", pointLight.diffuseStrength);
-		_unlitShader.SetUniform("pointLight.specular", pointLight.specularStrength);
-
-		_unlitShader.SetUniform("pointLight.constant", pointLight.constant);
-		_unlitShader.SetUniform("pointLight.linear", pointLight.linear);
-		_unlitShader.SetUniform("pointLight.quadratic", pointLight.quadratic);
-		_unlitShader.SetUniform("viewPosition", Maths::Vec3(0.0, 0.0, 10.0));
-
-		_unlitShader.SetUniform("isPointLight", true);
+//		_unlitShader.SetUniform("isPointLight", true);
 	}
 
 }
