@@ -29,6 +29,8 @@ namespace PlatinumEngine
 
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);
+
+		void cameraComponentHelper(char* cameraType[]);
 	private:
 		AssetHelper* _assetHelper;
 		GameObject* _activeGameObject = nullptr;
@@ -39,8 +41,9 @@ namespace PlatinumEngine
 		bool _isObjectEnabled;
 
 		//ImGui helper parameters
-		float _sameLineMesh = 70.f;
 		float _itemWidthMesh = 160.f;
-		float _sameLineTransform = 70.f;
+		float _sameLine = 140.f;
+		std::vector<std::string> _temp = {"Perspective", "Orthographic"};
+		std::vector<std::string> _clearMode = {"None", "SkyBox", "BackgroundColour"};
 	};
 }
