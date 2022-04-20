@@ -183,7 +183,8 @@ namespace PlatinumEngine
 
 			void Decompose(
 					Maths::Vec3* outTranslation,
-					Maths::Quaternion* outQuaternion) const;
+					Maths::Quaternion* outQuaternion,
+					float* scale) const;
 
 		};
 
