@@ -4,6 +4,7 @@
 
 #include <Inspector/InspectorWindow.h>
 #include <ComponentComposition/CameraComponent.h>
+#include <ImGuizmo.h>
 
 using namespace PlatinumEngine;
 
@@ -153,20 +154,23 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 	}
 	if (isHeaderOpen)
 	{
+ 		static float translation[3] = {0.f, 0.f, 0.f};
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Position: ");
 		ImGui::SameLine(_sameLineTransform);
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Xpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[0]);
+		ImGui::InputFloat("##Xpos", &translation[0]);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Ypos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[1]);
+		ImGui::InputFloat("##Ypos", &translation[1]);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Zpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[2]);
+		ImGui::InputFloat("##Zpos", &translation[2]);
+		_activeGameObject->GetComponent<TransformComponent>()->localPosition =
+				Maths::Vec3(translation[0], translation[1], translation[2]);
 
 		static float eulerRotation[3] = {0.0f, 0.0f, 0.0f};
 		ImGui::Text("Rotation: ");
@@ -185,6 +189,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		_activeGameObject->GetComponent<TransformComponent>()->localRotation = Maths::Quaternion::EulerToQuaternion(
 				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2]));
 
+		static float scale[3] = {0.f, 0.f, 0.f};
 		ImGui::Text("Scale:    ");
 		ImGui::SameLine();
 		ImGui::InputFloat("##scale", &_activeGameObject->GetComponent<TransformComponent>()->localScale);

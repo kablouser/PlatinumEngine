@@ -908,17 +908,21 @@ namespace PlatinumEngine{
 		float viewManipulateRight = ImGui::GetWindowPos().x + windowWidth;
 		float viewManipulateTop = ImGui::GetWindowPos().y;
 
+		if(_selectedGameobject != nullptr && _selectedGameobject->GetComponent<TransformComponent>() != nullptr)
+		{
+			auto transform =  _selectedGameobject->GetComponent<TransformComponent>();
+			Maths::Mat4 transform_matrix = transform->GetLocalToWorldMatrix();
+			ImGuizmo::Manipulate(
+					cameraView, cameraProjection, currentGizmoOperation, currentGizmoMode,
+					transform_matrix.matrix, NULL, _useSnap ? &_snap[0] : NULL,
+					_boundSizing ? _bounds : NULL, _boundSizingSnap ? _boundsSnap : NULL);
 
-		ImGuizmo::Manipulate(
-				cameraView, cameraProjection, currentGizmoOperation, currentGizmoMode,
-				identityMatrix.matrix, NULL, _useSnap ? &_snap[0] : NULL,
-				_boundSizing ? _bounds : NULL, _boundSizingSnap ? _boundsSnap : NULL);
+			transform->SetLocalToWorldMatrix(transform_matrix);
+		}
 
 		// view manipulate gizmo
 		ImGuizmo::ViewManipulate(cameraView, 0.001, ImVec2(viewManipulateRight - 100, viewManipulateTop),
 				ImVec2(100, 100), 0x10101010);
-
-
 	}
 
 }
