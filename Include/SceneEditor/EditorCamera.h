@@ -13,13 +13,15 @@ namespace PlatinumEngine
 	public:
 		// VARIABLE
 
-		// Camera relative Matrix
+		// view Matrix stuff
 		Maths::Mat4 viewMatrix4;
+
+		// projection stuff
 		Maths::Mat4 projectionMatrix4;
+
 
 		// Flags
 		bool isOrthogonal;
-
 		enum AxisType{horizontalAxis, verticalAxis};
 
 
@@ -94,9 +96,29 @@ namespace PlatinumEngine
 		 * @param far
 		 * ...
 		 */
-		void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far);
+		void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far); // TODO: maybe deleted
 		void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
 		void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
+
+		/**
+		 * Get camera position const reference
+		 * @return : camera position const reference
+		 */
+		const Maths::Vec3& GetCameraPosition();
+
+		/**
+		 * Get near/far panel z value for the clipping space
+		 * @return : near/far panel z value for the clipping space
+		 */
+		float GetNearPanelForClippingSpace();
+		float GetFarPanelForClippingSpace();
+
+		/**
+		 * Get fov value
+		 * @return : fov value
+		 */
+		float GetFovForPerspectiveProjection();
+
 
 		// CONSTRUCTOR
 		EditorCamera();
@@ -108,8 +130,13 @@ namespace PlatinumEngine
 		// transformation
 		Maths::Vec3 _eulerAngle;
 		Maths::Vec3 _translationValue;
-		Maths::Vec3 _cameraPosition; // need this position is because we need to adjust the camera position
-									 // after the user change the fov of the camera)
+		//Maths::Vec3 _cameraPosition;
+
+		// camera
+		float _nearPanelForClippingSpace;
+		float _farPanelForClippingSpace;
+		float _fov;
+
 
 		// device input data
 		float _translationSpeed = 0.005;

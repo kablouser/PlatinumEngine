@@ -3,7 +3,6 @@
 //
 
 #include <Project/ProjectWindow.h>
-#include <iostream>
 
 using namespace PlatinumEngine;
 
@@ -60,6 +59,8 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 			// Add open folder icon and name
 			ImGui::SameLine();
 			ImGui::Text("%s", (std::string{ICON_FA_FOLDER_OPEN} + " " + dir.filename().string()).c_str());
+
+      //drag and drop
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
@@ -67,6 +68,7 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 
 				ImGui::EndDragDropTarget();
 			}
+
 			for (std::filesystem::directory_iterator i(dir), end; i != end; ++i)
 			{
 				ShowTreeNode(i->path());
@@ -79,6 +81,7 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 			// Add closed folder icon and name
 			ImGui::SameLine();
 			ImGui::Text("%s", (std::string{ICON_FA_FOLDER} + " " + dir.filename().string()).c_str());
+      //drag and drop
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))

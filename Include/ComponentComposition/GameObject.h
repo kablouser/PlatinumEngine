@@ -83,6 +83,16 @@ namespace PlatinumEngine
 			return dynamic_cast<T*>(GetComponentInternal(typeid(T)));
 		}
 
+		//--------------------------------------------------------------------------------------------------------------
+		// Convenience functions
+		//--------------------------------------------------------------------------------------------------------------
+
+		template<class T>
+		T* GetParentComponent()
+		{
+			return dynamic_cast<T*>(GetParentComponentInternal(typeid(T)));
+		}
+
 		std::string name;
 
 	private:
@@ -118,6 +128,8 @@ namespace PlatinumEngine
 		//--------------------------------------------------------------------------------------------------------------
 
 		Component* GetComponentInternal(const std::type_info& typeInfo);
+
+		Component* GetParentComponentInternal(const std::type_info& typeInfo);
 
 		// note: if you want to remove child from this GameObject, use GameObject::SetParent(nullptr);
 		void RemoveChild(GameObject* child);

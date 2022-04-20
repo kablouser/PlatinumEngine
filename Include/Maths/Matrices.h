@@ -12,6 +12,7 @@
 #include <glm/glm.hpp>
 #include <cstring>
 #include <Maths/Vectors.h>
+#include <array>
 
 //------------------------
 //  Template Class
@@ -20,6 +21,8 @@ namespace PlatinumEngine
 {
 	namespace Maths
 	{
+		// forward declare the Quaternion class
+		class Quaternion;
 
 		//-----------------------------------------------
 		//  Matrix template class and its helper class
@@ -70,24 +73,23 @@ namespace PlatinumEngine
 			 * Overloading operator- function. For scaling the matrix.
 			 * @param otherMatrix
 			 */
-			Matrix<numberOfRow, numberOfColumn, T>& operator=(const Matrix<numberOfRow, numberOfColumn, T>& otherMatrix);
+			Matrix<numberOfRow, numberOfColumn, T>&
+			operator=(const Matrix<numberOfRow, numberOfColumn, T>& otherMatrix);
 
 			/**
 			 * Convert array into matrix
 			 * @param arrayMatrix : array
 			 * @param arraySize : size of array
 			 */
-			void ConvertFromArray(T* array, unsigned int arraySize);
+			void ConvertFromArray(const T* array, unsigned int arraySize);
 
 			//___CONSTRUCTOR___
 			Matrix(); // create empty matrix
 			explicit Matrix(T valueForPacking); // fill the matrix (the std::vector) with valueForPacking
+			explicit Matrix(const std::array<T, numberOfRow* numberOfColumn>& matrixArray); // fill the matrix with array
 
 			//___VARIABLE___
 			T matrix[numberOfRow * numberOfColumn];
-
-		private:
-
 
 		};
 
@@ -147,27 +149,36 @@ namespace PlatinumEngine
 
 			Mat4& operator=(const Mat4& otherMatrix);
 
+			void Inverse();
+
+			void Transpose();
+
 			void SetIdentityMatrix();
 
 			void SetTranslationMatrix(Vec3 translationDirection);
 
 			void SetRotationMatrix(Vec3 eulerAngle);
 
-			void SetScaleMatrix(PlatinumEngine::Maths::Vec3 scale);
+			void SetRotationMatrix(Quaternion quaternion);
+
+			void SetScaleMatrix(Vec3 scale);
 
 			void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
 
 			void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far);
 
+			// fovy in degrees
 			void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
 
+			void SetTRSMatrix(Vec3 translate, Quaternion rotate, float scale);
 
 			//___CONSTRUCTOR___
 			using Matrix<4, 4, float>::Matrix;
 
+			//___CASTING___
+			operator glm::mat4() const;
 
-			//___VARIABLE___
-
+			void ConvertFromGLM(glm::mat4 mat4);
 
 		};
 
@@ -189,6 +200,10 @@ namespace PlatinumEngine
 
 			Mat3& operator=(const Mat3& otherMatrix);
 
+			void Inverse();
+
+			void Transpose();
+
 			void SetIdentityMatrix();
 
 			void SetRotationMatrix(Vec3 eulerAngle);
@@ -198,8 +213,10 @@ namespace PlatinumEngine
 			//___CONSTRUCTOR___
 			using Matrix<3, 3, float>::Matrix;
 
-			//___VARIABLE___
+			//___CASTING___
+			operator glm::mat3() const;
 
+			void ConvertFromGLM(glm::mat3 mat3);
 
 		};
 
@@ -242,7 +259,7 @@ namespace PlatinumEngine
 			// get the length of diagonal
 			int diagonalLength = 0;
 
-			if(numberOfRow < numberOfColumn)
+			if (numberOfRow < numberOfColumn)
 			{
 				diagonalLength = numberOfRow;
 			}
@@ -254,6 +271,12 @@ namespace PlatinumEngine
 			// fill the diagonal with the valueForPacking
 			for (int i = 0; i < diagonalLength; i++)
 				(*this)[i][i] = valueForPacking;
+		}
+
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		Matrix<numberOfRow, numberOfColumn, T>::Matrix(const std::array<T, numberOfRow* numberOfColumn>& matrixArray)
+		{
+			std::memcpy(this->matrix, matrixArray.data(), numberOfRow * numberOfColumn *sizeof(T));
 		}
 
 
@@ -314,10 +337,10 @@ namespace PlatinumEngine
 		Matrix<numberOfRow, numberOfColumn, T>& Matrix<numberOfRow, numberOfColumn, T>
 		::operator=(const Matrix<numberOfRow, numberOfColumn, T>& otherMatrix)
 		{
-			if(this == & otherMatrix)
+			if (this == &otherMatrix)
 				return *this;
 
-			std::memcpy(this->matrix, otherMatrix.matrix,  numberOfRow * numberOfColumn * sizeof(T));
+			std::memcpy(this->matrix, otherMatrix.matrix, numberOfRow * numberOfColumn * sizeof(T));
 
 			return (*this);
 		}
@@ -325,9 +348,9 @@ namespace PlatinumEngine
 
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
 		void Matrix<numberOfRow, numberOfColumn, T>
-		::ConvertFromArray(T* array, unsigned int arraySize)
+		::ConvertFromArray(const T* array, unsigned int arraySize)
 		{
-			if(arraySize == numberOfRow * numberOfColumn )
+			if (arraySize == numberOfRow * numberOfColumn)
 				memcpy(this->matrix, array, numberOfRow * numberOfColumn * sizeof(T));
 		}
 
@@ -339,7 +362,9 @@ namespace PlatinumEngine
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
 		MatrixHelper<numberOfRow, numberOfColumn, T>
 		::MatrixHelper(Matrix<numberOfRow, numberOfColumn, T>& matrix, unsigned int currentRow)
-				:_matrix(matrix), _currentRow(currentRow){}
+				:_matrix(matrix), _currentRow(currentRow)
+		{
+		}
 
 
 		// ___OVERLOADING FUNCTION___
@@ -355,17 +380,16 @@ namespace PlatinumEngine
 		}
 
 
-
 		//-------------------------------------------
 		// overloading << operator
 		//-------------------------------------------
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
-		inline std::ostream& operator<<(std::ostream &out, Matrix<numberOfRow, numberOfColumn, T> &m)
+		inline std::ostream& operator<<(std::ostream& out, Matrix<numberOfRow, numberOfColumn, T>& m)
 		{
 
 			std::string output;
 
-			for(int i = 0; i < numberOfRow; i ++ )
+			for (int i = 0; i < numberOfRow; i++)
 			{
 				for (int j = 0; j < numberOfColumn; j++)
 				{
@@ -380,4 +404,20 @@ namespace PlatinumEngine
 	}
 }
 
+//--------------------------------------
+// Functions to process matrix3 and 4
+// External syntax sugar
+//--------------------------------------
+namespace PlatinumEngine
+{
+	namespace Maths
+	{
+		Mat3 Inverse(Mat3 mat3);
 
+		Mat3 Transpose(Mat3 mat3);
+
+		Mat4 Inverse(Mat4 mat4);
+
+		Mat4 Transpose(Mat4 mat4);
+	}
+}

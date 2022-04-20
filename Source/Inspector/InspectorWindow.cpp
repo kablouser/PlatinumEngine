@@ -3,6 +3,7 @@
 //
 
 #include <Inspector/InspectorWindow.h>
+#include <ComponentComposition/CameraComponent.h>
 
 using namespace PlatinumEngine;
 
@@ -34,9 +35,12 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 			if (_activeGameObject->GetComponent<TransformComponent>() != nullptr)
 				ShowTransformComponent(scene);
 
-			ImGui::Separator();
-			if (_isAddComponentWindowOpen)
-				ShowAddComponent(scene);
+		  if (_activeGameObject->GetComponent<CameraComponent>())
+			  ShowCameraComponent(scene);
+
+		  ImGui::Separator();
+		  if (_isAddComponentWindowOpen)
+			  ShowAddComponent(scene);
 
 			if (ImGui::Button("Add Component"))
 			{
@@ -69,7 +73,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 
 	ImGui::Separator();
 	char meshBuffer[64];
-	bool isHeaderOpen = ImGui::CollapsingHeader("Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_TABLE_CELLS "  Mesh", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveRenderComponent")) {
@@ -122,7 +126,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		}
 
 		auto asset_Helper = _assetHelper->ShowGuiWindow();
-		if(std::get<0>(asset_Helper) == true)
+		if(std::get<0>(asset_Helper))
 		{
 			_activeGameObject->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
 		}
@@ -133,7 +137,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 {
 	// If this gui is being shown, assumption that object has transform component
 	ImGui::Separator();
-	bool isHeaderOpen = ImGui::CollapsingHeader("Transform Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT "  Transform", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveTransformComponent")) {
@@ -157,7 +161,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::Text("Z");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Zpos", &_activeGameObject->GetComponent<TransformComponent>()->position[2], 0.001f);
-
+    
 		static float eulerRotation[3] = {0.0f, 0.0f, 0.0f};
 		ImGui::Text("Rotation: ");
 		ImGui::SameLine();
@@ -172,23 +176,95 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::Text("Z");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Zrpt", &eulerRotation[2], 0.001f);
-		_activeGameObject->GetComponent<TransformComponent>()->rotation = Maths::Quaternion::EulerToQuat(
-				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2]));
+    
+		_activeGameObject->GetComponent<TransformComponent>()->rotation = Maths::Quaternion::EulerToQuaternion(
+				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2])); 
 
 		ImGui::Text("Scale:    ");
 		ImGui::SameLine();
-		ImGui::Text("X");
-		ImGui::SameLine();
-		ImGui::DragFloat("##Xscale", &_activeGameObject->GetComponent<TransformComponent>()->scale[0], 0.001f);
-		ImGui::SameLine();
-		ImGui::Text("Y");
-		ImGui::SameLine();
-		ImGui::DragFloat("##Yscale", &_activeGameObject->GetComponent<TransformComponent>()->scale[1], 0.001f);
-		ImGui::SameLine();
-		ImGui::Text("Z");
-		ImGui::SameLine();
-		ImGui::DragFloat("##Zscale", &_activeGameObject->GetComponent<TransformComponent>()->scale[2], 0.001f);
+		ImGui::InputFloat("##scale", &_activeGameObject->GetComponent<TransformComponent>()->localScale);
 		ImGui::PopItemWidth();
+	}
+}
+
+void InspectorWindow::ShowCameraComponent(Scene& scene)
+{
+	// If this gui is being shown, assumption that object has transform component
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_CAMERA "  Camera", ImGuiTreeNodeFlags_AllowItemOverlap);
+	// TODO: Icon button maybe?
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveCameraComponent")) {
+		// remove component
+		scene.RemoveComponent(*_activeGameObject->GetComponent<CameraComponent>());
+		return;
+	}
+	if (isHeaderOpen)
+	{
+		auto camera = _activeGameObject->GetComponent<CameraComponent>();
+
+//		IMGUI_API bool          BeginListBox(const char* label, const ImVec2& size = ImVec2(0, 0)); // open a framed scrolling region
+//		IMGUI_API void          EndListBox();                                                       // only call EndListBox() if BeginListBox() returned true!
+//		IMGUI_API bool          ListBox(const char* label, int* current_item, const char* const items[], int items_count, int height_in_items = -1);
+//		IMGUI_API bool          ListBox(const char* label, int* current_item, bool (*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int height_in_items = -1);
+
+		const char* projectionTypes[] = { "perspective", "orthographic" };
+		ImGui::ListBox(
+				"Projection Type",
+				(int*)(&camera->projectionType),
+				projectionTypes,
+				IM_ARRAYSIZE(projectionTypes));
+
+		const char* clearModes[] = {"none", "backgroundColor","skybox" };
+		ImGui::ListBox(
+				"Clear Mode",
+				(int*)(&camera->clearMode),
+				clearModes,
+				IM_ARRAYSIZE(clearModes));
+
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Background color: ");
+		ImGui::SameLine();
+    
+		ImGui::Text("R");
+		ImGui::SameLine();
+		ImGui::InputFloat("##Red", &camera->backgroundColor.r);
+		ImGui::SameLine();
+    
+		ImGui::Text("G");
+		ImGui::SameLine();
+		ImGui::InputFloat("##Green", &camera->backgroundColor.g);
+		ImGui::SameLine();
+    
+		ImGui::Text("B");
+		ImGui::SameLine();
+		ImGui::InputFloat("##Blue", &camera->backgroundColor.b);
+		ImGui::SameLine();
+    
+		ImGui::Text("A");
+		ImGui::SameLine();
+		ImGui::InputFloat("##Alpha", &camera->backgroundColor.a);
+
+		float fov;
+		float nearClippingPlane;
+		float farClippingPlane;
+		float orthographicSize;
+
+		ImGui::Text("Field of View: ");
+		ImGui::SameLine();
+		ImGui::InputFloat("##FOV", &camera->fov);
+
+		ImGui::Text("Near Clipping Plane: ");
+		ImGui::SameLine();
+		ImGui::InputFloat("##NearClippingPlane", &camera->nearClippingPlane);
+
+		ImGui::Text("Far Clipping Plane: ");
+		ImGui::SameLine();
+		ImGui::InputFloat("##FarClippingPlane", &camera->farClippingPlane);
+
+		ImGui::Text("Orthographic Size: ");
+		ImGui::SameLine();
+		ImGui::InputFloat("##OrthographicSize", &camera->orthographicSize);
 	}
 }
 
@@ -196,7 +272,11 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 {
 	if (ImGui::BeginChild("ComponentSelector"))
 	{
-		const char* components[] = { "Mesh Render Component", "Transform Component"};
+		const char* components[] = {
+				"Mesh Render Component",
+				"Transform Component",
+				"Camera Component"
+		};
 		static const char* selectedComponent = nullptr;
 		static char componentSelectorBuffer[128];
 		ImGui::Text("%s", "Select a Component");
@@ -239,6 +319,10 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			{
 				// Add Transform Component
 				scene.AddComponent<TransformComponent>(_activeGameObject);
+			}
+			else if (strcmp(selectedComponent, "Camera Component") == 0)
+			{
+				scene.AddComponent<CameraComponent>(_activeGameObject);
 			}
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;

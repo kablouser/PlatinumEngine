@@ -87,6 +87,12 @@ namespace PlatinumEngine
 
 		size_t GetComponentsCount() const;
 
+		template<typename T>
+		T* FindFirstComponent(bool requireEnabled = true)
+		{
+			return dynamic_cast<T*>(FindFirstComponentInternal(requireEnabled, typeid(T)));
+		}
+
 		//--------------------------------------------------------------------------------------------------------------
 		// Event controls
 		//--------------------------------------------------------------------------------------------------------------
@@ -119,13 +125,6 @@ namespace PlatinumEngine
 		 * @param renderer target location for rendering
 		 */
 		void Render(Renderer& renderer);
-
-
-
-
-
-
-
 
 	private:
 
@@ -188,5 +187,13 @@ namespace PlatinumEngine
 		void RemoveGameObjectRecurse(GameObject& gameObject);
 
 		void RemoveRootGameObject(GameObject& gameObject);
+
+		Component* FindFirstComponentInternal(
+				bool requireEnabled,
+				const std::type_info& typeInfo);
+		Component* FindFirstComponentRecurse(
+				bool requireEnabled,
+				const std::type_info& typeInfo,
+				GameObject& gameObject);
 	};
 }
