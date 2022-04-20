@@ -51,15 +51,15 @@ int main(int, char**)
 		ImPlot::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-		static const ImWchar ke_icons_ranges[] = { ICON_MIN_KI, ICON_MAX_KI, 0 };
-		static const ImWchar aw_icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
-		static const ImWchar md_icons_ranges[] = { ICON_MIN_MD, ICON_MAX_FA, 0};
+		 const ImWchar ke_icons_ranges[] = { ICON_MIN_KI, ICON_MAX_KI, 0 };
+		 const ImWchar aw_icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
+		 const ImWchar md_icons_ranges[] = { ICON_MIN_MD, ICON_MAX_KI, 0};
 		ImFontConfig config;
 		config.MergeMode = true;
 		io.Fonts->AddFontFromFileTTF("./Fonts/NotoSansDisplay-Regular.ttf", 18.0f);
 		io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, 16.0f, &config, aw_icons_ranges);
 		io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_KI, 16.0f, &config, ke_icons_ranges);
-		io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_MD, 16.0f, &config, md_icons_ranges);// Merge into first font
+		io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_MD, 18.0f, &config, md_icons_ranges);// Merge into first font
 		io.Fonts->Build();
 
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -125,7 +125,6 @@ int main(int, char**)
 				{
 					PlatinumEngine::Profiler::Section windowManagerSection("Window Manager");
 					windowManager.ShowGUI(scene);
-					ImGui::ShowDemoWindow();
 				}
 
 				//--------------------------------------------------------------------------------------------------------------
