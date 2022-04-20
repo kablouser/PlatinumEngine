@@ -374,12 +374,12 @@ namespace PlatinumEngine{
 			_renderer->SetModelMatrix();
 
 			// check if the view matrix is passed to shader
-			if(!_camera.CheckIfViewMatrixUsed())
+			//if(!_camera.CheckIfViewMatrixUsed())
 			{
 				_renderer->SetViewMatrix(_camera.viewMatrix4);
 				_camera.MarkViewMatrixAsUsed();
 			}
-			if(!_camera.CheckIfProjectionMatrixUsed())
+			//if(!_camera.CheckIfProjectionMatrixUsed())
 			{
 				_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
 				_camera.MarkProjectionMatrixAsUsed();
