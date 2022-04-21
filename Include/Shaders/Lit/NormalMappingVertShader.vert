@@ -20,16 +20,18 @@ uniform vec3 viewPos;
 
 void main()
 {
-    vertexPos = vec3(projection * view * model * vec4(inVertex, 1.0));
-    gl_Position = projection * view * model * vec4(inVertex, 1.0);
+    vertexPos = vec3(model * vec4(inVertex, 1.0));
     vertexTextureCoordinate = inTextureCoordinate;
 
-    vec3 T = normalize(vec3(model * vec4(inTangent, 0.0)));
-    vec3 N = normalize(vec3(model * vec4(inNormal, 0.0)));
+    mat3 normalMatrix = transpose(inverse(mat3(model)));
+    vec3 T = normalize(normalMatrix * inTangent);
+    vec3 N = normalize(normalMatrix * inNormal);
+    T = normalize(T - dot(T, N) * N);
     vec3 B = cross(N, T);
     mat3 TBN = transpose(mat3(T, B, N));
     TangentLightPos = TBN * lightPos;
     TangentViewPos  = TBN * viewPos;
-    TangentFragPos  = TBN * vec3(model * vec4(vertexPos, 1.0));
+    TangentFragPos  = TBN * vertexPos;
+    gl_Position = projection * view * model * vec4(inVertex, 1.0);
 }
 )"
