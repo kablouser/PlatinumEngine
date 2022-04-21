@@ -17,6 +17,7 @@ namespace PlatinumEngine{
 
 	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer):
 			_ifCameraSettingWindowOpen(false),
+
 			_camera(), _fov(60), _near(4), _far(10000),
 
 			_inputManager(inputManager),
@@ -42,6 +43,7 @@ namespace PlatinumEngine{
 			_boundsSnap{ 0.1f, 0.1f, 0.1f },
 
 			_currentClickedZone()
+
 	{
 		_inputManager->CreateAxis(std::string ("HorizontalAxisForEditorCamera"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
 		_inputManager->CreateAxis(std::string ("VerticalAxisForEditorCamera"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
@@ -523,7 +525,6 @@ namespace PlatinumEngine{
 							transformComponent != nullptr)
 					{
 						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
-
 
 						Maths::Vec4 temporaryMatrix;
 
