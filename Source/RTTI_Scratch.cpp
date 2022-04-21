@@ -8,6 +8,8 @@
 #include <functional>
 #include <cassert>
 #include <memory>
+#include <sstream>
+#include <Helpers/VectorHelpers.h>
 
 //-----------------------------------------------------------------------
 // Utility
@@ -40,6 +42,108 @@ constexpr auto type_name()
     (size_t)&reinterpret_cast<const volatile char&>((((typeName*)0)->fieldName))
 
 //-----------------------------------------------------------------------
+// Collection interface
+//-----------------------------------------------------------------------
+
+class Iterator
+{
+public:
+
+	// allow inherited classes to be destroyed
+	virtual ~Iterator()
+	{
+	}
+
+	// interface
+	virtual bool IsIterating() = 0;
+
+	virtual void MoveNext() = 0;
+
+	virtual void* GetCurrent() = 0;
+};
+
+class Collection
+{
+public:
+	// this is the type of the elements inside this collection
+	// not the type of the collection
+	std::type_index elementTypeIndex;
+
+	Collection(const std::type_index& newElementTypeIndex) : elementTypeIndex(newElementTypeIndex)
+	{
+	}
+
+	virtual bool Add(void* collectionInstance, void* elementInstance) = 0;
+
+	virtual bool RemoveFirst(void* collectionInstance, void* elementInstance) = 0;
+
+	virtual std::unique_ptr<Iterator> GetIterator(const void* collectionInstance) = 0;
+};
+
+//-----------------------------------------------------------------------
+// Vector support
+//-----------------------------------------------------------------------
+
+template<typename T>
+class VectorIterator : public Iterator
+{
+public:
+
+	VectorIterator(const std::vector<T>* toIterateOver) :
+			_toIterateOver(toIterateOver),
+			_currentIndex(0)
+	{
+	}
+
+	bool IsIterating() override
+	{
+		return _currentIndex < _toIterateOver->size();
+	}
+
+	void MoveNext() override
+	{
+		++_currentIndex;
+	}
+
+	void* GetCurrent() override
+	{
+		return (void*)&_toIterateOver->at(_currentIndex);
+	}
+
+private:
+
+	const std::vector<T>* _toIterateOver;
+	size_t _currentIndex;
+};
+
+template<typename T>
+class VectorCollection : public Collection
+{
+public:
+	VectorCollection() : Collection(std::type_index(typeid(T)))
+	{
+	}
+
+	bool Add(void* collectionInstance, void* elementInstance) override
+	{
+		((std::vector<T>*)collectionInstance)->push_back(*(T*)elementInstance);
+		return true;
+	}
+
+	bool RemoveFirst(void* collectionInstance, void* elementInstance)
+	{
+		return PlatinumEngine::VectorHelpers::RemoveFirst(
+				*(std::vector<T>*)collectionInstance,
+				*(T*)elementInstance);
+	}
+
+	std::unique_ptr<Iterator> GetIterator(const void* collectionInstance)
+	{
+		return std::make_unique<VectorIterator<T>>((const std::vector<T>*)collectionInstance);
+	}
+};
+
+//-----------------------------------------------------------------------
 // Core classes
 //-----------------------------------------------------------------------
 
@@ -57,61 +161,38 @@ public:
 	}
 };
 
-class DynamicFieldIterator
-{
-public:
-
-	class DynamicFieldInfo
-	{
-	public:
-		std::type_index typeIndex;
-		void* typeInstance;
-	};
-
-	// allow inherited classes to be destroyed
-	virtual ~DynamicFieldIterator()
-	{
-	}
-
-	// interface
-	virtual bool IsIterating() = 0;
-
-	virtual void MoveNext() = 0;
-
-	virtual DynamicFieldInfo GetCurrent() = 0;
-};
-
 class TypeInfo
 {
 public:
 
-	// should be unique?
-	// with its template arguments
+	// should be unique. includes its template arguments
 	std::string typeName;
 	std::type_index typeIndex;
+	// only 1 inherited parent allowed
 	std::optional<std::type_index> inheritedType;
 
-	std::vector<FieldInfo> fields;
+	std::function<void*(void)> allocate;
+	std::function<void(void*)> deallocate;
 
-	// can be elements in an array type
-	// but not in the fields!
-	std::function<
-			std::unique_ptr<DynamicFieldIterator>(void* typeInstance)>
-			createDynamicFieldIterator;
-
-	std::function<
-			std::ostream&(std::ostream& outputStream, void* typeInstance)>
+	std::function<void(std::ostream& outputStream, void* typeInstance)>
 			streamOut;
+	std::function<void(std::istream& inputStream, void* typeInstance)>
+			streamIn;
 
-	TypeInfo(std::type_index newTypeIndex) : typeIndex(newTypeIndex)
+	// can either have fields or collection, not both
+	bool isCollection;
+	std::vector<FieldInfo> fields;
+	std::unique_ptr<Collection> collection;
+
+	TypeInfo(std::type_index newTypeIndex, bool isCollection) : typeIndex(newTypeIndex), isCollection(isCollection)
 	{
 	}
 
-	TypeInfo(TypeInfo&) = default;
+	TypeInfo(TypeInfo&) = delete;
 
 	TypeInfo(TypeInfo&&) = default;
 
-	TypeInfo& operator=(TypeInfo&) = default;
+	TypeInfo& operator=(TypeInfo&) = delete;
 
 	TypeInfo& operator=(TypeInfo&&) = default;
 
@@ -124,6 +205,8 @@ public:
 	{
 		// only 1 inherited type allowed
 		assert(!inheritedType.has_value());
+		// collections cannot inherit
+		assert(!isCollection);
 		inheritedType = std::type_index(typeid(T));
 		return *this;
 	}
@@ -131,53 +214,32 @@ public:
 	template<typename T>
 	TypeInfo& WithField(std::string fieldName, size_t offset)
 	{
+		// fields cannot be in collections
+		assert(!isCollection);
 		fields.push_back(FieldInfo{ std::type_index(typeid(T)), std::move(fieldName), offset });
 		return *this;
 	}
-};
 
-//-----------------------------------------------------------------------
-// Vector support
-//-----------------------------------------------------------------------
-
-template<typename T>
-class VectorDynamicFieldIterator : public DynamicFieldIterator
-{
-public:
-
-	VectorDynamicFieldIterator(const std::vector<T>* toIterateOver) :
-			_toIterateOver(toIterateOver),
-			_currentIndex(0)
+	TypeInfo& WithCollection(std::unique_ptr<Collection>&& withCollection)
 	{
+		// isCollection must be enabled
+		assert(isCollection);
+		collection = std::move(withCollection);
+		return *this;
 	}
-
-	bool IsIterating() override
-	{
-		return _currentIndex < _toIterateOver->size();
-	}
-
-	void MoveNext() override
-	{
-		++_currentIndex;
-	}
-
-	DynamicFieldInfo GetCurrent() override
-	{
-		return { std::type_index(typeid(T)), (void*)&_toIterateOver->at(_currentIndex) };
-	}
-
-private:
-
-	const std::vector<T>* _toIterateOver;
-	size_t _currentIndex;
 };
 
 class TypeDatabase
 {
 public:
 
+	//-----------------------------------------------------------------------
+	// Creating Type Info
+	//-----------------------------------------------------------------------
+
+
 	template<typename T>
-	TypeInfo& BeginTypeInfo()
+	TypeInfo& BeginAbstractTypeInfo(bool isCollection = false)
 	{
 		std::string typeName = std::string(type_name<T>());
 		std::type_index typeIndex = std::type_index(typeid(T));
@@ -186,7 +248,7 @@ public:
 		if (0 == countTypeNames && 0 == countTypeIndices)
 		{
 			typeNames[typeName] = typeIndices[typeIndex] = typeInfos.size();
-			typeInfos.emplace_back(typeIndex);
+			typeInfos.emplace_back(typeIndex, isCollection);
 			TypeInfo& typeInfo = typeInfos[typeInfos.size() - 1];
 			typeInfo.typeName = std::move(typeName);
 			return typeInfo;
@@ -204,40 +266,44 @@ public:
 	}
 
 	template<typename T>
+	TypeInfo& BeginTypeInfo(bool isCollection = false)
+	{
+		static_assert(!std::is_abstract<T>(), "T should be NOT abstract.");
+		TypeInfo& typeInfo = BeginAbstractTypeInfo<T>(isCollection);
+		typeInfo.allocate = []() -> void*
+		{ return new T; };
+		typeInfo.deallocate = [](void* typeInstance) -> void
+		{ delete (T*)typeInstance; };
+		return typeInfo;
+	}
+
+	template<typename T>
 	void CreateVectorTypeInfo()
 	{
-		BeginTypeInfo<std::vector<T>>().createDynamicFieldIterator =
-				[](void* typeInstance) -> std::unique_ptr<DynamicFieldIterator>
-				{
-					return std::make_unique<VectorDynamicFieldIterator<T>>
-							((const std::vector<T>*)typeInstance);
-				};
+		BeginTypeInfo<std::vector<T>>(true)
+				.WithCollection(std::make_unique<VectorCollection<T>>());
 	}
 
 	template<typename T>
 	void CreatePrimitiveTypeInfo()
 	{
-		static_assert(std::is_fundamental<T>::value);
-		BeginTypeInfo<T>().streamOut =
-				[](std::ostream& outputStream, void* typeInstance) -> std::ostream&
+		static_assert(std::is_fundamental<T>::value, "T should be primitive aka fundamental.");
+		TypeInfo& typeInfo = BeginTypeInfo<T>();
+		typeInfo.streamOut =
+				[](std::ostream& outputStream, void* typeInstance) -> void
 				{
 					outputStream << *(T*)typeInstance;
-					return outputStream;
+				};
+		typeInfo.streamIn =
+				[](std::istream& inputStream, void* typeInstance) -> void
+				{
+					inputStream >> *(T*)typeInstance;
 				};
 	}
 
-	template<typename T>
-	std::ostream& StreamOutTypeInstance(std::ostream& ostream, T* typeInstance)
-	{
-		ostream << '{' << std::endl;
-		StreamOutTypeInstanceInternal(
-				ostream,
-				typeInstance,
-				std::type_index(typeid(*typeInstance)),
-				1);
-		ostream << '}' << std::endl;
-		return ostream;
-	}
+	//-----------------------------------------------------------------------
+	// Get Type Info
+	//-----------------------------------------------------------------------
 
 	std::pair<bool, const TypeInfo*> GetTypeInfo(const std::string& typeName)
 	{
@@ -263,33 +329,67 @@ public:
 			return { true, &typeInfos.at(iterator->second) };
 	}
 
-	template<typename T>
-	const char* GetTypeIndexName()
-	{
-		return GetTypeIndexName(std::type_index(typeid(T)));
-	}
+	//-----------------------------------------------------------------------
+	// Get Type Name
+	//-----------------------------------------------------------------------
 
-	const char* GetTypeIndexName(const std::type_index& typeIndex)
+	const char* GetTypeName(const std::type_index& typeIndex)
 	{
+		static char unknownName[] = "?";
 		auto[success, typeInfo] = GetTypeInfo(typeIndex);
 		if (success)
 			return typeInfo->typeName.c_str();
 		else
-			return typeIndex.name();
+			return unknownName;
 	}
 
 	template<typename T>
-	std::ostream& StreamOutTypeInfo(std::ostream& ostream)
+	const char* GetTypeName()
 	{
-		return StreamOutTypeInfo(ostream, std::type_index(typeid(T)));
+		return GetTypeName(std::type_index(typeid(T)));
 	}
 
-	std::ostream& StreamOutTypeInfo(std::ostream& ostream, const std::type_index& typeIndex)
+	//-----------------------------------------------------------------------
+	// Output Type Info
+	//-----------------------------------------------------------------------
+
+	void OutputTypeInfo(std::ostream& ostream, const std::type_index& typeIndex)
 	{
-		ostream << '{' << std::endl;
-		StreamOutTypeInfoInternal(ostream, typeIndex, 1);
-		ostream << '}' << std::endl;
-		return ostream;
+		OutputTypeInfo(ostream, typeIndex, false);
+		ostream << ';' << std::endl;
+	}
+
+	template<typename T>
+	void OutputTypeInfo(std::ostream& ostream)
+	{
+		OutputTypeInfo(ostream, std::type_index(typeid(T)));
+	}
+
+	//-----------------------------------------------------------------------
+	// Serialization
+	//-----------------------------------------------------------------------
+
+	template<typename T>
+	void Serialize(std::ostream& ostream, T* typeInstance)
+	{
+		SerializeInternal(
+				ostream,
+				typeInstance,
+				std::type_index(typeid(*typeInstance)),
+				0,
+				SerializeSection::root);
+		ostream << ';' << std::endl;
+	}
+
+	template<typename T>
+	void Deserialize(std::istream& istream, T* typeInstance)
+	{
+		std::cout <<
+				  (int)DeserializeInternal(
+						  istream,
+						  typeInstance,
+						  std::type_index(typeid(*typeInstance)),
+						  SerializeSection::root) << std::endl;
 	}
 
 private:
@@ -298,40 +398,56 @@ private:
 	std::map<std::string, size_t> typeNames;
 	std::map<std::type_index, size_t> typeIndices;
 
-	std::ostream& StreamOutTypeInfoInternal(
+	void OutputTypeInfo(
 			std::ostream& ostream,
 			const std::type_index& typeIndex,
-			unsigned int indents)
+			bool isInherited)
 	{
-		std::string tabs(indents, '\t');
 		auto[success, typeInfo] = GetTypeInfo(typeIndex);
 		if (success)
 		{
+			if (!isInherited)
+				ostream << GetTypeName(typeIndex) << std::endl <<
+						'{' << std::endl;
+
 			if (typeInfo->inheritedType.has_value())
-			{
-				StreamOutTypeInfoInternal(ostream, *typeInfo->inheritedType, indents);
-			}
+				OutputTypeInfo(ostream, *typeInfo->inheritedType, true);
+
+			if (isInherited)
+				ostream << '\t' << "// inherited from " << GetTypeName(typeIndex) << std::endl;
+			else if (typeInfo->inheritedType.has_value())
+				ostream << '\t' << "// from " << GetTypeName(typeIndex) << std::endl;
 
 			for (auto& field: typeInfo->fields)
 			{
-				ostream << tabs <<
-						GetTypeIndexName(field.typeIndex) << ' ' <<
+				ostream << '\t' <<
+						GetTypeName(field.typeIndex) << ' ' <<
 						field.fieldName << ' ' <<
 						field.offset << ';' << std::endl;
 			}
+
+			if (!isInherited)
+				ostream << '}';
 		}
 		else
 		{
-			ostream << tabs << '?' << std::endl;
+			if (isInherited)
+				ostream << '\t';
+			ostream << '?';
 		}
-		return ostream;
 	}
 
-	std::ostream& StreamOutTypeInstanceInternal(
+	enum class SerializeSection
+	{
+		root, inherited, field, dynamicField
+	};
+
+	void SerializeInternal(
 			std::ostream& ostream,
 			void* typeInstance,
 			const std::type_index& typeIndex,
-			unsigned int indents)
+			unsigned int indents,
+			SerializeSection section)
 	{
 		auto[success, typeInfo] = GetTypeInfo(typeIndex);
 		if (success)
@@ -344,51 +460,248 @@ private:
 			{
 				std::string tabs(indents, '\t');
 
+				// { root, inherited, field, dynamicField };
+				switch (section)
+				{
+				case SerializeSection::root:
+					ostream << tabs << GetTypeName(typeIndex) << std::endl <<
+							tabs << '{' << std::endl;
+					break;
+				case SerializeSection::field:
+					ostream << std::endl << tabs << '{' << std::endl;
+					break;
+				case SerializeSection::dynamicField:
+					ostream << tabs << '{' << std::endl;
+					break;
+				default:
+					break;
+				}
+
 				if (typeInfo->inheritedType.has_value())
 				{
-					ostream << "what?" << std::endl;
-					StreamOutTypeInstanceInternal(
+					SerializeInternal(
 							ostream,
 							typeInstance,
 							*typeInfo->inheritedType,
-							indents);
+							indents,
+							SerializeSection::inherited);
 				}
 
-				for (auto& field: typeInfo->fields)
-				{
-					ostream << tabs << '\t' << GetTypeIndexName(field.typeIndex) << ' ' << field.fieldName << " = ";
-					StreamOutTypeInstanceInternal(
-							ostream,
-							field.AccessField(typeInstance),
-							field.typeIndex,
-							0);
-					ostream << ';' << std::endl;
-				}
+				if (section == SerializeSection::inherited)
+					ostream << tabs << '\t' << "// inherited from " << GetTypeName(typeIndex) << std::endl;
+				else if (typeInfo->inheritedType.has_value())
+					ostream << tabs << '\t' << "// from " << GetTypeName(typeIndex) << std::endl;
 
-				if (typeInfo->createDynamicFieldIterator)
+				if (typeInfo->isCollection)
 				{
-					for (auto iterator = typeInfo->createDynamicFieldIterator(typeInstance);
-						 iterator->IsIterating(); iterator->MoveNext())
+					if (typeInfo->collection)
 					{
-						auto dynamicField = iterator->GetCurrent();
-						StreamOutTypeInstanceInternal(
-								ostream,
-								dynamicField.typeInstance,
-								dynamicField.typeIndex,
-								indents + 1);
-						ostream << ',' << std::endl;
+						for (auto iterator = typeInfo->collection->GetIterator(typeInstance);
+							 iterator->IsIterating(); iterator->MoveNext())
+						{
+							auto currentElement = iterator->GetCurrent();
+							ostream << tabs << '\t';
+							SerializeInternal(
+									ostream,
+									currentElement,
+									typeInfo->collection->elementTypeIndex,
+									indents + 1,
+									SerializeSection::dynamicField);
+							ostream << ',' << std::endl;
+						}
 					}
 				}
+				else
+				{
+					for (auto& field: typeInfo->fields)
+					{
+						ostream << tabs << '\t' << GetTypeName(field.typeIndex) << ' ' << field.fieldName << " = ";
+						SerializeInternal(
+								ostream,
+								field.AccessField(typeInstance),
+								field.typeIndex,
+								indents + 1,
+								SerializeSection::field);
+						ostream << ';' << std::endl;
+					}
+				}
+
+				if (section != SerializeSection::inherited)
+					ostream << tabs << '}';
 			}
 		}
 		else
 		{
 			ostream << '?';
 		}
-		return ostream;
+	}
+
+	enum class DeserializeReturnCode
+	{
+		success, badFormat, badMatch, unknownType
+	};
+
+	DeserializeReturnCode DeserializeInternal(
+			std::istream& istream,
+			void* typeInstance,
+			const std::type_index& typeIndex,
+			SerializeSection section)
+	{
+		auto[success, typeInfo] = GetTypeInfo(typeIndex);
+		if (!success)
+			return DeserializeReturnCode::unknownType;
+
+		if (typeInfo->streamIn)
+		{
+			typeInfo->streamIn(istream, typeInstance);
+			return istream ? DeserializeReturnCode::success : DeserializeReturnCode::badFormat;
+		}
+
+		std::string stringToken;
+		if (section == SerializeSection::root &&
+			!(istream >> stringToken && stringToken == typeInfo->typeName))
+			return DeserializeReturnCode::badFormat;
+
+		if (section != SerializeSection::inherited &&
+			!(istream >> stringToken && stringToken == "{"))
+			return DeserializeReturnCode::badFormat;
+
+		while (true)
+		{
+			if (!(istream >> stringToken))
+				return DeserializeReturnCode::badFormat;
+
+			if (stringToken.rfind("//", 0) == 0)
+			{
+				// stringToken begins with //
+				std::getline(istream, stringToken); // skip line
+				continue;
+			}
+			else if ((section == SerializeSection::root && stringToken == "};") ||
+					 (section != SerializeSection::root && stringToken == "}"))
+			{
+				// end!
+				return DeserializeReturnCode::success;
+			}
+			else if (stringToken == "?")
+			{
+				// unknown type
+				std::getline(istream, stringToken); // skip line
+				continue;
+			}
+			else if (stringToken == "{")
+			{
+				// structure to unknown type
+				// skip brackets
+				if (SkipCurlyBrackets(istream, 1))
+					continue;
+				else
+					return DeserializeReturnCode::badFormat;
+			}
+
+			if (typeInfo->isCollection)
+			{
+				// todo remove
+				// skip brackets
+				if (SkipCurlyBrackets(istream, 1))
+					return DeserializeReturnCode::success;
+				else
+					return DeserializeReturnCode::badFormat;
+			}
+			else
+			{
+				auto[fieldSuccess, fieldTypeInfo]=GetTypeInfo(stringToken);
+				if (!fieldSuccess)
+				{
+					// unknown type
+					std::getline(istream, stringToken); // skip line
+					continue;
+				}
+
+				if (!(istream >> stringToken))
+				{
+					// bad format
+					std::getline(istream, stringToken); // skip line
+					continue;
+				}
+
+				// find fieldName in our type
+				// TODO inheritance
+				auto iterator = std::find_if(
+						typeInfo->fields.begin(),
+						typeInfo->fields.end(),
+						[&](const FieldInfo& fieldInfo) -> bool
+						{
+							return fieldInfo.fieldName == stringToken;
+						});
+
+				if (iterator == typeInfo->fields.end())
+				{
+					// mismatch, no fieldName
+					std::getline(istream, stringToken); // skip line
+					continue;
+				}
+
+				auto& fieldInfo = *iterator;
+				if (fieldTypeInfo->typeIndex != fieldInfo.typeIndex)
+				{
+					// mismatch, field type is unexpected
+					std::getline(istream, stringToken); // skip line
+					continue;
+				}
+
+				if (!(istream >> stringToken && stringToken == "="))
+				{
+					// expected '='
+					std::getline(istream, stringToken); // skip line
+					continue;
+				}
+
+				auto x = DeserializeInternal(
+						istream,
+						iterator->AccessField(typeInstance),
+						fieldInfo.typeIndex,
+						SerializeSection::field);
+				// semicolon next
+				std::getline(istream, stringToken); // skip line
+			}
+		}
+	}
+
+	bool SkipCurlyBrackets(std::istream& istream, unsigned int bracketsLevel)
+	{
+		while (0 < bracketsLevel && istream)
+		{
+			auto character = istream.get();
+			if (character == '{')
+				++bracketsLevel;
+			else if (character == '}')
+				--bracketsLevel;
+		}
+
+		return (bool)istream;
+	}
+
+	std::pair<bool, const FieldInfo*> FindFieldName(const TypeInfo& typeInfo, const std::string& fieldName)
+	{
+		for (auto& field : typeInfo.fields)
+		{
+			if (field.fieldName == fieldName)
+				return {true, &field};
+		}
+
+		if (typeInfo.inheritedType.has_value())
+			// recurse
+			return FindFieldName(*typeInfo.inheritedType, fieldName);
+			std::find_if(
+				typeInfo.fields.begin(),
+				typeInfo.fields.end(),
+				[&](const FieldInfo& fieldInfo) -> bool
+				{
+					return fieldInfo.fieldName == fieldName;
+				});
 	}
 };
-
 
 int main()
 {
@@ -413,23 +726,28 @@ int main()
 	db.CreatePrimitiveTypeInfo<float>();
 	db.CreatePrimitiveTypeInfo<int>();
 
-	db.StreamOutTypeInfo<MyStruct>(std::cout);
-	db.StreamOutTypeInfo<std::vector<int>>(std::cout);
+	db.OutputTypeInfo<MyStruct>(std::cout);
+	db.OutputTypeInfo<std::vector<int>>(std::cout);
 
 	MyStruct test{
 			69.0f, 420.0f, { 1, 1, 2, 3, 5, 8, 13 }
 	};
-	db.StreamOutTypeInstance(std::cout, &test);
+	db.Serialize(std::cout, &test);
 	std::vector<int> myList{ 0, 1, 2, 3 };
-	db.StreamOutTypeInstance(std::cout, &myList);
+	db.Serialize(std::cout, &myList);
 
 	std::cout << "=======================================" << std::endl;
+
+	struct UnknownType
+	{
+	};
 
 	class AbstractClass
 	{
 	public:
 		float time;
 		MyStruct data;
+		UnknownType unknownData;
 
 		virtual void Get() = 0;
 	};
@@ -454,9 +772,10 @@ int main()
 		}
 	};
 
-	db.BeginTypeInfo<AbstractClass>()
+	db.BeginAbstractTypeInfo<AbstractClass>()
 			.WithField<float>("time", PLATINUM_OFFSETOF(AbstractClass, time))
-			.WithField<MyStruct>("data", PLATINUM_OFFSETOF(AbstractClass, data));
+			.WithField<MyStruct>("data", PLATINUM_OFFSETOF(AbstractClass, data))
+			.WithField<UnknownType>("unknownData", PLATINUM_OFFSETOF(AbstractClass, unknownData));
 	db.BeginTypeInfo<ChildClass>()
 			.WithInherit<AbstractClass>()
 			.WithField<int>("counter", PLATINUM_OFFSETOF(ChildClass, counter));
@@ -464,11 +783,10 @@ int main()
 			.WithInherit<ChildClass>()
 			.WithField<int>("reset", PLATINUM_OFFSETOF(FurtherChildClass, reset));
 
-	db.StreamOutTypeInfo<AbstractClass>(std::cout);
-	db.StreamOutTypeInfo<ChildClass>(std::cout);
-	db.StreamOutTypeInfo<FurtherChildClass>(std::cout);
-	struct Anon{ };
-	db.StreamOutTypeInfo<Anon>(std::cout);
+	db.OutputTypeInfo<AbstractClass>(std::cout);
+	db.OutputTypeInfo<ChildClass>(std::cout);
+	db.OutputTypeInfo<FurtherChildClass>(std::cout);
+	db.OutputTypeInfo<UnknownType>(std::cout);
 
 	ChildClass what = {};
 	what.data.field0 = 256;
@@ -483,12 +801,47 @@ int main()
 	what2.counter = 420;
 	what2.reset = 920;
 
-//	db.StreamOutTypeInstance(std::cout, &what);
-//	db.StreamOutTypeInstance(std::cout, &what2);
-//
-//	db.StreamOutTypeInstance(std::cout, (ChildClass*)&what2);
+	db.Serialize(std::cout, &what);
+	db.Serialize(std::cout, &what2);
 
-	// TODO implement properly and see what needs extending
+	db.Serialize(std::cout, (ChildClass*)&what2);
+
+
+	std::cout << "DESERIALIZE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
+	{
+		// TODO serialize stuff that is actually useful
+		// TODO stream in
+		std::ostringstream outputString;
+		db.Serialize(outputString, &test);
+
+		std::istringstream inputString(outputString.str());
+
+		MyStruct readMyStruct;
+
+		db.Deserialize(inputString, &readMyStruct);
+		std::cout << "original >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
+		db.Serialize(std::cout, &test);
+		std::cout << "scuffed >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
+		db.Serialize(std::cout, &readMyStruct);
+	}
+
+	// inherited deserialization
+	{
+		// TODO serialize stuff that is actually useful
+		// TODO stream in
+		std::ostringstream outputString;
+		db.Serialize(outputString, &what2);
+
+		std::istringstream inputString(outputString.str());
+
+		FurtherChildClass readMyFurther;
+
+		db.Deserialize(inputString, &readMyFurther);
+		std::cout << "original >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
+		db.Serialize(std::cout, &what2);
+		std::cout << "scuffed >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
+		db.Serialize(std::cout, &readMyFurther);
+	}
 
 	return 0;
 }

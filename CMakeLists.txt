@@ -174,3 +174,4 @@ target_link_libraries(tests PRIVATE ${PROJECT_LIBRARIES} Catch2::Catch2WithMain)
 #-----------------------------
 
 add_executable(RTTI Source/RTTI_Scratch.cpp)
+target_include_directories(RTTI PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts")
