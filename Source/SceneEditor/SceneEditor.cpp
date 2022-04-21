@@ -523,8 +523,6 @@ namespace PlatinumEngine{
 							transformComponent != nullptr)
 					{
 						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
-
-
 						Maths::Vec4 temporaryMatrix;
 
 						// get the world coordinate of vertex 0
