@@ -85,34 +85,35 @@ namespace PlatinumEngine{
 			ImGui::SameLine();
 			if (_currentGizmoOperation != ImGuizmo::SCALE)
 			{
-				/*
-				if (ImGui::RadioButton("Local", _currentGizmoMode == ImGuizmo::LOCAL))
-					_currentGizmoMode = ImGuizmo::LOCAL;
-				ImGui::SameLine();
-				if (ImGui::RadioButton("World", _currentGizmoMode == ImGuizmo::WORLD))
-					_currentGizmoMode = ImGuizmo::WORLD;
-*/
-				if (ImGui::Button(_imGuiButton ? ICON_FA_CUBE "##Local###ViewMode" : ICON_FA_EARTH_ASIA "##Global###ViewMode"))
+				if (ImGui::Button(_currentGizmoMode == ImGuizmo::LOCAL ? ICON_FA_CUBE "##Local###ViewMode" : ICON_FA_EARTH_ASIA "##Global###ViewMode"))
 				{
-					_imGuiButton = !_imGuiButton;
-					if (_imGuiButton)
-					{
-						_currentGizmoMode = ImGuizmo::LOCAL;
-					}
-					else if (!_imGuiButton)
+					if (_currentGizmoMode == ImGuizmo::LOCAL)
 					{
 						_currentGizmoMode = ImGuizmo::WORLD;
+					}
+					else if (_currentGizmoMode == ImGuizmo::WORLD)
+					{
+						_currentGizmoMode = ImGuizmo::LOCAL;
 					}
 				}
 				if (ImGui::IsItemHovered())
 				{
-					if(_imGuiButton)
+					if(_currentGizmoMode == ImGuizmo::LOCAL)
 						ImGui::SetTooltip("Local gizmo");
-					if(!_imGuiButton)
+					if(_currentGizmoMode == ImGuizmo::WORLD)
 						ImGui::SetTooltip("Global gizmo");
 				}
 
 			}
+			else if(_currentGizmoOperation == ImGuizmo::SCALE)
+			{
+				ImGui::Button( ICON_FA_CUBE "##Local###ViewMode");
+				if (ImGui::IsItemHovered())
+				{
+					ImGui::SetTooltip("Local Only Under Scale");
+				}
+			}
+
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT "##Translate"))
 				_currentGizmoOperation = ImGuizmo::TRANSLATE;
