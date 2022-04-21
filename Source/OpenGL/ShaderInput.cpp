@@ -73,6 +73,14 @@ namespace PlatinumEngine
 				vertices, indices);
 	}
 
+	void ShaderInput::Set(const std::vector<Maths::Vec3>& vertices, const std::vector<GLuint>& indices)
+	{
+		SetGeneric<Maths::Vec3, GLuint>({
+						{ GL_FLOAT, 3, 0}
+						},
+				vertices, indices);
+	}
+
 	void ShaderInput::Clear()
 	{
 		GL_CHECK(glDeleteVertexArrays(1, &_vertexArrayObject));

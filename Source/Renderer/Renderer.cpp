@@ -19,6 +19,12 @@ const std::string UNLIT_VERTEX_SHADER =
 const std::string UNLIT_FRAGMENT_SHADER =
 #include <Shaders/Unlit/Unlit.frag>
 ;
+const std::string SKYBOX_VERTEX_SHADER =
+#include <Shaders/Unlit/SkyBoxShader.vert>
+;
+const std::string SKYBOX_FRAGMENT_SHADER =
+#include <Shaders/Unlit/SkyBoxShader.frag>
+;
 
 namespace PlatinumEngine
 {
@@ -54,6 +60,9 @@ namespace PlatinumEngine
 		}
 
 		if (!_unlitShader.Compile(UNLIT_VERTEX_SHADER, UNLIT_FRAGMENT_SHADER))
+			return;
+
+		if (!_skyBoxShader.Compile(SKYBOX_VERTEX_SHADER, SKYBOX_FRAGMENT_SHADER))
 			return;
 
 		_framebufferWidth = 1;
@@ -100,6 +109,28 @@ namespace PlatinumEngine
 		_unlitShader.Unbind();
 	}
 
+	void Renderer::BeginSkyBoxShader()
+	{
+//		_framebuffer.Bind();
+
+//		glEnable(GL_DEPTH_TEST);
+//		GL_CHECK(glViewport(0, 0, _framebufferWidth, _framebufferHeight));
+//		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+//		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+		_skyBoxShader.Bind();
+	}
+
+	void Renderer::EndSkyBoxShader()
+	{
+//		glDisable(GL_DEPTH_TEST);
+//		_framebuffer.Unbind();
+//		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+//		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
+		_skyBoxShader.Unbind();
+	}
+
+
+
 	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
 	{
 		_framebuffer = *framebuffer;
@@ -139,6 +170,7 @@ namespace PlatinumEngine
 		}
 		_unlitShader.SetUniform("shininess", material.shininessFactor);
 	}
+
 	// update model matrix in shader
 	void Renderer::SetModelMatrix(Maths::Mat4 mat)
 	{
@@ -157,6 +189,18 @@ namespace PlatinumEngine
 	void Renderer::SetProjectionMatrix(Maths::Mat4 mat)
 	{
 		_unlitShader.SetUniform("projection", mat);
+	}
+
+	// update view matrix in shader
+	void Renderer::SetViewMatrixSkyBox(Maths::Mat4 mat)
+	{
+		_skyBoxShader.SetUniform("view", mat);
+	}
+
+	// update perspective matrix in shader
+	void Renderer::SetProjectionMatrixSkyBox(Maths::Mat4 mat)
+	{
+		_skyBoxShader.SetUniform("projection", mat);
 	}
 
 	// if you want to test a mesh use

@@ -124,6 +124,13 @@ namespace PlatinumEngine
 		 */
 		bool CheckIfProjectionMatrixUsed();
 
+
+		/**
+		 * Return the rotation part of the view matrix
+		 * @return
+		 */
+		Maths::Mat4 GetRotationOnlyViewMatrix();
+
 		// ___CONSTRUCTOR___
 		EditorCamera();
 

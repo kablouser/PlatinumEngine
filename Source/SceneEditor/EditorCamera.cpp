@@ -228,4 +228,11 @@ namespace PlatinumEngine
 	{
 		return _IsProjectionMatrixUsed;
 	}
+
+	Maths::Mat4 EditorCamera::GetRotationOnlyViewMatrix()
+	{
+		Maths::Mat4 matrix;
+		matrix.SetRotationMatrix(_quaternion);
+		return matrix;
+	}
 }

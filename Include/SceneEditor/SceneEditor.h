@@ -131,14 +131,22 @@ namespace PlatinumEngine
 		 */
 		void UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE, ImGuizmo::OPERATION);
 
+		void CreateSkyBox();
+
+
 		// ___CONSTRUCTOR___
 		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer);
 
 	private:
 
 		// ___PARAMETERS___
-		// Value for ray casting
+		// skybox
+		Texture _skyboxTexture;
+		ShaderInput _skyBoxShaderInput;
+
+		// Store
 		GameObject* _selectedGameobject;
+
 		//ImGuizmo
 		float _snap[3];
 		float _bounds[6];
