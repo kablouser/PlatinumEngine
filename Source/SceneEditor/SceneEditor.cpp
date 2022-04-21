@@ -109,7 +109,7 @@ namespace PlatinumEngine{
 				ImGui::SameLine();
 				if (ImGui::RadioButton("World", _currentGizmoMode == ImGuizmo::WORLD))
 					_currentGizmoMode = ImGuizmo::WORLD;
-*/
+				*/
 				if (ImGui::Button(_imGuiButton ? ICON_FA_CUBE "##Local###ViewMode" : ICON_FA_EARTH_ASIA "##Global###ViewMode"))
 				{
 					_imGuiButton = !_imGuiButton;
@@ -197,7 +197,7 @@ namespace PlatinumEngine{
 			ImGui::SameLine();
 			if(ImGui::Button(ICON_MD_VIEW_IN_AR "##skybox"))
 			{
-				_enableSkyBox != _enableSkyBox;
+				_enableSkyBox = !_enableSkyBox;
 			}
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("turn on or off the skybox");
@@ -393,27 +393,29 @@ namespace PlatinumEngine{
 
 			// ---------------- Render SKY BOX ---------------- //
 			// discard the depth of the skybox
-			glDisable(GL_DEPTH_TEST);
-			glDepthMask(false);
-			_renderer->BeginSkyBoxShader();
+			if(_enableSkyBox)
+			{
+				glDisable(GL_DEPTH_TEST);
+				glDepthMask(false);
+				_renderer->BeginSkyBoxShader();
 
-			// matrix for rescaling the skybox based on the near panel distance
-			Maths::Mat4 scaleMatrix;
-			scaleMatrix.SetScaleMatrix(Maths::Vec3(((float)_near*2.f), ((float)_near*2.f), ((float)_near*2.f)));
-			// set matrix uniform
-			_renderer->SetViewMatrixSkyBox(Maths::Inverse(_camera.GetRotationOnlyViewMatrix()) * scaleMatrix);
-			_renderer->SetProjectionMatrixSkyBox(_camera.projectionMatrix4);
-			_skyboxTexture.BindCubeMap();
-			_skyBoxShaderInput.Draw();
-			_renderer->EndSkyBoxShader();
+				// matrix for rescaling the skybox based on the near panel distance
+				Maths::Mat4 scaleMatrix;
+				scaleMatrix.SetScaleMatrix(
+						Maths::Vec3(((float)_near * 2.f), ((float)_near * 2.f), ((float)_near * 2.f)));
+				// set matrix uniform
+				_renderer->SetViewMatrixSkyBox(Maths::Inverse(_camera.GetRotationOnlyViewMatrix()) * scaleMatrix);
+				_renderer->SetProjectionMatrixSkyBox(_camera.projectionMatrix4);
+				_skyboxTexture.BindCubeMap();
+				_skyBoxShaderInput.Draw();
+				_renderer->EndSkyBoxShader();
 
-			_skyboxTexture.UnbindCubeMap();
+				_skyboxTexture.UnbindCubeMap();
 
-			// enable depth test for the later rendering
-			glDepthMask(true);
-			glEnable(GL_DEPTH_TEST);
-
-
+				// enable depth test for the later rendering
+				glDepthMask(true);
+				glEnable(GL_DEPTH_TEST);
+			}
 			// ------------- Render Game Objects ------------- //
 			// Start rendering (bind a shader)
 			_renderer->Begin();
