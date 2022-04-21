@@ -1,8 +1,10 @@
 R"(
 #version 330 core
 in vec3 vertexPos;
-in vec3 vertexNormal;
 in vec2 vertexTextureCoordinate;
+in vec3 TangentLightPos;
+in vec3 TangentViewPos;
+in vec3 TangentFragPos;
 
 out vec4 outColour;
 
@@ -50,7 +52,7 @@ uniform PointLight pointLight;
 uniform SpotLight spotLight;
 
 // camera position
-uniform vec3 viewPosition;
+uniform vec3 viewPos;
 
 // the flags of lights
 uniform bool isDirectedLight = false;
@@ -69,17 +71,18 @@ vec3 GetSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 void main()
 {
-    vec3 norm = normalize(vertexNormal);
-    vec3 viewDir = normalize(viewPosition - vertexPos);
+    vec3 norm = texture(normalMap, vertexTextureCoordinate).rgb;
+    norm = normalize(norm * 2.0 - 1.0);
+    vec3 viewDir = normalize(TangentViewPos - TangentFragPos);
     vec3 result = vec3(0.0, 0.0, 0.0);
 
     // Identify the various types of light sources, then calculate the fragment colour of them
     if(isDirectedLight)
         result += GetDirLight(dirLight, norm, viewDir);
     if(isPointLight)
-        result += GetPointLight(pointLight, norm, vertexPos, viewDir);
+        result += GetPointLight(pointLight, norm, TangentFragPos, viewDir);
     if(isSpotLight)
-        result += GetSpotLight(spotLight, norm, vertexPos, viewDir);
+        result += GetSpotLight(spotLight, norm, TangentFragPos, viewDir);
 
     outColour = vec4(result, 1.0);
 }
@@ -109,7 +112,7 @@ vec3 GetPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 diffuseColour = texture(diffuseMap, vertexTextureCoordinate).rgb;
     vec3 specularColour = texture(specularMap, vertexTextureCoordinate).rgb;
-    vec3 lightDir = normalize(light.position - fragPos);
+    vec3 lightDir = normalize(TangentLightPos - fragPos);
 
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
@@ -134,7 +137,7 @@ vec3 GetSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 diffuseColour = texture(diffuseMap, vertexTextureCoordinate).rgb;
     vec3 specularColour = texture(specularMap, vertexTextureCoordinate).rgb;
-    vec3 lightDir = normalize(light.position - fragPos);
+    vec3 lightDir = normalize(TangentLightPos - fragPos);
 
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);

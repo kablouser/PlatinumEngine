@@ -17,7 +17,13 @@ const std::string UNLIT_VERTEX_SHADER =
 #include <Shaders/Unlit/Unlit.vert>
 ;
 const std::string UNLIT_FRAGMENT_SHADER =
-#include <Shaders/Unlit/Test.frag>
+#include <Shaders/Unlit/Unlit.frag>
+;
+const std::string NORMAL_VERTEX_SHADER =
+#include <Shaders/Lit/NormalMappingVertShader.vert>
+;
+const std::string NORMAL_FRAGMENT_SHADER =
+#include <Shaders/Lit/Test.frag>
 ;
 const std::string SKYBOX_VERTEX_SHADER =
 #include <Shaders/Unlit/SkyBoxShader.vert>
@@ -74,12 +80,18 @@ namespace PlatinumEngine
 			PLATINUM_ERROR("Cannot generate the sky box shader.");
 			return;
 		}
+
 		if(!_gridShader.Compile(GRID_VERTEX_SHADER, GRID_FRAGMENT_SHADER))
 		{
 			PLATINUM_ERROR("Cannot generate the grid shader.");
 			return;
 		}
 
+		if (!_normalMapShader.Compile(NORMAL_VERTEX_SHADER, NORMAL_FRAGMENT_SHADER))
+		{
+			PLATINUM_ERROR("Cannot generate the normal map shader.");
+			return;
+		}
 
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
@@ -174,40 +186,60 @@ namespace PlatinumEngine
 
 	void Renderer::LoadTexture(const Material& material)
 	{
-		_unlitShader.Bind();
-		// bind diffuse map
-		if (material.diffuseTexture)
+		if (material.useNormalTexture)
 		{
-			glActiveTexture(GL_TEXTURE0);
-			material.diffuseTexture->Bind();
-			_unlitShader.SetUniform("ourTexture", 0);
+			_normalMapShader.Bind();
+			// bind diffuse map
+			if (material.diffuseTexture)
+			{
+				glActiveTexture(GL_TEXTURE0);
+				material.diffuseTexture->Bind();
+				_normalMapShader.SetUniform("ourTexture", 0);
+			}
+			// bind normal map
+			if(material.normalTexture)
+			{
+				glActiveTexture(GL_TEXTURE2);
+				material.normalTexture->Bind();
+				_normalMapShader.SetUniform("normalMap", 2);
+			}
+			_normalMapShader.SetUniform("shininess", material.shininessFactor);
 		}
-		// bind specular map
-		if(material.specularTexture)
+		else
 		{
-			glActiveTexture(GL_TEXTURE1);
-			material.specularTexture->Bind();
+			_unlitShader.Bind();
+			// bind diffuse map
+			if (material.diffuseTexture)
+			{
+				glActiveTexture(GL_TEXTURE0);
+				material.diffuseTexture->Bind();
+				_unlitShader.SetUniform("diffuseMap", 0);
+			}
+			// bind specular map
+			if(material.specularTexture)
+			{
+				glActiveTexture(GL_TEXTURE1);
+				material.specularTexture->Bind();
+			}
+			// TODO: bind normal map (should this be here?)
+			if(material.normalTexture)
+			{
+				glActiveTexture(GL_TEXTURE2);
+				material.normalTexture->Bind();
+				_unlitShader.SetUniform("normalMap", 2);
+			}
+			_unlitShader.SetUniform("shininess", material.shininessFactor);
 		}
-		// bind normal map
-		if(material.normalTexture)
-		{
-			glActiveTexture(GL_TEXTURE2);
-			material.normalTexture->Bind();
-			_unlitShader.SetUniform("normalMap", 2);
-			if (material.useNormalTexture)
-				_unlitShader.SetUniform("useNormalMap", true);
-			else
-				_unlitShader.SetUniform("useNormalMap", false);
-		} else {
-			_unlitShader.SetUniform("useNormalMap", false);
-		}
-//		_unlitShader.SetUniform("shininess", material.shininessFactor);
 	}
 
 	// update model matrix in shader
 	void Renderer::SetModelMatrix(Maths::Mat4 mat)
 	{
+		_normalMapShader.Bind();
+		_normalMapShader.SetUniform("model", mat);
+		_normalMapShader.Unbind();
 		//mat.SetRotationMatrix(Maths::Vec3(0.5f * (float)glfwGetTime() * 50.0f / 180.0f * 3.14f, 1.0f, 0.0f));
+		_unlitShader.Bind();
 		_unlitShader.SetUniform("model", mat);
 	}
 
@@ -215,12 +247,20 @@ namespace PlatinumEngine
 	void Renderer::SetViewMatrix(Maths::Mat4 mat)
 	{
 		//glm::mat4 view = GetViewMatrix();
+		_normalMapShader.Bind();
+		_normalMapShader.SetUniform("view", mat);
+		_normalMapShader.Unbind();
+		_unlitShader.Bind();
 		_unlitShader.SetUniform("view", mat);
 	}
 
 	// update perspective matrix in shader
 	void Renderer::SetProjectionMatrix(Maths::Mat4 mat)
 	{
+		_normalMapShader.Bind();
+		_normalMapShader.SetUniform("projection", mat);
+		_normalMapShader.Unbind();
+		_unlitShader.Bind();
 		_unlitShader.SetUniform("projection", mat);
 	}
 
@@ -306,26 +346,45 @@ namespace PlatinumEngine
 	//--------------------------------------------------------------------------------------------------------------
 	void Renderer::SetLightProperties()
 	{
-//		pointLight.lightPos = Maths::Vec3(0.9f * (float)std::cos(glfwGetTime()),0.9f * (float)std::sin(glfwGetTime()),0.9f);
-		pointLight.lightPos = Maths::Vec3(0.0f, 0.0f, 2.0f);
+//		pointLight.lightPos = Maths::Vec3(0.0f, 0.0f, 2.0f);
+		 pointLight.lightPos = Maths::Vec3(0.9f * (float)std::cos(glfwGetTime()),0.9f * (float)std::sin(glfwGetTime()),0.9f);
+
+		// normal shader
+		_normalMapShader.Bind();
+		_normalMapShader.SetUniform("lightColor", Maths::Vec3(1.0f, 1.0f, 1.0f));
+		_normalMapShader.SetUniform("lightPos", pointLight.lightPos);
+		_normalMapShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
+
+		_normalMapShader.SetUniform("pointLight.position", pointLight.lightPos);
+		_normalMapShader.SetUniform("pointLight.ambient", pointLight.ambientStrength);
+		_normalMapShader.SetUniform("pointLight.diffuse", pointLight.diffuseStrength);
+		_normalMapShader.SetUniform("pointLight.specular", pointLight.specularStrength);
+
+		_normalMapShader.SetUniform("pointLight.constant", pointLight.constant);
+		_normalMapShader.SetUniform("pointLight.linear", pointLight.linear);
+		_normalMapShader.SetUniform("pointLight.quadratic", pointLight.quadratic);
+		_normalMapShader.SetUniform("viewPos", Maths::Vec3(0.0, 0.0, 10.0));
+
+		_normalMapShader.SetUniform("isPointLight", true);
+		_normalMapShader.Unbind();
+
+		_unlitShader.Bind();
 		_unlitShader.SetUniform("lightColor", Maths::Vec3(1.0f, 1.0f, 1.0f));
 		_unlitShader.SetUniform("lightPos", pointLight.lightPos);
-		_unlitShader.SetUniform("viewPos", Maths::Vec3(0.0, 0.0, 10.0));
 		// set basic properties
-//		_unlitShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
-//
-//		_unlitShader.SetUniform("pointLight.position", pointLight.lightPos);
-//		_unlitShader.SetUniform("pointLight.ambient", pointLight.ambientStrength);
-//		_unlitShader.SetUniform("pointLight.diffuse", pointLight.diffuseStrength);
-//		_unlitShader.SetUniform("pointLight.specular", pointLight.specularStrength);
-//
-//		_unlitShader.SetUniform("pointLight.constant", pointLight.constant);
-//		_unlitShader.SetUniform("pointLight.linear", pointLight.linear);
-//		_unlitShader.SetUniform("pointLight.quadratic", pointLight.quadratic);
-//		_unlitShader.SetUniform("viewPosition", Maths::Vec3(0.0, 0.0, 10.0));
+		_unlitShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
 
-//		_unlitShader.SetUniform("isPointLight", true);
+		_unlitShader.SetUniform("pointLight.position", pointLight.lightPos);
+		_unlitShader.SetUniform("pointLight.ambient", pointLight.ambientStrength);
+		_unlitShader.SetUniform("pointLight.diffuse", pointLight.diffuseStrength);
+		_unlitShader.SetUniform("pointLight.specular", pointLight.specularStrength);
+
+		_unlitShader.SetUniform("pointLight.constant", pointLight.constant);
+		_unlitShader.SetUniform("pointLight.linear", pointLight.linear);
+		_unlitShader.SetUniform("pointLight.quadratic", pointLight.quadratic);
+		_unlitShader.SetUniform("viewPosition", Maths::Vec3(0.0, 0.0, 10.0));
+
+		_unlitShader.SetUniform("isPointLight", true);
 	}
-
 }
 //}

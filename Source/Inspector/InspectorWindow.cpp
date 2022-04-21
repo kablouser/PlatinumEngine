@@ -77,7 +77,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 	char textureBuffer[64];
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_VECTOR_SQUARE "  Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap);
 	char normalTextureBuffer[64];
-	
+
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveRenderComponent")) {
@@ -88,8 +88,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 	if (isHeaderOpen)
 	{
 		ImGui::Text("Mesh");
-		ImGui::SameLine(_sameLine);
-		ImGui::PushItemWidth(_itemWidthMesh);
+		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 
 		// store the current mesh name into mesh buffer, so that we can display it in the input text box
 		if(_activeGameObject->GetComponent<RenderComponent>()->GetMesh() != nullptr)
@@ -148,17 +148,18 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			memset(normalTextureBuffer, 0, 64 * sizeof(char));
 
 		//Show text box (read only)----------Choose Material
+		ImGui::Text("%s", "Material");
 		ImGui::Separator();
-		ImGui::Text("Material");
-		ImGui::SameLine(_sameLine);
-		ImGui::PushItemWidth(_itemWidthMesh);
+		ImGui::Text("Texture");
+		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 
 		// store the current material name into mesh buffer, so that we can display it in the input text box
 
 		ImGui::InputText("##Material Name", textureBuffer, sizeof(textureBuffer), ImGuiInputTextFlags_ReadOnly);
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
-		if(ImGui::Button("Select Texture"))
+		if(ImGui::Button("Select##Texture"))
 		{
 			ImGui::OpenPopup("Select Texture");
 		}
@@ -168,18 +169,19 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 				_activeGameObject->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
 		}
 		ImGui::Text("Shininess");
-		ImGui::SameLine(_sameLine);
-		ImGui::PushItemWidth(_itemWidthMesh);
+
+		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		ImGui::SliderFloat("##shininess",&(_activeGameObject->GetComponent<RenderComponent>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 
 		ImGui::Text("%s", "Normal Map");
-		ImGui::SameLine(_sameLineMesh);
-		ImGui::PushItemWidth(_itemWidthMesh);
+		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		ImGui::InputText("##Normal Map Name", normalTextureBuffer, sizeof(normalTextureBuffer), ImGuiInputTextFlags_ReadOnly);
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
-		if(ImGui::Button("Select Normal Map"))
+		if(ImGui::Button("Select##NormalTexture"))
 		{
 			ImGui::OpenPopup("Select Normal Texture");
 		}

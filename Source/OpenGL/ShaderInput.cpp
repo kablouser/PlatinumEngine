@@ -69,7 +69,8 @@ namespace PlatinumEngine
 		SetGeneric<Vertex, GLuint>({
 						{ GL_FLOAT, 3, offsetof(Vertex, position) },
 						{ GL_FLOAT, 3, offsetof(Vertex, normal) },
-						{ GL_FLOAT, 2, offsetof(Vertex, textureCoords) }},
+						{ GL_FLOAT, 2, offsetof(Vertex, textureCoords) },
+						{ GL_FLOAT, 3, offsetof(Vertex, tangent) }},
 				vertices, indices);
 	}
 

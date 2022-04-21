@@ -41,8 +41,11 @@ namespace PlatinumEngine
 		bool _isObjectEnabled;
 
 		//ImGui helper parameters
-		float _itemWidthMesh = 160.f;
-		float _sameLine = 140.f;
+		std::vector<std::string> _temp = {"Perspective", "Orthographic"};
+		std::vector<std::string> _clearMode = {"None", "SkyBox", "BackgroundColour"};
+		float _textWidthMeshRenderComponent = 90.f;
+		float _itemWidthMeshRenderComponent = 160.f;
+		float _sameLineTransform = 70.f;
 		std::vector<std::string> _temp = {"Perspective", "Orthographic"};
 		std::vector<std::string> _clearMode = {"None", "SkyBox", "BackgroundColour"};
 	};
