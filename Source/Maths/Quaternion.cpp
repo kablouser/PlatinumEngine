@@ -10,6 +10,9 @@ namespace PlatinumEngine
 		Quaternion::Quaternion():w(0.f), x(0.f), y(0.f), z(0.f)
 		{
 		}
+		Quaternion::Quaternion(float w, Maths::Vec3 xyz):w(w), x(xyz.x), y(xyz.y), z(xyz.z)
+		{
+		}
 		Quaternion::Quaternion(float w, float x, float y, float z): w(w), x(x), y(y), z(z)
 		{
 		}

@@ -11,8 +11,8 @@
 #include <cassert>
 #include <glm/glm.hpp>
 #include <cstring>
-#include <Maths/Vectors.h>
 #include <array>
+#include "Vectors.h"
 
 //------------------------
 //  Template Class
@@ -87,6 +87,7 @@ namespace PlatinumEngine
 			Matrix(); // create empty matrix
 			explicit Matrix(T valueForPacking); // fill the matrix (the std::vector) with valueForPacking
 			explicit Matrix(const std::array<T, numberOfRow* numberOfColumn>& matrixArray); // fill the matrix with array
+			explicit Matrix(const float matrixArray[numberOfRow * numberOfColumn]);
 
 			//___VARIABLE___
 			T matrix[numberOfRow * numberOfColumn];
@@ -180,6 +181,10 @@ namespace PlatinumEngine
 
 			void ConvertFromGLM(glm::mat4 mat4);
 
+			void Decompose(
+					Maths::Vec3* outTranslation,
+					Maths::Quaternion* outQuaternion) const;
+
 		};
 
 
@@ -207,6 +212,8 @@ namespace PlatinumEngine
 			void SetIdentityMatrix();
 
 			void SetRotationMatrix(Vec3 eulerAngle);
+
+			void SetRotationMatrix(Quaternion eulerAngle);
 
 			void SetScaleMatrix(PlatinumEngine::Maths::Vec3 scale);
 
@@ -277,6 +284,12 @@ namespace PlatinumEngine
 		Matrix<numberOfRow, numberOfColumn, T>::Matrix(const std::array<T, numberOfRow* numberOfColumn>& matrixArray)
 		{
 			std::memcpy(this->matrix, matrixArray.data(), numberOfRow * numberOfColumn *sizeof(T));
+		}
+
+		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
+		Matrix<numberOfRow, numberOfColumn, T>::Matrix(const float matrixArray[numberOfRow * numberOfColumn])
+		{
+			std::memcpy(this->matrix, matrixArray, numberOfRow * numberOfColumn *sizeof(T));
 		}
 
 

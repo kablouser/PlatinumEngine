@@ -70,6 +70,9 @@ namespace PlatinumEngine
 			auto camera = _scene->FindFirstComponent<CameraComponent>();
 			if (camera)
 			{
+				// success so allow warning to be shown for next time
+				_hasWarningBeenShown = false;
+
 				glEnable(GL_DEPTH_TEST);
 				glViewport(0, 0, _framebufferWidth, _framebufferHeight);
 
@@ -95,7 +98,11 @@ namespace PlatinumEngine
 			}
 			else
 			{
-				PLATINUM_WARNING("Scene has no camera component. Cannot render anything.");
+				if (!_hasWarningBeenShown)
+				{
+					PLATINUM_WARNING("Scene has no camera component. Cannot render anything.");
+					_hasWarningBeenShown = true;
+				}
 			}
 
 			scene->Render(*_renderer);
@@ -106,7 +113,7 @@ namespace PlatinumEngine
 
 
 			// display updated framebuffer
-			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize);
+			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize, ImVec2(0, 1), ImVec2(1, 0));
 		}
 	}
 

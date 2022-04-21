@@ -58,6 +58,7 @@ namespace PlatinumEngine
 		float _wheelValueDelta;
 
 		bool _onPlay = true;
+		bool _hasWarningBeenShown = false;
 	public:
 		bool _onUpdate = false;
 	};

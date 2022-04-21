@@ -10,6 +10,7 @@ namespace PlatinumEngine
 	RenderComponent::RenderComponent()
 	{
 		SetMesh(nullptr);
+		SetMaterial(nullptr);
 	}
 
 	void RenderComponent::OnRender(Scene& scene, Renderer& renderer)
@@ -20,7 +21,13 @@ namespace PlatinumEngine
 		else
 			renderer.SetModelMatrix();
 
+		renderer.LoadTexture(material);
 		_shaderInput.Draw();
+	}
+
+	void RenderComponent::SetMaterial(Texture* texture)
+	{
+		material.diffuseTexture = texture;
 	}
 
 	void RenderComponent::SetMesh(Mesh* mesh)
@@ -40,4 +47,3 @@ namespace PlatinumEngine
 		return _mesh;
 	}
 }
-

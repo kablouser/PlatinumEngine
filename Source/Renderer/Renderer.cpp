@@ -116,6 +116,29 @@ namespace PlatinumEngine
 	{
 	}
 
+	void Renderer::LoadTexture(const Material& material)
+	{
+		_unlitShader.Bind();
+		// bind diffuse map
+		if (material.diffuseTexture)
+		{
+			glActiveTexture(GL_TEXTURE0);
+			material.diffuseTexture->Bind();
+		}
+		// bind specular map
+		if(material.specularTexture)
+		{
+			glActiveTexture(GL_TEXTURE1);
+			material.specularTexture->Bind();
+		}
+		// bind normal map
+		if(material.normalTexture)
+		{
+			glActiveTexture(GL_TEXTURE2);
+			material.normalTexture->Bind();
+		}
+		_unlitShader.SetUniform("shininess", material.shininessFactor);
+	}
 	// update model matrix in shader
 	void Renderer::SetModelMatrix(Maths::Mat4 mat)
 	{
