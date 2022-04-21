@@ -99,7 +99,7 @@ namespace PlatinumEngine{
 				_ifCameraSettingWindowOpen = !_ifCameraSettingWindowOpen;
 
 			}
-			//ImGuizmo
+			//translate, rotate, scale button
 			ImGui::SameLine();
 			if (_currentGizmoOperation != ImGuizmo::SCALE)
 			{
@@ -155,6 +155,52 @@ namespace PlatinumEngine{
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("translate, rotate and scale");
 			ImGui::SameLine();
+
+			// grid and skybox
+			if (ImGui::BeginPopupContextItem("grid"))
+			{
+				if (ImGui::Selectable("X Grid", &_xGrid))
+				{
+					_yGrid = false;
+					_zGrid = false;
+				}
+				if (ImGui::Selectable("Y Grid", &_yGrid))
+				{
+					_xGrid = false;
+					_zGrid = false;
+				}
+				if (ImGui::Selectable("Z Grid", &_zGrid))
+				{
+					_xGrid = false;
+					_yGrid = false;
+				}
+				ImGui::Text("Opacity");
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(70.f);
+				ImGui::SliderFloat("##Opacity", &_transparency, 0.0f, 1.0f, "%.2f");
+				ImGui::EndPopup();
+			}
+
+			if(ImGui::Button(_transparency ? ICON_MD_GRID_ON "##enable###gridTransparency" : ICON_MD_GRID_OFF "##disable###gridTransparency"))
+			{
+				_transparency = !_transparency;
+			}
+			if(ImGui::IsItemHovered())
+				ImGui::SetTooltip("turn on or off the grid");
+
+			ImGui::SameLine(226.f);
+			if(ImGui::Button(ICON_FA_CARET_DOWN "##GridDetail"))
+			{
+				ImGui::OpenPopup("grid");
+			}
+
+			ImGui::SameLine();
+			if(ImGui::Button(ICON_MD_VIEW_IN_AR "##skybox"))
+			{
+				_enableSkyBox != _enableSkyBox;
+			}
+			if(ImGui::IsItemHovered())
+				ImGui::SetTooltip("turn on or off the skybox");
 			ImGui::Checkbox("Bound Sizing", &_boundSizing);
 			//-------------
 			// Sub window
@@ -421,7 +467,9 @@ namespace PlatinumEngine{
 
 	}
 
-
+	///--------------------------------------------
+	/// scene Hierarchy and scene Editor linking helper function
+	///--------------------------------------------
 	void SceneEditor::SelectGameObjectFromScene()
 	{
 		// get mouse click position
@@ -530,8 +578,6 @@ namespace PlatinumEngine{
 							transformComponent != nullptr)
 					{
 						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
-
-
 						Maths::Vec4 temporaryMatrix;
 
 						// get the world coordinate of vertex 0
@@ -902,6 +948,10 @@ namespace PlatinumEngine{
 		return _selectedGameobject;
 	}
 
+
+	///--------------------------------------------
+	/// Gizmo
+	///--------------------------------------------
 	void SceneEditor::UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
 	{
 		Maths::Mat4 identityMatrix(1);

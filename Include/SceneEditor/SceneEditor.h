@@ -20,6 +20,7 @@
 // Input manager
 #include <InputManager/InputManager.h>
 #include <IconsKenney.h>
+#include <IconsMaterialDesign.h>
 #include <IconsFontAwesome6.h>
 #include <ImGuizmo.h>
 namespace PlatinumEngine
@@ -174,26 +175,32 @@ namespace PlatinumEngine
 		enum ClickedZoneType{RenderingZone, GizmoZone, NoZoneClicked};
 
 		ClickedZoneType _currentClickedZone;
+
 		// Managers
 		InputManager* _inputManager;
 		Scene* _scene;
-
 		Renderer* _renderer;
+
 		// Values for Camera
 		EditorCamera _camera;
 		int   _fov;
 		float _near;
-
 		float _far;
+
 		// Values for input control
 		ImVec2 _mouseMoveDelta;
 		int _mouseButtonType;
-
 		float _wheelValueDelta;
+
 		// output of OpenGL rendering
 		Framebuffer _renderTexture;
 		int _framebufferWidth;
-
 		int _framebufferHeight;
+
+		// Grid transparency parameters
+		float _transparency;
+
+		bool _xGrid = false, _yGrid = true, _zGrid = false;
+		bool _enableSkyBox;
 	};
 }
