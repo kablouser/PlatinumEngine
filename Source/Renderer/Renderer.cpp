@@ -25,6 +25,12 @@ const std::string SKYBOX_VERTEX_SHADER =
 const std::string SKYBOX_FRAGMENT_SHADER =
 #include <Shaders/Unlit/SkyBoxShader.frag>
 ;
+const std::string GRID_VERTEX_SHADER =
+#include <Shaders/Unlit/GridShader.vert>
+;
+const std::string GRID_FRAGMENT_SHADER =
+#include <Shaders/Unlit/GridShader.frag>
+;
 
 namespace PlatinumEngine
 {
@@ -41,10 +47,10 @@ namespace PlatinumEngine
 		if (printOpenGLInfo)
 		{
 			PLATINUM_INFO("OpenGL context info");
-			PLATINUM_INFO("Vendor: "+std::string((char*)glGetString(GL_VENDOR)));
-			PLATINUM_INFO("Renderer: "+std::string((char*)glGetString(GL_RENDERER)));
-			PLATINUM_INFO("OpenGL version: "+std::string((char*)glGetString(GL_VERSION)));
-			PLATINUM_INFO("GLSL version: "+std::string((char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
+			PLATINUM_INFO("Vendor: " + std::string((char*)glGetString(GL_VENDOR)));
+			PLATINUM_INFO("Renderer: " + std::string((char*)glGetString(GL_RENDERER)));
+			PLATINUM_INFO("OpenGL version: " + std::string((char*)glGetString(GL_VERSION)));
+			PLATINUM_INFO("GLSL version: " + std::string((char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
 			// TODO
 			// check if version meets minimum requirements here
 			// need to parse string
@@ -54,7 +60,8 @@ namespace PlatinumEngine
 		GLenum errorCode = glewInit();
 		if (errorCode != GLEW_OK)
 		{
-			PLATINUM_ERROR(std::string("GLEW initialisation error. ") + std::string((char*)glewGetErrorString(errorCode)));
+			PLATINUM_ERROR(
+					std::string("GLEW initialisation error. ") + std::string((char*)glewGetErrorString(errorCode)));
 			// without GLEW, seg faults will happen
 			return;
 		}
@@ -63,7 +70,16 @@ namespace PlatinumEngine
 			return;
 
 		if (!_skyBoxShader.Compile(SKYBOX_VERTEX_SHADER, SKYBOX_FRAGMENT_SHADER))
+		{
+			PLATINUM_ERROR("Cannot generate the sky box shader.");
 			return;
+		}
+		if(!_gridShader.Compile(GRID_VERTEX_SHADER, GRID_FRAGMENT_SHADER))
+		{
+			PLATINUM_ERROR("Cannot generate the grid shader.");
+			return;
+		}
+
 
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
@@ -129,6 +145,15 @@ namespace PlatinumEngine
 		_skyBoxShader.Unbind();
 	}
 
+	void Renderer::BeginGrid()
+	{
+		_gridShader.Bind();
+	}
+
+	void Renderer::EndGrid()
+	{
+		_gridShader.Unbind();
+	}
 
 
 	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
@@ -201,6 +226,29 @@ namespace PlatinumEngine
 	void Renderer::SetProjectionMatrixSkyBox(Maths::Mat4 mat)
 	{
 		_skyBoxShader.SetUniform("projection", mat);
+	}
+
+	// update view matrix in shader
+	void Renderer::SetViewMatrixForGridShader(Maths::Mat4 mat)
+	{
+		//glm::mat4 view = GetViewMatrix();
+		_gridShader.SetUniform("view", mat);
+	}
+
+	// update perspective matrix in shader
+	void Renderer::SetProjectionMatrixForGridShader(Maths::Mat4 mat)
+	{
+		_gridShader.SetUniform("projection", mat);
+	}
+
+	void Renderer::SetFarValueForGridShader(float far)
+	{
+		_gridShader.SetUniform("far", far);
+	}
+
+	void Renderer::SetNearValueForGridShader(float near)
+	{
+		_gridShader.SetUniform("near", near);
 	}
 
 	// if you want to test a mesh use

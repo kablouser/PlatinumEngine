@@ -75,11 +75,17 @@ namespace PlatinumEngine
 		// unbind framebuffer
 		void End();
 
-		// initialize framebuffer
+		// initialize skybox shader
 		void BeginSkyBoxShader();
 
-		// unbind framebuffer
+		// unbind skybox shader
 		void EndSkyBoxShader();
+
+		// initialize grid shader
+		void BeginGrid();
+
+		// unbind grid shader
+		void EndGrid();
 
 		/**
 		 * resize framebuffer, it's an interface for SceneEditor
@@ -104,6 +110,16 @@ namespace PlatinumEngine
 		void SetProjectionMatrixSkyBox(Maths::Mat4 mat);
 
 		void SetViewMatrixSkyBox(Maths::Mat4 mat);
+
+
+		void SetViewMatrixForGridShader(Maths::Mat4 mat);
+
+		void SetProjectionMatrixForGridShader(Maths::Mat4 mat);
+
+		void SetFarValueForGridShader(float far);
+
+		void SetNearValueForGridShader(float near);
+
 
 		/**
 		 * mesh component can call this function to input mesh data into shader, if you want to test a mesh renderer,
@@ -132,6 +148,7 @@ namespace PlatinumEngine
 
 		ShaderProgram _unlitShader;
 		ShaderProgram _skyBoxShader;
+		ShaderProgram _gridShader;
 
 		// ShaderInput _meshShaderInput, _lightShaderInput;
 

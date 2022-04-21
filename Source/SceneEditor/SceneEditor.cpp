@@ -53,8 +53,12 @@ namespace PlatinumEngine{
 									   "D:/PlatinumEngine/Assets/Texture/Bottom_Y.png",
 									   "D:/PlatinumEngine/Assets/Texture/Front_Z.png",
 									   "D:/PlatinumEngine/Assets/Texture/Back_Z.png"});
+		// Setup skybox texture shader input
+		CreateSkyBoxShaderInput();
 
-		CreateSkyBox();
+
+		// Setup Grid shader input
+		CreateGridShaderInput();
 
 		// Setup input manager
 		_inputManager->CreateAxis(std::string ("HorizontalAxisForEditorCamera"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
@@ -334,6 +338,8 @@ namespace PlatinumEngine{
 
 			// initiate setting before rendering
 			glEnable(GL_DEPTH_TEST);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glViewport(0, 0, _framebufferWidth, _framebufferHeight);
 			glClearColor(0.2784f, 0.2784f, 0.2784f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -349,7 +355,7 @@ namespace PlatinumEngine{
 			Maths::Mat4 scaleMatrix;
 			scaleMatrix.SetScaleMatrix(Maths::Vec3(((float)_near*2.f), ((float)_near*2.f), ((float)_near*2.f)));
 			// set matrix uniform
-			_renderer->SetViewMatrixSkyBox(_camera.GetRotationOnlyViewMatrix() * scaleMatrix);
+			_renderer->SetViewMatrixSkyBox(Maths::Inverse(_camera.GetRotationOnlyViewMatrix()) * scaleMatrix);
 			_renderer->SetProjectionMatrixSkyBox(_camera.projectionMatrix4);
 			_skyboxTexture.BindCubeMap();
 			_skyBoxShaderInput.Draw();
@@ -360,7 +366,6 @@ namespace PlatinumEngine{
 			// enable depth test for the later rendering
 			glDepthMask(true);
 			glEnable(GL_DEPTH_TEST);
-			// -------------- END Render SKY BOX -------------- //
 
 
 			// ------------- Render Game Objects ------------- //
@@ -380,13 +385,25 @@ namespace PlatinumEngine{
 
 			// End rendering (unbind a shader)
 			_renderer->End();
-			// ------------- End Render Game Objects ----------- //
+
+
+			// -------------------- Render GRID ------------------ //
+
+			_renderer->BeginGrid();
+			_renderer->SetViewMatrixForGridShader(_camera.viewMatrix4);
+			_renderer->SetProjectionMatrixForGridShader(_camera.projectionMatrix4);
+			_renderer->SetFarValueForGridShader((float)_far);
+			_renderer->SetNearValueForGridShader((float)_near);
+			_gridShaderInput.Draw();
+			_renderer->EndGrid();
+
 
 			// unbind framebuffer
 			_renderTexture.Unbind();
 
 			// reset setting after rendering
 			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_BLEND);
 			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 
@@ -909,7 +926,7 @@ namespace PlatinumEngine{
 
 	}
 
-	void SceneEditor::CreateSkyBox()
+	void SceneEditor::CreateSkyBoxShaderInput()
 	{
 
 		std::vector<Vertex> skyboxVertices = {
@@ -964,6 +981,16 @@ namespace PlatinumEngine{
 		_skyBoxShaderInput.Set(skyboxVertices, indices);
 	}
 
+	void SceneEditor::CreateGridShaderInput()
+	{
+		std::vector<Vertex> vertices = {Vertex{{1, 1, 0}, {0.0, 0.0, 0.0}, {0.0, 0.0 } },
+										Vertex{{-1, -1, 0}, {0.0, 0.0, 0.0}, {0.0, 0.0 } },
+										Vertex{{-1, 1, 0}, {0.0, 0.0, 0.0}, {0.0, 0.0 } },
+										Vertex{{1, -1, 0}, {0.0, 0.0, 0.0}, {0.0, 0.0 } }};
+		std::vector<GLuint> indices = {0, 1, 2, 1, 0, 3};
+
+		_gridShaderInput.Set(vertices, indices);
+	}
 }
 
 

@@ -131,8 +131,15 @@ namespace PlatinumEngine
 		 */
 		void UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE, ImGuizmo::OPERATION);
 
-		void CreateSkyBox();
+		/**
+		 * Function that initiate shader input for skybox
+		 */
+		void CreateSkyBoxShaderInput();
 
+		/**
+		 * Function that initiate shader input for grid
+		 */
+		void CreateGridShaderInput();
 
 		// ___CONSTRUCTOR___
 		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer);
@@ -140,7 +147,10 @@ namespace PlatinumEngine
 	private:
 
 		// ___PARAMETERS___
-		// skybox
+		// Grid
+		ShaderInput _gridShaderInput;
+
+		// Skybox
 		Texture _skyboxTexture;
 		ShaderInput _skyBoxShaderInput;
 
