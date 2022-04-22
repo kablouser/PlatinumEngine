@@ -14,8 +14,8 @@ in mat4 projectionView;
 // uniform input
 uniform float far;
 uniform float near;
-
-int GridAxis = 1; // x: 0, y: 1, z: 2
+uniform float transparency;
+uniform int GridAxis = 1; // x: 0, y: 1, z: 2
 
 
 // output data
@@ -114,7 +114,7 @@ void main()
         float fading = max(0, (calculateLinearDepth(panel3DPos)));
 
         // calculate the color for this pixel
-        outColour = GetGrid(0.1, coordOnPanel, fading);
+        outColour = GetGrid(0.1, coordOnPanel, fading * transparency);
     }
     else
     {

@@ -251,6 +251,16 @@ namespace PlatinumEngine
 		_gridShader.SetUniform("near", near);
 	}
 
+	void Renderer::SetTransparencyForGridShader(float transparency)
+	{
+		_gridShader.SetUniform("transparency", transparency);
+	}
+
+	void Renderer::SetGridAxisForGridShader(int gridAxis)
+	{
+		_gridShader.SetUniform("GridAxis", gridAxis);
+	}
+
 	// if you want to test a mesh use
 	// void Renderer::ShowGUIWindow(bool* outIsOpen, const Mesh &mesh)
 	// then comment CubeTest(), cancel comment on LoadMesh(const Mesh &mesh)

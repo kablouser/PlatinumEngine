@@ -104,6 +104,7 @@ namespace PlatinumEngine
 		void SetProjectionMatrix(Maths::Mat4 mat = Maths::Mat4(1.0));
 
 		void SetLightProperties();
+
 		// a window for renderer to test
 		void ShowGUIWindow(bool* outIsOpen);
 
@@ -120,6 +121,9 @@ namespace PlatinumEngine
 
 		void SetNearValueForGridShader(float near);
 
+		void SetTransparencyForGridShader(float transparency);
+
+		void SetGridAxisForGridShader(int gridAxis);
 
 		/**
 		 * mesh component can call this function to input mesh data into shader, if you want to test a mesh renderer,

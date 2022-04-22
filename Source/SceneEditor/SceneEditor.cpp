@@ -41,10 +41,11 @@ namespace PlatinumEngine{
 			_bounds{-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f},
 			_boundsSnap{ 0.1f, 0.1f, 0.1f },
 
-			_currentClickedZone(),
 			_skyboxTexture(),
-			_skyBoxShaderInput()
-			_currentClickedZone()
+			_skyBoxShaderInput(),
+
+			_enableGrid(false),
+			_enableSkyBox(false)
 	{
 
 		// Setup skybox texture
@@ -183,9 +184,9 @@ namespace PlatinumEngine{
 				ImGui::EndPopup();
 			}
 
-			if(ImGui::Button(_transparency ? ICON_MD_GRID_ON "##enable###gridTransparency" : ICON_MD_GRID_OFF "##disable###gridTransparency"))
+			if(ImGui::Button(_enableGrid ? ICON_MD_GRID_ON "##enable###gridTransparency" : ICON_MD_GRID_OFF "##disable###gridTransparency"))
 			{
-				_transparency = !_transparency;
+				_enableGrid = !_enableGrid;
 			}
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("turn on or off the grid");
@@ -268,7 +269,7 @@ namespace PlatinumEngine{
 			// Get the parent window size
 			auto targetSize = ImGui::GetContentRegionAvail();
 
-			if(ImGui::BeginChild("##e",ImVec2(targetSize.x, targetSize.y), false,ImGuiWindowFlags_NoMove))
+			if(ImGui::BeginChild("##renderingWindow",ImVec2(targetSize.x, targetSize.y), false,ImGuiWindowFlags_NoMove))
 			{
 
 				//------------------
@@ -304,6 +305,7 @@ namespace PlatinumEngine{
 			&& _inputManager->GetMousePosition().x >= ImGui::GetWindowContentRegionMin().x
 			&& _inputManager->GetMousePosition().y <= ImGui::GetWindowContentRegionMax().y
 			&& _inputManager->GetMousePosition().y >= ImGui::GetWindowContentRegionMin().y
+			&& ImGui::IsWindowFocused()
 			&& !ImGuizmo::IsUsing())
 		{
 
@@ -438,15 +440,31 @@ namespace PlatinumEngine{
 
 
 			// -------------------- Render GRID ------------------ //
+			if(_enableGrid)
+			{
+				_renderer->BeginGrid();
+				_renderer->SetViewMatrixForGridShader(_camera.viewMatrix4);
+				_renderer->SetProjectionMatrixForGridShader(_camera.projectionMatrix4);
+				_renderer->SetFarValueForGridShader((float)_far);
+				_renderer->SetNearValueForGridShader((float)_near);
+				_renderer->SetTransparencyForGridShader(_transparency);
 
-			_renderer->BeginGrid();
-			_renderer->SetViewMatrixForGridShader(_camera.viewMatrix4);
-			_renderer->SetProjectionMatrixForGridShader(_camera.projectionMatrix4);
-			_renderer->SetFarValueForGridShader((float)_far);
-			_renderer->SetNearValueForGridShader((float)_near);
-			_gridShaderInput.Draw();
-			_renderer->EndGrid();
+				if (_xGrid)
+				{
+					_renderer->SetGridAxisForGridShader(0);
+				}
+				else if (_zGrid)
+				{
+					_renderer->SetGridAxisForGridShader(2);
+				}
+				else
+				{
+					_renderer->SetGridAxisForGridShader(1);
+				}
 
+				_gridShaderInput.Draw();
+				_renderer->EndGrid();
+			}
 
 			// unbind framebuffer
 			_renderTexture.Unbind();

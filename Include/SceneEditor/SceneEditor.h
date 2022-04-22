@@ -172,9 +172,6 @@ namespace PlatinumEngine
 		ImGuizmo::OPERATION _currentGizmoOperation;
 		// Flags
 		bool _ifCameraSettingWindowOpen;
-		enum ClickedZoneType{RenderingZone, GizmoZone, NoZoneClicked};
-
-		ClickedZoneType _currentClickedZone;
 
 		// Managers
 		InputManager* _inputManager;
@@ -201,6 +198,6 @@ namespace PlatinumEngine
 		float _transparency;
 
 		bool _xGrid = false, _yGrid = true, _zGrid = false;
-		bool _enableSkyBox;
+		bool _enableSkyBox, _enableGrid;
 	};
 }
