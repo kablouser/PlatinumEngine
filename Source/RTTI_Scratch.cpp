@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------
 
 template<typename T>
-constexpr auto type_name()
+constexpr auto TypeName()
 {
 	std::string_view name, prefix, suffix;
 #ifdef __clang__
@@ -25,7 +25,7 @@ constexpr auto type_name()
   suffix = "]";
 #elif defined(__GNUC__)
 	name = __PRETTY_FUNCTION__;
-	prefix = "constexpr auto type_name() [with T = ";
+	prefix = "constexpr auto TypeName() [with T = ";
 	suffix = "]";
 #elif defined(_MSC_VER)
 	name = __FUNCSIG__;
@@ -50,9 +50,7 @@ class Iterator
 public:
 
 	// allow inherited classes to be destroyed
-	virtual ~Iterator()
-	{
-	}
+	virtual ~Iterator() = default;
 
 	// interface
 	virtual bool IsIterating() = 0;
@@ -69,7 +67,7 @@ public:
 	// not the type of the collection
 	std::type_index elementTypeIndex;
 
-	Collection(const std::type_index& newElementTypeIndex) : elementTypeIndex(newElementTypeIndex)
+	explicit Collection(const std::type_index& newElementTypeIndex) : elementTypeIndex(newElementTypeIndex)
 	{
 	}
 
@@ -89,7 +87,7 @@ class VectorIterator : public Iterator
 {
 public:
 
-	VectorIterator(const std::vector<T>* toIterateOver) :
+	explicit VectorIterator(const std::vector<T>* toIterateOver) :
 			_toIterateOver(toIterateOver),
 			_currentIndex(0)
 	{
@@ -130,14 +128,14 @@ public:
 		return true;
 	}
 
-	bool RemoveFirst(void* collectionInstance, void* elementInstance)
+	bool RemoveFirst(void* collectionInstance, void* elementInstance) override
 	{
 		return PlatinumEngine::VectorHelpers::RemoveFirst(
 				*(std::vector<T>*)collectionInstance,
 				*(T*)elementInstance);
 	}
 
-	std::unique_ptr<Iterator> GetIterator(const void* collectionInstance)
+	std::unique_ptr<Iterator> GetIterator(const void* collectionInstance) override
 	{
 		return std::make_unique<VectorIterator<T>>((const std::vector<T>*)collectionInstance);
 	}
@@ -171,8 +169,8 @@ public:
 	// only 1 inherited parent allowed
 	std::optional<std::type_index> inheritedType;
 
-	std::function<void*(void)> allocate;
-	std::function<void(void*)> deallocate;
+	// shared_ptr<void> is legal, but unique_ptr<void> is illegal
+	std::function<std::shared_ptr<void>(void)> allocate;
 
 	std::function<void(std::ostream& outputStream, void* typeInstance)>
 			streamOut;
@@ -241,8 +239,8 @@ public:
 	template<typename T>
 	TypeInfo& BeginAbstractTypeInfo(bool isCollection = false)
 	{
-		std::string typeName = std::string(type_name<T>());
-		std::type_index typeIndex = std::type_index(typeid(T));
+		std::string typeName = std::string(TypeName<T>());
+		auto typeIndex = std::type_index(typeid(T));
 		size_t countTypeNames = typeNames.count(typeName);
 		size_t countTypeIndices = typeIndices.count(typeIndex);
 		if (0 == countTypeNames && 0 == countTypeIndices)
@@ -270,10 +268,8 @@ public:
 	{
 		static_assert(!std::is_abstract<T>(), "T should be NOT abstract.");
 		TypeInfo& typeInfo = BeginAbstractTypeInfo<T>(isCollection);
-		typeInfo.allocate = []() -> void*
-		{ return new T; };
-		typeInfo.deallocate = [](void* typeInstance) -> void
-		{ delete (T*)typeInstance; };
+		typeInfo.allocate = []() -> std::shared_ptr<void>
+		{ return std::make_shared<T>(); };
 		return typeInfo;
 	}
 
@@ -381,15 +377,19 @@ public:
 		ostream << ';' << std::endl;
 	}
 
-	template<typename T>
-	void Deserialize(std::istream& istream, T* typeInstance)
+	enum class DeserializeReturnCode
 	{
-		std::cout <<
-				  (int)DeserializeInternal(
-						  istream,
-						  typeInstance,
-						  std::type_index(typeid(*typeInstance)),
-						  SerializeSection::root) << std::endl;
+		success, badFormat, unknownType, missingAllocators, missingCollection
+	};
+
+	template<typename T>
+	DeserializeReturnCode Deserialize(std::istream& istream, T* typeInstance)
+	{
+		return DeserializeInternal(
+				istream,
+				typeInstance,
+				std::type_index(typeid(*typeInstance)),
+				SerializeSection::root);
 	}
 
 private:
@@ -439,7 +439,7 @@ private:
 
 	enum class SerializeSection
 	{
-		root, inherited, field, dynamicField
+		root, inherited, field, collectionElement
 	};
 
 	void SerializeInternal(
@@ -470,7 +470,7 @@ private:
 				case SerializeSection::field:
 					ostream << std::endl << tabs << '{' << std::endl;
 					break;
-				case SerializeSection::dynamicField:
+				case SerializeSection::collectionElement:
 					ostream << tabs << '{' << std::endl;
 					break;
 				default:
@@ -506,7 +506,7 @@ private:
 									currentElement,
 									typeInfo->collection->elementTypeIndex,
 									indents + 1,
-									SerializeSection::dynamicField);
+									SerializeSection::collectionElement);
 							ostream << ',' << std::endl;
 						}
 					}
@@ -536,11 +536,6 @@ private:
 		}
 	}
 
-	enum class DeserializeReturnCode
-	{
-		success, badFormat, badMatch, unknownType
-	};
-
 	DeserializeReturnCode DeserializeInternal(
 			std::istream& istream,
 			void* typeInstance,
@@ -568,26 +563,22 @@ private:
 
 		while (true)
 		{
+			// save position from start of line
+			auto beginPosition = istream.tellg();
 			if (!(istream >> stringToken))
 				return DeserializeReturnCode::badFormat;
 
-			if (stringToken.rfind("//", 0) == 0)
+			if (stringToken.rfind("//", 0) == 0 // stringToken begins with //, comment
+				||
+				stringToken == "?")// unknown type
 			{
-				// stringToken begins with //
 				std::getline(istream, stringToken); // skip line
 				continue;
 			}
-			else if ((section == SerializeSection::root && stringToken == "};") ||
-					 (section != SerializeSection::root && stringToken == "}"))
+			else if (stringToken.rfind("}", 0) == 0)
 			{
-				// end!
+				// stringToken begins with }, end of block
 				return DeserializeReturnCode::success;
-			}
-			else if (stringToken == "?")
-			{
-				// unknown type
-				std::getline(istream, stringToken); // skip line
-				continue;
 			}
 			else if (stringToken == "{")
 			{
@@ -601,12 +592,50 @@ private:
 
 			if (typeInfo->isCollection)
 			{
-				// todo remove
-				// skip brackets
-				if (SkipCurlyBrackets(istream, 1))
-					return DeserializeReturnCode::success;
-				else
-					return DeserializeReturnCode::badFormat;
+				istream.seekg(beginPosition);
+
+				if (!typeInfo->collection)
+				{
+					// no collection info
+					if (SkipCurlyBrackets(istream, 1))// skip brackets
+						return DeserializeReturnCode::missingCollection;
+					else
+						return DeserializeReturnCode::badFormat;
+				}
+
+				auto[foundElement, elementTypeInfo]= GetTypeInfo(typeInfo->collection->elementTypeIndex);
+				if (!foundElement)
+				{
+					// no collection element info
+					if (SkipCurlyBrackets(istream, 1))// skip brackets
+						return DeserializeReturnCode::missingCollection;
+					else
+						return DeserializeReturnCode::badFormat;
+				}
+
+				if (!(elementTypeInfo->allocate))
+				{
+					// no element allocators
+					if (SkipCurlyBrackets(istream, 1))// skip brackets
+						return DeserializeReturnCode::missingAllocators;
+					else
+						return DeserializeReturnCode::badFormat;
+				}
+
+				std::shared_ptr<void> collectionElement = elementTypeInfo->allocate();
+
+				// recurse
+				auto returnCode = DeserializeInternal(
+						istream,
+						collectionElement.get(),
+						elementTypeInfo->typeIndex,
+						SerializeSection::collectionElement);
+
+				if (returnCode == DeserializeReturnCode::success)
+					typeInfo->collection->Add(typeInstance, collectionElement.get());
+
+				// probably comma next
+				std::getline(istream, stringToken); // skip line
 			}
 			else
 			{
@@ -625,25 +654,16 @@ private:
 					continue;
 				}
 
-				// find fieldName in our type
-				// TODO inheritance
-				auto iterator = std::find_if(
-						typeInfo->fields.begin(),
-						typeInfo->fields.end(),
-						[&](const FieldInfo& fieldInfo) -> bool
-						{
-							return fieldInfo.fieldName == stringToken;
-						});
-
-				if (iterator == typeInfo->fields.end())
+				// find fieldName in our type with inheritance
+				auto[foundFieldName, fieldInfo] = FindFieldName(*typeInfo, stringToken);
+				if (!foundFieldName)
 				{
 					// mismatch, no fieldName
 					std::getline(istream, stringToken); // skip line
 					continue;
 				}
 
-				auto& fieldInfo = *iterator;
-				if (fieldTypeInfo->typeIndex != fieldInfo.typeIndex)
+				if (fieldTypeInfo->typeIndex != fieldInfo->typeIndex)
 				{
 					// mismatch, field type is unexpected
 					std::getline(istream, stringToken); // skip line
@@ -657,18 +677,19 @@ private:
 					continue;
 				}
 
-				auto x = DeserializeInternal(
+				// recurse
+				auto returnCode = DeserializeInternal(
 						istream,
-						iterator->AccessField(typeInstance),
-						fieldInfo.typeIndex,
+						fieldInfo->AccessField(typeInstance),
+						fieldInfo->typeIndex,
 						SerializeSection::field);
-				// semicolon next
+				// probably semicolon next
 				std::getline(istream, stringToken); // skip line
 			}
 		}
 	}
 
-	bool SkipCurlyBrackets(std::istream& istream, unsigned int bracketsLevel)
+	static bool SkipCurlyBrackets(std::istream& istream, unsigned int bracketsLevel)
 	{
 		while (0 < bracketsLevel && istream)
 		{
@@ -684,163 +705,165 @@ private:
 
 	std::pair<bool, const FieldInfo*> FindFieldName(const TypeInfo& typeInfo, const std::string& fieldName)
 	{
-		for (auto& field : typeInfo.fields)
+		for (auto& field: typeInfo.fields)
 		{
 			if (field.fieldName == fieldName)
-				return {true, &field};
+				return { true, &field };
 		}
 
 		if (typeInfo.inheritedType.has_value())
-			// recurse
-			return FindFieldName(*typeInfo.inheritedType, fieldName);
-			std::find_if(
-				typeInfo.fields.begin(),
-				typeInfo.fields.end(),
-				[&](const FieldInfo& fieldInfo) -> bool
-				{
-					return fieldInfo.fieldName == fieldName;
-				});
+		{
+			auto[success, inheritedTypeInfo]= GetTypeInfo(*typeInfo.inheritedType);
+			if (success)
+				// recurse
+				return FindFieldName(*inheritedTypeInfo, fieldName);
+		}
+
+		return { false, nullptr };
 	}
 };
 
 int main()
 {
-	struct MyStruct
+	while (true)
 	{
-		float field0;
-		float field1;
-		std::vector<double> someValues;
-	};
+		struct MyStruct
+		{
+			float field0;
+			float field1;
+			std::vector<double> someValues;
+		};
 
-	TypeDatabase db;
+		TypeDatabase db;
 
-	db.BeginTypeInfo<MyStruct>()
-			.WithField<float>("field0", PLATINUM_OFFSETOF(MyStruct, field0))
-			.WithField<float>("field1", PLATINUM_OFFSETOF(MyStruct, field1))
-			.WithField<std::vector<double>>("someValues", PLATINUM_OFFSETOF(MyStruct, someValues));
+		db.BeginTypeInfo<MyStruct>()
+				.WithField<float>("field0", PLATINUM_OFFSETOF(MyStruct, field0))
+				.WithField<float>("field1", PLATINUM_OFFSETOF(MyStruct, field1))
+				.WithField<std::vector<double>>("someValues", PLATINUM_OFFSETOF(MyStruct, someValues));
 
-	db.CreateVectorTypeInfo<int>();
-	db.CreateVectorTypeInfo<double>();
+		db.CreateVectorTypeInfo<int>();
+		db.CreateVectorTypeInfo<double>();
 
-	db.CreatePrimitiveTypeInfo<double>();
-	db.CreatePrimitiveTypeInfo<float>();
-	db.CreatePrimitiveTypeInfo<int>();
+		db.CreatePrimitiveTypeInfo<double>();
+		db.CreatePrimitiveTypeInfo<float>();
+		db.CreatePrimitiveTypeInfo<int>();
 
-	db.OutputTypeInfo<MyStruct>(std::cout);
-	db.OutputTypeInfo<std::vector<int>>(std::cout);
+//		db.OutputTypeInfo<MyStruct>(std::cout);
+//		db.OutputTypeInfo<std::vector<int>>(std::cout);
 
-	MyStruct test{
-			69.0f, 420.0f, { 1, 1, 2, 3, 5, 8, 13 }
-	};
-	db.Serialize(std::cout, &test);
-	std::vector<int> myList{ 0, 1, 2, 3 };
-	db.Serialize(std::cout, &myList);
+		MyStruct test{
+				69.0f, 420.0f, { 1, 1, 2, 3, 5, 8, 13 }
+		};
+//		db.Serialize(std::cout, &test);
+		std::vector<int> myList{ 0, 1, 2, 3 };
+//		db.Serialize(std::cout, &myList);
 
-	std::cout << "=======================================" << std::endl;
+//		std::cout << "=======================================" << std::endl;
 
-	struct UnknownType
-	{
-	};
-
-	class AbstractClass
-	{
-	public:
-		float time;
-		MyStruct data;
-		UnknownType unknownData;
-
-		virtual void Get() = 0;
-	};
-
-	class ChildClass : public AbstractClass
-	{
-	public:
-		int counter;
-
-		void Get()
+		struct UnknownType
 		{
 		};
-	};
 
-	class FurtherChildClass : public ChildClass
-	{
-	public:
-		int reset;
-
-		void Get()
+		class AbstractClass
 		{
+		public:
+			float time;
+			MyStruct data;
+			UnknownType unknownData;
+
+			virtual void Get() = 0;
+		};
+
+		class ChildClass : public AbstractClass
+		{
+		public:
+			int counter;
+
+			void Get()
+			{
+			};
+		};
+
+		class FurtherChildClass : public ChildClass
+		{
+		public:
+			int reset;
+
+			void Get()
+			{
+			}
+		};
+
+		db.BeginAbstractTypeInfo<AbstractClass>()
+				.WithField<float>("time", PLATINUM_OFFSETOF(AbstractClass, time))
+				.WithField<MyStruct>("data", PLATINUM_OFFSETOF(AbstractClass, data))
+				.WithField<UnknownType>("unknownData", PLATINUM_OFFSETOF(AbstractClass, unknownData));
+		db.BeginTypeInfo<ChildClass>()
+				.WithInherit<AbstractClass>()
+				.WithField<int>("counter", PLATINUM_OFFSETOF(ChildClass, counter));
+		db.BeginTypeInfo<FurtherChildClass>()
+				.WithInherit<ChildClass>()
+				.WithField<int>("reset", PLATINUM_OFFSETOF(FurtherChildClass, reset));
+
+//		db.OutputTypeInfo<AbstractClass>(std::cout);
+//		db.OutputTypeInfo<ChildClass>(std::cout);
+//		db.OutputTypeInfo<FurtherChildClass>(std::cout);
+//		db.OutputTypeInfo<UnknownType>(std::cout);
+
+		ChildClass what = {};
+		what.data.field0 = 256;
+		what.data.field1 = 1024;
+		what.time = 69.88f;
+		what.counter = 420;
+
+		FurtherChildClass what2 = {};
+		what2.data.field0 = 256;
+		what2.data.field1 = 1024;
+		what2.time = 69.88f;
+		what2.counter = 420;
+		what2.reset = 920;
+
+//		db.Serialize(std::cout, &what);
+//		db.Serialize(std::cout, &what2);
+
+//		db.Serialize(std::cout, (ChildClass*)&what2);
+
+
+//		std::cout << "DESERIALIZE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
+		{
+			// TODO serialize stuff that is actually useful
+			// TODO stream in
+			std::ostringstream outputString;
+			db.Serialize(outputString, &test);
+
+			std::istringstream inputString(outputString.str());
+
+			MyStruct readMyStruct;
+
+			db.Deserialize(inputString, &readMyStruct);
+//			std::cout << "original >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
+//			db.Serialize(std::cout, &test);
+//			std::cout << "scuffed >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
+//			db.Serialize(std::cout, &readMyStruct);
 		}
-	};
 
-	db.BeginAbstractTypeInfo<AbstractClass>()
-			.WithField<float>("time", PLATINUM_OFFSETOF(AbstractClass, time))
-			.WithField<MyStruct>("data", PLATINUM_OFFSETOF(AbstractClass, data))
-			.WithField<UnknownType>("unknownData", PLATINUM_OFFSETOF(AbstractClass, unknownData));
-	db.BeginTypeInfo<ChildClass>()
-			.WithInherit<AbstractClass>()
-			.WithField<int>("counter", PLATINUM_OFFSETOF(ChildClass, counter));
-	db.BeginTypeInfo<FurtherChildClass>()
-			.WithInherit<ChildClass>()
-			.WithField<int>("reset", PLATINUM_OFFSETOF(FurtherChildClass, reset));
+		// inherited deserialization
+		{
+			// TODO serialize stuff that is actually useful
+			// TODO stream in
+			std::ostringstream outputString;
+			db.Serialize(outputString, &what2);
 
-	db.OutputTypeInfo<AbstractClass>(std::cout);
-	db.OutputTypeInfo<ChildClass>(std::cout);
-	db.OutputTypeInfo<FurtherChildClass>(std::cout);
-	db.OutputTypeInfo<UnknownType>(std::cout);
+			std::istringstream inputString(outputString.str());
 
-	ChildClass what = {};
-	what.data.field0 = 256;
-	what.data.field1 = 1024;
-	what.time = 69.88f;
-	what.counter = 420;
+			FurtherChildClass readMyFurther;
 
-	FurtherChildClass what2 = {};
-	what2.data.field0 = 256;
-	what2.data.field1 = 1024;
-	what2.time = 69.88f;
-	what2.counter = 420;
-	what2.reset = 920;
-
-	db.Serialize(std::cout, &what);
-	db.Serialize(std::cout, &what2);
-
-	db.Serialize(std::cout, (ChildClass*)&what2);
-
-
-	std::cout << "DESERIALIZE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
-	{
-		// TODO serialize stuff that is actually useful
-		// TODO stream in
-		std::ostringstream outputString;
-		db.Serialize(outputString, &test);
-
-		std::istringstream inputString(outputString.str());
-
-		MyStruct readMyStruct;
-
-		db.Deserialize(inputString, &readMyStruct);
-		std::cout << "original >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
-		db.Serialize(std::cout, &test);
-		std::cout << "scuffed >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
-		db.Serialize(std::cout, &readMyStruct);
-	}
-
-	// inherited deserialization
-	{
-		// TODO serialize stuff that is actually useful
-		// TODO stream in
-		std::ostringstream outputString;
-		db.Serialize(outputString, &what2);
-
-		std::istringstream inputString(outputString.str());
-
-		FurtherChildClass readMyFurther;
-
-		db.Deserialize(inputString, &readMyFurther);
-		std::cout << "original >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
-		db.Serialize(std::cout, &what2);
-		std::cout << "scuffed >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
-		db.Serialize(std::cout, &readMyFurther);
+			db.Deserialize(inputString, &readMyFurther);
+//			std::cout << "original >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
+//			db.Serialize(std::cout, &what2);
+//			std::cout << "scuffed >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
+//			db.Serialize(std::cout, &readMyFurther);
+		}
 	}
 
 	return 0;
