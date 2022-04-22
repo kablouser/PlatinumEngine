@@ -163,7 +163,6 @@ namespace PlatinumEngine
 		float _bounds[6];
 		float _boundsSnap[3];
 
-		bool _imGuiButton;
 		bool _useSnap;
 		bool _boundSizing;
 
@@ -196,7 +195,6 @@ namespace PlatinumEngine
 
 		// Grid transparency parameters
 		float _transparency;
-
 		bool _xGrid = false, _yGrid = true, _zGrid = false;
 		bool _enableSkyBox, _enableGrid;
 	};

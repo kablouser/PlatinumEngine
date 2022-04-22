@@ -43,9 +43,11 @@ namespace PlatinumEngine{
 
 			_skyboxTexture(),
 			_skyBoxShaderInput(),
+			_transparency(1.0),
 
 			_enableGrid(false),
-			_enableSkyBox(false)
+			_enableSkyBox(false),
+			_xGrid(false), _yGrid(true), _zGrid(false)
 	{
 
 		// Setup skybox texture
