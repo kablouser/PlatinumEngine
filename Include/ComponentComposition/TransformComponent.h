@@ -19,6 +19,7 @@ namespace PlatinumEngine
 
 		Maths::Vec3 localPosition;
 		Maths::Quaternion localRotation;
+		Maths::Mat4 transformationMatrix;
 		// uniform scaling has nice properties
 		float localScale;
 
@@ -44,6 +45,8 @@ namespace PlatinumEngine
 		 * @param target
 		 */
 		void LookAt(Maths::Vec3 target);
+
+		void SetLocalToWorldMatrix(Maths::Mat4 LocalToWorld);
 
 		//Transforms direction from local space to parent space
 		Maths::Vec3 LocalToParentDirection(Maths::Vec3 dir);

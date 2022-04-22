@@ -44,6 +44,7 @@ namespace PlatinumEngine{
 			_currentClickedZone(),
 			_skyboxTexture(),
 			_skyBoxShaderInput()
+			_currentClickedZone()
 	{
 
 		// Setup skybox texture
@@ -103,34 +104,35 @@ namespace PlatinumEngine{
 			ImGui::SameLine();
 			if (_currentGizmoOperation != ImGuizmo::SCALE)
 			{
-				/*
-				if (ImGui::RadioButton("Local", _currentGizmoMode == ImGuizmo::LOCAL))
-					_currentGizmoMode = ImGuizmo::LOCAL;
-				ImGui::SameLine();
-				if (ImGui::RadioButton("World", _currentGizmoMode == ImGuizmo::WORLD))
-					_currentGizmoMode = ImGuizmo::WORLD;
-				*/
-				if (ImGui::Button(_imGuiButton ? ICON_FA_CUBE "##Local###ViewMode" : ICON_FA_EARTH_ASIA "##Global###ViewMode"))
+				if (ImGui::Button(_currentGizmoMode == ImGuizmo::LOCAL ? ICON_FA_CUBE "##Local###ViewMode" : ICON_FA_EARTH_ASIA "##Global###ViewMode"))
 				{
-					_imGuiButton = !_imGuiButton;
-					if (_imGuiButton)
-					{
-						_currentGizmoMode = ImGuizmo::LOCAL;
-					}
-					else if (!_imGuiButton)
+					if (_currentGizmoMode == ImGuizmo::LOCAL)
 					{
 						_currentGizmoMode = ImGuizmo::WORLD;
+					}
+					else if (_currentGizmoMode == ImGuizmo::WORLD)
+					{
+						_currentGizmoMode = ImGuizmo::LOCAL;
 					}
 				}
 				if (ImGui::IsItemHovered())
 				{
-					if(_imGuiButton)
+					if(_currentGizmoMode == ImGuizmo::LOCAL)
 						ImGui::SetTooltip("Local gizmo");
-					if(!_imGuiButton)
+					if(_currentGizmoMode == ImGuizmo::WORLD)
 						ImGui::SetTooltip("Global gizmo");
 				}
 
 			}
+			else if(_currentGizmoOperation == ImGuizmo::SCALE)
+			{
+				ImGui::Button( ICON_FA_CUBE "##Local###ViewMode");
+				if (ImGui::IsItemHovered())
+				{
+					ImGui::SetTooltip("Local Only Under Scale");
+				}
+			}
+
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT "##Translate"))
 				_currentGizmoOperation = ImGuizmo::TRANSLATE;
@@ -965,17 +967,21 @@ namespace PlatinumEngine{
 		float viewManipulateRight = ImGui::GetWindowPos().x + windowWidth;
 		float viewManipulateTop = ImGui::GetWindowPos().y;
 
+		if(_selectedGameobject != nullptr && _selectedGameobject->GetComponent<TransformComponent>() != nullptr)
+		{
+			auto transform =  _selectedGameobject->GetComponent<TransformComponent>();
+			Maths::Mat4 transform_matrix = transform->GetLocalToWorldMatrix();
+			ImGuizmo::Manipulate(
+					cameraView, cameraProjection, currentGizmoOperation, currentGizmoMode,
+					transform_matrix.matrix, NULL, _useSnap ? &_snap[0] : NULL,
+					_boundSizing ? _bounds : NULL, _boundSizingSnap ? _boundsSnap : NULL);
 
-		ImGuizmo::Manipulate(
-				cameraView, cameraProjection, currentGizmoOperation, currentGizmoMode,
-				identityMatrix.matrix, NULL, _useSnap ? &_snap[0] : NULL,
-				_boundSizing ? _bounds : NULL, _boundSizingSnap ? _boundsSnap : NULL);
+			transform->SetLocalToWorldMatrix(transform_matrix);
+		}
 
 		// view manipulate gizmo
 		ImGuizmo::ViewManipulate(cameraView, 0.001, ImVec2(viewManipulateRight - 100, viewManipulateTop),
 				ImVec2(100, 100), 0x10101010);
-
-
 	}
 
 	void SceneEditor::CreateSkyBoxShaderInput()

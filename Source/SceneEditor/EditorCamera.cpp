@@ -86,9 +86,9 @@ namespace PlatinumEngine
 
 		// update translation value
 		if (wheelDelta < 0)
-			_translationValue += GetForwardDirection() * -_translationSpeed * 20.f;//* deltaClock.getElapsedTime().asSeconds();
+			_translationValue += GetForwardDirection() * -_translationSpeed * 5.f;//* deltaClock.getElapsedTime().asSeconds();
 		else if(wheelDelta > 0)
-			_translationValue += GetForwardDirection() * _translationSpeed * 20.f;//* deltaClock.getElapsedTime().asSeconds();
+			_translationValue += GetForwardDirection() * _translationSpeed * 5.f;//* deltaClock.getElapsedTime().asSeconds();
 
 		// update view matrix
 		UpdateViewMatrix();
@@ -112,10 +112,10 @@ namespace PlatinumEngine
 		}
 
 		// move along forward direction
-		_translationValue += forwardDirectionValue * GetForwardDirection() * _translationSpeed * 20.f;
+		_translationValue += forwardDirectionValue * GetForwardDirection() * _translationSpeed * 5.f;
 		// * deltaClock.getElapsedTime().asSeconds();
 
-		_translationValue += rightDirectionValue * GetRightDirection() * _translationSpeed * 20.f;
+		_translationValue += rightDirectionValue * GetRightDirection() * _translationSpeed * 5.f;
 		// * deltaClock.getElapsedTime().asSeconds();
 
 		// update view matrix
@@ -193,9 +193,9 @@ namespace PlatinumEngine
 	{
 		Maths::Vec3 translation;
 		Maths::Quaternion quaternion;
-
+		float scale;
 		// get translation and quaternion applied on the camera
-		viewMatrix4.Decompose(&translation, &quaternion);
+		viewMatrix4.Decompose(&translation, &quaternion, &scale);
 
 		quaternion =  Maths::Quaternion::Inverse(quaternion);
 

@@ -219,7 +219,8 @@ namespace PlatinumEngine
 
 		void Mat4::Decompose(
 				Maths::Vec3* outTranslation,
-				Maths::Quaternion* outQuaternion) const
+				Maths::Quaternion* outQuaternion,
+				float* outScale) const
 		{
 			glm::vec3 scale;
 			glm::quat quaternion;
@@ -235,6 +236,8 @@ namespace PlatinumEngine
 				*outTranslation = {translation.x, translation.y , translation.z};
 			if (outQuaternion)
 				*outQuaternion = {quaternion.w, quaternion.x, quaternion.y, quaternion.z};
+			if(outScale)
+				*outScale = std::max(std::max(scale.x, scale.y), scale.z);
 		}
 
 		Mat3 Mat3::operator*(float scale)
