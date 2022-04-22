@@ -4,6 +4,7 @@
 
 #include <catch2/catch.hpp>
 #include <Maths/Matrices.h>
+#include <Maths/Common.h>
 #include <glm/gtc/type_ptr.hpp>
 
 
@@ -499,7 +500,7 @@ TEST_CASE("MatrixPreset", "[maths][matrices][vector]")
 		THEN("Test if the Frustum matrix is the same as the one in glm.")
 		{
 			glm::mat4x4 temp(1.f);
-			temp = glm::perspective(60.f,1.f,1.f,100.f);
+			temp = glm::perspective(60.f * PlatinumEngine::Maths::Common::DEG2RAD,1.f,1.f,100.f);
 
 			float* tempArray = glm::value_ptr(temp);
 

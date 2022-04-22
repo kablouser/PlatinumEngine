@@ -126,6 +126,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/SceneManager/Scene.cpp;"
 	"Source/SceneManager/SceneManager.cpp;"
 	
+	"Source/Serialization/Serialization.cpp;"
+	
 	"Source/WindowManager/Filedialog.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
 	)
@@ -146,11 +148,11 @@ set(UNIT_TESTS
 	"Test/Maths/VectorsTest.cpp;"
 	"Test/Maths/MatricesTest.cpp;"
 	"Test/SceneEditor/EditorCameraTest.cpp;"
-  "Test/TestScene.cpp;"
+	"Test/Serialization/TestSerialization.cpp;"
 	)
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 
-target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
+target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts")
 #-----------------------------
 
 
@@ -172,6 +174,3 @@ set(PROJECT_LIBRARIES
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_LIBRARIES})
 target_link_libraries(tests PRIVATE ${PROJECT_LIBRARIES} Catch2::Catch2WithMain)
 #-----------------------------
-
-add_executable(RTTI Source/RTTI_Scratch.cpp)
-target_include_directories(RTTI PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts")
