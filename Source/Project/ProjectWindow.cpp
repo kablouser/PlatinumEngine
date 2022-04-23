@@ -13,7 +13,7 @@ void ProjectWindow::ShowGUIWindow(bool* isOpen)
 		static char assetSelectorBuffer[128];
 		ImGui::InputText("##FilterAssets", assetSelectorBuffer, IM_ARRAYSIZE(assetSelectorBuffer));
 		ImGui::SameLine();
-		ImGui::Text("%s", ICON_KI_SEARCH);
+		ImGui::Text("%s", ICON_FA_MAGNIFYING_GLASS);
 
 		// If we don't have something to search for, use default assets folder
 		_toFind = assetSelectorBuffer;
@@ -76,7 +76,7 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 	else
 	{
 		// Do not want to add the asset database to the tree
-		if (dir != _ignoreDatabaseName)
+		if (dir.filename() != _ignoreDatabaseName && dir.filename() != _ignoreMacFolderAttribFile)
 		{
 			// A path is a leaf of a tree (i.e. it cannot be expanded)
 			ImGui::TreeNodeEx(dir.filename().string().c_str(), flags | ImGuiTreeNodeFlags_Leaf);
