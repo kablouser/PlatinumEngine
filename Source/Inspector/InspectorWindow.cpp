@@ -75,7 +75,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 	ImGui::Separator();
 	char meshBuffer[64];
 	char textureBuffer[64];
-	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_TABLE_CELLS "  Mesh", ImGuiTreeNodeFlags_AllowItemOverlap);
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_VECTOR_SQUARE "  Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveRenderComponent")) {
@@ -172,7 +172,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 {
 	// If this gui is being shown, assumption that object has transform component
 	ImGui::Separator();
-	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_MAXIMIZE "  Transform", ImGuiTreeNodeFlags_AllowItemOverlap);
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_ARROWS_TURN_TO_DOTS "  Transform Component", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveTransformComponent")) {
@@ -183,7 +183,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 	if (isHeaderOpen)
 	{
 		ImGui::PushItemWidth(50);
-		ImGui::Text("Position: ");
+		ImGui::Text(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT " Position: ");
 		ImGui::SameLine(_sameLine -16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
@@ -198,7 +198,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::DragFloat("##Zpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[2], 0.001f);
     
     Maths::Vec3 eulerRotation = _activeGameObject->GetComponent<TransformComponent>()->localRotation.EulerAngles();
-		ImGui::Text("Rotation: ");
+		ImGui::Text(ICON_FA_ROTATE " Rotation: ");
 		ImGui::SameLine(_sameLine - 16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
@@ -214,7 +214,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		_activeGameObject->GetComponent<TransformComponent>()->localRotation = Maths::Quaternion::EulerToQuaternion(
 				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2])); 
 
-		ImGui::Text("Scale: ");
+		ImGui::Text(ICON_FA_MAXIMIZE " Scale: ");
 		ImGui::SameLine(_sameLine);
 		ImGui::InputFloat("##scale", &_activeGameObject->GetComponent<TransformComponent>()->localScale);
 		ImGui::PopItemWidth();
@@ -228,7 +228,7 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 	char clearMode[64];
 	// If this gui is being shown, assumption that object has transform component
 	ImGui::Separator();
-	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_CAMERA "  Camera", ImGuiTreeNodeFlags_AllowItemOverlap);
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_CAMERA "  Camera Component", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveCameraComponent")) {
@@ -379,6 +379,8 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 		static char componentSelectorBuffer[128];
 		ImGui::Text("%s", "Select a Component");
 		ImGui::InputText("##FilterComponents", componentSelectorBuffer, IM_ARRAYSIZE(componentSelectorBuffer));
+		ImGui::SameLine();
+		ImGui::Text("%s", ICON_FA_MAGNIFYING_GLASS);
 
 		if (ImGui::BeginListBox("##ComponentSelector"))
 		{

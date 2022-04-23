@@ -35,7 +35,7 @@ int main(int, char**)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
 
 	// Create window with graphics context
-	GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(1280, 720, "Platinum Engine", NULL, NULL);
 	if (window == NULL)
 		return EXIT_FAILURE;
 	glfwMakeContextCurrent(window);
@@ -51,15 +51,11 @@ int main(int, char**)
 		ImPlot::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-		 const ImWchar ke_icons_ranges[] = { ICON_MIN_KI, ICON_MAX_KI, 0 };
-		 const ImWchar aw_icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
-		 const ImWchar md_icons_ranges[] = { ICON_MIN_MD, 0xf900, 0};
+	 	const ImWchar aw_icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
 		ImFontConfig config;
 		config.MergeMode = true;
 		io.Fonts->AddFontFromFileTTF("./Fonts/NotoSansDisplay-Regular.ttf", 18.0f);
 		io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, 16.0f, &config, aw_icons_ranges);
-		io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_KI, 16.0f, &config, ke_icons_ranges);
-		io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_MD, 18.0f, &config, md_icons_ranges);// Merge into first font
 		io.Fonts->Build();
 
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;

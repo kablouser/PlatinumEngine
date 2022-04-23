@@ -7,7 +7,7 @@
 #include <OpenGL/Texture.h>
 #include <AssetDatabase/AssetDatabase.h>
 #include <imgui.h>
-#include <IconsKenney.h>
+#include <IconsFontAwesome6.h>
 #include <tuple>
 
 namespace PlatinumEngine

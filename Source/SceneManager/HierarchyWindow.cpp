@@ -19,7 +19,6 @@ namespace PlatinumEngine
 				ImGuiTreeNodeFlags_FramePadding|(gameObject->GetChildrenCount()==0 ? ImGuiTreeNodeFlags_Leaf : 0),
 				"%s","");
 
-
 		// this is to make sure the selectable block below is on the same line
 		ImGui::SameLine();
 
@@ -35,7 +34,7 @@ namespace PlatinumEngine
 		}
 
 		// create selectable block
-		ImGui::Selectable(gameObject->name.c_str(), false);
+		ImGui::Selectable((std::string{ICON_FA_CIRCLE_NODES} + " " + gameObject->name).c_str(), false);
 
 		// check if the current game object is selected
 		if(_sceneEditor->GetSelectedGameobject() == gameObject)
@@ -156,7 +155,7 @@ namespace PlatinumEngine
 	{
 
 		// Generate the Hierarchy window
-		if(ImGui::Begin(ICON_KI_ROWS" Hierarchy Window", isOpen))
+		if(ImGui::Begin(ICON_FA_BARS_STAGGERED " Hierarchy Window", isOpen))
 		{
 			
 			// Gui for choosing hierarchy behaviour mode

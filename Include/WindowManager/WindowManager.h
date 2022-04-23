@@ -12,7 +12,7 @@
 #include <SceneManager/HierarchyWindow.h>
 #include <Profiler/Profiler.h>
 #include <Logger/Logger.h>
-#include <IconsKenney.h>
+
 namespace PlatinumEngine
 {
 	class WindowManager

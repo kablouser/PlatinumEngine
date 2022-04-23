@@ -13,7 +13,6 @@
 #include <imgui.h>
 // Icon library
 
-#include <IconsKenney.h>
 // Platinum Engine library
 #include <ComponentComposition/GameObject.h>
 #include <SceneManager/Scene.h>
