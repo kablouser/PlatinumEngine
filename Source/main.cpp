@@ -51,10 +51,7 @@ int main(int, char**)
 		ImPlot::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-
-		 const ImWchar ke_icons_ranges[] = { ICON_MIN_KI, ICON_MAX_KI, 0 };
-		 const ImWchar aw_icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
-		 const ImWchar md_icons_ranges[] = { ICON_MIN_MD, 0xf900, 0};
+		const ImWchar aw_icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
 
 		ImFontConfig config;
 		config.MergeMode = true;
