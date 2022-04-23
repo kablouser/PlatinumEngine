@@ -13,7 +13,7 @@
 
 namespace PlatinumEngine
 {
-	#define PI 3.14159265358979323846264338327950288f
+	//#define PI 3.14159265358979323846264338327950288f
 	struct MeshData
 	{
 		std::vector<Vertex> vertices;

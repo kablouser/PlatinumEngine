@@ -224,7 +224,6 @@ namespace PlatinumEngine
 						scene.AddComponent<RenderComponent>(go);
 					}
 				}
-			}
 				// End DragDropTarget
 				ImGui::EndDragDropTarget();
 			}
