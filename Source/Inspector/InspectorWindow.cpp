@@ -47,6 +47,12 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 			{
 				_isAddComponentWindowOpen = !_isAddComponentWindowOpen;
 			}
+
+			if (ImGui::BeginPopupContextWindow())
+			{
+				if (ImGui::Selectable("Add Component")) _isAddComponentWindowOpen = !_isAddComponentWindowOpen;
+				ImGui::EndPopup();
+			}
 		}
 	}
 	ImGui::End();
@@ -91,6 +97,28 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 
 		// show text box (read only)--------Choose Mesh
 		ImGui::InputText("##Mesh Name",meshBuffer,sizeof(meshBuffer), ImGuiInputTextFlags_ReadOnly);
+		//Enables DragDrop for TextBox
+		if (ImGui::BeginDragDropTarget())
+		{
+			//Accept any regular file (but it will check if it is mesh or not)
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
+			{
+				char* payloadPointer = (char*)payload->Data;
+				int size = payload->DataSize;
+				std::string filePath = "";
+				for(int i=0;i<size;i++)
+					filePath+=*(payloadPointer+i);
+				std::filesystem::path payloadPath = std::filesystem::path(filePath);
+				if(payloadPath.extension()==".obj")
+				{
+					std::cout<<"NAME: "<<payloadPath.filename().string()<<"\n";
+					//Maybe we SetMesh on _activeGameObject
+					//_activeGameObject->GetComponent<RenderComponent>()->SetMesh(mesh);
+				}
+			}
+			// End DragDropTarget
+			ImGui::EndDragDropTarget();
+		}
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 
@@ -159,32 +187,32 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::SameLine(_sameLine -16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Xpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[0]);
+		ImGui::DragFloat("##Xpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[0], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Ypos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[1]);
+		ImGui::DragFloat("##Ypos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[1], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Zpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[2]);
-
-		Maths::Vec3 eulerRotation = _activeGameObject->GetComponent<TransformComponent>()->localRotation.EulerAngles();
+		ImGui::DragFloat("##Zpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[2], 0.001f);
+    
+    Maths::Vec3 eulerRotation = _activeGameObject->GetComponent<TransformComponent>()->localRotation.EulerAngles();
 		ImGui::Text("Rotation: ");
 		ImGui::SameLine(_sameLine - 16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Xrot", &eulerRotation[0]);
+		ImGui::DragFloat("##Xrot", &eulerRotation[0], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Yrot", &eulerRotation[1]);
+		ImGui::DragFloat("##Yrot", &eulerRotation[1], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Zrot", &eulerRotation[2]);
+		ImGui::DragFloat("##Zrpt", &eulerRotation[2], 0.001f);
 		_activeGameObject->GetComponent<TransformComponent>()->localRotation = Maths::Quaternion::EulerToQuaternion(
-				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2]));
+				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2])); 
 
 		ImGui::Text("Scale: ");
 		ImGui::SameLine(_sameLine);
@@ -295,18 +323,22 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Background color: ");
 		ImGui::SameLine(_sameLine - 16.f);
+
 		ImGui::Text("R");
 		ImGui::SameLine();
 		ImGui::InputFloat("##Red", &camera->backgroundColor.r);
 		ImGui::SameLine();
+    
 		ImGui::Text("G");
 		ImGui::SameLine();
 		ImGui::InputFloat("##Green", &camera->backgroundColor.g);
 		ImGui::SameLine();
+    
 		ImGui::Text("B");
 		ImGui::SameLine();
 		ImGui::InputFloat("##Blue", &camera->backgroundColor.b);
 		ImGui::SameLine();
+    
 		ImGui::Text("A");
 		ImGui::SameLine();
 		ImGui::InputFloat("##Alpha", &camera->backgroundColor.a);

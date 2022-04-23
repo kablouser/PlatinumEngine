@@ -6,6 +6,7 @@
 #include <imgui.h>
 
 // Platinum library
+#include "ComponentComposition/Objects.h"
 #include <SceneEditor/SceneEditor.h>
 #include <ComponentComposition/TransformComponent.h>
 #include <ComponentComposition/RenderComponent.h>
