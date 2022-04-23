@@ -152,15 +152,15 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::SameLine();
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Xpos", &_activeGameObject->GetComponent<TransformComponent>()->position[0], 0.001f);
+		ImGui::DragFloat("##Xpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[0], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Ypos", &_activeGameObject->GetComponent<TransformComponent>()->position[1], 0.001f);
+		ImGui::DragFloat("##Ypos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[1], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Zpos", &_activeGameObject->GetComponent<TransformComponent>()->position[2], 0.001f);
+		ImGui::DragFloat("##Zpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[2], 0.001f);
     
 		static float eulerRotation[3] = {0.0f, 0.0f, 0.0f};
 		ImGui::Text("Rotation: ");
@@ -177,7 +177,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::SameLine();
 		ImGui::DragFloat("##Zrpt", &eulerRotation[2], 0.001f);
     
-		_activeGameObject->GetComponent<TransformComponent>()->rotation = Maths::Quaternion::EulerToQuaternion(
+		_activeGameObject->GetComponent<TransformComponent>()->localRotation = Maths::Quaternion::EulerToQuaternion(
 				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2])); 
 
 		ImGui::Text("Scale:    ");

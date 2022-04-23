@@ -120,11 +120,6 @@ Vec3& Vec3::operator/=(const float t)
 {
 	return *this *= 1.0f/t;
 }
-Vec3& Vec3::unit()
-{
-	auto length = CalcLength();
-	return *this /= length;
-}
 
 bool Vec3::operator==(Vec3 v) const
 {
