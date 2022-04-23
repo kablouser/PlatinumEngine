@@ -4,6 +4,7 @@
 
 #include <Inspector/InspectorWindow.h>
 #include <ComponentComposition/CameraComponent.h>
+#include <ImGuizmo.h>
 
 using namespace PlatinumEngine;
 
@@ -85,7 +86,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 	if (isHeaderOpen)
 	{
 		ImGui::Text("Mesh");
-		ImGui::SameLine(_sameLineMesh);
+		ImGui::SameLine(_sameLine);
 		ImGui::PushItemWidth(_itemWidthMesh);
 
 		// store the current mesh name into mesh buffer, so that we can display it in the input text box
@@ -142,7 +143,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		//Show text box (read only)----------Choose Material
 		ImGui::Separator();
 		ImGui::Text("Material");
-		ImGui::SameLine(_sameLineMesh);
+		ImGui::SameLine(_sameLine);
 		ImGui::PushItemWidth(_itemWidthMesh);
 
 		// store the current material name into mesh buffer, so that we can display it in the input text box
@@ -160,7 +161,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 				_activeGameObject->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
 		}
 		ImGui::Text("Shininess");
-		ImGui::SameLine(_sameLineMesh);
+		ImGui::SameLine(_sameLine);
 		ImGui::PushItemWidth(_itemWidthMesh);
 		ImGui::SliderFloat("##shininess",&(_activeGameObject->GetComponent<RenderComponent>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
@@ -183,7 +184,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 	{
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Position: ");
-		ImGui::SameLine(_sameLineTransform);
+		ImGui::SameLine(_sameLine -16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Xpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[0], 0.001f);
@@ -196,9 +197,9 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::SameLine();
 		ImGui::DragFloat("##Zpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[2], 0.001f);
     
-		static float eulerRotation[3] = {0.0f, 0.0f, 0.0f};
+    Maths::Vec3 eulerRotation = _activeGameObject->GetComponent<TransformComponent>()->localRotation.EulerAngles();
 		ImGui::Text("Rotation: ");
-		ImGui::SameLine(_sameLineTransform);
+		ImGui::SameLine(_sameLine - 16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Xrot", &eulerRotation[0], 0.001f);
@@ -210,19 +211,21 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::Text("Z");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Zrpt", &eulerRotation[2], 0.001f);
-    
 		_activeGameObject->GetComponent<TransformComponent>()->localRotation = Maths::Quaternion::EulerToQuaternion(
 				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2])); 
 
-		ImGui::Text("Scale:    ");
-		ImGui::SameLine();
+		ImGui::Text("Scale: ");
+		ImGui::SameLine(_sameLine);
 		ImGui::InputFloat("##scale", &_activeGameObject->GetComponent<TransformComponent>()->localScale);
 		ImGui::PopItemWidth();
 	}
+
 }
 
 void InspectorWindow::ShowCameraComponent(Scene& scene)
 {
+	char cameraType[64];
+	char clearMode[64];
 	// If this gui is being shown, assumption that object has transform component
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_CAMERA "  Camera", ImGuiTreeNodeFlags_AllowItemOverlap);
@@ -237,29 +240,90 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 	{
 		auto camera = _activeGameObject->GetComponent<CameraComponent>();
 
-//		IMGUI_API bool          BeginListBox(const char* label, const ImVec2& size = ImVec2(0, 0)); // open a framed scrolling region
-//		IMGUI_API void          EndListBox();                                                       // only call EndListBox() if BeginListBox() returned true!
-//		IMGUI_API bool          ListBox(const char* label, int* current_item, const char* const items[], int items_count, int height_in_items = -1);
-//		IMGUI_API bool          ListBox(const char* label, int* current_item, bool (*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int height_in_items = -1);
+		{// the camera projection type
+			if (CameraComponent::ProjectionType::perspective == camera->projectionType)
+			{
+				std::strcpy(cameraType, _temp[0].c_str());
+			}
+			if (CameraComponent::ProjectionType::orthographic == camera->projectionType)
+			{
 
-		const char* projectionTypes[] = { "perspective", "orthographic" };
-		ImGui::ListBox(
-				"Projection Type",
-				(int*)(&camera->projectionType),
-				projectionTypes,
-				IM_ARRAYSIZE(projectionTypes));
+				std::strcpy(cameraType, _temp[1].c_str());
+			}
 
-		const char* clearModes[] = {"none", "backgroundColor","skybox" };
-		ImGui::ListBox(
-				"Clear Mode",
-				(int*)(&camera->clearMode),
-				clearModes,
-				IM_ARRAYSIZE(clearModes));
+			ImGui::Text("Projection Type");
+			ImGui::SameLine(_sameLine);
+			ImGui::SetNextItemWidth(_itemWidthMesh);
+			ImGui::InputText("##Projection Type", cameraType, sizeof(cameraType), ImGuiInputTextFlags_ReadOnly);
+			ImGui::SameLine();
+			if (ImGui::BeginPopupContextItem("projection type"))
+			{
+				if (ImGui::Selectable("Perspective"))
+				{
+					camera->projectionType = CameraComponent::ProjectionType::perspective;
+					//std::strcpy(cameraType, _temp[0].c_str());
+				}
+				if (ImGui::Selectable("Orthographic"))
+				{
+					camera->projectionType = CameraComponent::ProjectionType::orthographic;
+					//std::strcpy(cameraType, _temp[1].c_str());
+				}
+				ImGui::EndPopup();
+			}
 
+			if (ImGui::Button(ICON_FA_CARET_DOWN "##projectionType"))
+			{
+				ImGui::OpenPopup("projection type");
+			}
+		}
+
+		{// the camera clear mode
+			if (CameraComponent::ClearMode::backgroundColor == camera->clearMode)
+			{
+				std::strcpy(clearMode, _clearMode[2].c_str());
+			}
+			if (CameraComponent::ClearMode::skybox == camera->clearMode)
+			{
+				std::strcpy(clearMode, _clearMode[1].c_str());
+			}
+			if (CameraComponent::ClearMode::none == camera->clearMode)
+			{
+				std::strcpy(clearMode, _clearMode[0].c_str());
+			}
+
+
+			ImGui::Text("Clear Mode");
+			ImGui::SameLine(_sameLine);
+			ImGui::SetNextItemWidth(_itemWidthMesh);
+			ImGui::InputText("##Clear Mode", clearMode, sizeof(clearMode), ImGuiInputTextFlags_ReadOnly);
+			ImGui::SameLine();
+			if (ImGui::BeginPopupContextItem("clear mode"))
+			{
+				if (ImGui::Selectable("SkyBox"))
+				{
+					camera->clearMode = CameraComponent::ClearMode::skybox;
+				}
+				if (ImGui::Selectable("None"))
+				{
+					camera->clearMode = CameraComponent::ClearMode::none;
+				}
+				if (ImGui::Selectable("BackgroundColour"))
+				{
+					camera->clearMode = CameraComponent::ClearMode::backgroundColor;
+				}
+				ImGui::EndPopup();
+			}
+
+			if (ImGui::Button(ICON_FA_CARET_DOWN "##ClearMode"))
+			{
+				ImGui::OpenPopup("clear mode");
+			}
+		}
+		ImGui::Separator();
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Background color: ");
-		ImGui::SameLine();
-    
+		ImGui::SameLine(_sameLine - 16.f);
+
 		ImGui::Text("R");
 		ImGui::SameLine();
 		ImGui::InputFloat("##Red", &camera->backgroundColor.r);
@@ -285,19 +349,19 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 		float orthographicSize;
 
 		ImGui::Text("Field of View: ");
-		ImGui::SameLine();
+		ImGui::SameLine(_sameLine);
 		ImGui::InputFloat("##FOV", &camera->fov);
 
 		ImGui::Text("Near Clipping Plane: ");
-		ImGui::SameLine();
+		ImGui::SameLine(_sameLine);
 		ImGui::InputFloat("##NearClippingPlane", &camera->nearClippingPlane);
 
 		ImGui::Text("Far Clipping Plane: ");
-		ImGui::SameLine();
+		ImGui::SameLine(_sameLine);
 		ImGui::InputFloat("##FarClippingPlane", &camera->farClippingPlane);
 
 		ImGui::Text("Orthographic Size: ");
-		ImGui::SameLine();
+		ImGui::SameLine(_sameLine);
 		ImGui::InputFloat("##OrthographicSize", &camera->orthographicSize);
 	}
 }
