@@ -135,6 +135,14 @@ namespace PlatinumEngine
 		void Set(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices);
 
 		/**
+		 * DON't USE THIS!
+		 * Set data using
+		 * @param vertices
+		 * @param indices
+		 */
+		void Set(const std::vector<Maths::Vec3>& vertices, const std::vector<GLuint>& indices);
+
+		/**
 		 * Delete data sent to the GPU
 		 */
 		void Clear();

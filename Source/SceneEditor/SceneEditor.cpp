@@ -18,7 +18,7 @@ namespace PlatinumEngine{
 
 	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer):
 			_ifCameraSettingWindowOpen(false),
-			_camera(), _fov(60), _near(4), _far(10000),
+			_camera(), _fov(60), _near(0.1), _far(10000),
 
 			_inputManager(inputManager),
 			_scene(scene),
@@ -42,12 +42,34 @@ namespace PlatinumEngine{
 			_bounds{-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f},
 			_boundsSnap{ 0.1f, 0.1f, 0.1f },
 
-			_currentClickedZone()
+			_skyboxTexture(),
+			_skyBoxShaderInput(),
+			_transparency(1.0),
+
+			_enableGrid(false),
+			_enableSkyBox(false),
+			_xGrid(false), _yGrid(true), _zGrid(false)
 	{
+
+		// Setup skybox texture
+		_skyboxTexture.CreateCubeMap({"D:/PlatinumEngine/Assets/Texture/Left_X.png",
+									   "D:/PlatinumEngine/Assets/Texture/Right_X.png",
+									   "D:/PlatinumEngine/Assets/Texture/Up_Y.png",
+									   "D:/PlatinumEngine/Assets/Texture/Bottom_Y.png",
+									   "D:/PlatinumEngine/Assets/Texture/Front_Z.png",
+									   "D:/PlatinumEngine/Assets/Texture/Back_Z.png"});
+		// Setup skybox texture shader input
+		CreateSkyBoxShaderInput();
+
+
+		// Setup Grid shader input
+		CreateGridShaderInput();
+
+		// Setup input manager
 		_inputManager->CreateAxis(std::string ("HorizontalAxisForEditorCamera"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
 		_inputManager->CreateAxis(std::string ("VerticalAxisForEditorCamera"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
 
-
+		// Setup frame buffer
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
 		if (!_renderTexture.Create(_framebufferWidth, _framebufferHeight))
@@ -167,7 +189,7 @@ namespace PlatinumEngine{
 
 			if(ImGui::Button(_transparency ? ICON_FA_BORDER_ALL "##enable###gridTransparency" : ICON_FA_BORDER_NONE "##disable###gridTransparency"))
 			{
-				_transparency = !_transparency;
+				_enableGrid = !_enableGrid;
 			}
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("turn on or off the grid");
@@ -181,7 +203,7 @@ namespace PlatinumEngine{
 			ImGui::SameLine();
 			if(ImGui::Button(ICON_FA_CLOUD "##skybox"))
 			{
-				_enableSkyBox != _enableSkyBox;
+				_enableSkyBox = !_enableSkyBox;
 			}
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("turn on or off the skybox");
@@ -250,7 +272,7 @@ namespace PlatinumEngine{
 			// Get the parent window size
 			auto targetSize = ImGui::GetContentRegionAvail();
 
-			if(ImGui::BeginChild("##e",ImVec2(targetSize.x, targetSize.y), false,ImGuiWindowFlags_NoMove))
+			if(ImGui::BeginChild("##renderingWindow",ImVec2(targetSize.x, targetSize.y), false,ImGuiWindowFlags_NoMove))
 			{
 
 				//------------------
@@ -286,6 +308,7 @@ namespace PlatinumEngine{
 			&& _inputManager->GetMousePosition().x >= ImGui::GetWindowContentRegionMin().x
 			&& _inputManager->GetMousePosition().y <= ImGui::GetWindowContentRegionMax().y
 			&& _inputManager->GetMousePosition().y >= ImGui::GetWindowContentRegionMin().y
+			&& ImGui::IsWindowFocused()
 			&& !ImGuizmo::IsUsing())
 		{
 
@@ -363,12 +386,44 @@ namespace PlatinumEngine{
 				_renderTexture.Create(_framebufferWidth, _framebufferHeight);
 			}
 
+			// bind framebuffer
 			_renderTexture.Bind();
+
+			// initiate setting before rendering
 			glEnable(GL_DEPTH_TEST);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glViewport(0, 0, _framebufferWidth, _framebufferHeight);
 			glClearColor(0.2784f, 0.2784f, 0.2784f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+
+			// ---------------- Render SKY BOX ---------------- //
+			// discard the depth of the skybox
+			if(_enableSkyBox)
+			{
+				glDisable(GL_DEPTH_TEST);
+				glDepthMask(false);
+				_renderer->BeginSkyBoxShader();
+
+				// matrix for rescaling the skybox based on the near panel distance
+				Maths::Mat4 scaleMatrix;
+				scaleMatrix.SetScaleMatrix(
+						Maths::Vec3(((float)_near * 2.f), ((float)_near * 2.f), ((float)_near * 2.f)));
+				// set matrix uniform
+				_renderer->SetViewMatrixSkyBox(Maths::Inverse(_camera.GetRotationOnlyViewMatrix()) * scaleMatrix);
+				_renderer->SetProjectionMatrixSkyBox(_camera.projectionMatrix4);
+				_skyboxTexture.BindCubeMap();
+				_skyBoxShaderInput.Draw();
+				_renderer->EndSkyBoxShader();
+
+				_skyboxTexture.UnbindCubeMap();
+
+				// enable depth test for the later rendering
+				glDepthMask(true);
+				glEnable(GL_DEPTH_TEST);
+			}
+			// ------------- Render Game Objects ------------- //
 			// Start rendering (bind a shader)
 			_renderer->Begin();
 
@@ -376,6 +431,7 @@ namespace PlatinumEngine{
 			_renderer->SetModelMatrix();
 
 			// check if the view matrix is passed to shader
+
 			//if(!_camera.CheckIfViewMatrixUsed())
 			{
 				_renderer->SetViewMatrix(_camera.viewMatrix4);
@@ -386,7 +442,7 @@ namespace PlatinumEngine{
 				_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
 				_camera.MarkProjectionMatrixAsUsed();
 			}
-
+      
 			_renderer->SetLightProperties();
 
 			// Render game objects
@@ -395,8 +451,40 @@ namespace PlatinumEngine{
 			// End rendering (unbind a shader)
 			_renderer->End();
 
+
+			// -------------------- Render GRID ------------------ //
+			if(_enableGrid)
+			{
+				_renderer->BeginGrid();
+				_renderer->SetViewMatrixForGridShader(_camera.viewMatrix4);
+				_renderer->SetProjectionMatrixForGridShader(_camera.projectionMatrix4);
+				_renderer->SetFarValueForGridShader((float)_far);
+				_renderer->SetNearValueForGridShader((float)_near);
+				_renderer->SetTransparencyForGridShader(_transparency);
+
+				if (_xGrid)
+				{
+					_renderer->SetGridAxisForGridShader(0);
+				}
+				else if (_zGrid)
+				{
+					_renderer->SetGridAxisForGridShader(2);
+				}
+				else
+				{
+					_renderer->SetGridAxisForGridShader(1);
+				}
+
+				_gridShaderInput.Draw();
+				_renderer->EndGrid();
+			}
+
+			// unbind framebuffer
 			_renderTexture.Unbind();
+
+			// reset setting after rendering
 			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_BLEND);
 			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 
@@ -408,7 +496,7 @@ namespace PlatinumEngine{
 			// display gizmos
 			UseGizmo(_camera.viewMatrix4.matrix, _camera.projectionMatrix4.matrix, currentGizmoMode, currentGizmoOperation);
 
-			// update the camera by the view matrix that is updated by gizmo
+			// update the camera quaternion, because it was rotated in the UseGizmo function
 			_camera.UpdateCameraQuaternion();
 		}
 
@@ -925,8 +1013,74 @@ namespace PlatinumEngine{
 		// view manipulate gizmo
 		ImGuizmo::ViewManipulate(cameraView, 0.001, ImVec2(viewManipulateRight - 100, viewManipulateTop),
 				ImVec2(100, 100), 0x10101010);
+
 	}
 
+	void SceneEditor::CreateSkyBoxShaderInput()
+	{
+
+		std::vector<Vertex> skyboxVertices = {
+				{Maths::Vec3(-1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+
+				{Maths::Vec3(-1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+
+				{Maths::Vec3(1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+
+				{Maths::Vec3(-1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+
+				{Maths::Vec3(-1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+
+				{Maths::Vec3(-1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+		};
+
+		std::vector<GLuint> indices = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+									   16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+									   30, 31, 32, 33, 34, 35};
+
+
+		_skyBoxShaderInput.Set(skyboxVertices, indices);
+	}
+
+	void SceneEditor::CreateGridShaderInput()
+	{
+		std::vector<Vertex> vertices = {Vertex{{1, 1, 0}, {0.0, 0.0, 0.0}, {0.0, 0.0 } },
+										Vertex{{-1, -1, 0}, {0.0, 0.0, 0.0}, {0.0, 0.0 } },
+										Vertex{{-1, 1, 0}, {0.0, 0.0, 0.0}, {0.0, 0.0 } },
+										Vertex{{1, -1, 0}, {0.0, 0.0, 0.0}, {0.0, 0.0 } }};
+		std::vector<GLuint> indices = {0, 1, 2, 1, 0, 3};
+
+		_gridShaderInput.Set(vertices, indices);
+	}
 }
 
 

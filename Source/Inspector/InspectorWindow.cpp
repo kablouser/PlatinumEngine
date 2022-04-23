@@ -214,6 +214,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		_activeGameObject->GetComponent<TransformComponent>()->localRotation = Maths::Quaternion::EulerToQuaternion(
 				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2])); 
 
+
 		ImGui::Text(ICON_FA_MAXIMIZE " Scale: ");
 		ImGui::SameLine(_sameLine);
 		ImGui::InputFloat("##scale", &_activeGameObject->GetComponent<TransformComponent>()->localScale);
@@ -249,7 +250,7 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 			{
 
 				std::strcpy(cameraType, _temp[1].c_str());
-			}
+      }
 
 			ImGui::Text("Projection Type");
 			ImGui::SameLine(_sameLine);

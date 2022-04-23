@@ -130,20 +130,37 @@ namespace PlatinumEngine
 		 */
 		void UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE, ImGuizmo::OPERATION);
 
+		/**
+		 * Function that initiate shader input for skybox
+		 */
+		void CreateSkyBoxShaderInput();
+
+		/**
+		 * Function that initiate shader input for grid
+		 */
+		void CreateGridShaderInput();
+
 		// ___CONSTRUCTOR___
 		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer);
 
 	private:
 
 		// ___PARAMETERS___
-		// Value for ray casting
+		// Grid
+		ShaderInput _gridShaderInput;
+
+		// Skybox
+		Texture _skyboxTexture;
+		ShaderInput _skyBoxShaderInput;
+
+		// Store
 		GameObject* _selectedGameobject;
+
 		//ImGuizmo
 		float _snap[3];
 		float _bounds[6];
 		float _boundsSnap[3];
 
-		bool _imGuiButton;
 		bool _useSnap;
 		bool _boundSizing;
 
@@ -152,9 +169,6 @@ namespace PlatinumEngine
 		ImGuizmo::OPERATION _currentGizmoOperation;
 		// Flags
 		bool _ifCameraSettingWindowOpen;
-		enum ClickedZoneType{RenderingZone, GizmoZone, NoZoneClicked};
-
-		ClickedZoneType _currentClickedZone;
 
 		// Managers
 		InputManager* _inputManager;
@@ -179,8 +193,7 @@ namespace PlatinumEngine
 
 		// Grid transparency parameters
 		float _transparency;
-
 		bool _xGrid = false, _yGrid = true, _zGrid = false;
-		bool _enableSkyBox;
+		bool _enableSkyBox, _enableGrid;
 	};
 }

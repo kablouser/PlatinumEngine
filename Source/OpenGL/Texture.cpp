@@ -1,4 +1,5 @@
 #include <OpenGL/Texture.h>
+#include <Logger/Logger.h>
 // for checking errors
 #include <OpenGL/GLCheck.h>
 #include <iostream>
@@ -30,6 +31,47 @@ namespace PlatinumEngine
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 	}
 
+	void Texture::CreateCubeMap(std::vector<std::string> faces)
+	{
+
+		// generate new texture ID for the cube map texture
+		unsigned int textureID;
+		glGenTextures(1, &textureID);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+		// fetch the images for all the faces of the cube
+
+		for(int i = 0; i<faces.size();i++)
+		{
+
+			PixelData pixelData;
+
+			pixelData.Create(faces[i]);
+
+			if(pixelData.pixelData)
+			{
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+						0, GL_RGB, pixelData.width, pixelData.height, 0,
+						GL_RGB, GL_UNSIGNED_BYTE, pixelData.pixelData
+						);
+
+			}
+			else
+			{
+				PLATINUM_WARNING(std::string("Cannot fetch the texture image: ").append(faces[i]));
+			}
+		}
+
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		_textureHandle = textureID;
+
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	}
+
 	GLuint Texture::GetOpenGLHandle() const
 	{
 		return _textureHandle;
@@ -48,6 +90,16 @@ namespace PlatinumEngine
 	void Texture::Unbind() const
 	{
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
+	}
+
+	void Texture::BindCubeMap() const
+	{
+		GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, _textureHandle));
+	}
+
+	void Texture::UnbindCubeMap() const
+	{
+		GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
 	}
 
 	///-------------------------------------------------------------
@@ -86,7 +138,7 @@ namespace PlatinumEngine
 		}
 		else
 		{
-			std::cout << "Texture failed to load at path: " << filePath << std::endl;
+			PLATINUM_WARNING( "Texture failed to load at path: " + filePath );
 			//stbi_image_free(pixelData);
 		}
 	}
