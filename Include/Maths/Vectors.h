@@ -86,6 +86,9 @@ namespace PlatinumEngine {
 			Vec3& operator-=(const Vec3 &v);
 			Vec3& operator*=(float t);
 			Vec3& operator/=(float t);
+			Vec3& unit();
+			bool operator==(Vec3 v) const;
+			bool operator!=(Vec3 v) const;
 			friend std::ostream& operator<<(std::ostream &out, const Vec3 &v);
 			template<typename T> friend float Dot(T &u, T &v);
 			template<typename T> friend float Length(T &v);
@@ -131,7 +134,15 @@ namespace PlatinumEngine {
 		{
 			return {u.x - v.x, u.y - v.y, u.z - v.z};
 		}
-
+		inline bool operator<(Vec3 l, Vec3 r) {
+			if(l.x == r.x) {
+				if(l.y == r.y) {
+					return l.z < r.z;
+				}
+				return l.y < r.y;
+			}
+			return l.x < r.x;
+		}
 		/**
 		 * Calculates the cross product of two vectors
 		 * @param u First input vector

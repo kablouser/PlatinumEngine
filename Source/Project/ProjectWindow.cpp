@@ -59,6 +59,16 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 			// Add open folder icon and name
 			ImGui::SameLine();
 			ImGui::Text("%s", (std::string{ICON_FA_FOLDER_OPEN} + " " + dir.filename().string()).c_str());
+
+      //drag and drop
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
+					DragDropMoveRegularFile(dir, payload);
+
+				ImGui::EndDragDropTarget();
+			}
+
 			for (std::filesystem::directory_iterator i(dir), end; i != end; ++i)
 			{
 				ShowTreeNode(i->path());
@@ -71,6 +81,14 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 			// Add closed folder icon and name
 			ImGui::SameLine();
 			ImGui::Text("%s", (std::string{ICON_FA_FOLDER} + " " + dir.filename().string()).c_str());
+      //drag and drop
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
+					DragDropMoveRegularFile(dir, payload);
+
+				ImGui::EndDragDropTarget();
+			}
 		}
 	}
 	else
@@ -81,6 +99,43 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 			// A path is a leaf of a tree (i.e. it cannot be expanded)
 			ImGui::TreeNodeEx(dir.filename().string().c_str(), flags | ImGuiTreeNodeFlags_Leaf);
 			ImGui::TreePop();
+
+			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+			{
+				// Set payload to carry the filepath
+				/*if(dir.extension()==".obj")
+				{
+					ImGui::SetDragDropPayload("MeshPathPayload", dir.string().c_str(), dir.string().length());
+					ImGui::TextUnformatted(dir.filename().string().c_str());
+				}*/
+				if(is_regular_file(dir))
+				{
+					ImGui::SetDragDropPayload("RegularFilePathPayload", dir.string().c_str(), dir.string().length());
+					ImGui::TextUnformatted(dir.filename().string().c_str());
+				}
+				ImGui::EndDragDropSource();
+			}
 		}
+	}
+}
+
+/**
+ * This handles Drag-and-drop moving of files to different directories
+ * @param dir the current directory level
+ * @param payload the dragged payload
+ */
+void ProjectWindow::DragDropMoveRegularFile(std::filesystem::path dir, const ImGuiPayload* payload)
+{
+	//MAY CAUSE ISSUES WITH ASSET DATABASE
+	char* payloadPointer = (char*)payload->Data;
+	int size = payload->DataSize;
+	std::string filePath = "";
+	for(int i=0;i<size;i++)
+		filePath+=*(payloadPointer+i);
+	std::filesystem::path payloadPath = std::filesystem::path(filePath);
+	if(payloadPath.parent_path()!=dir)
+	{
+		std::string name = std::filesystem::path(payloadPointer).stem().string();
+		std::filesystem::rename(payloadPath.string(), dir.string()+"\\"+payloadPath.filename().string());
 	}
 }
