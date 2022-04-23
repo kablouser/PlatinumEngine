@@ -19,8 +19,6 @@
 
 // Input manager
 #include <InputManager/InputManager.h>
-#include <IconsKenney.h>
-#include <IconsMaterialDesign.h>
 #include <IconsFontAwesome6.h>
 #include <ImGuizmo.h>
 namespace PlatinumEngine

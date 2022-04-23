@@ -18,7 +18,7 @@ namespace PlatinumEngine
 		Mesh* mesh;
 		if(ImGui::BeginPopupModal("Select Mesh", nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			filter.Draw(ICON_KI_SEARCH);
+			filter.Draw(ICON_FA_MAGNIFYING_GLASS);
 			ImGui::Separator();
 			if(ImGui::Selectable("None"))
 			{
@@ -58,7 +58,7 @@ namespace PlatinumEngine
 
 		if(ImGui::BeginPopupModal("Select Texture", nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			filter.Draw(ICON_KI_SEARCH);
+			filter.Draw(ICON_FA_MAGNIFYING_GLASS);
 			ImGui::Separator();
 			if(ImGui::Selectable("None"))
 			{

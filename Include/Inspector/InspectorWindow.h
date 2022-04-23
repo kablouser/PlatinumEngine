@@ -10,9 +10,9 @@
 #include <ComponentComposition/TransformComponent.h>
 #include <ComponentComposition/GameObject.h>
 #include <SceneManager/SceneManager.h>
+#include <OpenGL/Mesh.h>
 
 #include <IconsFontAwesome6.h>
-#include <IconsMaterialDesign.h>
 namespace PlatinumEngine
 {
 	class InspectorWindow

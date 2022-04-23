@@ -6,6 +6,7 @@
 #include <imgui.h>
 
 // Platinum library
+#include "ComponentComposition/Objects.h"
 #include <SceneEditor/SceneEditor.h>
 #include <ComponentComposition/TransformComponent.h>
 #include <ComponentComposition/RenderComponent.h>
@@ -84,7 +85,7 @@ namespace PlatinumEngine{
 		//-------------------------------------------
 		// begin the ImGui Scene Editor Main Window
 		//-------------------------------------------
-		if (ImGui::Begin(ICON_KI_MOVIE " Scene Editor", outIsOpen))
+		if (ImGui::Begin(ICON_FA_IMAGE " Scene Editor", outIsOpen))
 		{
 			if(ImGui::IsKeyPressed(GLFW_KEY_Q))
 				_currentGizmoOperation = ImGuizmo::TRANSLATE;
@@ -98,7 +99,7 @@ namespace PlatinumEngine{
 			// Widgets
 			//-----------
 
-			if (ImGui::Button(ICON_FA_CAMERA_ROTATE "##Camera Setting"))
+			if (ImGui::Button(ICON_FA_VIDEO "##Camera Setting"))
 			{
 				_ifCameraSettingWindowOpen = !_ifCameraSettingWindowOpen;
 
@@ -107,7 +108,7 @@ namespace PlatinumEngine{
 			ImGui::SameLine();
 			if (_currentGizmoOperation != ImGuizmo::SCALE)
 			{
-				if (ImGui::Button(_currentGizmoMode == ImGuizmo::LOCAL ? ICON_FA_CUBE "##Local###ViewMode" : ICON_FA_EARTH_ASIA "##Global###ViewMode"))
+				if (ImGui::Button(_currentGizmoMode == ImGuizmo::LOCAL ? ICON_FA_CIRCLE_NODES "##Local###ViewMode" : ICON_FA_EARTH_ASIA "##Global###ViewMode"))
 				{
 					if (_currentGizmoMode == ImGuizmo::LOCAL)
 					{
@@ -129,7 +130,7 @@ namespace PlatinumEngine{
 			}
 			else if(_currentGizmoOperation == ImGuizmo::SCALE)
 			{
-				ImGui::Button( ICON_FA_CUBE "##Local###ViewMode");
+				ImGui::Button( ICON_FA_CIRCLE_NODES "##Local###ViewMode");
 				if (ImGui::IsItemHovered())
 				{
 					ImGui::SetTooltip("Local Only Under Scale");
@@ -149,13 +150,13 @@ namespace PlatinumEngine{
 				ImGui::SetTooltip("Rotate");
 
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_CROP_SIMPLE "##Scale"))
+			if (ImGui::Button(ICON_FA_MAXIMIZE "##Scale"))
 				_currentGizmoOperation = ImGuizmo::SCALE;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("Scale");
 
 			ImGui::SameLine();
-			if (ImGui::Button( ICON_FA_MICROCHIP "##Universal"))
+			if (ImGui::Button( ICON_FA_SLIDERS "##Universal"))
 				_currentGizmoOperation = ImGuizmo::UNIVERSAL;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("translate, rotate and scale");
@@ -186,7 +187,7 @@ namespace PlatinumEngine{
 				ImGui::EndPopup();
 			}
 
-			if(ImGui::Button(_enableGrid ? ICON_MD_GRID_ON "##enable###gridTransparency" : ICON_MD_GRID_OFF "##disable###gridTransparency"))
+			if(ImGui::Button(_transparency ? ICON_FA_BORDER_ALL "##enable###gridTransparency" : ICON_FA_BORDER_NONE "##disable###gridTransparency"))
 			{
 				_enableGrid = !_enableGrid;
 			}
@@ -200,7 +201,7 @@ namespace PlatinumEngine{
 			}
 
 			ImGui::SameLine();
-			if(ImGui::Button(ICON_MD_VIEW_IN_AR "##skybox"))
+			if(ImGui::Button(ICON_FA_CLOUD "##skybox"))
 			{
 				_enableSkyBox = !_enableSkyBox;
 			}
@@ -430,8 +431,18 @@ namespace PlatinumEngine{
 			_renderer->SetModelMatrix();
 
 			// check if the view matrix is passed to shader
-			_renderer->SetViewMatrix(_camera.viewMatrix4);
-			_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
+
+			//if(!_camera.CheckIfViewMatrixUsed())
+			{
+				_renderer->SetViewMatrix(_camera.viewMatrix4);
+				_camera.MarkViewMatrixAsUsed();
+			}
+			//if(!_camera.CheckIfProjectionMatrixUsed())
+			{
+				_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
+				_camera.MarkProjectionMatrixAsUsed();
+			}
+      
 			_renderer->SetLightProperties();
 
 			// Render game objects
@@ -1002,6 +1013,7 @@ namespace PlatinumEngine{
 		// view manipulate gizmo
 		ImGuizmo::ViewManipulate(cameraView, 0.001, ImVec2(viewManipulateRight - 100, viewManipulateTop),
 				ImVec2(100, 100), 0x10101010);
+
 	}
 
 	void SceneEditor::CreateSkyBoxShaderInput()
