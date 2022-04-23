@@ -204,7 +204,8 @@ namespace PlatinumEngine{
 			ImGui::SameLine();
 			if(ImGui::Button(ICON_FA_CLOUD "##skybox"))
 			{
-				_enableSkyBox = !_enableSkyBox;
+				// TODO: enable/disable skybox
+				_enableSkyBox != _enableSkyBox;
 			}
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("turn on or off the skybox");
@@ -433,12 +434,13 @@ namespace PlatinumEngine{
 
 			// check if the view matrix is passed to shader
 
-			//if(!_camera.CheckIfViewMatrixUsed())
+			// TODO: Commneted these lines of code out to fix some bug, need to check how to do properly
+			// if(!_camera.CheckIfViewMatrixUsed())
 			{
 				_renderer->SetViewMatrix(_camera.viewMatrix4);
 				_camera.MarkViewMatrixAsUsed();
 			}
-			//if(!_camera.CheckIfProjectionMatrixUsed())
+			// if(!_camera.CheckIfProjectionMatrixUsed())
 			{
 				_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
 				_camera.MarkProjectionMatrixAsUsed();

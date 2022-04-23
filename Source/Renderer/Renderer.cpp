@@ -23,7 +23,7 @@ const std::string NORMAL_VERTEX_SHADER =
 #include <Shaders/Lit/NormalMappingVertShader.vert>
 ;
 const std::string NORMAL_FRAGMENT_SHADER =
-#include <Shaders/Lit/Test.frag>
+#include <Shaders/Lit/NormalMappingFragShader.frag>
 ;
 const std::string SKYBOX_VERTEX_SHADER =
 #include <Shaders/Unlit/SkyBoxShader.vert>
@@ -189,45 +189,51 @@ namespace PlatinumEngine
 		if (material.useNormalTexture)
 		{
 			_normalMapShader.Bind();
+
 			// bind diffuse map
 			if (material.diffuseTexture)
 			{
+				_normalMapShader.SetUniform("diffuseMap", (int)0);
 				glActiveTexture(GL_TEXTURE0);
 				material.diffuseTexture->Bind();
-				_normalMapShader.SetUniform("ourTexture", 0);
+				glActiveTexture(GL_TEXTURE0);
 			}
 			// bind normal map
 			if(material.normalTexture)
 			{
-				glActiveTexture(GL_TEXTURE2);
+				_normalMapShader.SetUniform("normalMap", (int)1);
+				glActiveTexture(GL_TEXTURE1);
 				material.normalTexture->Bind();
-				_normalMapShader.SetUniform("normalMap", 2);
+				glActiveTexture(GL_TEXTURE0);
 			}
-			_normalMapShader.SetUniform("shininess", material.shininessFactor);
 		}
 		else
 		{
 			_unlitShader.Bind();
+
 			// bind diffuse map
 			if (material.diffuseTexture)
 			{
+				_unlitShader.SetUniform("diffuseMap", 0);
 				glActiveTexture(GL_TEXTURE0);
 				material.diffuseTexture->Bind();
-				_unlitShader.SetUniform("diffuseMap", 0);
+				glActiveTexture(GL_TEXTURE0);
 			}
-			// bind specular map
-			if(material.specularTexture)
-			{
-				glActiveTexture(GL_TEXTURE1);
-				material.specularTexture->Bind();
-			}
-			// TODO: bind normal map (should this be here?)
-			if(material.normalTexture)
-			{
-				glActiveTexture(GL_TEXTURE2);
-				material.normalTexture->Bind();
-				_unlitShader.SetUniform("normalMap", 2);
-			}
+			// TODO: bind specular map
+//			if(material.specularTexture)
+//			{
+//				_unlitShader.SetUniform("specularMap", 1);
+//				glActiveTexture(GL_TEXTURE1);
+//				material.specularTexture->Bind();
+//				glActiveTexture(GL_TEXTURE0);
+//			}
+			// TODO: bind normal map (should this be here I don't think so?)
+//			if(material.normalTexture)
+//			{
+//				_unlitShader.SetUniform("normalMap", 2);
+//				glActiveTexture(GL_TEXTURE2);
+//				material.normalTexture->Bind();
+//			}
 			_unlitShader.SetUniform("shininess", material.shininessFactor);
 		}
 	}
@@ -346,8 +352,8 @@ namespace PlatinumEngine
 	//--------------------------------------------------------------------------------------------------------------
 	void Renderer::SetLightProperties()
 	{
-//		pointLight.lightPos = Maths::Vec3(0.0f, 0.0f, 2.0f);
-		 pointLight.lightPos = Maths::Vec3(0.9f * (float)std::cos(glfwGetTime()),0.9f * (float)std::sin(glfwGetTime()),0.9f);
+		pointLight.lightPos = Maths::Vec3(0.0f, 2.0f, 2.0f);
+		// pointLight.lightPos = Maths::Vec3(0.9f * (float)std::cos(glfwGetTime()),0.9f * (float)std::sin(glfwGetTime()),0.9f);
 
 		// normal shader
 		_normalMapShader.Bind();

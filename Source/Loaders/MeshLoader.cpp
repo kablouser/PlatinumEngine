@@ -115,7 +115,7 @@ namespace PlatinumEngine
 					vertex.textureCoords.x = 0.0f;
 					vertex.textureCoords.y = 0.0f;
 				}
-				if (mesh->mTangents)
+				if (mesh->HasTangentsAndBitangents())
 				{
 					vertex.tangent.x = mesh->mTangents[i].x;
 					vertex.tangent.y = mesh->mTangents[i].y;
