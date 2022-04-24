@@ -1,4 +1,3 @@
-#include <ImGuizmo.h>
 #include "ComponentComposition/Transform.h"
 
 
@@ -51,7 +50,7 @@ namespace PlatinumEngine
 
 	Maths::Mat4 Transform::GetLocalToWorldMatrix()
 	{
-		Maths::Mat4 localToParent = GetLocalToParentMatrix();
+		Maths::Mat4 transformMatrix = GetLocalToParentMatrix();
 		Transform* transform = GetParentComponent<Transform>();
 		if (transform)
 			// recursive, slow but oh well
@@ -81,10 +80,10 @@ namespace PlatinumEngine
 		return localRotation * Maths::Vec3::right;
 	}
 
-	void TransformComponent::SetLocalToWorldMatrix(Maths::Mat4 LocalToWorld)
+	void Transform::SetLocalToWorldMatrix(Maths::Mat4 LocalToWorld)
 	{
 		Maths::Mat4 ParentToWorld, LocalToParent;
-		auto parent = GetParentComponent<TransformComponent>();
+		auto parent = GetParentComponent<Transform>();
 		if (parent)
 			ParentToWorld = parent->GetLocalToWorldMatrix();
 		else

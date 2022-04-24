@@ -5,8 +5,8 @@
 // Platinum Engine library
 #include <SceneManager/HierarchyWindow.h>
 #include <Logger/Logger.h>
-#include "ComponentComposition/TransformComponent.h"
-#include "ComponentComposition/RenderComponent.h"
+#include "ComponentComposition/Transform.h"
+#include "ComponentComposition/MeshRender.h"
 
 namespace PlatinumEngine
 {
@@ -250,8 +250,8 @@ namespace PlatinumEngine
 					{
 						std::string name = payloadPath.stem().string();
 						GameObject* go = scene.AddGameObject(name);
-						scene.AddComponent<TransformComponent>(go);
-						scene.AddComponent<RenderComponent>(go);
+						scene.AddComponent<Transform>(go);
+						scene.AddComponent<MeshRender>(go);
 					}
 				}
 				// End DragDropTarget
