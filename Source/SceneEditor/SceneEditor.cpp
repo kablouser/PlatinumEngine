@@ -52,12 +52,13 @@ namespace PlatinumEngine{
 	{
 
 		// Setup skybox texture
-		_skyboxTexture.CreateCubeMap({"D:/PlatinumEngine/Assets/Texture/Left_X.png",
-									   "D:/PlatinumEngine/Assets/Texture/Right_X.png",
-									   "D:/PlatinumEngine/Assets/Texture/Up_Y.png",
-									   "D:/PlatinumEngine/Assets/Texture/Bottom_Y.png",
-									   "D:/PlatinumEngine/Assets/Texture/Front_Z.png",
-									   "D:/PlatinumEngine/Assets/Texture/Back_Z.png"});
+
+		_skyboxTexture.CreateCubeMap({"./Assets/Texture/Left_X.png",
+									   "./Assets/Texture/Right_X.png",
+									   "./Assets/Texture/Up_Y.png",
+									   "./Assets/Texture/Bottom_Y.png",
+									   "./Assets/Texture/Front_Z.png",
+									   "./Assets/Texture/Back_Z.png"});
 		// Setup skybox texture shader input
 		CreateSkyBoxShaderInput();
 
