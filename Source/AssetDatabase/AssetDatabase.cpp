@@ -118,10 +118,10 @@ namespace PlatinumEngine
 		{
 			// small file
 			// hash file's content
-			std::ifstream fileStream(path);
+			std::ifstream fileStream(path, std::ios::binary);
 			if (fileStream.is_open())
 			{
-				std::stringstream buffer;
+				std::ostringstream buffer;
 				buffer << fileStream.rdbuf();
 				return Hash(buffer.str());
 			}
