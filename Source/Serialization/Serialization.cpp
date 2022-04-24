@@ -1,4 +1,6 @@
 #include <Serialization/Serialization.h>
+#include <Logger/Logger.h>
+#include <set> // std::set
 
 namespace PlatinumEngine
 {
@@ -23,13 +25,52 @@ namespace PlatinumEngine
 	{
 	}
 
-	TypeInfo& TypeInfo::WithCollection(std::unique_ptr<Collection>&& withCollection)
+	//--------------------------------------------------------------------------------------
+	// Type Info Factory
+	//--------------------------------------------------------------------------------------
+
+	TypeInfoFactory::TypeInfoFactory(size_t inTypeInfoIndex, TypeDatabase& inTypeDatabase) :
+			typeInfoIndex(inTypeInfoIndex),
+			typeDatabase(inTypeDatabase)
 	{
+	}
+
+	TypeInfoFactory& TypeInfoFactory::WithCollection(std::unique_ptr<Collection>&& withCollection)
+	{
+		auto& typeInfo = typeDatabase.typeInfos.at(typeInfoIndex);
 		// isCollection must be enabled
-		assert(isCollection);
-		collection = std::move(withCollection);
+		assert(typeInfo.isCollection);
+		typeInfo.collection = std::move(withCollection);
 		return *this;
 	}
+
+	TypeInfoFactory* TypeInfoFactory::WithInheritInternal(std::type_index&& typeIndex)
+	{
+		auto& typeInfo = typeDatabase.typeInfos.at(typeInfoIndex);
+		// only 1 inherited type allowed
+		assert(!typeInfo.inheritedType.has_value());
+		// collections cannot inherit
+		assert(!typeInfo.isCollection);
+		typeInfo.inheritedType = typeIndex;
+		return this;
+	}
+
+	TypeInfoFactory* TypeInfoFactory::WithFieldInternal(
+			std::string& fieldName,
+			size_t offset,
+			std::type_index&& typeIndex)
+	{
+		auto& typeInfo = typeDatabase.typeInfos.at(typeInfoIndex);
+		// fields cannot be in collections
+		assert(!typeInfo.isCollection);
+		FieldInfo newFieldInfo{ typeIndex, std::move(fieldName), offset };
+		typeInfo.fields.push_back(newFieldInfo);
+		return this;
+	}
+
+	//-----------------------------------------------------------------------
+	// TypeDatabase
+	//-----------------------------------------------------------------------
 
 	//-----------------------------------------------------------------------
 	// Get Type Info
@@ -52,6 +93,61 @@ namespace PlatinumEngine
 		else
 			return { true, &typeInfos.at(iterator->second) };
 	}
+
+	//-----------------------------------------------------------------------
+	// Final Check
+	//-----------------------------------------------------------------------
+
+	bool TypeDatabase::FinalCheck()
+	{
+		bool result = true;
+		for (auto& typeInfo : typeInfos)
+		{
+			if (typeInfo.inheritedType.has_value())
+			{
+				auto[success, _] = GetTypeInfo(typeInfo.inheritedType.value());
+				if (!success)
+				{
+					result = false;
+					PLATINUM_WARNING_STREAM << "Unknown inherited type for " << typeInfo.typeName;
+				}
+			}
+
+			if (typeInfo.isCollection)
+			{
+				if (typeInfo.collection)
+				{
+					auto[success, _] = GetTypeInfo(typeInfo.collection.get()->elementTypeIndex);
+					if (!success)
+					{
+						result = false;
+						PLATINUM_WARNING_STREAM << "Unknown collection element type for " <<
+												typeInfo.typeName;
+					}
+				}
+				else
+				{
+					result = false;
+					PLATINUM_WARNING("isCollection = true, but collection object is null");
+				}
+			}
+			else
+			{
+				for (auto& field: typeInfo.fields)
+				{
+					auto[success, _] = GetTypeInfo(field.typeIndex);
+					if (!success)
+					{
+						result = false;
+						PLATINUM_WARNING_STREAM << "Unknown field type for " <<
+							typeInfo.typeName << "::" << field.fieldName;
+					}
+				}
+			}
+		}
+		return result;
+	}
+
 
 	//-----------------------------------------------------------------------
 	// Get Type Name
@@ -81,7 +177,7 @@ namespace PlatinumEngine
 	// Serialization
 	//-----------------------------------------------------------------------
 
-	TypeInfo* TypeDatabase::BeginAbstractTypeInfoInternal(
+	TypeInfoFactory TypeDatabase::BeginAbstractTypeInfoInternal(
 			bool isCollection,
 			std::string typeName,
 			std::type_index typeIndex)
@@ -92,19 +188,17 @@ namespace PlatinumEngine
 		{
 			typeNames[typeName] = typeIndices[typeIndex] = typeInfos.size();
 			typeInfos.emplace_back(typeIndex, isCollection);
-			TypeInfo& typeInfo = typeInfos[typeInfos.size() - 1];
-			typeInfo.typeName = std::move(typeName);
-			return &typeInfo;
+			typeInfos.at(typeInfos.size() - 1).typeName = std::move(typeName);
+			return TypeInfoFactory(typeInfos.size() - 1,*this);
 		}
 		else
 		{
-			// TODO replace with PLATINUM_WARNING
-			std::cout << "TypeDatabase WARNING: type already exists in database " << typeName << std::endl;
+			PLATINUM_WARNING("Type already exists in TypeDatabase.");
 			// typeName already exists in database, return the existing entry
 			if (countTypeNames == 0)
-				return &typeInfos.at(typeNames[typeName]);
+				return TypeInfoFactory(typeNames[typeName],*this);
 			else
-				return &typeInfos.at(typeIndices[typeIndex]);
+				return TypeInfoFactory(typeIndices[typeIndex],*this);
 		}
 	}
 
@@ -262,72 +356,52 @@ namespace PlatinumEngine
 			!(istream >> stringToken && stringToken == typeInfo->typeName))
 			return DeserializeReturnCode::badFormat;
 
-		if (section != SerializeSection::inherited &&
-			!(istream >> stringToken && stringToken == "{"))
+		if (!(istream >> stringToken && stringToken == "{"))
 			return DeserializeReturnCode::badFormat;
 
-		while (true)
+		if (typeInfo->isCollection)
 		{
-			// save position from start of line
-			auto beginPosition = istream.tellg();
-			if (!(istream >> stringToken))
-				return DeserializeReturnCode::badFormat;
+			// is a collection
 
-			if (stringToken.rfind("//", 0) == 0 // stringToken begins with //, comment
-				||
-				stringToken == "?")// unknown type
+			if (!typeInfo->collection)
 			{
-				std::getline(istream, stringToken); // skip line
-				continue;
-			}
-			else if (stringToken.rfind("}", 0) == 0)
-			{
-				// stringToken begins with }, end of block
-				return DeserializeReturnCode::success;
-			}
-			else if (stringToken == "{")
-			{
-				// structure to unknown type
-				// skip brackets
-				if (SkipCurlyBrackets(istream, 1))
-					continue;
+				// no collection info
+				if (SkipCurlyBrackets(istream, 1))// skip brackets
+					return DeserializeReturnCode::missingCollection;
 				else
 					return DeserializeReturnCode::badFormat;
 			}
 
-			if (typeInfo->isCollection)
+			auto[foundElement, elementTypeInfo]= GetTypeInfo(typeInfo->collection->elementTypeIndex);
+			if (!foundElement)
 			{
-				istream.seekg(beginPosition);
+				// no collection element info
+				if (SkipCurlyBrackets(istream, 1))// skip brackets
+					return DeserializeReturnCode::missingCollection;
+				else
+					return DeserializeReturnCode::badFormat;
+			}
 
-				if (!typeInfo->collection)
-				{
-					// no collection info
-					if (SkipCurlyBrackets(istream, 1))// skip brackets
-						return DeserializeReturnCode::missingCollection;
-					else
-						return DeserializeReturnCode::badFormat;
-				}
+			if (!(elementTypeInfo->allocate))
+			{
+				// no element allocators
+				if (SkipCurlyBrackets(istream, 1))// skip brackets
+					return DeserializeReturnCode::missingAllocators;
+				else
+					return DeserializeReturnCode::badFormat;
+			}
 
-				auto[foundElement, elementTypeInfo]= GetTypeInfo(typeInfo->collection->elementTypeIndex);
-				if (!foundElement)
-				{
-					// no collection element info
-					if (SkipCurlyBrackets(istream, 1))// skip brackets
-						return DeserializeReturnCode::missingCollection;
-					else
-						return DeserializeReturnCode::badFormat;
-				}
+			std::shared_ptr<void> collectionElement = elementTypeInfo->allocate();
 
-				if (!(elementTypeInfo->allocate))
-				{
-					// no element allocators
-					if (SkipCurlyBrackets(istream, 1))// skip brackets
-						return DeserializeReturnCode::missingAllocators;
-					else
-						return DeserializeReturnCode::badFormat;
-				}
-
-				std::shared_ptr<void> collectionElement = elementTypeInfo->allocate();
+			while (true)
+			{
+				// look ahead to check for end of collection
+				auto startPosition = istream.tellg();
+				// next string begins with }
+				if (istream >> stringToken && stringToken.rfind('}', 0) == 0)
+					break;
+				// reset position
+				istream.seekg(startPosition);
 
 				// recurse
 				auto returnCode = DeserializeInternal(
@@ -337,13 +411,48 @@ namespace PlatinumEngine
 						SerializeSection::collectionElement);
 
 				if (returnCode == DeserializeReturnCode::success)
+				{
 					typeInfo->collection->Add(typeInstance, collectionElement.get());
-
-				// probably comma next
-				std::getline(istream, stringToken); // skip line
+				}
+				if (returnCode != DeserializeReturnCode::badFormat)
+				{
+					// probably comma next
+					std::getline(istream, stringToken); // skip line
+				}
 			}
-			else
+
+			return DeserializeReturnCode::success;
+		}
+		else
+		{
+			// not a collection
+			while (true)
 			{
+				if (!(istream >> stringToken))
+					return DeserializeReturnCode::badFormat;
+
+				if (stringToken.rfind("//", 0) == 0 // stringToken begins with //, comment
+					||
+					stringToken == "?")// unknown type
+				{
+					std::getline(istream, stringToken); // skip line
+					continue;
+				}
+				else if (stringToken.rfind('}', 0) == 0)
+				{
+					// stringToken begins with }, end of block
+					return DeserializeReturnCode::success;
+				}
+				else if (stringToken == "{")
+				{
+					// structure to unknown type
+					// skip brackets
+					if (SkipCurlyBrackets(istream, 1))
+						continue;
+					else
+						return DeserializeReturnCode::badFormat;
+				}
+
 				auto[fieldSuccess, fieldTypeInfo]=GetTypeInfo(stringToken);
 				if (!fieldSuccess)
 				{
@@ -383,7 +492,7 @@ namespace PlatinumEngine
 				}
 
 				// recurse
-				auto returnCode = DeserializeInternal(
+				DeserializeInternal(
 						istream,
 						fieldInfo->AccessField(typeInstance),
 						fieldInfo->typeIndex,
@@ -394,7 +503,8 @@ namespace PlatinumEngine
 		}
 	}
 
-	std::pair<bool, const FieldInfo*> TypeDatabase::FindFieldName(const TypeInfo& typeInfo, const std::string& fieldName)
+	std::pair<bool, const FieldInfo*>
+	TypeDatabase::FindFieldName(const TypeInfo& typeInfo, const std::string& fieldName)
 	{
 		for (auto& field: typeInfo.fields)
 		{
@@ -425,41 +535,5 @@ namespace PlatinumEngine
 		}
 
 		return (bool)istream;
-	}
-
-	//--------------------------------------------------------------------------------------
-	// Type Info Factory
-	//--------------------------------------------------------------------------------------
-
-	TypeInfoFactory::TypeInfoFactory(TypeInfo& inTypeInfo, TypeDatabase& inTypeDatabase) :
-		typeInfo(inTypeInfo),
-		typeDatabase(inTypeDatabase)
-	{
-	}
-
-	TypeInfoFactory& TypeInfoFactory::WithCollection(std::unique_ptr<Collection>&& withCollection)
-	{
-		// isCollection must be enabled
-		assert(typeInfo.isCollection);
-		typeInfo.collection = std::move(withCollection);
-		return *this;
-	}
-
-	TypeInfoFactory* TypeInfoFactory::WithInheritInternal(std::type_index&& typeIndex)
-	{
-		// only 1 inherited type allowed
-		assert(!typeInfo.inheritedType.has_value());
-		// collections cannot inherit
-		assert(!typeInfo.isCollection);
-		typeInfo.inheritedType = typeIndex;
-		return this;
-	}
-
-	TypeInfoFactory* TypeInfoFactory::WithFieldInternal(
-			std::string& fieldName,
-			size_t offset,
-			std::type_index&& typeIndex)
-	{
-		return this;
 	}
 }

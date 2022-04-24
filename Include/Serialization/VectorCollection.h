@@ -14,7 +14,7 @@ namespace PlatinumEngine
 	{
 	public:
 
-		explicit VectorIterator(const std::vector<T>* toIterateOver) :
+		explicit VectorIterator(std::vector<T>* toIterateOver) :
 				_toIterateOver(toIterateOver),
 				_currentIndex(0)
 		{
@@ -35,36 +35,35 @@ namespace PlatinumEngine
 			return (void*)&_toIterateOver->at(_currentIndex);
 		}
 
+		void RemoveCurrent() override
+		{
+			if (_currentIndex < _toIterateOver->size())
+				_toIterateOver->erase(_toIterateOver->begin()+_currentIndex);
+		}
+
 	private:
 
-		const std::vector<T>* _toIterateOver;
+		std::vector<T>* _toIterateOver;
 		size_t _currentIndex;
 	};
 
-	template<typename T>
+	template<typename ElementType>
 	class VectorCollection : public Collection
 	{
 	public:
-		VectorCollection() : Collection(std::type_index(typeid(T)))
+		VectorCollection() : Collection(std::type_index(typeid(ElementType)))
 		{
 		}
 
 		bool Add(void* collectionInstance, void* elementInstance) override
 		{
-			((std::vector<T>*)collectionInstance)->push_back(*(T*)elementInstance);
+			((std::vector<ElementType>*)collectionInstance)->push_back(*(ElementType*)elementInstance);
 			return true;
 		}
 
-		bool RemoveFirst(void* collectionInstance, void* elementInstance) override
+		std::unique_ptr<Iterator> GetIterator(void* collectionInstance) override
 		{
-			return PlatinumEngine::VectorHelpers::RemoveFirst(
-					*(std::vector<T>*)collectionInstance,
-					*(T*)elementInstance);
-		}
-
-		std::unique_ptr<Iterator> GetIterator(const void* collectionInstance) override
-		{
-			return std::make_unique<VectorIterator<T>>((const std::vector<T>*)collectionInstance);
+			return std::make_unique<VectorIterator<ElementType>>((std::vector<ElementType>*)collectionInstance);
 		}
 	};
 }

@@ -23,21 +23,14 @@ TEST_CASE("Serialization", "[serialization]")
 			.WithField<float>("field1", PLATINUM_OFFSETOF(PlainStructure, field1))
 			.WithField<std::vector<double>>("someValues", PLATINUM_OFFSETOF(PlainStructure, someValues));
 
-	database.CreateVectorTypeInfo<int>();
-	database.CreateVectorTypeInfo<double>();
-
-	database.CreatePrimitiveTypeInfo<double>();
-	database.CreatePrimitiveTypeInfo<float>();
-	database.CreatePrimitiveTypeInfo<int>();
-
 //	database.OutputTypeInfo<PlainStructure>(std::cout);
-//	database.OutputTypeInfo<std::vector<int>>(std::cout);
+//	database.OutputTypeInfo<std::vector<double>>(std::cout);
 
 	PlainStructure plainData{
 			69.0f, 420.0f, { 1, 1, 2, 3, 5, 8, 13 }
 	};
 //	database.Serialize(std::cout, &plainData);
-	std::vector<int> listData{ 0, 1, 2, 3 };
+	std::vector<double> listData{ 0, 1, 2, 3 };
 //	database.Serialize(std::cout, &listData);
 
 //	std::cout << "== Inherited Data ==" << std::endl;
@@ -122,9 +115,9 @@ TEST_CASE("Serialization", "[serialization]")
 		database.Deserialize(inputSerializedData, &deserializeData);
 
 		std::ostringstream reSerializedData;
-		database.Serialize(reSerializedData, &plainData);
-//		std::cout << "== ReSerialized plain data ==" << std::endl;
-//		database.Serialize(std::cout, &reSerializedData);
+		database.Serialize(reSerializedData, &deserializeData);
+//		std::cout << "== DeSerialized plain data ==" << std::endl;
+//		database.Serialize(std::cout, &deserializeData);
 
 		CHECK(serializedData.str() == reSerializedData.str());
 	}
@@ -136,15 +129,45 @@ TEST_CASE("Serialization", "[serialization]")
 //		std::cout << "== Original plain data ==" << std::endl;
 //		database.Serialize(std::cout, &plainData);
 
-		FurtherChildClass deserializeData;
+		PlainStructure deserializeData;
 		std::istringstream inputSerializedData(serializedData.str());
 		database.Deserialize(inputSerializedData, &deserializeData);
 
 		std::ostringstream reSerializedData;
-		database.Serialize(reSerializedData, &plainData);
-//		std::cout << "== ReSerialized plain data ==" << std::endl;
-//		database.Serialize(std::cout, &reSerializedData);
+		database.Serialize(reSerializedData, &deserializeData);
+//		std::cout << "== DeSerialized plain data ==" << std::endl;
+//		database.Serialize(std::cout, &deserializeData);
 
 		CHECK(serializedData.str() == reSerializedData.str());
 	}
+
+//	std::cout << "== std::vector of nested data deserialization ==" << std::endl;
+	{
+		std::vector<FurtherChildClass> vectorOfNestedData= {
+				furtherChildObject,
+				furtherChildObject,
+				furtherChildObject,
+		};
+
+		database.CreateVectorTypeInfo<FurtherChildClass>();
+
+		std::ostringstream serializedData;
+		database.Serialize(serializedData, &vectorOfNestedData);
+//		std::cout << "== Original plain data ==" << std::endl;
+//		database.Serialize(std::cout, &vectorOfNestedData);
+
+		std::vector<FurtherChildClass> deserializeData;
+		std::istringstream inputSerializedData(serializedData.str());
+		database.Deserialize(inputSerializedData, &deserializeData);
+
+		std::ostringstream reSerializedData;
+		database.Serialize(reSerializedData, &deserializeData);
+//		std::cout << "== DeSerialized plain data ==" << std::endl;
+//		database.Serialize(std::cout, &deserializeData);
+
+		CHECK(serializedData.str() == reSerializedData.str());
+	}
+
+	database.BeginTypeInfo<UnknownType>();
+	CHECK(database.FinalCheck());
 }

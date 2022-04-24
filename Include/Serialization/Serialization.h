@@ -13,6 +13,7 @@
 
 #include <cassert> // assert()
 #include <memory> // std::unique_ptr
+#include <tuple> // std::get magic
 
 #include <Helpers/VectorHelpers.h>
 #include <Serialization/VectorCollection.h>
@@ -25,7 +26,7 @@ namespace PlatinumEngine
 
 	// Microsoft's implementation for `offsetof`
 #define PLATINUM_OFFSETOF(typeName, fieldName)\
-		(size_t)&reinterpret_cast<const volatile char&>((((typeName*)0)->fieldName))
+        (size_t)&reinterpret_cast<const volatile char&>((((typeName*)0)->fieldName))
 
 	template<typename T>
 	constexpr auto TypeName()
@@ -33,21 +34,31 @@ namespace PlatinumEngine
 		std::string_view name, prefix, suffix;
 #ifdef __clang__
 		name = __PRETTY_FUNCTION__;
-	  prefix = "auto type_name() [T = ";
-	  suffix = "]";
+		prefix = "auto PlatinumEngine::TypeName() [T = ";
+		suffix = "]";
 #elif defined(__GNUC__)
 		name = __PRETTY_FUNCTION__;
-		prefix = "constexpr auto TypeName() [with T = ";
+		prefix = "constexpr auto PlatinumEngine::TypeName() [with T = ";
 		suffix = "]";
 #elif defined(_MSC_VER)
 		name = __FUNCSIG__;
-	  prefix = "auto __cdecl type_name<";
-	  suffix = ">(void)";
+		prefix = "auto __cdecl PlatinumEngine::TypeName<";
+		suffix = ">(void)";
 #endif
 		name.remove_prefix(prefix.size());
 		name.remove_suffix(suffix.size());
 		return name;
 	}
+
+	template<typename Test, template<typename...> class Ref>
+	struct is_specialization : std::false_type
+	{
+	};
+
+	template<template<typename...> class Ref, typename... Args>
+	struct is_specialization<Ref<Args...>, Ref> : std::true_type
+	{
+	};
 
 	//-----------------------------------------------------------------------
 	// Core classes
@@ -90,78 +101,121 @@ namespace PlatinumEngine
 		TypeInfo(std::type_index newTypeIndex, bool isCollection);
 
 		TypeInfo(TypeInfo&) = delete;
+
 		TypeInfo& operator=(TypeInfo&) = delete;
 
 		TypeInfo(TypeInfo&&) = default;
+
 		TypeInfo& operator=(TypeInfo&&) = default;
+	};
+
+	// forward declare for TypeInfoFactory to use as reference
+	class TypeDatabase;
+
+	class TypeInfoFactory
+	{
+	public:
+		size_t typeInfoIndex;
+		TypeDatabase& typeDatabase;
+
+		TypeInfoFactory(size_t inTypeInfoIndex, TypeDatabase& inTypeDatabase);
 
 		//-----------------------------------------------------------------------
 		// Factory pattern thingy
 		//-----------------------------------------------------------------------
 
 		template<typename T>
-		TypeInfo& WithInherit()
+		TypeInfoFactory& WithInherit()
 		{
-			// only 1 inherited type allowed
-			assert(!inheritedType.has_value());
-			// collections cannot inherit
-			assert(!isCollection);
-			inheritedType = std::type_index(typeid(T));
-			return *this;
+			return *WithInheritInternal(std::type_index(typeid(T)));
 		}
 
+		// magical template for user defined types
 		template<typename T>
-		TypeInfo& WithField(std::string fieldName, size_t offset)
-		{
-			// fields cannot be in collections
-			assert(!isCollection);
-			fields.push_back(FieldInfo{ std::type_index(typeid(T)), std::move(fieldName), offset });
-			return *this;
-		}
+		TypeInfoFactory& WithField(std::string fieldName, size_t offset);
 
-		TypeInfo& WithCollection(std::unique_ptr<Collection>&& withCollection);
+		TypeInfoFactory& WithCollection(std::unique_ptr<Collection>&& withCollection);
+
+	private:
+
+		TypeInfoFactory* WithInheritInternal(std::type_index&& typeIndex);
+
+		TypeInfoFactory* WithFieldInternal(
+				std::string& fieldName,
+				size_t offset,
+				std::type_index&& typeIndex);
 	};
 
 	class TypeDatabase
 	{
 	public:
+		// let TypeInfoFactory access private data
+		friend class TypeInfoFactory;
 
 		//-----------------------------------------------------------------------
 		// Creating Type Info
 		//-----------------------------------------------------------------------
 
 		template<typename T>
-		TypeInfo& BeginAbstractTypeInfo(bool isCollection = false)
+		TypeInfoFactory BeginAbstractTypeInfo(bool isCollection = false)
 		{
-			return *BeginAbstractTypeInfoInternal(
+			return BeginAbstractTypeInfoInternal(
 					isCollection,
 					std::string(TypeName<T>()),
 					std::type_index(typeid(T)));
 		}
 
 		template<typename T>
-		TypeInfo& BeginTypeInfo(bool isCollection = false)
+		TypeInfoFactory BeginTypeInfo(bool isCollection = false)
 		{
 			static_assert(!std::is_abstract<T>(), "T should be NOT abstract.");
-			TypeInfo& typeInfo = BeginAbstractTypeInfo<T>(isCollection);
-			typeInfo.allocate = []() -> std::shared_ptr<void>
+			TypeInfoFactory factory = BeginAbstractTypeInfo<T>(isCollection);
+			// you cannot make_shared with abstract type
+			typeInfos.at(factory.typeInfoIndex).allocate = []() -> std::shared_ptr<void>
 			{ return std::make_shared<T>(); };
-			return typeInfo;
+			return factory;
+		}
+
+		// magical template for arithmetic types
+		template<typename T,
+				std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
+		bool CreateIfAutomatic()
+		{
+			// if type info NOT in database
+			if (!GetTypeInfo<T>().first)
+				CreateArithmeticTypeInfo<T>();
+			return true;
+		}
+
+		// magical template for std::vector<T> types
+		template<typename T,
+				std::enable_if_t<is_specialization<T, std::vector>::value, bool> = true>
+		bool CreateIfAutomatic()
+		{
+			// if type info NOT in database
+			if (!GetTypeInfo<T>().first)
+				CreateVectorTypeInfo<typename T::value_type>();
+			return true;
+		}
+
+		// magical template for user defined types
+		template<typename T,
+				std::enable_if_t<
+						!std::is_arithmetic_v<T> &&
+						!is_specialization<T, std::vector>::value,
+						bool> = true>
+		bool CreateIfAutomatic()
+		{
+			// default, user defined types cannot be automatically created
+			return false;
 		}
 
 		template<typename T>
-		void CreateVectorTypeInfo()
+		void CreateArithmeticTypeInfo()
 		{
-			// TODO refactor nicely
-			BeginTypeInfo<std::vector<T>>(true)
-					.WithCollection(std::make_unique<VectorCollection<T>>());
-		}
-
-		template<typename T>
-		void CreatePrimitiveTypeInfo()
-		{
-			static_assert(std::is_fundamental<T>::value, "T should be primitive aka fundamental.");
-			TypeInfo& typeInfo = BeginTypeInfo<T>();
+			assert(std::is_arithmetic<T>::value && "T should be arithmetic.");
+			TypeInfoFactory factory = BeginTypeInfo<T>();
+			TypeInfo& typeInfo = typeInfos.at(factory.typeInfoIndex);
 			typeInfo.streamOut =
 					[](std::ostream& outputStream, void* typeInstance) -> void
 					{
@@ -173,6 +227,17 @@ namespace PlatinumEngine
 						inputStream >> *(T*)typeInstance;
 					};
 		}
+
+		template<typename ElementType>
+		void CreateVectorTypeInfo()
+		{
+			// try to create the element type info. e.g: std::vector<double> would try to create double typeInfo
+			CreateIfAutomatic<ElementType>();
+			BeginTypeInfo<std::vector<ElementType>>(true)
+					.WithCollection(std::make_unique<PlatinumEngine::VectorCollection<ElementType>>());
+		}
+
+		bool FinalCheck();
 
 		//-----------------------------------------------------------------------
 		// Get Type Info
@@ -249,7 +314,7 @@ namespace PlatinumEngine
 		std::map<std::string, size_t> typeNames;
 		std::map<std::type_index, size_t> typeIndices;
 
-		TypeInfo* BeginAbstractTypeInfoInternal(
+		TypeInfoFactory BeginAbstractTypeInfoInternal(
 				bool isCollection,
 				std::string typeName,
 				std::type_index typeIndex);
@@ -284,39 +349,10 @@ namespace PlatinumEngine
 		static bool SkipCurlyBrackets(std::istream& istream, unsigned int bracketsLevel);
 	};
 
-	class TypeInfoFactory
+	template<typename T>
+	TypeInfoFactory& TypeInfoFactory::WithField(std::string fieldName, size_t offset)
 	{
-	public:
-		TypeInfo& typeInfo;
-		TypeDatabase& typeDatabase;
-
-		TypeInfoFactory(TypeInfo& inTypeInfo, TypeDatabase& inTypeDatabase);
-
-		//-----------------------------------------------------------------------
-		// Factory pattern thingy
-		//-----------------------------------------------------------------------
-
-		template<typename T>
-		TypeInfoFactory& WithInherit()
-		{
-			return *WithInheritInternal(std::type_index(typeid(T)));
-		}
-
-		template<typename T>
-		TypeInfoFactory& WithField(std::string fieldName, size_t offset)
-		{
-			return *WithFieldInternal(fieldName, offset, std::type_index(typeid(T)));
-		}
-
-		TypeInfoFactory& WithCollection(std::unique_ptr<Collection>&& withCollection);
-
-	private:
-
-		TypeInfoFactory* WithInheritInternal(std::type_index&& typeIndex);
-
-		TypeInfoFactory* WithFieldInternal(
-				std::string& fieldName,
-				size_t offset,
-				std::type_index&& typeIndex);
-	};
+		typeDatabase.CreateIfAutomatic<T>();
+		return *WithFieldInternal(fieldName, offset, std::type_index(typeid(T)));
+	}
 }

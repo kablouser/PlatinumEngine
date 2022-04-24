@@ -21,6 +21,8 @@ namespace PlatinumEngine
 		virtual void MoveNext() = 0;
 
 		virtual void* GetCurrent() = 0;
+
+		virtual void RemoveCurrent() = 0;
 	};
 
 	class Collection
@@ -36,8 +38,6 @@ namespace PlatinumEngine
 
 		virtual bool Add(void* collectionInstance, void* elementInstance) = 0;
 
-		virtual bool RemoveFirst(void* collectionInstance, void* elementInstance) = 0;
-
-		virtual std::unique_ptr<Iterator> GetIterator(const void* collectionInstance) = 0;
+		virtual std::unique_ptr<Iterator> GetIterator(void* collectionInstance) = 0;
 	};
 }
