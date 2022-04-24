@@ -204,8 +204,7 @@ namespace PlatinumEngine{
 			ImGui::SameLine();
 			if(ImGui::Button(ICON_FA_CLOUD "##skybox"))
 			{
-				// TODO: enable/disable skybox
-				_enableSkyBox != _enableSkyBox;
+				_enableSkyBox = !_enableSkyBox;
 			}
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("turn on or off the skybox");

@@ -36,23 +36,25 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 			if (_activeGameObject->GetComponent<TransformComponent>() != nullptr)
 				ShowTransformComponent(scene);
 
-		  if (_activeGameObject->GetComponent<CameraComponent>())
-			  ShowCameraComponent(scene);
+		  	if (_activeGameObject->GetComponent<CameraComponent>())
+				  ShowCameraComponent(scene);
 
-		  ImGui::Separator();
-		  if (_isAddComponentWindowOpen)
-			  ShowAddComponent(scene);
-
-			if (ImGui::Button("Add Component"))
-			{
-				_isAddComponentWindowOpen = !_isAddComponentWindowOpen;
+		  	ImGui::Separator();
+		  	if (_isAddComponentWindowOpen)
+				  ShowAddComponent(scene);
+		  	else
+		  	{
+				  if (ImGui::Button("Add Component"))
+				  {
+					  _isAddComponentWindowOpen = !_isAddComponentWindowOpen;
+				  }
 			}
 
 			if (ImGui::BeginPopupContextWindow())
-			{
+		  	{
 				if (ImGui::Selectable("Add Component")) _isAddComponentWindowOpen = !_isAddComponentWindowOpen;
-				ImGui::EndPopup();
-			}
+					ImGui::EndPopup();
+		  	}
 		}
 	}
 	ImGui::End();
@@ -87,7 +89,9 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 	}
 	if (isHeaderOpen)
 	{
-		ImGui::Text("Mesh");
+		ImGui::Text("Mesh Properties");
+		ImGui::Separator();
+		ImGui::Text("File");
 		ImGui::SameLine(_textWidthMeshRenderComponent);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 
@@ -211,7 +215,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 	{
 		ImGui::PushItemWidth(50);
 		ImGui::Text(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT " Position: ");
-		ImGui::SameLine(_sameLine -16.f);
+		ImGui::SameLine(_textWidthTransformComponent);
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Xpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[0], 0.001f);
@@ -224,9 +228,9 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::SameLine();
 		ImGui::DragFloat("##Zpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[2], 0.001f);
     
-    Maths::Vec3 eulerRotation = _activeGameObject->GetComponent<TransformComponent>()->localRotation.EulerAngles();
+    	Maths::Vec3 eulerRotation = _activeGameObject->GetComponent<TransformComponent>()->localRotation.EulerAngles();
 		ImGui::Text(ICON_FA_ROTATE " Rotation: ");
-		ImGui::SameLine(_sameLine - 16.f);
+		ImGui::SameLine(_textWidthTransformComponent);
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Xrot", &eulerRotation[0], 0.001f);
@@ -241,9 +245,9 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		_activeGameObject->GetComponent<TransformComponent>()->localRotation = Maths::Quaternion::EulerToQuaternion(
 				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2])); 
 
-
 		ImGui::Text(ICON_FA_MAXIMIZE " Scale: ");
-		ImGui::SameLine(_sameLine);
+		// Scale is special case and needs some extra offset applied
+		ImGui::SameLine(_textWidthTransformComponent + 16.0f);
 		ImGui::InputFloat("##scale", &_activeGameObject->GetComponent<TransformComponent>()->localScale);
 		ImGui::PopItemWidth();
 	}
@@ -280,8 +284,8 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
       }
 
 			ImGui::Text("Projection Type");
-			ImGui::SameLine(_sameLine);
-			ImGui::SetNextItemWidth(_itemWidthMesh);
+			ImGui::SameLine(_textWidthCameraComponent);
+			ImGui::SetNextItemWidth(_itemWidthMeshRenderComponent);
 			ImGui::InputText("##Projection Type", cameraType, sizeof(cameraType), ImGuiInputTextFlags_ReadOnly);
 			ImGui::SameLine();
 			if (ImGui::BeginPopupContextItem("projection type"))
@@ -321,8 +325,8 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 
 
 			ImGui::Text("Clear Mode");
-			ImGui::SameLine(_sameLine);
-			ImGui::SetNextItemWidth(_itemWidthMesh);
+			ImGui::SameLine(_textWidthCameraComponent);
+			ImGui::SetNextItemWidth(_itemWidthMeshRenderComponent);
 			ImGui::InputText("##Clear Mode", clearMode, sizeof(clearMode), ImGuiInputTextFlags_ReadOnly);
 			ImGui::SameLine();
 			if (ImGui::BeginPopupContextItem("clear mode"))
@@ -350,8 +354,8 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 		ImGui::Separator();
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Background color: ");
-		ImGui::SameLine(_sameLine - 16.f);
 
+		// To avoid making window excessively wide, start new line
 		ImGui::Text("R");
 		ImGui::SameLine();
 		ImGui::InputFloat("##Red", &camera->backgroundColor.r);
@@ -377,19 +381,19 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 		float orthographicSize;
 
 		ImGui::Text("Field of View: ");
-		ImGui::SameLine(_sameLine);
+		ImGui::SameLine(_textWidthCameraComponent);
 		ImGui::InputFloat("##FOV", &camera->fov);
 
 		ImGui::Text("Near Clipping Plane: ");
-		ImGui::SameLine(_sameLine);
+		ImGui::SameLine(_textWidthCameraComponent);
 		ImGui::InputFloat("##NearClippingPlane", &camera->nearClippingPlane);
 
 		ImGui::Text("Far Clipping Plane: ");
-		ImGui::SameLine(_sameLine);
+		ImGui::SameLine(_textWidthCameraComponent);
 		ImGui::InputFloat("##FarClippingPlane", &camera->farClippingPlane);
 
 		ImGui::Text("Orthographic Size: ");
-		ImGui::SameLine(_sameLine);
+		ImGui::SameLine(_textWidthCameraComponent);
 		ImGui::InputFloat("##OrthographicSize", &camera->orthographicSize);
 	}
 }
