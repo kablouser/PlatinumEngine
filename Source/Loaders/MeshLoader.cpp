@@ -120,12 +120,18 @@ namespace PlatinumEngine
 					vertex.tangent.x = mesh->mTangents[i].x;
 					vertex.tangent.y = mesh->mTangents[i].y;
 					vertex.tangent.z = mesh->mTangents[i].z;
+					vertex.biTangent.x = mesh->mBitangents[i].x;
+					vertex.biTangent.y = mesh->mBitangents[i].y;
+					vertex.biTangent.z = mesh->mBitangents[i].z;
 				}
 				else
 				{
 					vertex.tangent.x = 0.0f;
 					vertex.tangent.y = 0.0f;
 					vertex.tangent.z = 0.0f;
+					vertex.biTangent.x = 0.0f;
+					vertex.biTangent.y = 0.0f;
+					vertex.biTangent.z = 0.0f;
 				}
 
 				outMesh.vertices.emplace_back(vertex);

@@ -187,6 +187,10 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::SameLine();
 		ImGui::Checkbox("##UseTexture", &(_activeGameObject->GetComponent<RenderComponent>()->material.useTexture));
 
+		// If no texture cannot use normal texture
+		if (!_activeGameObject->GetComponent<RenderComponent>()->material.useTexture)
+			_activeGameObject->GetComponent<RenderComponent>()->material.useNormalTexture = false;
+
 		ImGui::Text("%s", "Normal Map");
 		ImGui::SameLine(_textWidthMeshRenderComponent);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
@@ -204,6 +208,10 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		}
 		ImGui::SameLine();
 		ImGui::Checkbox("##UseNormalTexture", &(_activeGameObject->GetComponent<RenderComponent>()->material.useNormalTexture));
+
+		// Cannot use a normal texture without a diffuse texture
+		if (_activeGameObject->GetComponent<RenderComponent>()->material.useNormalTexture)
+			_activeGameObject->GetComponent<RenderComponent>()->material.useTexture = true;
 	}
 }
 

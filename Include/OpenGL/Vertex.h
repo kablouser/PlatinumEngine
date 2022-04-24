@@ -12,6 +12,7 @@ namespace PlatinumEngine {
 		Maths::Vec3 normal;
 		Maths::Vec2 textureCoords;
 		Maths::Vec3 tangent;
+		Maths::Vec3 biTangent;
 	};
 }
 

@@ -70,7 +70,8 @@ namespace PlatinumEngine
 						{ GL_FLOAT, 3, offsetof(Vertex, position) },
 						{ GL_FLOAT, 3, offsetof(Vertex, normal) },
 						{ GL_FLOAT, 2, offsetof(Vertex, textureCoords) },
-						{ GL_FLOAT, 3, offsetof(Vertex, tangent) }},
+						{ GL_FLOAT, 3, offsetof(Vertex, tangent) },
+						{ GL_FLOAT, 3, offsetof(Vertex, biTangent) }},
 				vertices, indices);
 	}
 

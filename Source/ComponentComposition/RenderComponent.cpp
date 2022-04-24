@@ -21,7 +21,7 @@ namespace PlatinumEngine
 		else
 			renderer.SetModelMatrix();
 
-		renderer.LoadTexture(material);
+		renderer.LoadMaterial(material);
 		_shaderInput.Draw();
 	}
 
