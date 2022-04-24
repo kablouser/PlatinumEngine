@@ -408,25 +408,6 @@ namespace PlatinumEngine
 //		pointLight.lightPos = Maths::Vec3(0.0f, 2.0f, 2.0f);
 		// pointLight.lightPos = Maths::Vec3(0.9f * (float)std::cos(glfwGetTime()),0.9f * (float)std::sin(glfwGetTime()),0.9f);
 
-		// normal shader
-//		_normalMapShader.Bind();
-//		_normalMapShader.SetUniform("lightColor", Maths::Vec3(1.0f, 1.0f, 1.0f));
-//		_normalMapShader.SetUniform("lightPos", pointLight.lightPos);
-//		_normalMapShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
-//
-//		_normalMapShader.SetUniform("pointLight.position", pointLight.lightPos);
-//		_normalMapShader.SetUniform("pointLight.ambient", pointLight.ambientStrength);
-//		_normalMapShader.SetUniform("pointLight.diffuse", pointLight.diffuseStrength);
-//		_normalMapShader.SetUniform("pointLight.specular", pointLight.specularStrength);
-//
-//		_normalMapShader.SetUniform("pointLight.constant", pointLight.constant);
-//		_normalMapShader.SetUniform("pointLight.linear", pointLight.linear);
-//		_normalMapShader.SetUniform("pointLight.quadratic", pointLight.quadratic);
-//		_normalMapShader.SetUniform("viewPos", Maths::Vec3(0.0, 0.0, 10.0));
-//
-//		_normalMapShader.SetUniform("isPointLight", true);
-//		_normalMapShader.Unbind();
-
 //		_unlitShader.Bind();
 //		_unlitShader.SetUniform("lightColor", Maths::Vec3(1.0f, 1.0f, 1.0f));
 //		_unlitShader.SetUniform("lightPos", pointLight.lightPos);

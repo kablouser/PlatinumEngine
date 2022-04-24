@@ -400,10 +400,10 @@ namespace PlatinumEngine{
 
 
 			// ---------------- Render SKY BOX ---------------- //
+			glDisable(GL_DEPTH_TEST);
 			// discard the depth of the skybox
 			if(_enableSkyBox)
 			{
-				glDisable(GL_DEPTH_TEST);
 				glDepthMask(false);
 				_renderer->BeginSkyBoxShader();
 
@@ -418,12 +418,37 @@ namespace PlatinumEngine{
 				_skyBoxShaderInput.Draw();
 				_renderer->EndSkyBoxShader();
 
-				_skyboxTexture.UnbindCubeMap();
-
 				// enable depth test for the later rendering
 				glDepthMask(true);
-				glEnable(GL_DEPTH_TEST);
 			}
+
+			// -------------------- Render GRID ------------------ //
+			if(_enableGrid)
+			{
+				_renderer->BeginGrid();
+				_renderer->SetViewMatrixForGridShader(_camera.viewMatrix4);
+				_renderer->SetProjectionMatrixForGridShader(_camera.projectionMatrix4);
+				_renderer->SetFarValueForGridShader((float)_far);
+				_renderer->SetNearValueForGridShader((float)_near);
+				_renderer->SetTransparencyForGridShader(_transparency);
+
+				if (_xGrid)
+				{
+					_renderer->SetGridAxisForGridShader(0);
+				}
+				else if (_zGrid)
+				{
+					_renderer->SetGridAxisForGridShader(2);
+				}
+				else
+				{
+					_renderer->SetGridAxisForGridShader(1);
+				}
+
+				_gridShaderInput.Draw();
+				_renderer->EndGrid();
+			}
+			glEnable(GL_DEPTH_TEST);
 			// ------------- Render Game Objects ------------- //
 			// Start rendering (bind a shader)
 			_renderer->Begin();
@@ -452,34 +477,6 @@ namespace PlatinumEngine{
 
 			// End rendering (unbind a shader)
 			_renderer->End();
-
-
-			// -------------------- Render GRID ------------------ //
-			if(_enableGrid)
-			{
-				_renderer->BeginGrid();
-				_renderer->SetViewMatrixForGridShader(_camera.viewMatrix4);
-				_renderer->SetProjectionMatrixForGridShader(_camera.projectionMatrix4);
-				_renderer->SetFarValueForGridShader((float)_far);
-				_renderer->SetNearValueForGridShader((float)_near);
-				_renderer->SetTransparencyForGridShader(_transparency);
-
-				if (_xGrid)
-				{
-					_renderer->SetGridAxisForGridShader(0);
-				}
-				else if (_zGrid)
-				{
-					_renderer->SetGridAxisForGridShader(2);
-				}
-				else
-				{
-					_renderer->SetGridAxisForGridShader(1);
-				}
-
-				_gridShaderInput.Draw();
-				_renderer->EndGrid();
-			}
 
 			// unbind framebuffer
 			_renderTexture.Unbind();
