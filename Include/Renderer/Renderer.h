@@ -153,6 +153,7 @@ namespace PlatinumEngine
 		ShaderProgram _unlitShader;
 		ShaderProgram _skyBoxShader;
 		ShaderProgram _gridShader;
+		ShaderProgram _phongShader;
 		ShaderProgram _normalMapShader;
 
 		// ShaderInput _meshShaderInput, _lightShaderInput;

@@ -152,8 +152,20 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			memset(normalTextureBuffer, 0, 64 * sizeof(char));
 
 		//Show text box (read only)----------Choose Material
-		ImGui::Text("%s", "Material");
+		ImGui::Text("%s", "Material Properties");
 		ImGui::Separator();
+
+		ImGui::Text("Shininess");
+
+		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
+		ImGui::SliderFloat("##shininess",&(_activeGameObject->GetComponent<RenderComponent>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
+		ImGui::PopItemWidth();
+
+		ImGui::Text("Blinn-Phong");
+		ImGui::SameLine();
+		ImGui::Checkbox("##Blinn-Phong", &(_activeGameObject->GetComponent<RenderComponent>()->material.useBlinnPhong));
+
 		ImGui::Text("Texture");
 		ImGui::SameLine(_textWidthMeshRenderComponent);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
@@ -172,12 +184,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			if (std::get<0>(asset_Helper))
 				_activeGameObject->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
 		}
-		ImGui::Text("Shininess");
-
-		ImGui::SameLine(_textWidthMeshRenderComponent);
-		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
-		ImGui::SliderFloat("##shininess",&(_activeGameObject->GetComponent<RenderComponent>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
-		ImGui::PopItemWidth();
+		ImGui::SameLine();
+		ImGui::Checkbox("##UseTexture", &(_activeGameObject->GetComponent<RenderComponent>()->material.useTexture));
 
 		ImGui::Text("%s", "Normal Map");
 		ImGui::SameLine(_textWidthMeshRenderComponent);

@@ -26,6 +26,9 @@ namespace PlatinumEngine
 
 		float         	shininessFactor;
 
+		// Flags
+		bool useBlinnPhong = false;
+		bool useTexture = false;
 		bool useNormalTexture = false;
 
 		Material();
