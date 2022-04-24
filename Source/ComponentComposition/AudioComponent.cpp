@@ -26,6 +26,16 @@ namespace PlatinumEngine
 		Mix_FreeMusic(_music);
 	}
 
+	void AudioComponent::LoadSample(std::string sample, AudioType audioType)
+	{
+		_sample = sample;
+		_audioType = audioType;
+		if(_audioType==AudioType::clip)
+			_sound = Mix_LoadWAV(_sample.c_str());
+		else
+			_music = Mix_LoadMUS(_sample.c_str());
+	}
+
 	void AudioComponent::Play()
 	{
 		_channel = -1;

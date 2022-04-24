@@ -31,6 +31,8 @@ namespace PlatinumEngine
 		AudioComponent(std::string sample = "", AudioType audioType = AudioType::clip, bool loop = false);
 		~AudioComponent();
 
+		//Loads a sample
+		void LoadSample(std::string sample, AudioType audioType = AudioType::clip);
 		// Plays the sample
 		void Play();
 		// Pauses currently played sample
