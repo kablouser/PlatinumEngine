@@ -1,8 +1,8 @@
-#include "ComponentComposition/CameraComponent.h"
+#include "ComponentComposition/Camera.h"
 
 namespace PlatinumEngine
 {
-	CameraComponent::CameraComponent()
+	Camera::Camera()
 	{
 		projectionType = ProjectionType::perspective;
 		backgroundColor = Color(0.f, 0.f, 0.f, 1.f);
@@ -14,7 +14,7 @@ namespace PlatinumEngine
 	}
 
 	//Transform point from screen to world coordinates
-	Maths::Vec3 CameraComponent::ViewportToWorldPoint(
+	Maths::Vec3 Camera::ViewportToWorldPoint(
 			const Maths::Vec3& viewportCoordinate,
 			const Maths::Vec2& viewportSize)
 	{
@@ -31,7 +31,7 @@ namespace PlatinumEngine
 	}
 
 	//Transform point from world to screen coordinates
-	Maths::Vec3 CameraComponent::WorldToViewportPoint(
+	Maths::Vec3 Camera::WorldToViewportPoint(
 			const Maths::Vec3& worldCoordinate,
 			const Maths::Vec2& viewportSize)
 	{
@@ -48,19 +48,19 @@ namespace PlatinumEngine
 	}
 
 	//Returns matrix that convert from world space to clip space (View*Projection matrix)
-	Maths::Mat4 CameraComponent::GetWorldToClipMatrix(const Maths::Vec2& viewportSize)
+	Maths::Mat4 Camera::GetWorldToClipMatrix(const Maths::Vec2& viewportSize)
 	{
 		return (GetProjectionMatrix(viewportSize) * GetWorldToCameraMatrix());
 	}
 
 	//Returns matrix that convert from clip space to world space (Inverse of View*Projection matrix)
-	Maths::Mat4 CameraComponent::GetClipToWorldMatrix(const Maths::Vec2& viewportSize)
+	Maths::Mat4 Camera::GetClipToWorldMatrix(const Maths::Vec2& viewportSize)
 	{
 		return Maths::Inverse(GetWorldToClipMatrix(viewportSize));
 	}
 
 	//Returns the Projection matrix
-	Maths::Mat4 CameraComponent::GetProjectionMatrix(const Maths::Vec2& viewportSize)
+	Maths::Mat4 Camera::GetProjectionMatrix(const Maths::Vec2& viewportSize)
 	{
 		float aspectRatio = viewportSize.x / viewportSize.y;
 		Maths::Mat4 projectionMatrix;
@@ -72,16 +72,16 @@ namespace PlatinumEngine
 		return projectionMatrix;
 	}
 
-	Maths::Mat4 CameraComponent::GetViewMatrix()
+	Maths::Mat4 Camera::GetViewMatrix()
 	{
 		return GetWorldToCameraMatrix();
 	}
 
 	//Returns matrix that convert from world coordinates to camera coordinates (View matrix)
-	Maths::Mat4 CameraComponent::GetWorldToCameraMatrix()
+	Maths::Mat4 Camera::GetWorldToCameraMatrix()
 	{
 		Maths::Mat4 worldToCameraMatrix;
-		TransformComponent* tc = GetGameObject()->GetComponent<TransformComponent>();
+		Transform* tc = GetGameObject()->GetComponent<Transform>();
 		if (tc != nullptr)
 		{
 			Maths::Mat4 invR, invT;
@@ -95,10 +95,10 @@ namespace PlatinumEngine
 	}
 
 	//Returns matrix that convert from camera coordinates to world coordinates (Inverse View matrix)
-	Maths::Mat4 CameraComponent::GetCameraToWorldMatrix()
+	Maths::Mat4 Camera::GetCameraToWorldMatrix()
 	{
 		Maths::Mat4 cameraToWorldMatrix;
-		TransformComponent* tc = GetGameObject()->GetComponent<TransformComponent>();
+		Transform* tc = GetGameObject()->GetComponent<Transform>();
 		if (tc != nullptr)
 		{
 			Maths::Mat4 t, r;

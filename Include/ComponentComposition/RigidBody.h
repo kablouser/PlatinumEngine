@@ -1,0 +1,76 @@
+//
+// Created by shawn on 2022/4/22.
+//
+
+#pragma once
+
+#include <ComponentComposition/Component.h>
+#include <ComponentComposition/BoxCollider.h>
+#include <ComponentComposition/SphereCollider.h>
+#include <ComponentComposition/CapsuleCollider.h>
+
+#include <Physics/Physics.h>
+
+namespace PlatinumEngine
+{
+	class PhysicalMaterial
+	{
+	public:
+		//between 0 and 1
+		float friction = 0.5f;
+		float bounciness = 0.5f;
+
+		PhysicalMaterial() {};
+
+		/**
+		 *
+		 * @param f: friction
+		 * @param b: bounciness
+		 */
+		PhysicalMaterial(float f, float b)
+		{
+			f = friction;
+			b = bounciness;
+		}
+	};
+
+	///-----------------------------------
+
+	class RigidBody: public Component
+	{
+	public:
+		RigidBody(GameObject* gameObject, Physics* physics);
+
+		//set up the rigidBody, called after physics world set up
+		void Initialize(btCollisionShape* shape);
+
+		//Setters
+		void SetMass(float mass);
+		void SetForce(Maths::Vec3 force);
+		void SetKinematic(bool value);
+
+		//Getters
+		float GetMass();
+		Maths::Vec3 GetForce();
+		bool GetKinematic();
+
+		btTransform GetWorldTransform();
+		Maths::Vec3 GetBulletRotation();
+		Maths::Vec3 GetBulletPosition();
+
+
+	private:
+		Maths::Vec3 _initialForce;
+		bool _kinematic;
+		float _mass;
+
+		btRigidBody* _rigidBody;
+
+		BoxCollider* _boxCollider;
+		SphereCollider* _sphereCollider;
+		CapsuleCollider* _capsuleCollider;
+
+		GameObject* _attachedObject;
+		Physics* _physics;
+	};
+}

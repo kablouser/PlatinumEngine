@@ -8,8 +8,8 @@
 // Platinum library
 #include "ComponentComposition/Objects.h"
 #include <SceneEditor/SceneEditor.h>
-#include <ComponentComposition/TransformComponent.h>
-#include <ComponentComposition/RenderComponent.h>
+#include <ComponentComposition/Transform.h>
+#include <ComponentComposition/MeshRender.h>
 
 
 namespace PlatinumEngine{
@@ -598,7 +598,7 @@ namespace PlatinumEngine{
 		//------------------//
 
 		// check if the game object has mesh component
-		if( auto renderComponent = currentCheckingGameobject->GetComponent<RenderComponent>(); renderComponent!= nullptr)
+		if( auto renderComponent = currentCheckingGameobject->GetComponent<MeshRender>(); renderComponent != nullptr)
 		{
 			// fetch mesh
 			Mesh* mesh = renderComponent->GetMesh();
@@ -616,7 +616,7 @@ namespace PlatinumEngine{
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
 					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject->GetComponent<TransformComponent>();
+					if (auto transformComponent = currentCheckingGameobject->GetComponent<Transform>();
 							transformComponent != nullptr)
 					{
 						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
@@ -873,7 +873,7 @@ namespace PlatinumEngine{
 		//------------------//
 
 		// check if the game object has mesh component
-		if( auto renderComponent = currentCheckingGameobject->GetComponent<RenderComponent>(); renderComponent!= nullptr)
+		if( auto renderComponent = currentCheckingGameobject->GetComponent<MeshRender>(); renderComponent != nullptr)
 		{
 			// fetch mesh
 			Mesh* mesh = renderComponent->GetMesh();
@@ -892,7 +892,7 @@ namespace PlatinumEngine{
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
 					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject->GetComponent<TransformComponent>();
+					if (auto transformComponent = currentCheckingGameobject->GetComponent<Transform>();
 							transformComponent != nullptr)
 					{
 						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();

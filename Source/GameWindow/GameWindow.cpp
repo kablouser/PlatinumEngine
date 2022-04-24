@@ -3,8 +3,8 @@
 //
 
 #include "GameWindow/GameWindow.h"
-#include <ComponentComposition/RenderComponent.h>
-#include <ComponentComposition/CameraComponent.h>
+#include <ComponentComposition/MeshRender.h>
+#include <ComponentComposition/Camera.h>
 namespace PlatinumEngine
 {
 	PlatinumEngine::GameWindow::GameWindow()
@@ -67,7 +67,7 @@ namespace PlatinumEngine
 			_renderTexture.Bind();
 			// must begin renderer before matrices are set
 			_renderer->Begin();
-			auto camera = _scene->FindFirstComponent<CameraComponent>();
+			auto camera = _scene->FindFirstComponent<Camera>();
 			if (camera)
 			{
 				// success so allow warning to be shown for next time
@@ -78,9 +78,9 @@ namespace PlatinumEngine
 
 				switch (camera->clearMode)
 				{
-				case CameraComponent::ClearMode::skybox:
+				case Camera::ClearMode::skybox:
 					break;
-				case CameraComponent::ClearMode::backgroundColor:
+				case Camera::ClearMode::backgroundColor:
 					glClearColor(
 							camera->backgroundColor.r,
 							camera->backgroundColor.g,
@@ -88,7 +88,7 @@ namespace PlatinumEngine
 							camera->backgroundColor.a);
 					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 					break;
-				case CameraComponent::ClearMode::none:
+				case Camera::ClearMode::none:
 					break;
 				}
 

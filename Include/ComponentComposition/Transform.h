@@ -10,7 +10,7 @@
 
 namespace PlatinumEngine
 {
-	class TransformComponent : public Component
+	class Transform : public Component
 	{
 	public:
 
@@ -23,7 +23,7 @@ namespace PlatinumEngine
 		// uniform scaling has nice properties
 		float localScale;
 
-		TransformComponent();
+		Transform();
 
 		/**
 		 * Local transformation

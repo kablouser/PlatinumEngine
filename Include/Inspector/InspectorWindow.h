@@ -6,8 +6,8 @@
 
 #include "WindowManager/Filedialog.h"
 #include <ComponentComposition/Component.h>
-#include <ComponentComposition/RenderComponent.h>
-#include <ComponentComposition/TransformComponent.h>
+#include <ComponentComposition/MeshRender.h>
+#include <ComponentComposition/Transform.h>
 #include <ComponentComposition/GameObject.h>
 #include <SceneManager/SceneManager.h>
 #include <OpenGL/Mesh.h>

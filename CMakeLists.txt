@@ -75,6 +75,10 @@ FetchContent_MakeAvailable(imguizmo)
 FetchContent_Declare(stb GIT_REPOSITORY https://github.com/nothings/stb.git GIT_TAG origin/master)
 FetchContent_MakeAvailable(stb)
 add_subdirectory("stb CMake")
+#----------------------------
+# bullet3 physics library
+FetchContent_Declare(bullet3 GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git GIT_TAG 3.22b)
+FetchContent_MakeAvailable(bullet3)
 #-----------------------------
 # Add more libraries from git repos here:
 #-----------------------------
@@ -92,14 +96,17 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/AssetDatabase/AssetDatabase.cpp;"
 	"Source/AssetDatabase/AssetHelper.cpp;"
 	
-	"Source/ComponentComposition/CameraComponent.cpp;"
+	"Source/ComponentComposition/Camera.cpp;"
 	"Source/ComponentComposition/Color.cpp;"
 	"Source/ComponentComposition/Component.cpp;"
-	"Source/ComponentComposition/ComponentType.cpp;"
 	"Source/ComponentComposition/GameObject.cpp;"
-	"Source/ComponentComposition/RenderComponent.cpp;"
-	"Source/ComponentComposition/TransformComponent.cpp;"
-#	"Source/ComponentComposition/LightComponent.cpp;"
+	"Source/ComponentComposition/MeshRender.cpp;"
+	"Source/ComponentComposition/Transform.cpp;"
+#	"Source/ComponentComposition/Light.cpp;"
+	"Source/ComponentComposition/RigidBody.cpp;"
+	"Source/ComponentComposition/BoxCollider.cpp;"
+	"Source/ComponentComposition/CapsuleCollider.cpp;"
+	"Source/ComponentComposition/SphereCollider.cpp;"
 	
 	"Source/GameWindow/GameWindow.cpp;"
 	
@@ -126,6 +133,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/Texture.cpp;"
 	"Source/OpenGL/Material.cpp;"
 	
+	"Source/Physics/Physics.cpp;"
+	
 	"Source/Profiler/Profiler.cpp;"
 	
 	"Source/Project/ProjectWindow.cpp;"
@@ -146,7 +155,13 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 
 
-target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts" "${FETCHCONTENT_BASE_DIR}/imguizmo-src" "${FETCHCONTENT_BASE_DIR}/stb-src")
+target_include_directories(${PROJECT_NAME} PRIVATE
+	"${CMAKE_CURRENT_LIST_DIR}/Include"
+	"${CMAKE_CURRENT_LIST_DIR}/Fonts"
+	"${FETCHCONTENT_BASE_DIR}/imguizmo-src"
+	"${FETCHCONTENT_BASE_DIR}/stb-src"
+	"${FETCHCONTENT_BASE_DIR}/bullet-src/src"
+	)
 #-----------------------------
 
 
@@ -180,6 +195,13 @@ set(PROJECT_LIBRARIES
 	"glm;"
 	"assimp;"
 	"libglew_static;"
+	# Bullet3D libs
+	"LinearMath;"
+	"Bullet3Common;"
+	"BulletCollision;"
+	"BulletDynamics;"
+	#"BulletInverseDynamics;"
+	#"BulletSoftBody;" #shouldnt be necessary
   )
 # different targets
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_LIBRARIES})

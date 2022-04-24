@@ -11,10 +11,10 @@
 #include "OpenGL/Material.h"
 namespace PlatinumEngine
 {
-	class RenderComponent: public Component
+	class MeshRender: public Component
 	{
 	public:
-		RenderComponent();
+		MeshRender();
 
 		// update mesh from mesh loader
 		void SetMesh(Mesh* mesh);
@@ -33,7 +33,6 @@ namespace PlatinumEngine
 
 	private:
 		Mesh* _mesh;
-
 
 		ShaderInput _shaderInput;
 	};

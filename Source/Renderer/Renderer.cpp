@@ -9,7 +9,7 @@
 #include <Logger/Logger.h>
 
 // test
-#include "ComponentComposition/RenderComponent.h"
+#include "ComponentComposition/MeshRender.h"
 
 // shaders
 // DON'T FORMAT THESE LINES, OTHERWISE IT BREAKS
@@ -298,7 +298,7 @@ namespace PlatinumEngine
 
 				Begin();
 				Mesh mesh(vertices, indices);
-//				RenderComponent renderComponent(mesh);
+//				MeshRender renderComponent(mesh);
 				LoadMesh(mesh);
 				End();
 

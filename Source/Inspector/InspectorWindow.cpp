@@ -3,8 +3,7 @@
 //
 
 #include <Inspector/InspectorWindow.h>
-#include <ComponentComposition/CameraComponent.h>
-#include <ImGuizmo.h>
+#include <ComponentComposition/Camera.h>
 
 using namespace PlatinumEngine;
 
@@ -34,13 +33,13 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 			}
 
 			// Now render each component gui
-			if (obj->GetComponent<RenderComponent>() != nullptr)
+			if (obj->GetComponent<MeshRender>() != nullptr)
 				ShowMeshRenderComponent(scene);
 
-			if (obj->GetComponent<TransformComponent>() != nullptr)
+			if (obj->GetComponent<Transform>() != nullptr)
 				ShowTransformComponent(scene);
 
-		  	if (obj->GetComponent<CameraComponent>())
+		  	if (obj->GetComponent<Camera>())
 				  ShowCameraComponent(scene);
 
 		  	ImGui::Separator();
@@ -83,7 +82,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveRenderComponent")) {
 		// remove component
-		scene.RemoveComponent(*obj->GetComponent<RenderComponent>());
+		scene.RemoveComponent(*obj->GetComponent<MeshRender>());
 		return;
 	}
 	if (isHeaderOpen)
@@ -95,8 +94,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 
 		// store the current mesh name into mesh buffer, so that we can display it in the input text box
-		if(obj->GetComponent<RenderComponent>()->GetMesh() != nullptr)
-			strcpy(meshBuffer,  obj->GetComponent<RenderComponent>()->GetMesh()->fileName.c_str());
+		if(obj->GetComponent<MeshRender>()->GetMesh() != nullptr)
+			strcpy(meshBuffer,  obj->GetComponent<MeshRender>()->GetMesh()->fileName.c_str());
 		else
 			memset(meshBuffer, 0, 64 * sizeof(char));
 
@@ -118,7 +117,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 				{
 					std::cout<<"NAME: "<<payloadPath.filename().string()<<"\n";
 					//Maybe we SetMesh on _activeGameObject
-					//_activeGameObject->GetComponent<RenderComponent>()->SetMesh(mesh);
+					//_activeGameObject->GetComponent<MeshRender>()->SetMesh(mesh);
 				}
 			}
 			// End DragDropTarget
@@ -136,17 +135,17 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			auto asset_Helper = _assetHelper->ShowMeshGuiWindow();
 			if (std::get<0>(asset_Helper))
 			{
-				obj->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+				obj->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
 			}
 		}
 
-		if(obj->GetComponent<RenderComponent>()->material.diffuseTexture != nullptr)
-			strcpy(textureBuffer,  obj->GetComponent<RenderComponent>()->material.diffuseTexture->fileName.c_str());
+		if(obj->GetComponent<MeshRender>()->material.diffuseTexture != nullptr)
+			strcpy(textureBuffer,  obj->GetComponent<MeshRender>()->material.diffuseTexture->fileName.c_str());
 		else
 			memset(textureBuffer, 0, 64 * sizeof(char));
 
-		if(obj->GetComponent<RenderComponent>()->material.normalTexture != nullptr)
-			strcpy(normalTextureBuffer,  obj->GetComponent<RenderComponent>()->material.normalTexture->fileName.c_str());
+		if(obj->GetComponent<MeshRender>()->material.normalTexture != nullptr)
+			strcpy(normalTextureBuffer,  obj->GetComponent<MeshRender>()->material.normalTexture->fileName.c_str());
 		else
 			memset(normalTextureBuffer, 0, 64 * sizeof(char));
 
@@ -158,12 +157,12 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 
 		ImGui::SameLine(_textWidthMeshRenderComponent);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
-		ImGui::SliderFloat("##shininess",&(obj->GetComponent<RenderComponent>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
+		ImGui::SliderFloat("##shininess",&(obj->GetComponent<MeshRender>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 
 		ImGui::Text("Blinn-Phong");
 		ImGui::SameLine();
-		ImGui::Checkbox("##Blinn-Phong", &(obj->GetComponent<RenderComponent>()->material.useBlinnPhong));
+		ImGui::Checkbox("##Blinn-Phong", &(obj->GetComponent<MeshRender>()->material.useBlinnPhong));
 
 		ImGui::Text("Texture");
 		ImGui::SameLine(_textWidthMeshRenderComponent);
@@ -182,12 +181,12 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			auto asset_Helper = _assetHelper->ShowTextureGuiWindow();
 			if (std::get<0>(asset_Helper))
 			{
-				obj->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
-				obj->GetComponent<RenderComponent>()->material.useTexture = true;
+				obj->GetComponent<MeshRender>()->SetMaterial(std::get<1>(asset_Helper));
+				obj->GetComponent<MeshRender>()->material.useTexture = true;
 			}
 		}
 		ImGui::SameLine();
-		ImGui::Checkbox("##UseTexture", &(obj->GetComponent<RenderComponent>()->material.useTexture));
+		ImGui::Checkbox("##UseTexture", &(obj->GetComponent<MeshRender>()->material.useTexture));
 
 		ImGui::Text("%s", "Normal Map");
 		ImGui::SameLine(_textWidthMeshRenderComponent);
@@ -202,10 +201,10 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		{
 			auto asset_Helper = _assetHelper->ShowNormalTextureGuiWindow();
 			if (std::get<0>(asset_Helper))
-				obj->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
+				obj->GetComponent<MeshRender>()->SetNormalMap(std::get<1>(asset_Helper));
 		}
 		ImGui::SameLine();
-		ImGui::Checkbox("##UseNormalTexture", &(obj->GetComponent<RenderComponent>()->material.useNormalTexture));
+		ImGui::Checkbox("##UseNormalTexture", &(obj->GetComponent<MeshRender>()->material.useNormalTexture));
 	}
 }
 
@@ -220,27 +219,27 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveTransformComponent")) {
 		// remove component
-		scene.RemoveComponent(*obj->GetComponent<TransformComponent>());
+		scene.RemoveComponent(*obj->GetComponent<Transform>());
 		return;
 	}
 	if (isHeaderOpen)
 	{
 		ImGui::PushItemWidth(50);
 		ImGui::Text(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT " Position: ");
-		ImGui::SameLine(_textWidthTransformComponent);
+		ImGui::SameLine(_textWidthTransform);
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Xpos", &obj->GetComponent<TransformComponent>()->localPosition[0], 0.001f);
+		ImGui::DragFloat("##Xpos", &obj->GetComponent<Transform>()->localPosition[0], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Ypos", &obj->GetComponent<TransformComponent>()->localPosition[1], 0.001f);
+		ImGui::DragFloat("##Ypos", &obj->GetComponent<Transform>()->localPosition[1], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Zpos", &obj->GetComponent<TransformComponent>()->localPosition[2], 0.001f);
+		ImGui::DragFloat("##Zpos", &obj->GetComponent<Transform>()->localPosition[2], 0.001f);
     
-    	Maths::Vec3 eulerRotation = obj->GetComponent<TransformComponent>()->localRotation.EulerAngles();
+    	Maths::Vec3 eulerRotation = obj->GetComponent<Transform>()->localRotation.EulerAngles();
 		ImGui::Text(ICON_FA_ROTATE " Rotation: ");
 		ImGui::SameLine(_textWidthTransformComponent);
 		ImGui::Text("X");
@@ -254,13 +253,13 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::Text("Z");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Zrpt", &eulerRotation[2], 0.001f);
-		obj->GetComponent<TransformComponent>()->localRotation = Maths::Quaternion::EulerToQuaternion(
+		obj->GetComponent<Transform>()->localRotation = Maths::Quaternion::EulerToQuaternion(
 				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2])); 
 
 		ImGui::Text(ICON_FA_MAXIMIZE " Scale: ");
 		// Scale is special case and needs some extra offset applied
 		ImGui::SameLine(_textWidthTransformComponent + 16.0f);
-		ImGui::InputFloat("##scale", &obj->GetComponent<TransformComponent>()->localScale);
+		ImGui::InputFloat("##scale", &obj->GetComponent<Transform>()->localScale);
 		ImGui::PopItemWidth();
 	}
 
@@ -279,19 +278,19 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveCameraComponent")) {
 		// remove component
-		scene.RemoveComponent(*obj->GetComponent<CameraComponent>());
+		scene.RemoveComponent(*obj->GetComponent<Camera>());
 		return;
 	}
 	if (isHeaderOpen)
 	{
-		auto camera = obj->GetComponent<CameraComponent>();
+		auto camera = obj->GetComponent<Camera>();
 
 		{// the camera projection type
-			if (CameraComponent::ProjectionType::perspective == camera->projectionType)
+			if (Camera::ProjectionType::perspective == camera->projectionType)
 			{
 				std::strcpy(cameraType, _temp[0].c_str());
 			}
-			if (CameraComponent::ProjectionType::orthographic == camera->projectionType)
+			if (Camera::ProjectionType::orthographic == camera->projectionType)
 			{
 
 				std::strcpy(cameraType, _temp[1].c_str());
@@ -306,12 +305,12 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 			{
 				if (ImGui::Selectable("Perspective"))
 				{
-					camera->projectionType = CameraComponent::ProjectionType::perspective;
+					camera->projectionType = Camera::ProjectionType::perspective;
 					//std::strcpy(cameraType, _temp[0].c_str());
 				}
 				if (ImGui::Selectable("Orthographic"))
 				{
-					camera->projectionType = CameraComponent::ProjectionType::orthographic;
+					camera->projectionType = Camera::ProjectionType::orthographic;
 					//std::strcpy(cameraType, _temp[1].c_str());
 				}
 				ImGui::EndPopup();
@@ -324,15 +323,15 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 		}
 
 		{// the camera clear mode
-			if (CameraComponent::ClearMode::backgroundColor == camera->clearMode)
+			if (Camera::ClearMode::backgroundColor == camera->clearMode)
 			{
 				std::strcpy(clearMode, _clearMode[2].c_str());
 			}
-			if (CameraComponent::ClearMode::skybox == camera->clearMode)
+			if (Camera::ClearMode::skybox == camera->clearMode)
 			{
 				std::strcpy(clearMode, _clearMode[1].c_str());
 			}
-			if (CameraComponent::ClearMode::none == camera->clearMode)
+			if (Camera::ClearMode::none == camera->clearMode)
 			{
 				std::strcpy(clearMode, _clearMode[0].c_str());
 			}
@@ -347,15 +346,15 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 			{
 				if (ImGui::Selectable("SkyBox"))
 				{
-					camera->clearMode = CameraComponent::ClearMode::skybox;
+					camera->clearMode = Camera::ClearMode::skybox;
 				}
 				if (ImGui::Selectable("None"))
 				{
-					camera->clearMode = CameraComponent::ClearMode::none;
+					camera->clearMode = Camera::ClearMode::none;
 				}
 				if (ImGui::Selectable("BackgroundColour"))
 				{
-					camera->clearMode = CameraComponent::ClearMode::backgroundColor;
+					camera->clearMode = Camera::ClearMode::backgroundColor;
 				}
 				ImGui::EndPopup();
 			}
@@ -461,16 +460,16 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			if (strcmp(selectedComponent, "Mesh Render Component") == 0)
 			{
 				// Add Render Component
-				scene.AddComponent<RenderComponent>(obj);
+				scene.AddComponent<MeshRender>(obj);
 			}
 			else if (strcmp(selectedComponent, "Transform Component") == 0)
 			{
 				// Add Transform Component
-				scene.AddComponent<TransformComponent>(obj);
+				scene.AddComponent<Transform>(obj);
 			}
 			else if (strcmp(selectedComponent, "Camera Component") == 0)
 			{
-				scene.AddComponent<CameraComponent>(obj);
+				scene.AddComponent<Camera>(obj);
 			}
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;
