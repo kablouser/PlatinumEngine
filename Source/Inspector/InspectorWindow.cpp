@@ -42,7 +42,7 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 		  if (_isAddComponentWindowOpen)
 			  ShowAddComponent(scene);
 
-			if (ImGui::Button("Add Component"))
+			if (ImGui::Button("AddInternal Component"))
 			{
 				_isAddComponentWindowOpen = !_isAddComponentWindowOpen;
 			}

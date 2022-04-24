@@ -1,5 +1,5 @@
 #pragma once
-#include <Serialization/Collection.h>
+#include <TypeDatabase/Collection.h>
 #include <vector>
 #include <Helpers/VectorHelpers.h>
 

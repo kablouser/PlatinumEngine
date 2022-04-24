@@ -1,4 +1,4 @@
-#include <Serialization/Serialization.h>
+#include <TypeDatabase/TypeDatabase.h>
 #include <Logger/Logger.h>
 #include <set> // std::set
 
@@ -37,7 +37,7 @@ namespace PlatinumEngine
 
 	TypeInfoFactory& TypeInfoFactory::WithCollection(std::unique_ptr<Collection>&& withCollection)
 	{
-		auto& typeInfo = typeDatabase.typeInfos.at(typeInfoIndex);
+		auto& typeInfo = typeDatabase._typeInfos.at(typeInfoIndex);
 		// isCollection must be enabled
 		assert(typeInfo.isCollection);
 		typeInfo.collection = std::move(withCollection);
@@ -46,7 +46,7 @@ namespace PlatinumEngine
 
 	TypeInfoFactory* TypeInfoFactory::WithInheritInternal(std::type_index&& typeIndex)
 	{
-		auto& typeInfo = typeDatabase.typeInfos.at(typeInfoIndex);
+		auto& typeInfo = typeDatabase._typeInfos.at(typeInfoIndex);
 		// only 1 inherited type allowed
 		assert(!typeInfo.inheritedType.has_value());
 		// collections cannot inherit
@@ -60,7 +60,7 @@ namespace PlatinumEngine
 			size_t offset,
 			std::type_index&& typeIndex)
 	{
-		auto& typeInfo = typeDatabase.typeInfos.at(typeInfoIndex);
+		auto& typeInfo = typeDatabase._typeInfos.at(typeInfoIndex);
 		// fields cannot be in collections
 		assert(!typeInfo.isCollection);
 		FieldInfo newFieldInfo{ typeIndex, std::move(fieldName), offset };
@@ -72,26 +72,43 @@ namespace PlatinumEngine
 	// TypeDatabase
 	//-----------------------------------------------------------------------
 
+	TypeDatabase* TypeDatabase::Instance = nullptr;
+
+	TypeDatabase::TypeDatabase()
+	{
+		// should only be 1 in the program
+		assert(Instance == nullptr);
+		Instance = this;
+		Init();
+	}
+
+	TypeDatabase::~TypeDatabase()
+	{
+		// should be this in the program
+		assert(Instance == this);
+		Instance = nullptr;
+	}
+
 	//-----------------------------------------------------------------------
 	// Get Type Info
 	//-----------------------------------------------------------------------
 
 	std::pair<bool, const TypeInfo*> TypeDatabase::GetTypeInfo(const std::string& typeName)
 	{
-		auto iterator = typeNames.find(typeName);
-		if (iterator == typeNames.end())
+		auto iterator = _typeNames.find(typeName);
+		if (iterator == _typeNames.end())
 			return { false, nullptr };
 		else
-			return { true, &typeInfos.at(iterator->second) };
+			return { true, &_typeInfos.at(iterator->second) };
 	}
 
 	std::pair<bool, const TypeInfo*> TypeDatabase::GetTypeInfo(const std::type_index& typeIndex)
 	{
-		auto iterator = typeIndices.find(typeIndex);
-		if (iterator == typeIndices.end())
+		auto iterator = _typeIndices.find(typeIndex);
+		if (iterator == _typeIndices.end())
 			return { false, nullptr };
 		else
-			return { true, &typeInfos.at(iterator->second) };
+			return { true, &_typeInfos.at(iterator->second) };
 	}
 
 	//-----------------------------------------------------------------------
@@ -101,7 +118,7 @@ namespace PlatinumEngine
 	bool TypeDatabase::FinalCheck()
 	{
 		bool result = true;
-		for (auto& typeInfo : typeInfos)
+		for (auto& typeInfo : _typeInfos)
 		{
 			if (typeInfo.inheritedType.has_value())
 			{
@@ -174,33 +191,8 @@ namespace PlatinumEngine
 	}
 
 	//-----------------------------------------------------------------------
-	// Serialization
+	// Serialization - disgusting details that you could use
 	//-----------------------------------------------------------------------
-
-	TypeInfoFactory TypeDatabase::BeginAbstractTypeInfoInternal(
-			bool isCollection,
-			std::string typeName,
-			std::type_index typeIndex)
-	{
-		size_t countTypeNames = typeNames.count(typeName);
-		size_t countTypeIndices = typeIndices.count(typeIndex);
-		if (0 == countTypeNames && 0 == countTypeIndices)
-		{
-			typeNames[typeName] = typeIndices[typeIndex] = typeInfos.size();
-			typeInfos.emplace_back(typeIndex, isCollection);
-			typeInfos.at(typeInfos.size() - 1).typeName = std::move(typeName);
-			return TypeInfoFactory(typeInfos.size() - 1,*this);
-		}
-		else
-		{
-			PLATINUM_WARNING("Type already exists in TypeDatabase.");
-			// typeName already exists in database, return the existing entry
-			if (countTypeNames == 0)
-				return TypeInfoFactory(typeNames[typeName],*this);
-			else
-				return TypeInfoFactory(typeIndices[typeIndex],*this);
-		}
-	}
 
 	void TypeDatabase::OutputTypeInfo(
 			std::ostream& ostream,
@@ -535,5 +527,30 @@ namespace PlatinumEngine
 		}
 
 		return (bool)istream;
+	}
+
+	TypeInfoFactory TypeDatabase::BeginAbstractTypeInfoInternal(
+			bool isCollection,
+			std::string typeName,
+			std::type_index typeIndex)
+	{
+		size_t countTypeNames = _typeNames.count(typeName);
+		size_t countTypeIndices = _typeIndices.count(typeIndex);
+		if (0 == countTypeNames && 0 == countTypeIndices)
+		{
+			_typeNames[typeName] = _typeIndices[typeIndex] = _typeInfos.size();
+			_typeInfos.emplace_back(typeIndex, isCollection);
+			_typeInfos.at(_typeInfos.size() - 1).typeName = std::move(typeName);
+			return TypeInfoFactory(_typeInfos.size() - 1,*this);
+		}
+		else
+		{
+			PLATINUM_WARNING("Type already exists in TypeDatabase.");
+			// typeName already exists in database, return the existing entry
+			if (countTypeNames == 0)
+				return TypeInfoFactory(_typeNames[typeName],*this);
+			else
+				return TypeInfoFactory(_typeIndices[typeIndex],*this);
+		}
 	}
 }

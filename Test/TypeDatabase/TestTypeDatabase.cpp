@@ -1,5 +1,5 @@
 #include <catch2/catch.hpp>
-#include <Serialization/Serialization.h>
+#include <TypeDatabase/TypeDatabase.h>
 #include <sstream>
 
 using namespace PlatinumEngine;

@@ -91,6 +91,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	
 	"Source/GameWindow/GameWindow.cpp;"
 	
+	"Source/IDSystem/IDSystem.cpp;"
+	
 	"Source/InputManager/InputManager.cpp;"
 	
 	"Source/Inspector/InspectorWindow.cpp;"
@@ -126,7 +128,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/SceneManager/Scene.cpp;"
 	"Source/SceneManager/SceneManager.cpp;"
 	
-	"Source/Serialization/Serialization.cpp;"
+	"Source/TypeDatabase/TypeDatabase.cpp;"
+	"Source/TypeDatabase/TypeDatabaseInit.cpp;"
 	
 	"Source/WindowManager/Filedialog.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
@@ -148,7 +151,8 @@ set(UNIT_TESTS
 	"Test/Maths/VectorsTest.cpp;"
 	"Test/Maths/MatricesTest.cpp;"
 	"Test/SceneEditor/EditorCameraTest.cpp;"
-	"Test/Serialization/TestSerialization.cpp;"
+	"Test/TypeDatabase/TestTypeDatabase.cpp;"
+	"Test/IDSystem/TestIDSystem.cpp;"
 	)
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 

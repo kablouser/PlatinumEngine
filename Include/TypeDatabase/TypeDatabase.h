@@ -16,7 +16,7 @@
 #include <tuple> // std::get magic
 
 #include <Helpers/VectorHelpers.h>
-#include <Serialization/VectorCollection.h>
+#include <TypeDatabase/VectorCollection.h>
 
 namespace PlatinumEngine
 {
@@ -152,6 +152,20 @@ namespace PlatinumEngine
 		// let TypeInfoFactory access private data
 		friend class TypeInfoFactory;
 
+		// singleton instance
+		static TypeDatabase* Instance;
+
+		//-----------------------------------------------------------------------
+		// Constructor
+		//-----------------------------------------------------------------------
+
+		TypeDatabase();
+		~TypeDatabase();
+
+		// note: defined in TypeDatabaseInit.cpp
+		// because it will be very big
+		void Init();
+
 		//-----------------------------------------------------------------------
 		// Creating Type Info
 		//-----------------------------------------------------------------------
@@ -171,7 +185,7 @@ namespace PlatinumEngine
 			static_assert(!std::is_abstract<T>(), "T should be NOT abstract.");
 			TypeInfoFactory factory = BeginAbstractTypeInfo<T>(isCollection);
 			// you cannot make_shared with abstract type
-			typeInfos.at(factory.typeInfoIndex).allocate = []() -> std::shared_ptr<void>
+			_typeInfos.at(factory.typeInfoIndex).allocate = []() -> std::shared_ptr<void>
 			{ return std::make_shared<T>(); };
 			return factory;
 		}
@@ -215,7 +229,7 @@ namespace PlatinumEngine
 		{
 			assert(std::is_arithmetic<T>::value && "T should be arithmetic.");
 			TypeInfoFactory factory = BeginTypeInfo<T>();
-			TypeInfo& typeInfo = typeInfos.at(factory.typeInfoIndex);
+			TypeInfo& typeInfo = _typeInfos.at(factory.typeInfoIndex);
 			typeInfo.streamOut =
 					[](std::ostream& outputStream, void* typeInstance) -> void
 					{
@@ -278,7 +292,7 @@ namespace PlatinumEngine
 		}
 
 		//-----------------------------------------------------------------------
-		// Serialization
+		// Serialization - nice wrappers
 		//-----------------------------------------------------------------------
 
 		template<typename T>
@@ -308,16 +322,9 @@ namespace PlatinumEngine
 					SerializeSection::root);
 		}
 
-	private:
-
-		std::vector<TypeInfo> typeInfos;
-		std::map<std::string, size_t> typeNames;
-		std::map<std::type_index, size_t> typeIndices;
-
-		TypeInfoFactory BeginAbstractTypeInfoInternal(
-				bool isCollection,
-				std::string typeName,
-				std::type_index typeIndex);
+		//-----------------------------------------------------------------------
+		// Serialization - disgusting details that you could use
+		//-----------------------------------------------------------------------
 
 		void OutputTypeInfo(
 				std::ostream& ostream,
@@ -347,6 +354,17 @@ namespace PlatinumEngine
 				const std::string& fieldName);
 
 		static bool SkipCurlyBrackets(std::istream& istream, unsigned int bracketsLevel);
+
+	private:
+
+		std::vector<TypeInfo> _typeInfos;
+		std::map<std::string, size_t> _typeNames;
+		std::map<std::type_index, size_t> _typeIndices;
+
+		TypeInfoFactory BeginAbstractTypeInfoInternal(
+				bool isCollection,
+				std::string typeName,
+				std::type_index typeIndex);
 	};
 
 	template<typename T>

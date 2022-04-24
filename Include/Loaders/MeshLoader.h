@@ -50,7 +50,7 @@ namespace PlatinumEngine
 		Mesh LoadMesh(const std::string &filePath, bool JoinVertices=true);
 
 		/**
-		 * Add new mesh data to an existing mesh
+		 * AddInternal new mesh data to an existing mesh
 		 * @param outMesh : The mesh structure used for rendering with new vertices and indices added
 		 * @param mesh : The assimp mesh data
 		 * @param offset : This is the offset of indices for the current mesh, should start at 0
