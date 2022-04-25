@@ -15,21 +15,24 @@ namespace PlatinumEngine
 {
 	class RigidBody: public Component
 	{
+		friend class RigidBody;
 	public:
-		RigidBody(Physics* physics);
-
+		RigidBody();
 		//set up the rigidBody, called after physics world set up
-		void Initialize(btCollisionShape* shape);
+		void Initialize();
 
 		//Setters
 		void SetMass(float mass);
 		void SetForce(Maths::Vec3 force);
 		void SetKinematic(bool value);
-
+		void SetDamping(float damping);
+		void SetAngularDamping(float angularDamping);
 		//Getters
 		float GetMass();
 		Maths::Vec3 GetForce();
 		bool GetKinematic();
+		float GetDamping();
+		float GetAngularDamping();
 
 		btTransform GetWorldTransform();
 		Maths::Vec3 GetBulletRotation();
@@ -41,8 +44,11 @@ namespace PlatinumEngine
 		Maths::Vec3 _linearVelocity;
 		Maths::Vec3 _angularVelocity;
 
+
 		bool _kinematic;
 		float _mass;
+		float _damping;
+		float _angularDamping;
 
 		btRigidBody* _rigidBody;
 		Collider* collider;

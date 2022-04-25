@@ -19,10 +19,7 @@ namespace PlatinumEngine
 		void SetHeight(float height);
 		float GetHeight();
 
-
 	private:
-		bool _directionX, _directionY, _directionZ;
-
 		float _radius;
 		float _height;
 

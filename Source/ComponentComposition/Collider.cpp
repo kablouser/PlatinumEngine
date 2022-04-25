@@ -20,5 +20,10 @@ namespace PlatinumEngine
 	{
 		delete _shape;
 	}
+
+	btCollisionShape* Collider::GetShape()
+	{
+		return _shape;
+	}
 }
 

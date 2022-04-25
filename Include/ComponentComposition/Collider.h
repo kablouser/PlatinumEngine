@@ -38,6 +38,8 @@ namespace PlatinumEngine
 		void SetCenter(Maths::Vec3 center);
 		Maths::Vec3 GetCenter();
 
+		btCollisionShape* GetShape();
+
 		void CleanUp();
 
 	protected:

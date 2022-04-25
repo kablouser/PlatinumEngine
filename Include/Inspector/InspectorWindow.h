@@ -40,6 +40,7 @@ namespace PlatinumEngine
 		void ShowAddComponent(Scene& scene);
 
 		void cameraComponentHelper(char* cameraType[]);
+		void capsuleColliderHelper();
 	private:
 		AssetHelper* _assetHelper;
 		SceneEditor* _sceneEditor;

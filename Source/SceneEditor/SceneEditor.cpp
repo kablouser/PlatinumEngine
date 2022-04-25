@@ -48,7 +48,7 @@ namespace PlatinumEngine{
 			_transparency(1.0),
 
 			_enableGrid(false),
-			_enableSkyBox(false),
+			_enableSkyBox(true),
 			_xGrid(false), _yGrid(true), _zGrid(false)
 	{
 

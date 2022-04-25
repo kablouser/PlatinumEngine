@@ -39,8 +39,21 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 			if (obj->GetComponent<Transform>() != nullptr)
 				ShowTransformComponent(scene);
 
-		  	if (obj->GetComponent<Camera>())
-				  ShowCameraComponent(scene);
+			if (obj->GetComponent<Camera>())
+			  	ShowCameraComponent(scene);
+
+			if(obj->GetComponent<RigidBody>() != nullptr)
+				ShowRigidBodyComponent(scene);
+
+			if(obj->GetComponent<BoxCollider>() != nullptr)
+				ShowBoxColliderComponent(scene);
+
+			if(obj->GetComponent<SphereCollider>() != nullptr)
+				ShowSphereColliderComponent(scene);
+
+			if(obj->GetComponent<CapsuleCollider>() != nullptr)
+				ShowCapsuleColliderComponent(scene);
+
 
 		  	ImGui::Separator();
 		  	if (_isAddComponentWindowOpen)
@@ -116,7 +129,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 				if(payloadPath.extension()==".obj")
 				{
 					std::cout<<"NAME: "<<payloadPath.filename().string()<<"\n";
-					//Maybe we SetMesh on _activeGameObject
+					//Maybe we SetMesh on obj
 					//_activeGameObject->GetComponent<MeshRender>()->SetMesh(mesh);
 				}
 			}
@@ -412,16 +425,154 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 }
 
 void InspectorWindow::ShowBoxColliderComponent(Scene& scene)
-{}
+{
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_BOX "  BoxCollider Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveBoxColliderComponent")) {
+		// remove component
+		scene.RemoveComponent(*obj->GetComponent<BoxCollider>());
+		return;
+	}
+
+	if(isHeaderOpen)
+	{
+		auto center = obj->GetComponent<BoxCollider>()->GetCenter();
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Center: ");
+		ImGui::SameLine(_sameLine -16.f);
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Xpos", &center.x, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Ypos", &center.y, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Zpos", &center.z, 0.001f);
+
+		auto size = obj->GetComponent<BoxCollider>()->GetSize();
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Size: ");
+		ImGui::SameLine(_sameLine -16.f);
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Xpos", &size.x, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Ypos", &size.y, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Zpos", &size.z, 0.001f);
+	}
+}
 
 void InspectorWindow::ShowCapsuleColliderComponent(Scene& scene)
-{}
+{
+	char directionBuff[64];
 
-void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
-{}
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_CAPSULES "  CapsuleCollider Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveBoxColliderComponent")) {
+		// remove component
+		scene.RemoveComponent(*obj->GetComponent<CapsuleCollider>());
+		return;
+	}
+
+	if(isHeaderOpen)
+	{
+		auto center = obj->GetComponent<CapsuleCollider>()->GetCenter();
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Center: ");
+		ImGui::SameLine(_sameLine -16.f);
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Xpos", &center.x, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Ypos", &center.y, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Zpos", &center.z, 0.001f);
+
+		auto radius = obj->GetComponent<CapsuleCollider>()->GetRadius();
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Radius: ");
+		ImGui::SameLine(_sameLine);
+		ImGui::DragFloat("##Radius", &radius, 0.001f);
+
+		auto height = obj->GetComponent<CapsuleCollider>()->GetHeight();
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Height: ");
+		ImGui::SameLine(_sameLine);
+		ImGui::DragFloat("##Radius", &height, 0.001f);
+	}
+}
 
 void InspectorWindow::ShowSphereColliderComponent(Scene& scene)
-{}
+{
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_CIRCLE "  SphereCollider Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveBoxColliderComponent")) {
+		// remove component
+		scene.RemoveComponent(*obj->GetComponent<SphereCollider>());
+		return;
+	}
+
+	if(isHeaderOpen)
+	{
+		auto center = obj->GetComponent<BoxCollider>()->GetCenter();
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Center: ");
+		ImGui::SameLine(_sameLine -16.f);
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Xpos", &center.x, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Ypos", &center.y, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Zpos", &center.z, 0.001f);
+
+		auto radius = obj->GetComponent<CapsuleCollider>()->GetRadius();
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Radius: ");
+		ImGui::SameLine(_sameLine);
+		ImGui::DragFloat("##Radius", &radius, 0.001f);
+	}
+}
+
+void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
+{
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_USER "  RigidBody Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveRigidBodyComponent")) {
+		// remove component
+		scene.RemoveComponent(*obj->GetComponent<RigidBody>());
+		return;
+	}
+
+	if(isHeaderOpen)
+	{
+
+	}
+}
 
 void InspectorWindow::ShowAddComponent(Scene& scene)
 {
@@ -432,7 +583,11 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 		const char* components[] = {
 				"Mesh Render Component",
 				"Transform Component",
-				"Camera Component"
+				"Camera Component",
+				"RigidBody Component",
+				"BoxCollider Component",
+				"SphereCollider Component",
+				"CapsuleCollider Component"
 		};
 		static const char* selectedComponent = nullptr;
 		static char componentSelectorBuffer[128];
@@ -482,6 +637,22 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			else if (strcmp(selectedComponent, "Camera Component") == 0)
 			{
 				scene.AddComponent<Camera>(obj);
+			}
+			else if (strcmp(selectedComponent, "RigidBody Component") == 0)
+			{
+				scene.AddComponent<RigidBody>(obj);
+			}
+			else if (strcmp(selectedComponent, "BoxCollider Component") == 0)
+			{
+				scene.AddComponent<BoxCollider>(obj);
+			}
+			else if (strcmp(selectedComponent, "SphereCollider Component") == 0)
+			{
+				scene.AddComponent<SphereCollider>(obj);
+			}
+			else if (strcmp(selectedComponent, "CapsuleCollider Component") == 0)
+			{
+				scene.AddComponent<CapsuleCollider>(obj);
 			}
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;

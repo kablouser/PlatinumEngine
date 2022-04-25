@@ -6,14 +6,14 @@
 #include <ComponentComposition/Transform.h>
 namespace PlatinumEngine
 {
-	RigidBody::RigidBody(Physics* physics):
+	RigidBody::RigidBody():
 						_mass(1.f),
 						_kinematic(false),
 						_inertia(Maths::Vec3(0.f, 0.f, 0.f)),
-
-						_physics(physics)
+						_damping(0.f),
+						_angularDamping(0.f)
 	{
-
+		Initialize();
 	}
 
 	btTransform RigidBody::GetWorldTransform()
@@ -59,7 +59,27 @@ namespace PlatinumEngine
 		_kinematic = value;
 	}
 
-	void RigidBody::Initialize(btCollisionShape* shape)
+	void RigidBody::SetDamping(float damping)
+	{
+		_damping = damping;
+	}
+
+	void RigidBody::SetAngularDamping(float angularDamping)
+	{
+		_angularDamping = angularDamping;
+	}
+
+	float RigidBody::GetDamping()
+	{
+		return _damping;
+	}
+
+	float RigidBody::GetAngularDamping()
+	{
+		return _angularDamping;
+	}
+
+	void RigidBody::Initialize()
 	{
 		if(GetGameObject() == nullptr || (GetComponent<Collider>() == nullptr))
 		{
@@ -73,14 +93,14 @@ namespace PlatinumEngine
 
 		btDefaultMotionState* motionState = new btDefaultMotionState(
 				btTransform(btQuaternion(objectTransform->localRotation.x,objectTransform->localRotation.y,objectTransform->localRotation.z),
-					   Physics::convertVector(objectTransform->localPosition)));
+						Physics::convertVector(objectTransform->localPosition)));
 
 		auto temp = Physics::convertVector(_inertia);
-		shape->calculateLocalInertia(_mass, temp);
+		collider->GetShape()->calculateLocalInertia(_mass, temp);
 
-		btRigidBody::btRigidBodyConstructionInfo constructionInfo(_mass, motionState, shape, Physics::convertVector(_inertia));
+		btRigidBody::btRigidBodyConstructionInfo constructionInfo(_mass, motionState, collider->GetShape(), Physics::convertVector(_inertia));
 		_rigidBody = new btRigidBody(constructionInfo);
-
+		_rigidBody->setDamping(_damping, _angularDamping);
 		_physics->AddBulletBody(_rigidBody);
 	}
 }
