@@ -153,7 +153,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::InputText("##Material Name", textureBuffer, sizeof(textureBuffer), ImGuiInputTextFlags_ReadOnly);
 		if (ImGui::BeginDragDropTarget())
 		{
-			//Accept any regular file (but it will check if it is mesh or not)
+			//Accept any regular file (but it will check if it is texture or not)
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
 			{
 				char* payloadPointer = (char*)payload->Data;
@@ -165,7 +165,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 
 				if(payloadPath.extension()==".png")
 				{
-					//Set The mesh that we dragged to the RenderComponent
+					//Set The texture that we dragged to the RenderComponent
 					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
 					std::string f = (std::get<1>(asset_Helper)->fileName);
 					if (std::get<0>(asset_Helper))
