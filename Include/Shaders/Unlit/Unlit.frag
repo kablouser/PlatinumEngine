@@ -69,8 +69,7 @@ vec3 GetSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 void main()
 {
-    vec3 norm = texture(normalMap, vertexTextureCoordinate).rgb;
-    norm = normalize(norm);
+    vec3 norm = normalize(vertexNormal);
     vec3 viewDir = normalize(viewPosition - vertexPos);
     vec3 result = vec3(0.0, 0.0, 0.0);
 

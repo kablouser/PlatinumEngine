@@ -20,6 +20,7 @@ namespace PlatinumEngine
 		void SetMesh(Mesh* mesh);
 
 		void SetMaterial(Texture* texture);
+		void SetNormalMap(Texture* texture);
 
 		// return mesh
 		Mesh* GetMesh();

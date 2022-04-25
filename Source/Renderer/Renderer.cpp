@@ -19,6 +19,12 @@ const std::string UNLIT_VERTEX_SHADER =
 const std::string UNLIT_FRAGMENT_SHADER =
 #include <Shaders/Unlit/Unlit.frag>
 ;
+const std::string PHONG_VERTEX_SHADER =
+#include <Shaders/Lit/Phong.vert>
+;
+const std::string PHONG_FRAGMENT_SHADER =
+#include <Shaders/Lit/Phong.frag>
+;
 const std::string SKYBOX_VERTEX_SHADER =
 #include <Shaders/Unlit/SkyBoxShader.vert>
 ;
@@ -74,12 +80,18 @@ namespace PlatinumEngine
 			PLATINUM_ERROR("Cannot generate the sky box shader.");
 			return;
 		}
+
 		if(!_gridShader.Compile(GRID_VERTEX_SHADER, GRID_FRAGMENT_SHADER))
 		{
 			PLATINUM_ERROR("Cannot generate the grid shader.");
 			return;
 		}
 
+		if (!_phongShader.Compile(PHONG_VERTEX_SHADER, PHONG_FRAGMENT_SHADER))
+		{
+			PLATINUM_ERROR("Cannot generate the phong shader.");
+			return;
+		}
 
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
@@ -113,7 +125,8 @@ namespace PlatinumEngine
 //		GL_CHECK(glViewport(0, 0, _framebufferWidth, _framebufferHeight));
 //		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
 //		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
-		_unlitShader.Bind();
+//		_unlitShader.Bind();
+		_phongShader.Bind();
 	}
 
 	void Renderer::End()
@@ -122,7 +135,8 @@ namespace PlatinumEngine
 //		_framebuffer.Unbind();
 //		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
 //		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
-		_unlitShader.Unbind();
+//		_unlitShader.Unbind();
+		_phongShader.Unbind();
 	}
 
 	void Renderer::BeginSkyBoxShader()
@@ -172,48 +186,50 @@ namespace PlatinumEngine
 	{
 	}
 
-	void Renderer::LoadTexture(const Material& material)
+	void Renderer::LoadMaterial(const Material& material)
 	{
-		_unlitShader.Bind();
-		// bind diffuse map
+		_phongShader.Bind();
+		_phongShader.SetUniform("useTexture", material.useTexture);
 		if (material.diffuseTexture)
 		{
+			_phongShader.SetUniform("diffuseMap", (int)0);
 			glActiveTexture(GL_TEXTURE0);
 			material.diffuseTexture->Bind();
 		}
-		// bind specular map
-		if(material.specularTexture)
+
+		_phongShader.SetUniform("useNormalTexture", material.useNormalTexture);
+		if (material.normalTexture)
 		{
+			_phongShader.SetUniform("normalMap", (int)1);
 			glActiveTexture(GL_TEXTURE1);
-			material.specularTexture->Bind();
-		}
-		// bind normal map
-		if(material.normalTexture)
-		{
-			glActiveTexture(GL_TEXTURE2);
 			material.normalTexture->Bind();
 		}
-		_unlitShader.SetUniform("shininess", material.shininessFactor);
+
+		// Other uniforms
+		_phongShader.SetUniform("materialSpec", Maths::Vec3(0.1f, 0.1f, 0.1f));
+		_phongShader.SetUniform("shininess", material.shininessFactor);
+		_phongShader.SetUniform("useBlinnPhong", material.useBlinnPhong);
 	}
 
 	// update model matrix in shader
 	void Renderer::SetModelMatrix(Maths::Mat4 mat)
 	{
-		//mat.SetRotationMatrix(Maths::Vec3(0.5f * (float)glfwGetTime() * 50.0f / 180.0f * 3.14f, 1.0f, 0.0f));
-		_unlitShader.SetUniform("model", mat);
+		_phongShader.Bind();
+		_phongShader.SetUniform("model", mat);
 	}
 
 	// update view matrix in shader
 	void Renderer::SetViewMatrix(Maths::Mat4 mat)
 	{
-		//glm::mat4 view = GetViewMatrix();
-		_unlitShader.SetUniform("view", mat);
+		_phongShader.Bind();
+		_phongShader.SetUniform("view", mat);
 	}
 
 	// update perspective matrix in shader
 	void Renderer::SetProjectionMatrix(Maths::Mat4 mat)
 	{
-		_unlitShader.SetUniform("projection", mat);
+		_phongShader.Bind();
+		_phongShader.SetUniform("projection", mat);
 	}
 
 	// update view matrix in shader
@@ -298,22 +314,20 @@ namespace PlatinumEngine
 	//--------------------------------------------------------------------------------------------------------------
 	void Renderer::SetLightProperties()
 	{
-		pointLight.lightPos = Maths::Vec3(0.9f * (float)std::cos(glfwGetTime()),0.9f * (float)std::sin(glfwGetTime()),0.9f);
-		// set basic properties
-		_unlitShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
+		// Normal shader light properties
+		auto lightPos = Maths::Vec3(5.0f, 5.0f, -5.0f);
+		auto isPointLight = true;
+		auto lightAmbient = Maths::Vec3(0.2f, 0.2f, 0.2f);
+		auto lightDiffuse = Maths::Vec3(0.5f, 0.5f, 0.5f);
+		auto lightSpecular = Maths::Vec3(1.0f, 1.0f, 1.0f);
 
-		_unlitShader.SetUniform("pointLight.position", pointLight.lightPos);
-		_unlitShader.SetUniform("pointLight.ambient", pointLight.ambientStrength);
-		_unlitShader.SetUniform("pointLight.diffuse", pointLight.diffuseStrength);
-		_unlitShader.SetUniform("pointLight.specular", pointLight.specularStrength);
-
-		_unlitShader.SetUniform("pointLight.constant", pointLight.constant);
-		_unlitShader.SetUniform("pointLight.linear", pointLight.linear);
-		_unlitShader.SetUniform("pointLight.quadratic", pointLight.quadratic);
-		_unlitShader.SetUniform("viewPosition", Maths::Vec3(0.0, 0.0, 10.0));
-
-		_unlitShader.SetUniform("isPointLight", true);
+		// Phong shader light properties
+		_phongShader.Bind();
+		_phongShader.SetUniform("lightPos", lightPos);
+		_phongShader.SetUniform("isPointLight", isPointLight);
+		_phongShader.SetUniform("lightAmbient", lightAmbient);
+		_phongShader.SetUniform("lightDiffuse", lightDiffuse);
+		_phongShader.SetUniform("lightSpecular", lightSpecular);
+		_phongShader.SetUniform("viewPos", Maths::Vec3(0.0, 0.0, 0.0));
 	}
-
 }
-//}

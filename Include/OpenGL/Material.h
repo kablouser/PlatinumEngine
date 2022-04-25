@@ -24,7 +24,12 @@ namespace PlatinumEngine
 		Texture*			normalTexture;
 		Texture*			specularTexture;
 
-		float         	shininessFactor;
+		float         	shininessFactor = 8.0f;
+
+		// Flags
+		bool useBlinnPhong = false;
+		bool useTexture = false;
+		bool useNormalTexture = false;
 
 		Material();
 		~Material();
