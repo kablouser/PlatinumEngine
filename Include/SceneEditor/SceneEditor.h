@@ -128,7 +128,7 @@ namespace PlatinumEngine
 		 * @param matrix
 		 * @param editTransformDecomposition
 		 */
-		void UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE, ImGuizmo::OPERATION);
+		void UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE, ImGuizmo::OPERATION, bool onGizmo);
 
 		/**
 		 * Function that initiate shader input for skybox
@@ -163,6 +163,7 @@ namespace PlatinumEngine
 
 		bool _useSnap;
 		bool _boundSizing;
+		bool _onObjectGizmo;
 
 		bool _boundSizingSnap;
 		ImGuizmo::MODE _currentGizmoMode;
