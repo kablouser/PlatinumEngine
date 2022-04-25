@@ -186,7 +186,7 @@ namespace PlatinumEngine
 	{
 	}
 
-	std::shared_ptr<void> IDSystem::GetPointerInternal(
+	std::pair<IDSystem::ID, std::shared_ptr<void>> IDSystem::GetSavedReferenceInternal(
 			std::size_t id,
 			std::type_index&& typeIndex)
 	{
@@ -206,7 +206,30 @@ namespace PlatinumEngine
 			return {}; // nullptr
 
 		// only return shared_ptr if type matches
-		return idMapIterator->second;
+		return {id, idMapIterator->second};
+	}
+
+	std::pair<IDSystem::ID, std::shared_ptr<void>> IDSystem::GetSavedReferenceInternal(
+			void* rawPointer,
+			std::type_index&& typeIndex);
+	{
+		if (rawPointer == nullptr)
+			return {}; // nullptr
+
+		auto managedMemoryIterator = managedMemory.find(typeIndex);
+		if (managedMemoryIterator == managedMemory.end())
+			// no entries for type
+			return {}; // nullptr
+
+		auto idMap = managedMemoryIterator->second;
+		// very slow part
+		for (auto& idEntry : idMap)
+		{
+			if (idEntry.second.get() == rawPointer)
+				return idEntry.second;
+		}
+		// id doesn't exist for type
+		return {}; // nullptr
 	}
 
 	bool IDSystem::AddInternal(

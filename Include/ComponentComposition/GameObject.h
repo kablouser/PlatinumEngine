@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 #include <typeinfo>
-#include <algorithm>
-#include "ComponentComposition/Component.h"
+#include <ComponentComposition/Component.h>
+#include <IDSystem/IDSystem.h>
 
 namespace PlatinumEngine
 {
@@ -21,6 +21,20 @@ namespace PlatinumEngine
 		friend class Component;
 
 	public:
+
+		//--------------------------------------------------------------------------------------------------------------
+		// Public constructors/destructors
+		//--------------------------------------------------------------------------------------------------------------
+
+		// Cannot copy/move. Complex scene hierarchy structure cannot be determined from this object alone.
+		// Use Scene to copy/move GameObjects
+		GameObject(GameObject const&) = delete;
+
+		GameObject& operator=(GameObject const&) = delete;
+
+		GameObject(GameObject&&) noexcept = delete;
+
+		GameObject& operator=(GameObject&&) noexcept = delete;
     
 		//--------------------------------------------------------------------------------------------------------------
 		// _isEnabled control
@@ -41,11 +55,11 @@ namespace PlatinumEngine
 		//--------------------------------------------------------------------------------------------------------------
 
 		// Gets the parent of the current GameObject
-		GameObject* GetParent();
+		SavedReference<GameObject>& GetParent();
 
 		// Sets the parent of the current GameObject
 		// Removes it from old parent, updates the parent and then add to new parent
-		void SetParent(GameObject* parent, Scene& scene);
+		void SetParent(SavedReference<GameObject> parent, Scene& scene);
     
 		//--------------------------------------------------------------------------------------------------------------
 		// _children control
@@ -98,30 +112,23 @@ namespace PlatinumEngine
 	private:
 
 		//--------------------------------------------------------------------------------------------------------------
-		// Constructors/destructors
+		// Private constructors/destructors
 		//--------------------------------------------------------------------------------------------------------------
 
 		GameObject();
 
-		explicit GameObject(std::string name = "GameObject", GameObject* parent = nullptr, bool isEnabled = true);
+		explicit GameObject(
+				std::string name = "GameObject",
+				SavedReference<GameObject> parent = {},
+				bool isEnabled = true);
 
 		~GameObject();
 
-		// Cannot copy/move. Complex scene hierarchy structure cannot be determined from this object alone.
-		// Use Scene to copy/move GameObjects
-		GameObject(GameObject const&) = delete;
-
-		GameObject& operator=(GameObject const&) = delete;
-
-		GameObject(GameObject&&) noexcept = delete;
-
-		GameObject& operator=(GameObject&&) noexcept = delete;
-
-		GameObject* _parent;
+		SavedReference<GameObject> _parent;
 		bool _isEnabled;
 		bool _isEnabledInHierarchy;
-		std::vector<GameObject*> _children;
-		std::vector<Component*> _components;
+		std::vector<SavedReference<GameObject>> _children;
+		std::vector<SavedReference<Component>> _components;
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Internal controls

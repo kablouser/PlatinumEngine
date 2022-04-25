@@ -8,6 +8,10 @@
 
 namespace PlatinumEngine
 {
+	// forward declare for IDSystem
+	template<typename T>
+	class SavedReference;
+
 	// Track IDs for all types
 	class IDSystem
 	{
@@ -24,12 +28,22 @@ namespace PlatinumEngine
 
 		IDSystem();
 
+		//--------------------------------------------------------------------------------------------------------------
+		// Nice wrapper controls
+		//--------------------------------------------------------------------------------------------------------------
+
 		template<typename T>
-		std::shared_ptr<T> GetPointer(ID id)
+		SavedReference<T> GetSavedReference(ID id)
 		{
-			return std::static_pointer_cast<T>(GetPointerInternal(
-					id,
-					std::type_index(typeid(T))));
+			auto [_, sharedPointer] = GetSavedReferenceInternal(id, std::type_index(typeid(T)));
+			return {id, std::static_pointer_cast<T>(sharedPointer)};
+		}
+
+		template<typename T>
+		SavedReference<T> GetSavedReference(T* rawPointer)
+		{
+			auto [id, sharedPointer] = GetSavedReferenceInternal(rawPointer, std::type_index(typeid(T)));
+			return {id, std::static_pointer_cast<T>(sharedPointer)};
 		}
 
 		template<typename T>
@@ -44,17 +58,16 @@ namespace PlatinumEngine
 			return RemoveInternal(id, std::type_index(typeid(T)));
 		};
 
-	private:
+		//--------------------------------------------------------------------------------------------------------------
+		// Disgusting internal controls
+		//--------------------------------------------------------------------------------------------------------------
 
-		typedef std::map<ID, std::shared_ptr<void>> IDMap;
-		std::map<std::type_index, IDMap> managedMemory;
-
-		// random number generator
-		std::mt19937 _generator;
-		std::uniform_int_distribution<ID> _anyNumber;
-
-		std::shared_ptr<void> GetPointerInternal(
+		std::pair<ID, std::shared_ptr<void>> GetSavedReferenceInternal(
 				std::size_t id,
+				std::type_index&& typeIndex);
+
+		std::pair<ID, std::shared_ptr<void>> GetSavedReferenceInternal(
+				void* rawPointer,
 				std::type_index&& typeIndex);
 
 		bool AddInternal(
@@ -75,6 +88,15 @@ namespace PlatinumEngine
 		 * @return an unique ID that doesn't exist in idMap
 		 */
 		ID GenerateID(std::map<ID, std::shared_ptr<void>>& idMap);
+
+	private:
+		typedef std::map<ID, std::shared_ptr<void>> IDMap;
+
+		std::map<std::type_index, IDMap> managedMemory;
+		// random number generator
+		std::mt19937 _generator;
+
+		std::uniform_int_distribution<ID> _anyNumber;
 	};
 
 	/**
@@ -83,18 +105,39 @@ namespace PlatinumEngine
 	 * @tparam T type of thing to save a reference to
 	 */
 	template<typename T>
-	class SaveReference
+	class SavedReference
 	{
 	public:
 
-		typedef T ReferenceType;
-
+		// 0 indicates nullptr
 		IDSystem::ID id;
 		std::shared_ptr<T> pointer;
 
+		SavedReference() : id(0)
+		{
+		}
+
+		SavedReference(T* rawPointer, IDSystem& idSystem) :
+				pointer(rawPointer)
+		{
+			id = idSystem.Add(pointer);
+		}
+
 		void OnIDSystemUpdate(const IDSystem& idSystem)
 		{
-			pointer = idSystem.GetPointer<T>(id);
+			pointer = idSystem.GetSavedReference<T>(id);
+		}
+
+		// is this a nullptr?
+		explicit operator bool() const
+		{
+			return id != 0 && pointer;
+		}
+
+		// is the other the same?
+		bool operator==(const SavedReference& other)
+		{
+			return id == other.id;
 		}
 	};
 }

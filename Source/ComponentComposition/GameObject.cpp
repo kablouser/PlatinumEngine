@@ -5,6 +5,8 @@
 #include <Helpers/VectorHelpers.h>
 #include <Logger/Logger.h>
 
+#include <utility>
+
 namespace PlatinumEngine
 {
 	//--------------------------------------------------------------------------------------------------------------
@@ -12,24 +14,24 @@ namespace PlatinumEngine
 	//--------------------------------------------------------------------------------------------------------------
 
 	GameObject::GameObject() :
-			_parent(nullptr),
 			_isEnabled(true),
 			_isEnabledInHierarchy(true)
 	{
 	}
 
-	GameObject::GameObject(std::string name, GameObject* parent, bool isEnabled) :
+	GameObject::GameObject(
+			std::string name,
+			SavedReference<GameObject> parent,
+			bool isEnabled) :
 			name(std::move(name)),
-			_parent(parent),
+			_parent(std::move(parent)),
 			_isEnabled(isEnabled),
 			_isEnabledInHierarchy(false)
 	{
 		_isEnabledInHierarchy = CalculateIsEnabledInHierarchy();
 	}
 
-	GameObject::~GameObject()
-	{
-	}
+	GameObject::~GameObject() = default;
 
 	//--------------------------------------------------------------------------------------------------------------
 	// _isEnabled control
@@ -58,19 +60,19 @@ namespace PlatinumEngine
 	// _parent control
 	//--------------------------------------------------------------------------------------------------------------
 
-	GameObject* GameObject::GetParent()
+	PlatinumEngine::SavedReference<GameObject>& GameObject::GetParent()
 	{
 		return _parent;
 	}
   
-	void GameObject::SetParent(GameObject* parent, Scene& scene)
+	void GameObject::SetParent(SavedReference<GameObject> parent, Scene& scene)
 	{
 		if (_parent == parent)
 			return;
 
 		if (_parent)
 		{
-			_parent->RemoveChild(this);
+			_parent.pointer->RemoveChild(this);
 		}
 		else
 		{
@@ -80,7 +82,20 @@ namespace PlatinumEngine
     
 		if (parent)
 		{
-			parent->_children.push_back(this);
+			std::shared_ptr<GameObject> sharedPointer = scene.idSystem.GetSavedReference(this);
+			if (sharedPointer)
+			{
+				scene.idSystem.GetSavedReference<GameObject>(sharedPointer);
+				parent.pointer->_children.push_back({sharedPointer})
+			}
+			else
+			{
+
+			}
+
+
+			scene.idSystem.GetSavedReference<>()
+			parent.pointer->_children.push_back(this);
 		}
 		else
 		{
@@ -125,7 +140,7 @@ namespace PlatinumEngine
 		auto movedGameObjectIterator = std::find(_children.begin(), _children.end(), movedGameObject);
 
 		// use rotate to move the item in front of the target object
-		if(targetGameObjectIterator!= _children.end() && movedGameObjectIterator != _children.end())
+		if(targetGameObjectIterator != _children.end() && movedGameObjectIterator != _children.end())
 		{
 			if(movedGameObjectIterator < targetGameObjectIterator)
 				std::rotate(movedGameObjectIterator, movedGameObjectIterator+1, targetGameObjectIterator+1);

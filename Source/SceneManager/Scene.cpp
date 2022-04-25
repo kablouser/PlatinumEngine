@@ -8,27 +8,33 @@
 #include <Helpers/VectorHelpers.h>
 #include <Logger/Logger.h>
 
+#include <utility>
+
 namespace PlatinumEngine
 {
 	//--------------------------------------------------------------------------------------------------------------
 	// Constructors/destructors
 	//--------------------------------------------------------------------------------------------------------------
 
-	Scene::Scene() : _isStarted(false)
+	Scene::Scene(IDSystem& inIDSystem) : _isStarted(false), idSystem(inIDSystem)
 	{
 	}
 
 	Scene::~Scene()
 	{
-		// we completely manage and own this memory
-		// it's safe to delete pointers directly
 		for (auto gameObject: _gameObjects)
 		{
-			delete gameObject;
+			idSystem.RemoveInternal(
+					gameObject.id,
+					std::type_index(typeid(gameObject.pointer.get())) // this only works because gameObject is polymorphic
+					);
 		}
 		for (auto component: _components)
 		{
-			delete component;
+			idSystem.RemoveInternal(
+					component.id,
+					std::type_index(typeid(component.pointer.get())) // this only works because component is polymorphic
+			);
 		}
 	}
 
@@ -36,20 +42,25 @@ namespace PlatinumEngine
 	// _gameObjects controls
 	//--------------------------------------------------------------------------------------------------------------
 
-	GameObject* Scene::AddGameObject(std::string name, GameObject* parent, bool isEnabled)
+	PlatinumEngine::SavedReference<GameObject> Scene::AddGameObject(
+			std::string name,
+			SavedReference<GameObject> parent,
+			bool isEnabled)
 	{
-		GameObject* gameObject = new GameObject(name, parent, isEnabled);
+		SavedReference<GameObject> newGameObject(
+				new GameObject(std::move(name), std::move(parent), isEnabled),
+				idSystem);
 
-		if (parent == nullptr)
-			_rootGameObjects.push_back(gameObject);
+		if (parent.pointer)
+			parent->_children.push_back(newGameObject);
 		else
-			parent->_children.push_back(gameObject);
+			_rootGameObjects.push_back(newGameObject);
 
-		_gameObjects.push_back(gameObject);
-		return gameObject;
+		_gameObjects.push_back(newGameObject);
+		return newGameObject;
 	}
 
-	void Scene::RemoveGameObject(GameObject& gameObject)
+	void Scene::RemoveGameObject(SavedReference<GameObject> gameObject)
 	{
 		// events are only called when the scene has started
 		if (_isStarted)

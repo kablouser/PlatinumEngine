@@ -166,7 +166,6 @@ set(UNIT_TESTS
 	"Test/SceneEditor/EditorCameraTest.cpp;"
 	"Test/TypeDatabase/TestTypeDatabase.cpp;"
 	"Test/IDSystem/TestIDSystem.cpp;"
-  	"Test/TestScene.cpp;"
 	)
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 

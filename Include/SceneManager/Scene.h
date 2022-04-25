@@ -6,7 +6,7 @@
 
 #include <vector>
 #include <string>
-#include <algorithm>
+#include <IDSystem/IDSystem.h>
 
 #include <ComponentComposition/GameObject.h>
 
@@ -23,11 +23,14 @@ namespace PlatinumEngine
 		friend class GameObject;
 
 	public:
+
+		IDSystem& idSystem;
+
 		//--------------------------------------------------------------------------------------------------------------
 		// Constructors/destructors
 		//--------------------------------------------------------------------------------------------------------------
 
-		Scene();
+		explicit Scene(IDSystem& idSystem);
 
 		~Scene();
 
@@ -45,9 +48,12 @@ namespace PlatinumEngine
 		// _gameObjects controls
 		//--------------------------------------------------------------------------------------------------------------
 
-		GameObject* AddGameObject(std::string name = "GameObject", GameObject* parent = nullptr, bool isEnabled = true);
+		SavedReference<GameObject> AddGameObject(
+				std::string name = "GameObject",
+				SavedReference<GameObject> parent = {},
+				bool isEnabled = true);
 
-		void RemoveGameObject(GameObject& gameObject);
+		void RemoveGameObject(SavedReference<GameObject> gameObject);
 
 		size_t GetGameObjectsCount() const;
 
@@ -129,9 +135,9 @@ namespace PlatinumEngine
 	private:
 
 		bool _isStarted;
-		std::vector<GameObject*> _gameObjects;
-		std::vector<GameObject*> _rootGameObjects;
-		std::vector<Component*> _components;
+		std::vector<SavedReference<GameObject>> _gameObjects;
+		std::vector<SavedReference<GameObject>> _rootGameObjects;
+		std::vector<SavedReference<Component>> _components;
 
 		//--------------------------------------------------------------------------------------------------------------
 		// External controls
