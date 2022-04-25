@@ -24,6 +24,7 @@ namespace PlatinumEngine
 		 std::tuple<bool, Mesh*> ShowMeshGuiWindow();
 
 		 std::tuple<bool, Texture*> ShowTextureGuiWindow();
+		 std::tuple<bool, Texture*> ShowNormalTextureGuiWindow();
 	private:
 		AssetDatabase* _assetDatabase;
 	};

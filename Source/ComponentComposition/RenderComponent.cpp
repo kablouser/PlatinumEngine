@@ -21,13 +21,18 @@ namespace PlatinumEngine
 		else
 			renderer.SetModelMatrix();
 
-		renderer.LoadTexture(material);
+		renderer.LoadMaterial(material);
 		_shaderInput.Draw();
 	}
 
 	void RenderComponent::SetMaterial(Texture* texture)
 	{
 		material.diffuseTexture = texture;
+	}
+
+	void RenderComponent::SetNormalMap(Texture* texture)
+	{
+		material.normalTexture = texture;
 	}
 
 	void RenderComponent::SetMesh(Mesh* mesh)

@@ -408,10 +408,10 @@ namespace PlatinumEngine{
 
 
 			// ---------------- Render SKY BOX ---------------- //
+			glDisable(GL_DEPTH_TEST);
 			// discard the depth of the skybox
 			if(_enableSkyBox)
 			{
-				glDisable(GL_DEPTH_TEST);
 				glDepthMask(false);
 				_renderer->BeginSkyBoxShader();
 
@@ -426,40 +426,9 @@ namespace PlatinumEngine{
 				_skyBoxShaderInput.Draw();
 				_renderer->EndSkyBoxShader();
 
-				_skyboxTexture.UnbindCubeMap();
-
 				// enable depth test for the later rendering
 				glDepthMask(true);
-				glEnable(GL_DEPTH_TEST);
 			}
-			// ------------- Render Game Objects ------------- //
-			// Start rendering (bind a shader)
-			_renderer->Begin();
-
-			// Update rendering information to renderer
-			_renderer->SetModelMatrix();
-
-			// check if the view matrix is passed to shader
-
-			//if(!_camera.CheckIfViewMatrixUsed())
-			{
-				_renderer->SetViewMatrix(_camera.viewMatrix4);
-				_camera.MarkViewMatrixAsUsed();
-			}
-			//if(!_camera.CheckIfProjectionMatrixUsed())
-			{
-				_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
-				_camera.MarkProjectionMatrixAsUsed();
-			}
-      
-			_renderer->SetLightProperties();
-
-			// Render game objects
-			_scene->Render(*_renderer);
-
-			// End rendering (unbind a shader)
-			_renderer->End();
-
 
 			// -------------------- Render GRID ------------------ //
 			if(_enableGrid)
@@ -487,6 +456,35 @@ namespace PlatinumEngine{
 				_gridShaderInput.Draw();
 				_renderer->EndGrid();
 			}
+			glEnable(GL_DEPTH_TEST);
+			// ------------- Render Game Objects ------------- //
+			// Start rendering (bind a shader)
+			_renderer->Begin();
+
+			// Update rendering information to renderer
+			_renderer->SetModelMatrix();
+
+			// check if the view matrix is passed to shader
+
+			// TODO: Commneted these lines of code out to fix some bug, need to check how to do properly
+			// if(!_camera.CheckIfViewMatrixUsed())
+			{
+				_renderer->SetViewMatrix(_camera.viewMatrix4);
+				_camera.MarkViewMatrixAsUsed();
+			}
+			// if(!_camera.CheckIfProjectionMatrixUsed())
+			{
+				_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
+				_camera.MarkProjectionMatrixAsUsed();
+			}
+      
+			_renderer->SetLightProperties();
+
+			// Render game objects
+			_scene->Render(*_renderer);
+
+			// End rendering (unbind a shader)
+			_renderer->End();
 
 			// unbind framebuffer
 			_renderTexture.Unbind();
