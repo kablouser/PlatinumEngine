@@ -11,6 +11,7 @@ namespace PlatinumEngine
 		_sample = sample;
 		_audioType = audioType;
 		_isLooping = loop;
+		fileName = std::filesystem::path(_sample).filename().string();
 
 		if(_audioType==AudioType::clip)
 			_sound = Mix_LoadWAV(_sample.c_str());
@@ -22,14 +23,17 @@ namespace PlatinumEngine
 		//Should Quit be called here?
 		//Mix_Quit();
 		//SDL_Quit();
-		Mix_FreeChunk(_sound);
-		Mix_FreeMusic(_music);
+		if(_audioType==AudioType::clip)
+		    Mix_FreeChunk(_sound);
+		else
+		    Mix_FreeMusic(_music);
 	}
 
 	void AudioComponent::LoadSample(std::string sample, AudioType audioType)
 	{
 		_sample = sample;
 		_audioType = audioType;
+		fileName = std::filesystem::path(_sample).filename().string();
 		if(_audioType==AudioType::clip)
 			_sound = Mix_LoadWAV(_sample.c_str());
 		else

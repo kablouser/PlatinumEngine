@@ -319,6 +319,17 @@ namespace PlatinumEngine
 					_loadedMeshAssets.push_back(allocateMesh);
 					return allocateMesh;
 				},
+				[&](const std::string& filePath) -> void*
+				{
+					//Audio* allocateAudio = new Audio;
+					//*allocateAudio = Loaders::LoadAudio(filePath);
+					//_loadedAudioAssets.push_back(allocateAudio);
+					//return allocateAudio;
+
+					//Audio Component handles loading so we just need the path
+					_loadedAudioAssets.push_back(filePath);
+					return (void*)filePath.c_str();
+				},
 		};
 
 		// check there's an entry for each ALLOWED_EXTENSIONS
@@ -376,6 +387,22 @@ namespace PlatinumEngine
 		return results;
 	}
 
+	std::vector<AudioAssetID> AssetDatabase::GetAudioAssetIDs(bool requireExist) const
+	{
+		std::vector<AudioAssetID> results;
+		for (const auto& asset: _database)
+		{
+			if (requireExist && !asset.doesExist)
+				continue;
+
+			if (GetExtension(asset.path.string()) == "wav")
+			{
+				results.push_back({ asset.id });
+			}
+		}
+		return results;
+	}
+
 	Mesh* AssetDatabase::GetLoadedMeshAsset(MeshAssetID meshAssetID)
 	{
 		return (*this)[meshAssetID];
@@ -392,6 +419,25 @@ namespace PlatinumEngine
 		{
 			if (GetExtension(_database[databaseIndex].path.string()) == "obj")
 				return static_cast<Mesh*>(_loadedAssets[databaseIndex]);
+			else
+				PLATINUM_WARNING_STREAM << "AssetDatabase: can't load get loaded asset because the type you want "
+										   "is different to the type stored";
+		}
+
+		return nullptr;
+	}
+
+	std::string AssetDatabase::operator[](AudioAssetID audioAssetID)
+	{
+		auto findID = _assetIDsMap.find(audioAssetID.id);
+		if (findID == _assetIDsMap.end())
+			return nullptr;
+
+		size_t databaseIndex = findID->second;
+		if (_database[databaseIndex].doesExist)
+		{
+			if (GetExtension(_database[databaseIndex].path.string()) == "wav")
+				return (_database[databaseIndex].path.string());
 			else
 				PLATINUM_WARNING_STREAM << "AssetDatabase: can't load get loaded asset because the type you want "
 										   "is different to the type stored";
@@ -575,5 +621,6 @@ namespace PlatinumEngine
 
 		_loadedAssets.clear();
 		_loadedMeshAssets.clear();
+		_loadedAudioAssets.clear();
 	}
 }

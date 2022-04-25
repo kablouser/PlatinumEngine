@@ -22,6 +22,8 @@ namespace PlatinumEngine
 		 */
 		 std::tuple<bool, Mesh*> ShowGuiWindow();
 
+		 std::tuple<bool, std::string> ShowAudioGuiWindow();
+
 	private:
 		AssetDatabase* _assetDatabase;
 	};

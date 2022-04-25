@@ -3,7 +3,6 @@
 //
 
 #include <Inspector/InspectorWindow.h>
-#include <ComponentComposition/CameraComponent.h>
 
 using namespace PlatinumEngine;
 
@@ -37,6 +36,9 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 
 		  if (_activeGameObject->GetComponent<CameraComponent>())
 			  ShowCameraComponent(scene);
+
+		  if (_activeGameObject->GetComponent<AudioComponent>())
+			  ShowAudioComponent(scene);
 
 		  ImGui::Separator();
 		  if (_isAddComponentWindowOpen)
@@ -235,6 +237,53 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 	}
 }
 
+void InspectorWindow::ShowAudioComponent(Scene& scene)
+{
+	ImGui::Separator();
+	char sampleBuffer[64];
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_TABLE_CELLS "  Audio", ImGuiTreeNodeFlags_AllowItemOverlap);
+	// TODO: Icon button maybe?
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveRenderComponent")) {
+		// remove component
+		scene.RemoveComponent(*_activeGameObject->GetComponent<AudioComponent>());
+		return;
+	}
+	if (isHeaderOpen)
+	{
+		ImGui::Text("Audio");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(130.0f);
+
+		// store the current mesh name into mesh buffer, so that we can display it in the input text box
+		if(_activeGameObject->GetComponent<AudioComponent>() != nullptr)
+			strcpy(sampleBuffer,  _activeGameObject->GetComponent<AudioComponent>()->fileName.c_str());
+		else
+			memset(sampleBuffer, 0, 64 * sizeof(char));
+
+		// show text box (read only)
+		ImGui::InputText("##Sample Name",sampleBuffer,sizeof(sampleBuffer), ImGuiInputTextFlags_ReadOnly);
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
+		if(ImGui::Button("Choose sample"))
+		{
+			ImGui::OpenPopup("Select Sample");
+		}
+
+		if(ImGui::Button("Play"))
+		{
+			_activeGameObject->GetComponent<AudioComponent>()->Play();
+		}
+
+		auto asset_Helper = _assetHelper->ShowAudioGuiWindow();
+		if(std::get<0>(asset_Helper))
+		{
+			_activeGameObject->GetComponent<AudioComponent>()->LoadSample(std::get<1>(asset_Helper));
+		}
+	}
+}
+
 void InspectorWindow::ShowAddComponent(Scene& scene)
 {
 	if (ImGui::BeginChild("ComponentSelector"))
@@ -242,7 +291,8 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 		const char* components[] = {
 				"Mesh Render Component",
 				"Transform Component",
-				"Camera Component"
+				"Camera Component",
+				"Audio Component"
 		};
 		static const char* selectedComponent = nullptr;
 		static char componentSelectorBuffer[128];
@@ -290,6 +340,10 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			else if (strcmp(selectedComponent, "Camera Component") == 0)
 			{
 				scene.AddComponent<CameraComponent>(_activeGameObject);
+			}
+			else if (strcmp(selectedComponent, "Audio Component") == 0)
+			{
+				scene.AddComponent<AudioComponent>(_activeGameObject);
 			}
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;

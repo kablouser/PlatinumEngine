@@ -5,6 +5,7 @@
 #include "ComponentComposition/Component.h"
 #include "SDL.h"
 #include "SDL_mixer.h"
+#include <filesystem>
 
 namespace PlatinumEngine
 {
@@ -12,6 +13,7 @@ namespace PlatinumEngine
 	{
 	public:
 		enum class AudioType{clip,music};
+		std::string fileName;
 
 	private:
 		Mix_Music* _music;

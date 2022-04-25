@@ -33,6 +33,11 @@ namespace PlatinumEngine
 		AssetID id;
 	};
 
+	struct AudioAssetID
+	{
+		AssetID id;
+	};
+
 	/**
 	 * Keeps track of assets in assets folder, loads them, and manages a database file.
 	 */
@@ -166,6 +171,13 @@ namespace PlatinumEngine
 		[[nodiscard]] std::vector<MeshAssetID> GetMeshAssetIDs(bool requireExist = true) const;
 
 		/**
+		 * nodiscard means compiler creates warning if you don't use this function's return value
+		 * @param requireExist if true, return only existent assets
+		 * @return MeshAssetID that are in the database
+		 */
+		[[nodiscard]] std::vector<AudioAssetID> GetAudioAssetIDs(bool requireExist = true) const;
+
+		/**
 		 * Get a mesh object from id. The object (if not null) is guaranteed to be loaded/ready
 		 * @param meshAssetID to match
 		 * @return nullptr if id doesn't exist or it's not a mesh, otherwise a loaded/ready mesh object
@@ -178,6 +190,9 @@ namespace PlatinumEngine
 		 * @return nullptr if id doesn't exist or it's not a mesh, otherwise a loaded/ready mesh object
 		 */
 		Mesh* operator[](MeshAssetID meshAssetID);
+
+
+		std::string operator[](AudioAssetID audioAssetID);
 
 	private:
 
@@ -197,6 +212,8 @@ namespace PlatinumEngine
 		std::vector<void*> _loadedAssets;
 		// Assets loaded in their classes/structures appropriately
 		std::vector<Mesh*> _loadedMeshAssets;
+
+		std::vector<std::string> _loadedAudioAssets;
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Internal
