@@ -136,7 +136,7 @@ namespace PlatinumEngine
 		 * mesh component can call this function to activate texture
 		 * @param material
 		 */
-		void LoadTexture(const Material& material);
+		void LoadMaterial(const Material& material);
 		//TODO: LoadLight
 		/**
 		 * light component can call this function to input light data into shader
@@ -153,6 +153,7 @@ namespace PlatinumEngine
 		ShaderProgram _unlitShader;
 		ShaderProgram _skyBoxShader;
 		ShaderProgram _gridShader;
+		ShaderProgram _phongShader;
 
 		// ShaderInput _meshShaderInput, _lightShaderInput;
 

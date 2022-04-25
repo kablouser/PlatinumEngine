@@ -35,23 +35,25 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 			if (_activeGameObject->GetComponent<TransformComponent>() != nullptr)
 				ShowTransformComponent(scene);
 
-		  if (_activeGameObject->GetComponent<CameraComponent>())
-			  ShowCameraComponent(scene);
+		  	if (_activeGameObject->GetComponent<CameraComponent>())
+				  ShowCameraComponent(scene);
 
-		  ImGui::Separator();
-		  if (_isAddComponentWindowOpen)
-			  ShowAddComponent(scene);
-
-			if (ImGui::Button("Add Component"))
-			{
-				_isAddComponentWindowOpen = !_isAddComponentWindowOpen;
+		  	ImGui::Separator();
+		  	if (_isAddComponentWindowOpen)
+				  ShowAddComponent(scene);
+		  	else
+		  	{
+				  if (ImGui::Button("Add Component"))
+				  {
+					  _isAddComponentWindowOpen = !_isAddComponentWindowOpen;
+				  }
 			}
 
 			if (ImGui::BeginPopupContextWindow())
-			{
+		  	{
 				if (ImGui::Selectable("Add Component")) _isAddComponentWindowOpen = !_isAddComponentWindowOpen;
-				ImGui::EndPopup();
-			}
+					ImGui::EndPopup();
+		  	}
 		}
 	}
 	ImGui::End();
@@ -75,6 +77,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 	char meshBuffer[64];
 	char textureBuffer[64];
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_VECTOR_SQUARE "  Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+	char normalTextureBuffer[64];
+
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveRenderComponent")) {
@@ -84,9 +88,11 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 	}
 	if (isHeaderOpen)
 	{
-		ImGui::Text("Mesh");
-		ImGui::SameLine(_sameLine);
-		ImGui::PushItemWidth(_itemWidthMesh);
+		ImGui::Text("Mesh Properties");
+		ImGui::Separator();
+		ImGui::Text("File");
+		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 
 		// store the current mesh name into mesh buffer, so that we can display it in the input text box
 		if(_activeGameObject->GetComponent<RenderComponent>()->GetMesh() != nullptr)
@@ -142,11 +148,29 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		else
 			memset(textureBuffer, 0, 64 * sizeof(char));
 
+		if(_activeGameObject->GetComponent<RenderComponent>()->material.normalTexture != nullptr)
+			strcpy(normalTextureBuffer,  _activeGameObject->GetComponent<RenderComponent>()->material.normalTexture->fileName.c_str());
+		else
+			memset(normalTextureBuffer, 0, 64 * sizeof(char));
+
 		//Show text box (read only)----------Choose Material
+		ImGui::Text("%s", "Material Properties");
 		ImGui::Separator();
-		ImGui::Text("Material");
-		ImGui::SameLine(_sameLine);
-		ImGui::PushItemWidth(_itemWidthMesh);
+
+		ImGui::Text("Shininess");
+
+		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
+		ImGui::SliderFloat("##shininess",&(_activeGameObject->GetComponent<RenderComponent>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
+		ImGui::PopItemWidth();
+
+		ImGui::Text("Blinn-Phong");
+		ImGui::SameLine();
+		ImGui::Checkbox("##Blinn-Phong", &(_activeGameObject->GetComponent<RenderComponent>()->material.useBlinnPhong));
+
+		ImGui::Text("Texture");
+		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 
 		// store the current material name into mesh buffer, so that we can display it in the input text box
 
@@ -177,20 +201,38 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		}
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
-		if(ImGui::Button("Select Texture"))
+		if(ImGui::Button("Select##Texture"))
 		{
 			ImGui::OpenPopup("Select Texture");
 		}
 		{
 			auto asset_Helper = _assetHelper->ShowTextureGuiWindow();
 			if (std::get<0>(asset_Helper))
+			{
 				_activeGameObject->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
+				_activeGameObject->GetComponent<RenderComponent>()->material.useTexture = true;
+			}
 		}
-		ImGui::Text("Shininess");
-		ImGui::SameLine(_sameLine);
-		ImGui::PushItemWidth(_itemWidthMesh);
-		ImGui::SliderFloat("##shininess",&(_activeGameObject->GetComponent<RenderComponent>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
+		ImGui::SameLine();
+		ImGui::Checkbox("##UseTexture", &(_activeGameObject->GetComponent<RenderComponent>()->material.useTexture));
+
+		ImGui::Text("%s", "Normal Map");
+		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
+		ImGui::InputText("##Normal Map Name", normalTextureBuffer, sizeof(normalTextureBuffer), ImGuiInputTextFlags_ReadOnly);
 		ImGui::PopItemWidth();
+		ImGui::SameLine();
+		if(ImGui::Button("Select##NormalTexture"))
+		{
+			ImGui::OpenPopup("Select Normal Texture");
+		}
+		{
+			auto asset_Helper = _assetHelper->ShowNormalTextureGuiWindow();
+			if (std::get<0>(asset_Helper))
+				_activeGameObject->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
+		}
+		ImGui::SameLine();
+		ImGui::Checkbox("##UseNormalTexture", &(_activeGameObject->GetComponent<RenderComponent>()->material.useNormalTexture));
 	}
 }
 
@@ -210,7 +252,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 	{
 		ImGui::PushItemWidth(50);
 		ImGui::Text(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT " Position: ");
-		ImGui::SameLine(_sameLine -16.f);
+		ImGui::SameLine(_textWidthTransformComponent);
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Xpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[0], 0.001f);
@@ -223,9 +265,9 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::SameLine();
 		ImGui::DragFloat("##Zpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[2], 0.001f);
     
-    Maths::Vec3 eulerRotation = _activeGameObject->GetComponent<TransformComponent>()->localRotation.EulerAngles();
+    	Maths::Vec3 eulerRotation = _activeGameObject->GetComponent<TransformComponent>()->localRotation.EulerAngles();
 		ImGui::Text(ICON_FA_ROTATE " Rotation: ");
-		ImGui::SameLine(_sameLine - 16.f);
+		ImGui::SameLine(_textWidthTransformComponent);
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Xrot", &eulerRotation[0], 0.001f);
@@ -240,9 +282,9 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		_activeGameObject->GetComponent<TransformComponent>()->localRotation = Maths::Quaternion::EulerToQuaternion(
 				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2])); 
 
-
 		ImGui::Text(ICON_FA_MAXIMIZE " Scale: ");
-		ImGui::SameLine(_sameLine);
+		// Scale is special case and needs some extra offset applied
+		ImGui::SameLine(_textWidthTransformComponent + 16.0f);
 		ImGui::InputFloat("##scale", &_activeGameObject->GetComponent<TransformComponent>()->localScale);
 		ImGui::PopItemWidth();
 	}
@@ -279,8 +321,8 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
       }
 
 			ImGui::Text("Projection Type");
-			ImGui::SameLine(_sameLine);
-			ImGui::SetNextItemWidth(_itemWidthMesh);
+			ImGui::SameLine(_textWidthCameraComponent);
+			ImGui::SetNextItemWidth(_itemWidthMeshRenderComponent);
 			ImGui::InputText("##Projection Type", cameraType, sizeof(cameraType), ImGuiInputTextFlags_ReadOnly);
 			ImGui::SameLine();
 			if (ImGui::BeginPopupContextItem("projection type"))
@@ -320,8 +362,8 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 
 
 			ImGui::Text("Clear Mode");
-			ImGui::SameLine(_sameLine);
-			ImGui::SetNextItemWidth(_itemWidthMesh);
+			ImGui::SameLine(_textWidthCameraComponent);
+			ImGui::SetNextItemWidth(_itemWidthMeshRenderComponent);
 			ImGui::InputText("##Clear Mode", clearMode, sizeof(clearMode), ImGuiInputTextFlags_ReadOnly);
 			ImGui::SameLine();
 			if (ImGui::BeginPopupContextItem("clear mode"))
@@ -349,8 +391,8 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 		ImGui::Separator();
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Background color: ");
-		ImGui::SameLine(_sameLine - 16.f);
 
+		// To avoid making window excessively wide, start new line
 		ImGui::Text("R");
 		ImGui::SameLine();
 		ImGui::InputFloat("##Red", &camera->backgroundColor.r);
@@ -376,19 +418,19 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 		float orthographicSize;
 
 		ImGui::Text("Field of View: ");
-		ImGui::SameLine(_sameLine);
+		ImGui::SameLine(_textWidthCameraComponent);
 		ImGui::InputFloat("##FOV", &camera->fov);
 
 		ImGui::Text("Near Clipping Plane: ");
-		ImGui::SameLine(_sameLine);
+		ImGui::SameLine(_textWidthCameraComponent);
 		ImGui::InputFloat("##NearClippingPlane", &camera->nearClippingPlane);
 
 		ImGui::Text("Far Clipping Plane: ");
-		ImGui::SameLine(_sameLine);
+		ImGui::SameLine(_textWidthCameraComponent);
 		ImGui::InputFloat("##FarClippingPlane", &camera->farClippingPlane);
 
 		ImGui::Text("Orthographic Size: ");
-		ImGui::SameLine(_sameLine);
+		ImGui::SameLine(_textWidthCameraComponent);
 		ImGui::InputFloat("##OrthographicSize", &camera->orthographicSize);
 	}
 }

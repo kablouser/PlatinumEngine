@@ -34,6 +34,7 @@ namespace PlatinumEngine{
 			_useSnap(false),
 			_boundSizing(false),
 			_boundSizingSnap(false),
+			_onObjectGizmo(true),
 
 			_currentGizmoMode(ImGuizmo::LOCAL),
 			_currentGizmoOperation(ImGuizmo::TRANSLATE),
@@ -103,7 +104,10 @@ namespace PlatinumEngine{
 			if (ImGui::Button(ICON_FA_VIDEO "##Camera Setting"))
 			{
 				_ifCameraSettingWindowOpen = !_ifCameraSettingWindowOpen;
-
+			}
+			if(ImGui::IsItemHovered())
+			{
+				ImGui::SetTooltip("Scene Camera");
 			}
 			//translate, rotate, scale button
 			ImGui::SameLine();
@@ -163,6 +167,10 @@ namespace PlatinumEngine{
 				ImGui::SetTooltip("translate, rotate and scale");
 			ImGui::SameLine();
 
+			if(ImGui::Checkbox("##turn_on_off_gizmo", &_onObjectGizmo)) {}
+			if(ImGui::IsItemHovered())
+				ImGui::SetTooltip("turn on or off the gizmo");
+			ImGui::SameLine();
 			// grid and skybox
 			if (ImGui::BeginPopupContextItem("grid"))
 			{
@@ -195,7 +203,7 @@ namespace PlatinumEngine{
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("turn on or off the grid");
 
-			ImGui::SameLine(226.f);
+			ImGui::SameLine(260.f);
 			if(ImGui::Button(ICON_FA_CARET_DOWN "##GridDetail"))
 			{
 				ImGui::OpenPopup("grid");
@@ -400,10 +408,10 @@ namespace PlatinumEngine{
 
 
 			// ---------------- Render SKY BOX ---------------- //
+			glDisable(GL_DEPTH_TEST);
 			// discard the depth of the skybox
 			if(_enableSkyBox)
 			{
-				glDisable(GL_DEPTH_TEST);
 				glDepthMask(false);
 				_renderer->BeginSkyBoxShader();
 
@@ -418,40 +426,9 @@ namespace PlatinumEngine{
 				_skyBoxShaderInput.Draw();
 				_renderer->EndSkyBoxShader();
 
-				_skyboxTexture.UnbindCubeMap();
-
 				// enable depth test for the later rendering
 				glDepthMask(true);
-				glEnable(GL_DEPTH_TEST);
 			}
-			// ------------- Render Game Objects ------------- //
-			// Start rendering (bind a shader)
-			_renderer->Begin();
-
-			// Update rendering information to renderer
-			_renderer->SetModelMatrix();
-
-			// check if the view matrix is passed to shader
-
-			//if(!_camera.CheckIfViewMatrixUsed())
-			{
-				_renderer->SetViewMatrix(_camera.viewMatrix4);
-				_camera.MarkViewMatrixAsUsed();
-			}
-			//if(!_camera.CheckIfProjectionMatrixUsed())
-			{
-				_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
-				_camera.MarkProjectionMatrixAsUsed();
-			}
-      
-			_renderer->SetLightProperties();
-
-			// Render game objects
-			_scene->Render(*_renderer);
-
-			// End rendering (unbind a shader)
-			_renderer->End();
-
 
 			// -------------------- Render GRID ------------------ //
 			if(_enableGrid)
@@ -479,6 +456,35 @@ namespace PlatinumEngine{
 				_gridShaderInput.Draw();
 				_renderer->EndGrid();
 			}
+			glEnable(GL_DEPTH_TEST);
+			// ------------- Render Game Objects ------------- //
+			// Start rendering (bind a shader)
+			_renderer->Begin();
+
+			// Update rendering information to renderer
+			_renderer->SetModelMatrix();
+
+			// check if the view matrix is passed to shader
+
+			// TODO: Commneted these lines of code out to fix some bug, need to check how to do properly
+			// if(!_camera.CheckIfViewMatrixUsed())
+			{
+				_renderer->SetViewMatrix(_camera.viewMatrix4);
+				_camera.MarkViewMatrixAsUsed();
+			}
+			// if(!_camera.CheckIfProjectionMatrixUsed())
+			{
+				_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
+				_camera.MarkProjectionMatrixAsUsed();
+			}
+      
+			_renderer->SetLightProperties();
+
+			// Render game objects
+			_scene->Render(*_renderer);
+
+			// End rendering (unbind a shader)
+			_renderer->End();
 
 			// unbind framebuffer
 			_renderTexture.Unbind();
@@ -495,7 +501,7 @@ namespace PlatinumEngine{
 
 
 			// display gizmos
-			UseGizmo(_camera.viewMatrix4.matrix, _camera.projectionMatrix4.matrix, currentGizmoMode, currentGizmoOperation);
+			UseGizmo(_camera.viewMatrix4.matrix, _camera.projectionMatrix4.matrix, currentGizmoMode, currentGizmoOperation, _onObjectGizmo);
 
 			// update the camera quaternion, because it was rotated in the UseGizmo function
 			_camera.UpdateCameraQuaternion();
@@ -988,7 +994,7 @@ namespace PlatinumEngine{
 	///--------------------------------------------
 	/// Gizmo
 	///--------------------------------------------
-	void SceneEditor::UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
+	void SceneEditor::UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation, bool onGizmo)
 	{
 		Maths::Mat4 identityMatrix(1);
 
@@ -999,18 +1005,21 @@ namespace PlatinumEngine{
 		float viewManipulateRight = ImGui::GetWindowPos().x + windowWidth;
 		float viewManipulateTop = ImGui::GetWindowPos().y;
 
-		if(_selectedGameobject != nullptr && _selectedGameobject->GetComponent<TransformComponent>() != nullptr)
+		if(onGizmo)
 		{
-			auto transform =  _selectedGameobject->GetComponent<TransformComponent>();
-			Maths::Mat4 transform_matrix = transform->GetLocalToWorldMatrix();
-			ImGuizmo::Manipulate(
-					cameraView, cameraProjection, currentGizmoOperation, currentGizmoMode,
-					transform_matrix.matrix, NULL, _useSnap ? &_snap[0] : NULL,
-					_boundSizing ? _bounds : NULL, _boundSizingSnap ? _boundsSnap : NULL);
+			if (_selectedGameobject != nullptr && _selectedGameobject->GetComponent<TransformComponent>() != nullptr)
+			{
+				auto transform = _selectedGameobject->GetComponent<TransformComponent>();
+				Maths::Mat4 transform_matrix = transform->GetLocalToWorldMatrix();
 
-			transform->SetLocalToWorldMatrix(transform_matrix);
+				ImGuizmo::Manipulate(
+						cameraView, cameraProjection, currentGizmoOperation, currentGizmoMode,
+						transform_matrix.matrix, NULL, _useSnap ? &_snap[0] : NULL,
+						_boundSizing ? _bounds : NULL, _boundSizingSnap ? _boundsSnap : NULL);
+
+				transform->SetLocalToWorldMatrix(transform_matrix);
+			}
 		}
-
 		// view manipulate gizmo
 		ImGuizmo::ViewManipulate(cameraView, 0.001, ImVec2(viewManipulateRight - 100, viewManipulateTop),
 				ImVec2(100, 100), 0x10101010);

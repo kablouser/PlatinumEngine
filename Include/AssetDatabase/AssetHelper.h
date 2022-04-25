@@ -29,6 +29,7 @@ namespace PlatinumEngine
 
 		 std::tuple<bool, Texture*> GetTextureAsset(std::string filePath);
 
+		 std::tuple<bool, Texture*> ShowNormalTextureGuiWindow();
 	private:
 		AssetDatabase* _assetDatabase;
 	};
