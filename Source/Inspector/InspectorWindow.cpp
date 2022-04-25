@@ -206,6 +206,12 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		}
 		ImGui::SameLine();
 		ImGui::Checkbox("##UseNormalTexture", &(obj->GetComponent<RenderComponent>()->material.useNormalTexture));
+
+		ImGui::Separator();
+		ImGui::Text("Special Properties");
+		ImGui::Text("Reflection");
+		ImGui::SameLine();
+		ImGui::Checkbox("##UseRelfectionShader", &(obj->GetComponent<RenderComponent>()->material.useReflectionShader));
 	}
 }
 

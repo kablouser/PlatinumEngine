@@ -461,6 +461,11 @@ namespace PlatinumEngine{
 			// Start rendering (bind a shader)
 			_renderer->Begin();
 
+			// Bind skybox for objects to sample from, use an unused texture
+			glActiveTexture(GL_TEXTURE7);
+			_skyboxTexture.BindCubeMap();
+			glActiveTexture(GL_TEXTURE0);
+
 			// Update rendering information to renderer
 			_renderer->SetModelMatrix();
 

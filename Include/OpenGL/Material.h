@@ -30,6 +30,7 @@ namespace PlatinumEngine
 		bool useBlinnPhong = false;
 		bool useTexture = false;
 		bool useNormalTexture = false;
+		bool useReflectionShader = false;
 
 		Material();
 		~Material();

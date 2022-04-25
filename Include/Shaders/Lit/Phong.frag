@@ -29,8 +29,22 @@ uniform vec3 viewPos;
 
 uniform bool useBlinnPhong;
 
+// For reflection
+in vec3 positionForReflection;
+uniform bool useReflection = false;
+uniform samplerCube skybox;
+
 void main()
 {
+    // Check for reflection
+    if(useReflection)
+    {
+        vec3 I = normalize(positionForReflection - viewPos);
+        vec3 R = reflect(I, normalize(vec3(vertexNormal.xy, -vertexNormal.z)));
+        fragColour = vec4(texture(skybox, R).rgb, 1.0);
+        return;
+    }
+
     vec3 colour = vec3(0.4f, 0.4f, 0.4f);
     if (useTexture)
     {

@@ -209,6 +209,13 @@ namespace PlatinumEngine
 		_phongShader.SetUniform("materialSpec", Maths::Vec3(0.1f, 0.1f, 0.1f));
 		_phongShader.SetUniform("shininess", material.shininessFactor);
 		_phongShader.SetUniform("useBlinnPhong", material.useBlinnPhong);
+		_phongShader.SetUniform("useReflection", material.useReflectionShader);
+
+		// Check scene editor for what value skybox is mapped to
+		_phongShader.SetUniform("skybox", 7);
+
+		// Reset state
+		glActiveTexture(GL_TEXTURE0);
 	}
 
 	// update model matrix in shader
