@@ -15,7 +15,6 @@ Mesh::Mesh()
 Mesh::Mesh(std::vector<Vertex> newVertices, std::vector<unsigned int> newIndices)
 	:vertices(std::move(newVertices)), indices(std::move(newIndices))
 {
-
 }
 Mesh::~Mesh()
 {

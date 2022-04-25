@@ -56,6 +56,12 @@ namespace PlatinumEngine
 		 * @param offset : This is the offset of indices for the current mesh, should start at 0
 		 */
 		void AddMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset);
+
+		void AddBoneData(Mesh &outMesh, aiBone* bone, unsigned int offset);
+
+		void AddNodeData(Mesh &outMesh, aiNode* rootNode);
+
+		void AddAnimationData(Mesh &outMesh, aiAnimation* inAnimation);
 	}
 }
 

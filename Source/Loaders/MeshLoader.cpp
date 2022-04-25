@@ -84,13 +84,30 @@ namespace PlatinumEngine
 			for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 			{
 				AddMeshData(returnMesh, scene->mMeshes[i], offset);
+
+				for(unsigned int j=0;j<scene->mMeshes[i]->mNumBones; ++j)
+				{
+					AddBoneData(returnMesh, scene->mMeshes[i]->mBones[j], offset);
+				}
 			}
+
+
+
+			// Get all nodes
+			AddNodeData(returnMesh, scene->mRootNode);
+
+			// Loop all animations
+			for(unsigned int i = 0; i < scene->mNumAnimations; ++i)
+				AddAnimationData(returnMesh, scene->mAnimations[i]);
 
 			return returnMesh;
 		}
 
 		void AddMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset)
 		{
+			// Store offset
+			outMesh.offset.push_back(offset);
+
 			// Keep track of the highest index of this mesh
 			unsigned int highestIndex = 0;
 
@@ -153,6 +170,81 @@ namespace PlatinumEngine
 
 			// Render offset for next mesh, we add 1 as indices in next mesh will start at 0
 			offset += highestIndex + 1;
+		}
+
+		void AddBoneData(Mesh &outMesh, aiBone* inBone, unsigned int offset)
+		{
+			Bone bone;
+
+			// Name
+			bone.boneName = inBone->mName.C_Str();
+
+			// Weight
+			for(int i = 0; i < inBone->mNumWeights; i++)
+				bone.weights.emplace_back(Weight{inBone->mWeights[i].mVertexId + offset, inBone->mWeights[i].mWeight});
+
+			// Matrix
+			bone.SetTranformMatrixByaiMatrix(inBone->mOffsetMatrix);
+
+			outMesh.bones.emplace_back(bone);
+		}
+
+		void AddNodeData( Mesh &outMesh, aiNode *rootNode)
+		{
+			if(rootNode == nullptr)
+			{
+				return;
+			}
+
+			// create list to record read nodes
+			std::vector<aiNode*> readNodes = { rootNode };
+
+			// add new bone node into the list
+			outMesh.nodes.emplace_back(BoneNode(readNodes[0]->mName.C_Str()));
+			outMesh.nodes[0].parent = nullptr;
+			outMesh.nodes[0].SetTranformMatrixByaiMatrix(readNodes[0]->mTransformation);
+
+			for(unsigned int j = 0; j < readNodes.size(); ++j)
+			{
+				// add nodes into read list
+				for (unsigned int i = 0; i < readNodes[j]->mNumChildren; ++i)
+				{
+					// add the child into read list
+					readNodes.emplace_back(readNodes[j]->mChildren[i]);
+					// add the child into the bone node list in mesh object
+					outMesh.nodes.emplace_back(BoneNode(readNodes[j]->mChildren[i]->mName.C_Str()));
+					// set parent
+					outMesh.nodes.back().parent = &outMesh.nodes[j];
+					// set transformation matrix
+					outMesh.nodes.back().SetTranformMatrixByaiMatrix(readNodes[j]->mChildren[i]->mTransformation);
+					// set mesh id
+					for(unsigned int k =0; k < readNodes[j]->mChildren[i]->mNumMeshes; ++k)
+						outMesh.nodes.back().meshIDs.emplace_back(readNodes[j]->mChildren[i]->mMeshes[k]);
+				}
+
+				// set children
+				for (unsigned int i = 0; i < readNodes[j]->mNumChildren; i++)
+				{
+					&outMesh.nodes[j].children.emplace_back(&outMesh.nodes[j + i + 1]);
+				}
+			}
+		}
+
+		void AddAnimationData(Mesh &outMesh, aiAnimation* inAnimation)
+		{
+			Animation animation;
+
+			// Basic info
+			animation.animationName = inAnimation->mName.C_Str();
+			animation.duration = inAnimation->mDuration;
+			animation.tickPerSecond = inAnimation->mTicksPerSecond;
+
+			// Channels
+			for(unsigned int i =0; i<inAnimation->mNumChannels; ++i)
+				animation.AddChannelByaiNodeAnim(inAnimation->mChannels[i]);
+
+
+			outMesh.animations.emplace_back(animation);
 		}
 	}
 }

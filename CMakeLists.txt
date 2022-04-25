@@ -198,7 +198,7 @@ set(UNIT_TESTS
 	"Test/Maths/MatricesTest.cpp;"
 	"Test/SceneEditor/EditorCameraTest.cpp;"
   	"Test/TestScene.cpp;"
-	)
+	Include/Animation/AnimationManager.h Source/Animation/AnimationManager.cpp Include/Animation/Animation.h Source/Animation/Animation.cpp Include/Animation/BoneNode.h Source/Animation/BoneNode.cpp)
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 
 target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
