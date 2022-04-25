@@ -8,35 +8,39 @@
 
 using namespace PlatinumEngine;
 
-InspectorWindow::InspectorWindow(AssetHelper* assetHelper):_assetHelper(assetHelper) {}
+InspectorWindow::InspectorWindow(AssetHelper* assetHelper, SceneEditor* sceneEditor) :
+	_assetHelper(assetHelper), _sceneEditor(sceneEditor) {}
+
 void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 {
 	if(ImGui::Begin(ICON_FA_CIRCLE_INFO " Inspector Window", isOpen))
 	{
-		if (_activeGameObject)
+		auto obj = _sceneEditor->GetSelectedGameobject();
+		if (obj != nullptr)
 		{
 			ImGui::Text("Name: ");
 			ImGui::SameLine();
 			static char objectNameBuffer[128];
-			strcpy(objectNameBuffer, _activeGameObject->name.c_str());
+			strcpy(objectNameBuffer, obj->name.c_str());
 			ImGui::InputText("##input name", objectNameBuffer, IM_ARRAYSIZE(objectNameBuffer));
-			_activeGameObject->name = std::string( objectNameBuffer );
+			obj->name = std::string( objectNameBuffer );
 
 			ImGui::SameLine();
+			bool isEnabled = obj->IsEnabled();
 
-			if (ImGui::Checkbox("##IsEnabled", &_isObjectEnabled))
+			if (ImGui::Checkbox("##IsEnabled", &isEnabled))
 			{
-				_activeGameObject->SetEnabled(_isObjectEnabled, scene);
+				obj->SetEnabled(isEnabled, scene);
 			}
 
 			// Now render each component gui
-			if (_activeGameObject->GetComponent<RenderComponent>() != nullptr)
+			if (obj->GetComponent<RenderComponent>() != nullptr)
 				ShowMeshRenderComponent(scene);
 
-			if (_activeGameObject->GetComponent<TransformComponent>() != nullptr)
+			if (obj->GetComponent<TransformComponent>() != nullptr)
 				ShowTransformComponent(scene);
 
-		  	if (_activeGameObject->GetComponent<CameraComponent>())
+		  	if (obj->GetComponent<CameraComponent>())
 				  ShowCameraComponent(scene);
 
 		  	ImGui::Separator();
@@ -47,6 +51,12 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 				  if (ImGui::Button("Add Component"))
 				  {
 					  _isAddComponentWindowOpen = !_isAddComponentWindowOpen;
+				  }
+
+				  ImGui::SameLine();
+				  if (ImGui::Button("Remove Object"))
+				  {
+						_sceneEditor->DeleteSelectedGameObject();
 				  }
 			}
 
@@ -60,31 +70,20 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 	ImGui::End();
 }
 
-void InspectorWindow::SetActiveGameObject(GameObject* gameObject)
-{
-	_activeGameObject = gameObject;
-
-	// Get states of gameObject if not null
-	if (gameObject)
-	{
-		_isObjectEnabled = gameObject->IsEnabled();
-	}
-}
-
 void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 {
-
 	ImGui::Separator();
 	char meshBuffer[64];
 	char textureBuffer[64];
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_VECTOR_SQUARE "  Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap);
 	char normalTextureBuffer[64];
+	auto obj = _sceneEditor->GetSelectedGameobject();
 
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveRenderComponent")) {
 		// remove component
-		scene.RemoveComponent(*_activeGameObject->GetComponent<RenderComponent>());
+		scene.RemoveComponent(*obj->GetComponent<RenderComponent>());
 		return;
 	}
 	if (isHeaderOpen)
@@ -96,8 +95,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 
 		// store the current mesh name into mesh buffer, so that we can display it in the input text box
-		if(_activeGameObject->GetComponent<RenderComponent>()->GetMesh() != nullptr)
-			strcpy(meshBuffer,  _activeGameObject->GetComponent<RenderComponent>()->GetMesh()->fileName.c_str());
+		if(obj->GetComponent<RenderComponent>()->GetMesh() != nullptr)
+			strcpy(meshBuffer,  obj->GetComponent<RenderComponent>()->GetMesh()->fileName.c_str());
 		else
 			memset(meshBuffer, 0, 64 * sizeof(char));
 
@@ -137,17 +136,17 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			auto asset_Helper = _assetHelper->ShowMeshGuiWindow();
 			if (std::get<0>(asset_Helper))
 			{
-				_activeGameObject->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+				obj->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
 			}
 		}
 
-		if(_activeGameObject->GetComponent<RenderComponent>()->material.diffuseTexture != nullptr)
-			strcpy(textureBuffer,  _activeGameObject->GetComponent<RenderComponent>()->material.diffuseTexture->fileName.c_str());
+		if(obj->GetComponent<RenderComponent>()->material.diffuseTexture != nullptr)
+			strcpy(textureBuffer,  obj->GetComponent<RenderComponent>()->material.diffuseTexture->fileName.c_str());
 		else
 			memset(textureBuffer, 0, 64 * sizeof(char));
 
-		if(_activeGameObject->GetComponent<RenderComponent>()->material.normalTexture != nullptr)
-			strcpy(normalTextureBuffer,  _activeGameObject->GetComponent<RenderComponent>()->material.normalTexture->fileName.c_str());
+		if(obj->GetComponent<RenderComponent>()->material.normalTexture != nullptr)
+			strcpy(normalTextureBuffer,  obj->GetComponent<RenderComponent>()->material.normalTexture->fileName.c_str());
 		else
 			memset(normalTextureBuffer, 0, 64 * sizeof(char));
 
@@ -159,12 +158,12 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 
 		ImGui::SameLine(_textWidthMeshRenderComponent);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
-		ImGui::SliderFloat("##shininess",&(_activeGameObject->GetComponent<RenderComponent>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
+		ImGui::SliderFloat("##shininess",&(obj->GetComponent<RenderComponent>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 
 		ImGui::Text("Blinn-Phong");
 		ImGui::SameLine();
-		ImGui::Checkbox("##Blinn-Phong", &(_activeGameObject->GetComponent<RenderComponent>()->material.useBlinnPhong));
+		ImGui::Checkbox("##Blinn-Phong", &(obj->GetComponent<RenderComponent>()->material.useBlinnPhong));
 
 		ImGui::Text("Texture");
 		ImGui::SameLine(_textWidthMeshRenderComponent);
@@ -183,12 +182,12 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			auto asset_Helper = _assetHelper->ShowTextureGuiWindow();
 			if (std::get<0>(asset_Helper))
 			{
-				_activeGameObject->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
-				_activeGameObject->GetComponent<RenderComponent>()->material.useTexture = true;
+				obj->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
+				obj->GetComponent<RenderComponent>()->material.useTexture = true;
 			}
 		}
 		ImGui::SameLine();
-		ImGui::Checkbox("##UseTexture", &(_activeGameObject->GetComponent<RenderComponent>()->material.useTexture));
+		ImGui::Checkbox("##UseTexture", &(obj->GetComponent<RenderComponent>()->material.useTexture));
 
 		ImGui::Text("%s", "Normal Map");
 		ImGui::SameLine(_textWidthMeshRenderComponent);
@@ -203,15 +202,17 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		{
 			auto asset_Helper = _assetHelper->ShowNormalTextureGuiWindow();
 			if (std::get<0>(asset_Helper))
-				_activeGameObject->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
+				obj->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
 		}
 		ImGui::SameLine();
-		ImGui::Checkbox("##UseNormalTexture", &(_activeGameObject->GetComponent<RenderComponent>()->material.useNormalTexture));
+		ImGui::Checkbox("##UseNormalTexture", &(obj->GetComponent<RenderComponent>()->material.useNormalTexture));
 	}
 }
 
 void InspectorWindow::ShowTransformComponent(Scene& scene)
 {
+	auto obj = _sceneEditor->GetSelectedGameobject();
+
 	// If this gui is being shown, assumption that object has transform component
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_ARROWS_TURN_TO_DOTS "  Transform Component", ImGuiTreeNodeFlags_AllowItemOverlap);
@@ -219,7 +220,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveTransformComponent")) {
 		// remove component
-		scene.RemoveComponent(*_activeGameObject->GetComponent<TransformComponent>());
+		scene.RemoveComponent(*obj->GetComponent<TransformComponent>());
 		return;
 	}
 	if (isHeaderOpen)
@@ -229,17 +230,17 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::SameLine(_textWidthTransformComponent);
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Xpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[0], 0.001f);
+		ImGui::DragFloat("##Xpos", &obj->GetComponent<TransformComponent>()->localPosition[0], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Ypos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[1], 0.001f);
+		ImGui::DragFloat("##Ypos", &obj->GetComponent<TransformComponent>()->localPosition[1], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Zpos", &_activeGameObject->GetComponent<TransformComponent>()->localPosition[2], 0.001f);
+		ImGui::DragFloat("##Zpos", &obj->GetComponent<TransformComponent>()->localPosition[2], 0.001f);
     
-    	Maths::Vec3 eulerRotation = _activeGameObject->GetComponent<TransformComponent>()->localRotation.EulerAngles();
+    	Maths::Vec3 eulerRotation = obj->GetComponent<TransformComponent>()->localRotation.EulerAngles();
 		ImGui::Text(ICON_FA_ROTATE " Rotation: ");
 		ImGui::SameLine(_textWidthTransformComponent);
 		ImGui::Text("X");
@@ -253,13 +254,13 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::Text("Z");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Zrpt", &eulerRotation[2], 0.001f);
-		_activeGameObject->GetComponent<TransformComponent>()->localRotation = Maths::Quaternion::EulerToQuaternion(
+		obj->GetComponent<TransformComponent>()->localRotation = Maths::Quaternion::EulerToQuaternion(
 				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2])); 
 
 		ImGui::Text(ICON_FA_MAXIMIZE " Scale: ");
 		// Scale is special case and needs some extra offset applied
 		ImGui::SameLine(_textWidthTransformComponent + 16.0f);
-		ImGui::InputFloat("##scale", &_activeGameObject->GetComponent<TransformComponent>()->localScale);
+		ImGui::InputFloat("##scale", &obj->GetComponent<TransformComponent>()->localScale);
 		ImGui::PopItemWidth();
 	}
 
@@ -269,6 +270,8 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 {
 	char cameraType[64];
 	char clearMode[64];
+	auto obj = _sceneEditor->GetSelectedGameobject();
+
 	// If this gui is being shown, assumption that object has transform component
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_CAMERA "  Camera Component", ImGuiTreeNodeFlags_AllowItemOverlap);
@@ -276,12 +279,12 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveCameraComponent")) {
 		// remove component
-		scene.RemoveComponent(*_activeGameObject->GetComponent<CameraComponent>());
+		scene.RemoveComponent(*obj->GetComponent<CameraComponent>());
 		return;
 	}
 	if (isHeaderOpen)
 	{
-		auto camera = _activeGameObject->GetComponent<CameraComponent>();
+		auto camera = obj->GetComponent<CameraComponent>();
 
 		{// the camera projection type
 			if (CameraComponent::ProjectionType::perspective == camera->projectionType)
@@ -413,6 +416,8 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 {
 	if (ImGui::BeginChild("ComponentSelector"))
 	{
+		auto obj = _sceneEditor->GetSelectedGameobject();
+
 		const char* components[] = {
 				"Mesh Render Component",
 				"Transform Component",
@@ -456,16 +461,16 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			if (strcmp(selectedComponent, "Mesh Render Component") == 0)
 			{
 				// Add Render Component
-				scene.AddComponent<RenderComponent>(_activeGameObject);
+				scene.AddComponent<RenderComponent>(obj);
 			}
 			else if (strcmp(selectedComponent, "Transform Component") == 0)
 			{
 				// Add Transform Component
-				scene.AddComponent<TransformComponent>(_activeGameObject);
+				scene.AddComponent<TransformComponent>(obj);
 			}
 			else if (strcmp(selectedComponent, "Camera Component") == 0)
 			{
-				scene.AddComponent<CameraComponent>(_activeGameObject);
+				scene.AddComponent<CameraComponent>(obj);
 			}
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;
