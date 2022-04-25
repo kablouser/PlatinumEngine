@@ -4,12 +4,17 @@ out vec4 fragColour;
 in vec3 vertexPos;
 in vec3 vertexNormal;
 in vec2 vertexTextureCoordinate;
+in mat3 TBN;
 
 // Texture of object
 uniform sampler2D diffuseMap;
 uniform bool useTexture;
 uniform vec3 materialSpec;
 uniform float shininess;
+
+// Normal mapping
+uniform sampler2D normalMap;
+uniform bool useNormalTexture;
 
 // Light properties
 uniform vec3 lightPos;
@@ -31,6 +36,10 @@ void main()
     {
         colour = texture(diffuseMap, vertexTextureCoordinate).rgb;
     }
+    else if (!useTexture && useNormalTexture)
+    {
+        colour = texture(normalMap, vertexTextureCoordinate).rgb;
+    }
 
     // ambient
     vec3 ambient = lightAmbient * colour;
@@ -43,6 +52,13 @@ void main()
 
     vec3 normal = normalize(vertexNormal);
 
+    if (useTexture && useNormalTexture)
+    {
+        normal = texture(normalMap, vertexTextureCoordinate).rgb;
+        normal = normal * 2.0 - 1.0;
+        normal = normalize(TBN * normal);
+    }
+
     // diffuse
     float diff = max(dot(lightDirection, normal), 0.0);
     vec3 diffuse = lightDiffuse * diff * colour;
@@ -53,7 +69,7 @@ void main()
     if(useBlinnPhong)
     {
         vec3 halfwayDir = normalize(lightDirection + viewDirection);
-        spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
+        spec = pow(max(dot(normal, halfwayDir), 0.0), 4.0f*shininess);
     }
     else
     {

@@ -25,12 +25,6 @@ const std::string PHONG_VERTEX_SHADER =
 const std::string PHONG_FRAGMENT_SHADER =
 #include <Shaders/Lit/Phong.frag>
 ;
-const std::string NORMAL_VERTEX_SHADER =
-#include <Shaders/Lit/NormalMappingVertShader.vert>
-;
-const std::string NORMAL_FRAGMENT_SHADER =
-#include <Shaders/Lit/NormalMappingFragShader.frag>
-;
 const std::string SKYBOX_VERTEX_SHADER =
 #include <Shaders/Unlit/SkyBoxShader.vert>
 ;
@@ -96,12 +90,6 @@ namespace PlatinumEngine
 		if (!_phongShader.Compile(PHONG_VERTEX_SHADER, PHONG_FRAGMENT_SHADER))
 		{
 			PLATINUM_ERROR("Cannot generate the phong shader.");
-			return;
-		}
-
-		if (!_normalMapShader.Compile(NORMAL_VERTEX_SHADER, NORMAL_FRAGMENT_SHADER))
-		{
-			PLATINUM_ERROR("Cannot generate the normal map shader.");
 			return;
 		}
 
@@ -200,126 +188,48 @@ namespace PlatinumEngine
 
 	void Renderer::LoadMaterial(const Material& material)
 	{
-
-		// Use diffuse texture on its own
-		// Use normal texture on its own
-		// Use normal and diffuse texture
-
-		// Check case for using normal and diffuse texture as this will require normal shader
-		if (material.useNormalTexture && material.useTexture && material.normalTexture && material.diffuseTexture)
+		_phongShader.Bind();
+		_phongShader.SetUniform("useTexture", material.useTexture);
+		if (material.diffuseTexture)
 		{
-			_normalMapShader.Bind();
-			// Bind diffuse map
-			_normalMapShader.SetUniform("diffuseMap", (int)0);
+			_phongShader.SetUniform("diffuseMap", (int)0);
 			glActiveTexture(GL_TEXTURE0);
 			material.diffuseTexture->Bind();
+		}
 
-			// bind normal map
-			_normalMapShader.SetUniform("normalMap", (int)1);
+		_phongShader.SetUniform("useNormalTexture", material.useNormalTexture);
+		if (material.normalTexture)
+		{
+			_phongShader.SetUniform("normalMap", (int)1);
 			glActiveTexture(GL_TEXTURE1);
 			material.normalTexture->Bind();
-
-			// Other uniforms
-			_normalMapShader.SetUniform("materialSpec", Maths::Vec3(0.5f, 0.5f, 0.5f));
-			_normalMapShader.SetUniform("shininess", material.shininessFactor);
-			_normalMapShader.SetUniform("useBlinnPhong", material.useBlinnPhong);
 		}
-		else
-		{
-			_phongShader.Bind();
 
-			// Check if normal texture is given but no diffuse texture is given
-			if (material.normalTexture && material.useNormalTexture && !material.useTexture)
-			{
-				// Use the normal texture as the diffuse texture so a user can see it on screen
-				_phongShader.SetUniform("useTexture", true);
-				_phongShader.SetUniform("diffuseMap", (int) 0);
-				glActiveTexture(GL_TEXTURE0);
-				material.normalTexture->Bind();
-			}
-			// Only diffuse texture given
-			else if (material.diffuseTexture && material.useTexture)
-			{
-				_phongShader.SetUniform("useTexture", true);
-				_phongShader.SetUniform("diffuseMap", (int) 0);
-				glActiveTexture(GL_TEXTURE0);
-				material.diffuseTexture->Bind();
-			}
-			// No texture given
-			else {
-				_phongShader.SetUniform("useTexture", false);
-			}
-
-			// Other uniforms
-			_phongShader.SetUniform("materialSpec", Maths::Vec3(0.5f, 0.5f, 0.5f));
-			_phongShader.SetUniform("shininess", material.shininessFactor);
-			_phongShader.SetUniform("useBlinnPhong", material.useBlinnPhong);
-
-			// TODO: This code is what was being used for unlit shader by Jinyuan, will leave this here for now
-//			_unlitShader.Bind();
-//
-//			// bind diffuse map
-//			if (material.diffuseTexture)
-//			{
-//				_unlitShader.SetUniform("diffuseMap", 0);
-//				glActiveTexture(GL_TEXTURE0);
-//				material.diffuseTexture->Bind();
-//				glActiveTexture(GL_TEXTURE0);
-//			}
-//			// TODO: bind specular map
-////			if(material.specularTexture)
-////			{
-////				_unlitShader.SetUniform("specularMap", 1);
-////				glActiveTexture(GL_TEXTURE1);
-////				material.specularTexture->Bind();
-////				glActiveTexture(GL_TEXTURE0);
-////			}
-//			// TODO: bind normal map (should this be here I don't think so?)
-////			if(material.normalTexture)
-////			{
-////				_unlitShader.SetUniform("normalMap", 2);
-////				glActiveTexture(GL_TEXTURE2);
-////				material.normalTexture->Bind();
-////			}
-//			_unlitShader.SetUniform("shininess", material.shininessFactor);
-		}
+		// Other uniforms
+		_phongShader.SetUniform("materialSpec", Maths::Vec3(0.1f, 0.1f, 0.1f));
+		_phongShader.SetUniform("shininess", material.shininessFactor);
+		_phongShader.SetUniform("useBlinnPhong", material.useBlinnPhong);
 	}
 
 	// update model matrix in shader
 	void Renderer::SetModelMatrix(Maths::Mat4 mat)
 	{
-		_normalMapShader.Bind();
-		_normalMapShader.SetUniform("model", mat);
-		_normalMapShader.Unbind();
 		_phongShader.Bind();
 		_phongShader.SetUniform("model", mat);
-//		_unlitShader.Bind();
-//		_unlitShader.SetUniform("model", mat);
 	}
 
 	// update view matrix in shader
 	void Renderer::SetViewMatrix(Maths::Mat4 mat)
 	{
-		//glm::mat4 view = GetViewMatrix();
-		_normalMapShader.Bind();
-		_normalMapShader.SetUniform("view", mat);
-		_normalMapShader.Unbind();
 		_phongShader.Bind();
 		_phongShader.SetUniform("view", mat);
-//		_unlitShader.Bind();
-//		_unlitShader.SetUniform("view", mat);
 	}
 
 	// update perspective matrix in shader
 	void Renderer::SetProjectionMatrix(Maths::Mat4 mat)
 	{
-		_normalMapShader.Bind();
-		_normalMapShader.SetUniform("projection", mat);
-		_normalMapShader.Unbind();
 		_phongShader.Bind();
 		_phongShader.SetUniform("projection", mat);
-//		_unlitShader.Bind();
-//		_unlitShader.SetUniform("projection", mat);
 	}
 
 	// update view matrix in shader
@@ -405,17 +315,11 @@ namespace PlatinumEngine
 	void Renderer::SetLightProperties()
 	{
 		// Normal shader light properties
-		auto lightPos = Maths::Vec3(100.0f, 100.0f, 100.0f);
+		auto lightPos = Maths::Vec3(5.0f, 5.0f, -5.0f);
 		auto isPointLight = true;
 		auto lightAmbient = Maths::Vec3(0.2f, 0.2f, 0.2f);
 		auto lightDiffuse = Maths::Vec3(0.5f, 0.5f, 0.5f);
 		auto lightSpecular = Maths::Vec3(1.0f, 1.0f, 1.0f);
-		_normalMapShader.Bind();
-		_normalMapShader.SetUniform("lightPos", lightPos);
-		_normalMapShader.SetUniform("isPointLight", isPointLight);
-		_normalMapShader.SetUniform("lightAmbient", lightAmbient);
-		_normalMapShader.SetUniform("lightDiffuse", lightDiffuse);
-		_normalMapShader.SetUniform("lightSpecular", Maths::Vec3(1.0f, 1.0f, 1.0f));
 
 		// Phong shader light properties
 		_phongShader.Bind();
@@ -424,27 +328,6 @@ namespace PlatinumEngine
 		_phongShader.SetUniform("lightAmbient", lightAmbient);
 		_phongShader.SetUniform("lightDiffuse", lightDiffuse);
 		_phongShader.SetUniform("lightSpecular", lightSpecular);
-
-//		pointLight.lightPos = Maths::Vec3(0.0f, 2.0f, 2.0f);
-		// pointLight.lightPos = Maths::Vec3(0.9f * (float)std::cos(glfwGetTime()),0.9f * (float)std::sin(glfwGetTime()),0.9f);
-
-//		_unlitShader.Bind();
-//		_unlitShader.SetUniform("lightColor", Maths::Vec3(1.0f, 1.0f, 1.0f));
-//		_unlitShader.SetUniform("lightPos", pointLight.lightPos);
-//		// set basic properties
-//		_unlitShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
-//
-//		_unlitShader.SetUniform("pointLight.position", pointLight.lightPos);
-//		_unlitShader.SetUniform("pointLight.ambient", pointLight.ambientStrength);
-//		_unlitShader.SetUniform("pointLight.diffuse", pointLight.diffuseStrength);
-//		_unlitShader.SetUniform("pointLight.specular", pointLight.specularStrength);
-//
-//		_unlitShader.SetUniform("pointLight.constant", pointLight.constant);
-//		_unlitShader.SetUniform("pointLight.linear", pointLight.linear);
-//		_unlitShader.SetUniform("pointLight.quadratic", pointLight.quadratic);
-//		_unlitShader.SetUniform("viewPosition", Maths::Vec3(0.0, 0.0, 10.0));
-//
-//		_unlitShader.SetUniform("isPointLight", true);
+		_phongShader.SetUniform("viewPos", Maths::Vec3(0.0, 0.0, 0.0));
 	}
 }
-//}

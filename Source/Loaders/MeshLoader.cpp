@@ -59,7 +59,7 @@ namespace PlatinumEngine
 
 			// Load file
 			Assimp::Importer import;
-			unsigned int flags = aiProcess_Triangulate | aiProcess_FlipUVs;
+			unsigned int flags = aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_MakeLeftHanded;
 			if (JoinVertices)
 			{
 				flags = flags | aiProcess_JoinIdenticalVertices;
