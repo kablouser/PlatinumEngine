@@ -3,6 +3,9 @@
 //
 
 #include <Project/ProjectWindow.h>
+#include "ComponentComposition/GameObject.h"
+#include "ComponentComposition/TransformComponent.h"
+#include "ComponentComposition/RenderComponent.h"
 
 using namespace PlatinumEngine;
 
@@ -98,16 +101,52 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 		{
 			// A path is a leaf of a tree (i.e. it cannot be expanded)
 			ImGui::TreeNodeEx(dir.filename().string().c_str(), flags | ImGuiTreeNodeFlags_Leaf);
+
+			//Right-click actions
+			if (ImGui::BeginPopupContextItem())
+			{
+				if(dir.extension()==".obj")
+				if (ImGui::Selectable("Add Mesh"))
+				{
+					if(dir.extension()==".obj")
+					{
+						GameObject* go = scene->AddGameObject(dir.filename().string());
+						scene->AddComponent<TransformComponent>(go);
+						scene->AddComponent<RenderComponent>(go);
+						auto asset_Helper = _assetHelper->GetMeshAsset(dir.string());
+						if (std::get<0>(asset_Helper))
+							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+					}
+				}
+				if(dir.extension()==".png")
+				{
+					GameObject* go = _inspectorWindow->GetActiveGameObject();
+					if(go == nullptr)
+						ImGui::CloseCurrentPopup();
+					if (ImGui::Selectable("Add Texture"))
+					{
+							auto asset_Helper = _assetHelper->GetTextureAsset(dir.string());
+							if (std::get<0>(asset_Helper))
+							{
+								go->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
+								go->GetComponent<RenderComponent>()->material.useTexture = true;
+							}
+					}
+					if (ImGui::Selectable("Add Normal"))
+					{
+							auto asset_Helper = _assetHelper->GetTextureAsset(dir.string());
+							if (std::get<0>(asset_Helper))
+								go->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
+					}
+				}
+				ImGui::EndPopup();
+			}
+
 			ImGui::TreePop();
 
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 			{
 				// Set payload to carry the filepath
-				/*if(dir.extension()==".obj")
-				{
-					ImGui::SetDragDropPayload("MeshPathPayload", dir.string().c_str(), dir.string().length());
-					ImGui::TextUnformatted(dir.filename().string().c_str());
-				}*/
 				if(is_regular_file(dir))
 				{
 					ImGui::SetDragDropPayload("RegularFilePathPayload", dir.string().c_str(), dir.string().length());
@@ -115,6 +154,7 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 				}
 				ImGui::EndDragDropSource();
 			}
+
 		}
 	}
 }
@@ -139,3 +179,6 @@ void ProjectWindow::DragDropMoveRegularFile(std::filesystem::path dir, const ImG
 		std::filesystem::rename(payloadPath.string(), dir.string()+"\\"+payloadPath.filename().string());
 	}
 }
+
+ProjectWindow::ProjectWindow(Scene* scene, AssetHelper* assetHelper, InspectorWindow* inspectorWindow): scene(scene), _assetHelper(assetHelper), _inspectorWindow(inspectorWindow)
+{}

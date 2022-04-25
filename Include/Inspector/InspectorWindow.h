@@ -22,6 +22,7 @@ namespace PlatinumEngine
 		InspectorWindow(AssetHelper* assetHelper);
 		void ShowGUIWindow(bool* isOpen, Scene& scene);
 		void SetActiveGameObject(GameObject* gameObject);
+		GameObject* GetActiveGameObject();
 	private:
 		// TODO: Add specific component guis as components are created
 		void ShowMeshRenderComponent(Scene& scene);

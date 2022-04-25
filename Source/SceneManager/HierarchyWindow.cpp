@@ -224,9 +224,7 @@ namespace PlatinumEngine
 						//Now we set the mesh
 						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
 						if (std::get<0>(asset_Helper))
-						{
 							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
-						}
 					}
 				}
 				// End DragDropTarget
