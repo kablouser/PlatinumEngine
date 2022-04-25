@@ -6,19 +6,10 @@
 
 namespace PlatinumEngine
 {
-	SphereCollider::SphereCollider():_center(Maths::Vec3(0.f,0.f,0.f)),
-									 _radius(0.5f)
+	SphereCollider::SphereCollider():_radius(0.5f)
 	{
+		SetCenter(Maths::Vec3(0.f, 0.f, 0.f));
 		CreateShape();
-	}
-
-	void SphereCollider::SetCenter(Maths::Vec3 center)
-	{
-		_center = center;
-	}
-	Maths::Vec3 SphereCollider::GetCenter()
-	{
-		return _center;
 	}
 
 	void SphereCollider::SetRadius(float radius)
@@ -30,14 +21,8 @@ namespace PlatinumEngine
 		return _radius;
 	}
 
-	void SphereCollider::CleanUp()
-	{
-		delete _sphereShape;
-		_sphereShape = nullptr;
-	}
-
 	void SphereCollider::CreateShape()
 	{
-		_sphereShape = new btSphereShape(_physics->convertScalar(_radius));
+		_shape = new btSphereShape(_physics->convertScalar(_radius));
 	}
 }

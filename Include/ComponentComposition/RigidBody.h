@@ -13,26 +13,7 @@
 
 namespace PlatinumEngine
 {
-	class PhysicalMaterial
-	{
-	public:
-		//between 0 and 1
-		float friction = 0.5f;
-		float bounciness = 0.5f;
 
-		PhysicalMaterial() {};
-
-		/**
-		 *
-		 * @param f: friction
-		 * @param b: bounciness
-		 */
-		PhysicalMaterial(float f, float b)
-		{
-			f = friction;
-			b = bounciness;
-		}
-	};
 
 	///-----------------------------------
 
@@ -61,6 +42,9 @@ namespace PlatinumEngine
 
 	private:
 		Maths::Vec3 _initialForce;
+		Maths::Vec3 _linearVelocity;
+		Maths::Vec3 _angularVelocity;
+
 		bool _kinematic;
 		float _mass;
 

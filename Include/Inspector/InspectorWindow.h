@@ -9,6 +9,11 @@
 #include <ComponentComposition/MeshRender.h>
 #include <ComponentComposition/Transform.h>
 #include <ComponentComposition/GameObject.h>
+#include <ComponentComposition/RigidBody.h>
+#include <ComponentComposition/BoxCollider.h>
+#include <ComponentComposition/CapsuleCollider.h>
+#include <ComponentComposition/SphereCollider.h>
+
 #include <SceneManager/SceneManager.h>
 #include <OpenGL/Mesh.h>
 #include <SceneEditor/SceneEditor.h>
@@ -26,6 +31,10 @@ namespace PlatinumEngine
 		void ShowMeshRenderComponent(Scene& scene);
 		void ShowTransformComponent(Scene& scene);
 		void ShowCameraComponent(Scene& scene);
+		void ShowRigidBodyComponent(Scene& scene);
+		void ShowBoxColliderComponent(Scene& scene);
+		void ShowSphereColliderComponent(Scene& scene);
+		void ShowCapsuleColliderComponent(Scene& scene);
 
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);

@@ -133,6 +133,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/Texture.cpp;"
 	"Source/OpenGL/Material.cpp;"
 	
+	"Source/Physics/Collision.cpp;"
 	"Source/Physics/Physics.cpp;"
 	
 	"Source/Profiler/Profiler.cpp;"
@@ -152,7 +153,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/WindowManager/WindowManager.cpp;"
 	)
 
-add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
+add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN} Include/ComponentComposition/Collider.cpp Include/ComponentComposition/Collider.h)
 
 
 target_include_directories(${PROJECT_NAME} PRIVATE

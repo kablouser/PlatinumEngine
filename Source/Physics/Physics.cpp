@@ -40,16 +40,10 @@ namespace PlatinumEngine
 	void Physics::CleanUp()
 	{
 		delete _bulletWorld;
-		delete _broadPhase;
+		delete _solver;
 		delete _config;
 		delete _dispatcher;
-		delete _solver;
-
-		_bulletWorld = nullptr;
-		_broadPhase = nullptr;
-		_config = nullptr;
-		_dispatcher = nullptr;
-		_solver = nullptr;
+		delete _broadPhase;
 	}
 
 	//set the world gravity

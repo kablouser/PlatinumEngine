@@ -411,6 +411,18 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 	}
 }
 
+void InspectorWindow::ShowBoxColliderComponent(Scene& scene)
+{}
+
+void InspectorWindow::ShowCapsuleColliderComponent(Scene& scene)
+{}
+
+void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
+{}
+
+void InspectorWindow::ShowSphereColliderComponent(Scene& scene)
+{}
+
 void InspectorWindow::ShowAddComponent(Scene& scene)
 {
 	if (ImGui::BeginChild("ComponentSelector"))

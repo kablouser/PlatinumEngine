@@ -4,13 +4,11 @@
 
 #pragma once
 
-#include <ComponentComposition/Component.h>
-#include <btBulletCollisionCommon.h>
-#include <Physics/Physics.h>
+#include <ComponentComposition/Collider.h>
 
 namespace PlatinumEngine
 {
-	class BoxCollider: public Component
+	class BoxCollider: public Collider
 	{
 	public:
 		BoxCollider();
@@ -19,18 +17,9 @@ namespace PlatinumEngine
 
 		Maths::Vec3 GetSize();
 
-		void SetCenter(Maths::Vec3 center);
-
-		Maths::Vec3 GetCenter();
-
-		void CleanUp();
 
 	private:
-		btCollisionShape* _boxShape;
-		Physics* _physics;
-
 		Maths::Vec3 _size;
-		Maths::Vec3 _center;
 
 	private:
 		void CreateShape();
