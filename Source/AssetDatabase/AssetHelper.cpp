@@ -48,6 +48,24 @@ namespace PlatinumEngine
 		return {isAssetSelected, mesh};
 	}
 
+	//TODO: Maybe a more efficient procedure to utilise TryGetAsset using filePath
+	std::tuple<bool, Mesh*> AssetHelper::GetMeshAsset(std::string filePath)
+	{
+		bool isAssetSelected = true;
+		static ImGuiTextFilter filter;
+		Asset asset;
+		Mesh* mesh = nullptr;
+		for(auto meshAssetID : _assetDatabase->GetMeshAssetIDs())
+		{
+			if (_assetDatabase->TryGetAsset(meshAssetID.id, asset))
+			{
+				if(asset.path.compare(std::filesystem::path(filePath))==0)
+					mesh = (*_assetDatabase)[meshAssetID];
+			}
+		}
+		return {isAssetSelected, mesh};
+	}
+
 	// TODO: This is unDone
 	std::tuple<bool, Texture*> AssetHelper::ShowTextureGuiWindow()
 	{
@@ -84,6 +102,24 @@ namespace PlatinumEngine
 				}
 			}
 			ImGui::EndPopup();
+		}
+		return {isAssetSelected, texture};
+	}
+
+	//TODO: Maybe a more efficient procedure to utilise TryGetAsset using filePath
+	std::tuple<bool, Texture*> AssetHelper::GetTextureAsset(std::string filePath)
+	{
+		bool isAssetSelected = true;
+		static ImGuiTextFilter filter;
+		Asset asset;
+		Texture* texture = nullptr;
+		for(auto textureAssetID : _assetDatabase->GetTextureAssetIDs())
+		{
+			if (_assetDatabase->TryGetAsset(textureAssetID.id, asset))
+			{
+				if(asset.path.compare(std::filesystem::path(filePath))==0)
+					texture = (*_assetDatabase)[textureAssetID];
+			}
 		}
 		return {isAssetSelected, texture};
 	}

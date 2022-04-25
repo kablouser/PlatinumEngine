@@ -3,7 +3,6 @@
 //
 
 #include <Inspector/InspectorWindow.h>
-#include <ComponentComposition/CameraComponent.h>
 #include <ImGuizmo.h>
 
 using namespace PlatinumEngine;
@@ -109,11 +108,14 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 				for(int i=0;i<size;i++)
 					filePath+=*(payloadPointer+i);
 				std::filesystem::path payloadPath = std::filesystem::path(filePath);
+
 				if(payloadPath.extension()==".obj")
 				{
-					std::cout<<"NAME: "<<payloadPath.filename().string()<<"\n";
-					//Maybe we SetMesh on _activeGameObject
-					//_activeGameObject->GetComponent<RenderComponent>()->SetMesh(mesh);
+					//Set The mesh that we dragged to the RenderComponent
+					auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
+					std::string f = (std::get<1>(asset_Helper)->fileName);
+					if (std::get<0>(asset_Helper))
+						_activeGameObject->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
 				}
 			}
 			// End DragDropTarget
@@ -149,6 +151,30 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		// store the current material name into mesh buffer, so that we can display it in the input text box
 
 		ImGui::InputText("##Material Name", textureBuffer, sizeof(textureBuffer), ImGuiInputTextFlags_ReadOnly);
+		if (ImGui::BeginDragDropTarget())
+		{
+			//Accept any regular file (but it will check if it is mesh or not)
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
+			{
+				char* payloadPointer = (char*)payload->Data;
+				int size = payload->DataSize;
+				std::string filePath = "";
+				for(int i=0;i<size;i++)
+					filePath+=*(payloadPointer+i);
+				std::filesystem::path payloadPath = std::filesystem::path(filePath);
+
+				if(payloadPath.extension()==".png")
+				{
+					//Set The mesh that we dragged to the RenderComponent
+					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
+					std::string f = (std::get<1>(asset_Helper)->fileName);
+					if (std::get<0>(asset_Helper))
+						_activeGameObject->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
+				}
+			}
+			// End DragDropTarget
+			ImGui::EndDragDropTarget();
+		}
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 		if(ImGui::Button("Select Texture"))

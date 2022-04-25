@@ -221,6 +221,12 @@ namespace PlatinumEngine
 						GameObject* go = scene.AddGameObject(name);
 						scene.AddComponent<TransformComponent>(go);
 						scene.AddComponent<RenderComponent>(go);
+						//Now we set the mesh
+						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
+						if (std::get<0>(asset_Helper))
+						{
+							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+						}
 					}
 				}
 				// End DragDropTarget
@@ -232,7 +238,7 @@ namespace PlatinumEngine
 	}
 
 	// ---CONSTRUCTOR
-	HierarchyWindow::HierarchyWindow(SceneEditor* sceneEditor):_sceneEditor(sceneEditor),
+	HierarchyWindow::HierarchyWindow(SceneEditor* sceneEditor, AssetHelper* assetHelper):_sceneEditor(sceneEditor),_assetHelper(assetHelper),
 		_modeForDraggingBehavior(_orderMode)
 	{}
 }
