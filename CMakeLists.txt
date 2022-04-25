@@ -153,7 +153,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/WindowManager/WindowManager.cpp;"
 	)
 
-add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN} Include/ComponentComposition/Collider.cpp Include/ComponentComposition/Collider.h)
+add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN} Source/ComponentComposition/Collider.cpp Include/ComponentComposition/Collider.h)
 
 
 target_include_directories(${PROJECT_NAME} PRIVATE

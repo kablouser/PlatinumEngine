@@ -34,11 +34,11 @@ namespace PlatinumEngine
 	void CapsuleCollider::CreateShape()
 	{
 		if(_directionX)
-			_shape = new btCapsuleShapeX(_physics->convertScalar(_radius), _physics->convertScalar(_height));
+			_shape = new btCapsuleShapeX(_radius, _height);
 		else if(_directionY)
-			_shape = new btCapsuleShape(_physics->convertScalar(_radius), _physics->convertScalar(_height));
+			_shape = new btCapsuleShape(_radius, _height);
 		else if(_directionZ)
-			_shape = new btCapsuleShapeZ(_physics->convertScalar(_radius), _physics->convertScalar(_height));
+			_shape = new btCapsuleShapeZ(_radius, _height);
 	}
 
 }

@@ -6,12 +6,11 @@
 #include <ComponentComposition/Transform.h>
 namespace PlatinumEngine
 {
-	RigidBody::RigidBody(GameObject* gameObject, Physics* physics):
+	RigidBody::RigidBody(Physics* physics):
 						_mass(1.f),
 						_kinematic(false),
-						_initialForce(Maths::Vec3(0.f, 0.f, 0.f)),
+						_inertia(Maths::Vec3(0.f, 0.f, 0.f)),
 
-						_attachedObject(gameObject),
 						_physics(physics)
 	{
 
@@ -26,17 +25,17 @@ namespace PlatinumEngine
 	Maths::Vec3 RigidBody::GetBulletRotation()
 	{
 		Maths::Quaternion temp;
-		temp = _physics->convertVQuaternionBack(GetWorldTransform().getRotation());
+		temp = Physics::convertVQuaternionBack(GetWorldTransform().getRotation());
 		return(temp.EulerAngles());
 	}
 	Maths::Vec3 RigidBody::GetBulletPosition()
 	{
-		return _physics->convertVectorBack(GetWorldTransform().getOrigin());
+		return Physics::convertVectorBack(GetWorldTransform().getOrigin());
 	}
 
 	Maths::Vec3 RigidBody::GetForce()
 	{
-		return _initialForce;
+		return _inertia;
 	}
 	float RigidBody::GetMass()
 	{
@@ -49,7 +48,7 @@ namespace PlatinumEngine
 
 	void RigidBody::SetForce(Maths::Vec3 force)
 	{
-		_initialForce = force;
+		_inertia = force;
 	}
 	void RigidBody::SetMass(float mass)
 	{
@@ -62,9 +61,7 @@ namespace PlatinumEngine
 
 	void RigidBody::Initialize(btCollisionShape* shape)
 	{
-		if(_attachedObject == nullptr || (_attachedObject->GetComponent<BoxCollider>() == nullptr ||
-		       							  _attachedObject->GetComponent<SphereCollider>() == nullptr ||
-										  _attachedObject->GetComponent<CapsuleCollider>() == nullptr))
+		if(GetGameObject() == nullptr || (GetComponent<Collider>() == nullptr))
 		{
 			return;
 		}
@@ -72,20 +69,19 @@ namespace PlatinumEngine
 		delete _rigidBody;
 		_rigidBody = nullptr;
 
-		auto objectTransform = _attachedObject->GetComponent<Transform>();
+		auto objectTransform = GetComponent<Transform>();
 
 		btDefaultMotionState* motionState = new btDefaultMotionState(
 				btTransform(btQuaternion(objectTransform->localRotation.x,objectTransform->localRotation.y,objectTransform->localRotation.z),
-					   _physics->convertVector(objectTransform->localPosition)));
+					   Physics::convertVector(objectTransform->localPosition)));
 
-		auto temp = _physics->convertVector(_initialForce);
-		shape->calculateLocalInertia(_physics->convertScalar(_mass), temp);
+		auto temp = Physics::convertVector(_inertia);
+		shape->calculateLocalInertia(_mass, temp);
 
-		btRigidBody::btRigidBodyConstructionInfo constructionInfo(_mass, motionState, shape, _physics->convertVector(_initialForce));
+		btRigidBody::btRigidBodyConstructionInfo constructionInfo(_mass, motionState, shape, Physics::convertVector(_inertia));
 		_rigidBody = new btRigidBody(constructionInfo);
 
 		_physics->AddBulletBody(_rigidBody);
-
 	}
 }
 

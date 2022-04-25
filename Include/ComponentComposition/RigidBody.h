@@ -13,14 +13,10 @@
 
 namespace PlatinumEngine
 {
-
-
-	///-----------------------------------
-
 	class RigidBody: public Component
 	{
 	public:
-		RigidBody(GameObject* gameObject, Physics* physics);
+		RigidBody(Physics* physics);
 
 		//set up the rigidBody, called after physics world set up
 		void Initialize(btCollisionShape* shape);
@@ -41,7 +37,7 @@ namespace PlatinumEngine
 
 
 	private:
-		Maths::Vec3 _initialForce;
+		Maths::Vec3 _inertia;
 		Maths::Vec3 _linearVelocity;
 		Maths::Vec3 _angularVelocity;
 
@@ -49,12 +45,7 @@ namespace PlatinumEngine
 		float _mass;
 
 		btRigidBody* _rigidBody;
-
-		BoxCollider* _boxCollider;
-		SphereCollider* _sphereCollider;
-		CapsuleCollider* _capsuleCollider;
-
-		GameObject* _attachedObject;
+		Collider* collider;
 		Physics* _physics;
 	};
 }

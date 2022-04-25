@@ -2,7 +2,7 @@
 // Created by 肖宜辰 on 2022/4/25.
 //
 
-#include "Collider.h"
+#include "ComponentComposition/Collider.h"
 
 namespace PlatinumEngine
 {

@@ -42,8 +42,7 @@ namespace PlatinumEngine
 
 	protected:
 		btCollisionShape* _shape;
-		Physics* _physics;
-		PhysicalMaterial* _material;
+		PhysicalMaterial _material;
 
 		Maths::Vec3 _center;
 	};

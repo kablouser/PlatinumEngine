@@ -14,7 +14,7 @@ namespace PlatinumEngine
 
 	void BoxCollider::CreateShape()
 	{
-		_shape = new btBoxShape(_physics->convertVector(_size));
+		_shape = new btBoxShape(Physics::convertVector(_size));
 	}
 
 	Maths::Vec3 BoxCollider::GetSize()

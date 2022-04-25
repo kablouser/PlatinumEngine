@@ -112,13 +112,4 @@ namespace PlatinumEngine
 		return Maths::Quaternion(quaternion.getW(), quaternion.getX(), quaternion.getY(), quaternion.getZ());
 	}
 
-	btScalar Physics::convertScalar(float scalar)
-	{
-		return (btScalar)scalar;
-	}
-	float Physics::convertScalarBack(const btScalar& scalar)
-	{
-		return (float)scalar;
-	}
-
 }

@@ -23,6 +23,6 @@ namespace PlatinumEngine
 
 	void SphereCollider::CreateShape()
 	{
-		_shape = new btSphereShape(_physics->convertScalar(_radius));
+		_shape = new btSphereShape(_radius);
 	}
 }
