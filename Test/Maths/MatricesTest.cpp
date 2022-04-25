@@ -97,6 +97,19 @@ TEST_CASE("MatrixConstructors", "[maths][matrices][vector]")
 				}
 			}
 		}
+
+		THEN("Create matrix with array")
+		{
+
+			int temp[] ={1,1,1,1,
+						   1,3,1,1,
+						   1,2,1,1,
+						   1,1,9,1};
+			mat4 = PlatinumEngine::Maths::Matrix<4,4,int>(temp);
+
+			REQUIRE(mat4[2][3] == 9);
+
+		}
 	}
 
 

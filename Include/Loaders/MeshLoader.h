@@ -47,7 +47,7 @@ namespace PlatinumEngine
 		 * @param JoinVertices : Will join vertices so the mesh contains unique vertices only, default true
 		 * @return : Mesh data structure
 		 */
-		Mesh LoadMesh(const std::string &filePath, bool JoinVertices=true);
+		Mesh LoadMesh(const std::string &filePath, bool JoinVertices=true, bool CalcTangents=true);
 
 		/**
 		 * AddInternal new mesh data to an existing mesh

@@ -11,6 +11,7 @@
 #include <OpenGL/Framebuffer.h>
 #include <OpenGL/Mesh.h>
 #include <GLFW/glfw3.h>
+#include "OpenGL/Material.h"
 
 namespace PlatinumEngine
 {
@@ -74,6 +75,18 @@ namespace PlatinumEngine
 		// unbind framebuffer
 		void End();
 
+		// initialize skybox shader
+		void BeginSkyBoxShader();
+
+		// unbind skybox shader
+		void EndSkyBoxShader();
+
+		// initialize grid shader
+		void BeginGrid();
+
+		// unbind grid shader
+		void EndGrid();
+
 		/**
 		 * resize framebuffer, it's an interface for SceneEditor
 		 * @param framebuffer, targetSize
@@ -91,8 +104,26 @@ namespace PlatinumEngine
 		void SetProjectionMatrix(Maths::Mat4 mat = Maths::Mat4(1.0));
 
 		void SetLightProperties();
+
 		// a window for renderer to test
 		void ShowGUIWindow(bool* outIsOpen);
+
+		void SetProjectionMatrixSkyBox(Maths::Mat4 mat);
+
+		void SetViewMatrixSkyBox(Maths::Mat4 mat);
+
+
+		void SetViewMatrixForGridShader(Maths::Mat4 mat);
+
+		void SetProjectionMatrixForGridShader(Maths::Mat4 mat);
+
+		void SetFarValueForGridShader(float far);
+
+		void SetNearValueForGridShader(float near);
+
+		void SetTransparencyForGridShader(float transparency);
+
+		void SetGridAxisForGridShader(int gridAxis);
 
 		/**
 		 * mesh component can call this function to input mesh data into shader, if you want to test a mesh renderer,
@@ -101,6 +132,11 @@ namespace PlatinumEngine
 		 */
 		void LoadMesh(Mesh &mesh);
 
+		/**
+		 * mesh component can call this function to activate texture
+		 * @param material
+		 */
+		void LoadMaterial(const Material& material);
 		//TODO: LoadLight
 		/**
 		 * light component can call this function to input light data into shader
@@ -115,6 +151,9 @@ namespace PlatinumEngine
 		bool _isInitGood;
 
 		ShaderProgram _unlitShader;
+		ShaderProgram _skyBoxShader;
+		ShaderProgram _gridShader;
+		ShaderProgram _phongShader;
 
 		// ShaderInput _meshShaderInput, _lightShaderInput;
 

@@ -1,5 +1,5 @@
 #include "ComponentComposition/TransformComponent.h"
-
+#include <ImGuizmo.h>
 namespace PlatinumEngine
 {
 	//Constructors
@@ -49,12 +49,12 @@ namespace PlatinumEngine
 
 	Maths::Mat4 TransformComponent::GetLocalToWorldMatrix()
 	{
-		Maths::Mat4 localToParent = GetLocalToParentMatrix();
+		Maths::Mat4 transformMatrix = GetLocalToParentMatrix();
 		TransformComponent* transform = GetParentComponent<TransformComponent>();
 		if (transform)
 			// recursive, slow but oh well
-			return transform->GetLocalToWorldMatrix() * localToParent;
-		return localToParent;
+			return transform->GetLocalToWorldMatrix() * transformMatrix;
+		return transformMatrix;
 	}
 
 	Maths::Mat4 TransformComponent::GetLocalToParentMatrix()
@@ -78,4 +78,18 @@ namespace PlatinumEngine
 	{
 		return localRotation * Maths::Vec3::right;
 	}
+
+	void TransformComponent::SetLocalToWorldMatrix(Maths::Mat4 LocalToWorld)
+	{
+		Maths::Mat4 ParentToWorld, LocalToParent;
+		auto parent = GetParentComponent<TransformComponent>();
+		if (parent)
+			ParentToWorld = parent->GetLocalToWorldMatrix();
+		else
+			ParentToWorld.SetIdentityMatrix();
+
+		LocalToParent = Inverse(ParentToWorld) * LocalToWorld;
+		LocalToParent.Decompose(&localPosition, &localRotation, &localScale);
+	}
+
 }

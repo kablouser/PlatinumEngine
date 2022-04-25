@@ -44,6 +44,7 @@ add_subdirectory("ImPlot CMake")
 # GLM
 FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git GIT_TAG 0.9.9.8)
 FetchContent_MakeAvailable(glm)
+add_compile_definitions(GLM_FORCE_LEFT_HANDED)
 #-----------------------------
 # assimp
 set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT FALSE)
@@ -66,6 +67,15 @@ set(USE_GLU "Use GLU" ON)
 FetchContent_Declare(glew GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git GIT_TAG glew-cmake-2.2.0)
 FetchContent_MakeAvailable(glew)
 #-----------------------------
+# imguizmo
+FetchContent_Declare(imguizmo GIT_REPOSITORY https://github.com/CedricGuillemet/ImGuizmo.git GIT_TAG origin/master)
+FetchContent_MakeAvailable(imguizmo)
+#-----------------------------
+# stb_image
+FetchContent_Declare(stb GIT_REPOSITORY https://github.com/nothings/stb.git GIT_TAG origin/master)
+FetchContent_MakeAvailable(stb)
+add_subdirectory("stb CMake")
+#-----------------------------
 # Add more libraries from git repos here:
 #-----------------------------
 
@@ -77,6 +87,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	# order by folder structure
 
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
+	"${CMAKE_BINARY_DIR}/_deps/imguizmo-src/ImGuizmo.cpp;"
 	
 	"Source/AssetDatabase/AssetDatabase.cpp;"
 	"Source/AssetDatabase/AssetHelper.cpp;"
@@ -88,6 +99,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/ComponentComposition/GameObject.cpp;"
 	"Source/ComponentComposition/RenderComponent.cpp;"
 	"Source/ComponentComposition/TransformComponent.cpp;"
+#	"Source/ComponentComposition/LightComponent.cpp;"
 	
 	"Source/GameWindow/GameWindow.cpp;"
 	
@@ -114,6 +126,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/ShaderInput.cpp;"
 	"Source/OpenGL/ShaderProgram.cpp;"
 	"Source/OpenGL/Texture.cpp;"
+	"Source/OpenGL/Material.cpp;"
 	
 	"Source/Profiler/Profiler.cpp;"
 	
@@ -138,7 +151,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 
 
-target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts")
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts" "${FETCHCONTENT_BASE_DIR}/imguizmo-src" "${FETCHCONTENT_BASE_DIR}/stb-src")
 #-----------------------------
 
 
@@ -153,6 +166,7 @@ set(UNIT_TESTS
 	"Test/SceneEditor/EditorCameraTest.cpp;"
 	"Test/TypeDatabase/TestTypeDatabase.cpp;"
 	"Test/IDSystem/TestIDSystem.cpp;"
+  	"Test/TestScene.cpp;"
 	)
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 

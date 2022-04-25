@@ -10,9 +10,9 @@
 #include <ComponentComposition/TransformComponent.h>
 #include <ComponentComposition/GameObject.h>
 #include <SceneManager/SceneManager.h>
+#include <OpenGL/Mesh.h>
 
 #include <IconsFontAwesome6.h>
-
 namespace PlatinumEngine
 {
 	class InspectorWindow
@@ -29,6 +29,8 @@ namespace PlatinumEngine
 
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);
+
+		void cameraComponentHelper(char* cameraType[]);
 	private:
 		AssetHelper* _assetHelper;
 		GameObject* _activeGameObject = nullptr;
@@ -37,5 +39,13 @@ namespace PlatinumEngine
 
 		// Have to keep track of if object enabled ourselves as isEnabled is a private member of game object
 		bool _isObjectEnabled;
+
+		//ImGui helper parameters
+		float _textWidthMeshRenderComponent = 90.f;
+		float _itemWidthMeshRenderComponent = 160.f;
+		float _textWidthTransformComponent = 90.f;
+		float _textWidthCameraComponent = 135.0f;
+		std::vector<std::string> _temp = {"Perspective", "Orthographic"};
+		std::vector<std::string> _clearMode = {"None", "SkyBox", "BackgroundColour"};
 	};
 }

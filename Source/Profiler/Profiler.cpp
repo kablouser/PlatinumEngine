@@ -4,13 +4,12 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-
+#include <IconsFontAwesome6.h>
 #include <imgui.h>
 #include <implot.h>
 #include <GLFW/glfw3.h>
 
 #include <Helpers/CircularBuffer.h>
-#include <IconsKenney.h>
 // private namespace, things in this cannot be used outside this file
 namespace
 {
@@ -151,7 +150,7 @@ namespace PlatinumEngine
 
 	void Profiler::ShowGUIWindow(bool* outIsOpen)
 	{
-		if (ImGui::Begin(ICON_KI_SIGNAL_HIGH " Profiler", outIsOpen))
+		if (ImGui::Begin( ICON_FA_CHART_AREA " Profiler", outIsOpen))
 		{
 			bool isPaused = !isRecording;
 			ImGui::Checkbox("Pause", &isPaused);

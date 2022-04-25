@@ -102,7 +102,7 @@ namespace PlatinumEngine
 			///------------------------------------------------------------------
 			/// This section is for main menu bar to control the game view play/pause/step
 			///------------------------------------------------------------------
-			if (ImGui::Button(ICON_KI_CARET_RIGHT "##Play"))
+			if (ImGui::Button(ICON_FA_PLAY "##Play"))
 			{
 				_gameWindow->_onUpdate = !_gameWindow->_onUpdate;
 				if(_gameWindow->_onUpdate)
@@ -117,13 +117,13 @@ namespace PlatinumEngine
 
   			// activate or inactive pause and step button
 			ImGui::BeginDisabled(enablePauseButton);
-			if (ImGui::Button(ICON_KI_PAUSE "##Pause"))
+			if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
 			{
 				_pause = !_pause;
 				_gameWindow->Pause(_pause);
 			}
 
-			if (ImGui::Button(ICON_KI_STEP_FORWARD "##Step"))
+			if (ImGui::Button(ICON_FA_FORWARD_STEP "##Step"))
 			{
 				if(!_pause)
 					_pause = true;
@@ -181,7 +181,7 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	void WindowManager::ShowMenuGameObject(Scene &scene)
 	{
-		if (ImGui::MenuItem("Create Empty"))
+		if (ImGui::MenuItem(ICON_FA_CIRCLE_NODES " Create Empty"))
 		{
 			scene.AddGameObject();
 		}
@@ -230,45 +230,47 @@ namespace PlatinumEngine
 
 	void WindowManager::ShowMenuWindow(Scene &scene)
 	{
-		if (ImGui::MenuItem("Game", "Ctrl+1", &_showWindowGame))
-		{
-			ShowWindowGame(&_showWindowGame);
-		}
-		if (ImGui::MenuItem("Hierarchy", "Ctrl+2", &_showWindowHierarchy))
-		{
-			ShowWindowHierarchy(&_showWindowHierarchy, scene);
-		}
-		if (ImGui::MenuItem("Inspector", "Ctrl+3", &_showWindowInspector))
-		{
-			ShowWindowInspector(&_showWindowInspector, scene);
-		}
-		if (ImGui::MenuItem("Project", "Ctrl+4", &_showWindowProject))
-		{
-			ShowWindowProject(&_showWindowProject);
-		}
-		if (ImGui::MenuItem("Scene", "Ctrl+5", &_showWindowScene))
-		{
-			ShowWindowScene(&_showWindowScene);
-		}
-		if (ImGui::MenuItem("Animation", "Ctrl+6", &_showWindowAnimation))
-		{}
-		if (ImGui::MenuItem("Audio", "Ctrl+7", &_showWindowAudio))
-		{}
-		if (ImGui::MenuItem("Lighting", "Ctrl+8", &_showWindowLight))
-		{}
-		ImGui::Separator();
 		if(ImGui::BeginMenu("Analysis"))
 		{
-			if(ImGui::MenuItem("Profiler", "", &_showWindowProfiler))
-			{
-				ShowWindowProfiler(&_showWindowProfiler);
-			}
-			if(ImGui::MenuItem("Logger", "", &_showWindowLogger))
+			if(ImGui::MenuItem(ICON_FA_FILE_CIRCLE_EXCLAMATION " Logger", "", &_showWindowLogger))
 			{
 				ShowWindowLogger(&_showWindowLogger);
 			}
+			if(ImGui::MenuItem(ICON_FA_CHART_AREA " Profiler", "", &_showWindowProfiler))
+			{
+				ShowWindowProfiler(&_showWindowProfiler);
+			}
 			ImGui::EndMenu();
 		}
+		ImGui::Separator();
+
+		if (ImGui::MenuItem("Animation", "", &_showWindowAnimation))
+		{}
+		if (ImGui::MenuItem("Audio", "", &_showWindowAudio))
+		{}
+		if (ImGui::MenuItem(ICON_FA_GAMEPAD " Game", "", &_showWindowGame))
+		{
+			ShowWindowGame(&_showWindowGame);
+		}
+		if (ImGui::MenuItem(ICON_FA_BARS_STAGGERED " Hierarchy", "", &_showWindowHierarchy))
+		{
+			ShowWindowHierarchy(&_showWindowHierarchy, scene);
+		}
+		if (ImGui::MenuItem(ICON_FA_CIRCLE_INFO " Inspector", "", &_showWindowInspector))
+		{
+			ShowWindowInspector(&_showWindowInspector, scene);
+		}
+		if (ImGui::MenuItem("Lighting", "", &_showWindowLight))
+		{}
+		if (ImGui::MenuItem(ICON_FA_FOLDER " Project", "", &_showWindowProject))
+		{
+			ShowWindowProject(&_showWindowProject);
+		}
+		if (ImGui::MenuItem(ICON_FA_IMAGE " Scene", "", &_showWindowScene))
+		{
+			ShowWindowScene(&_showWindowScene);
+		}
+
 	}
 	///--------------------------------------------------------------------------
 	///   ---                                                               ---
@@ -317,7 +319,7 @@ namespace PlatinumEngine
 	void WindowManager::ShowWindowInspector(bool* outIsOpen, Scene &scene)
 	{
 		//TODO:
-		_inspector->SetActiveGameObject(_hierarchy->selectedGameObject);
+		_inspector->SetActiveGameObject(_sceneEditor->GetSelectedGameobject());
 		_inspector->ShowGUIWindow(outIsOpen, scene);
 	}
 
