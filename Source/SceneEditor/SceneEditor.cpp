@@ -1013,9 +1013,9 @@ namespace PlatinumEngine{
 
 		if(onGizmo)
 		{
-			if (_selectedGameobject != nullptr && _selectedGameobject->GetComponent<TransformComponent>() != nullptr)
+			if (_selectedGameobject != nullptr && _selectedGameobject->GetComponent<Transform>() != nullptr)
 			{
-				auto transform = _selectedGameobject->GetComponent<TransformComponent>();
+				auto transform = _selectedGameobject->GetComponent<Transform>();
 				Maths::Mat4 transform_matrix = transform->GetLocalToWorldMatrix();
 
 				ImGuizmo::Manipulate(
