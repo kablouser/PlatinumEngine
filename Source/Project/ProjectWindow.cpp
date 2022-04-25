@@ -110,9 +110,9 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 				{
 					if(dir.extension()==".obj")
 					{
-						GameObject* go = scene->AddGameObject(dir.filename().string());
-						scene->AddComponent<TransformComponent>(go);
-						scene->AddComponent<RenderComponent>(go);
+						GameObject* go = _scene->AddGameObject(dir.stem().string());
+						_scene->AddComponent<TransformComponent>(go);
+						_scene->AddComponent<RenderComponent>(go);
 						auto asset_Helper = _assetHelper->GetMeshAsset(dir.string());
 						if (std::get<0>(asset_Helper))
 							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
@@ -120,7 +120,7 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 				}
 				if(dir.extension()==".png")
 				{
-					GameObject* go = _inspectorWindow->GetActiveGameObject();
+					GameObject* go = _sceneEditor->GetSelectedGameobject();
 					if(go == nullptr)
 						ImGui::CloseCurrentPopup();
 					if (ImGui::Selectable("Add Texture"))
@@ -180,5 +180,5 @@ void ProjectWindow::DragDropMoveRegularFile(std::filesystem::path dir, const ImG
 	}
 }
 
-ProjectWindow::ProjectWindow(Scene* scene, AssetHelper* assetHelper, InspectorWindow* inspectorWindow): scene(scene), _assetHelper(assetHelper), _inspectorWindow(inspectorWindow)
+ProjectWindow::ProjectWindow(Scene* scene, AssetHelper* assetHelper, SceneEditor* sceneEditor): _scene(scene), _assetHelper(assetHelper), _sceneEditor(sceneEditor)
 {}

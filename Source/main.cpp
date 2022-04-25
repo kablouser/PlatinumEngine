@@ -1,4 +1,4 @@
-wwww#include <imgui.h>
+#include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
@@ -90,7 +90,7 @@ int main(int, char**)
 		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper, &sceneEditor);
 
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
-		PlatinumEngine::ProjectWindow projectWindow(&scene, &assetHelper, &inspectorWindow);
+		PlatinumEngine::ProjectWindow projectWindow(&scene, &assetHelper, &sceneEditor);
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler, &projectWindow);
 
 		// Main loop

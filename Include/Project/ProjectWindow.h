@@ -21,17 +21,18 @@ namespace PlatinumEngine
 	class ProjectWindow
 	{
 	public:
-		ProjectWindow(Scene* scene, AssetHelper* assetHelper, InspectorWindow* inspectorWindow);
+		ProjectWindow(Scene* scene, AssetHelper* assetHelper, SceneEditor* sceneEditor);
 		void ShowGUIWindow(bool* isOpen);
 
-		Scene* scene;
+
 
 	private:
 		void ShowTreeNode(std::filesystem::path dir);
 		void DragDropMoveRegularFile(std::filesystem::path dir, const ImGuiPayload* payload);
 
 	private:
-		InspectorWindow* _inspectorWindow;
+		Scene* _scene;
+		SceneEditor* _sceneEditor;
 		AssetHelper* _assetHelper;
 		std::string _parentFolder = "./Assets";
 		std::string _ignoreDatabaseName = "AssetDatabase.csv";

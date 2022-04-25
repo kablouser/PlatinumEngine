@@ -120,7 +120,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 					auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
 					std::string f = (std::get<1>(asset_Helper)->fileName);
 					if (std::get<0>(asset_Helper))
-						_activeGameObject->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+						obj->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
 				}
 			}
 			// End DragDropTarget
@@ -193,8 +193,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 					std::string f = (std::get<1>(asset_Helper)->fileName);
 					if (std::get<0>(asset_Helper))
 					{
-						_activeGameObject->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
-						_activeGameObject->GetComponent<RenderComponent>()->material.useTexture = true;
+						obj->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
+						obj->GetComponent<RenderComponent>()->material.useTexture = true;
 					}
 				}
 			}
@@ -241,7 +241,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 					std::string f = (std::get<1>(asset_Helper)->fileName);
 					if (std::get<0>(asset_Helper))
 					{
-						_activeGameObject->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
+						obj->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
 					}
 				}
 			}
