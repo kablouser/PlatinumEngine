@@ -37,6 +37,12 @@ const std::string GRID_VERTEX_SHADER =
 const std::string GRID_FRAGMENT_SHADER =
 #include <Shaders/Unlit/GridShader.frag>
 ;
+const std::string REFLECT_REFRACT_VERTEX_SHADER =
+#include <Shaders/Unlit/ReflectionRefraction.vert>
+;
+const std::string REFLECT_REFRACT_FRAGMENT_SHADER =
+#include <Shaders/Unlit/ReflectionRefraction.frag>
+;
 
 namespace PlatinumEngine
 {
@@ -90,6 +96,12 @@ namespace PlatinumEngine
 		if (!_phongShader.Compile(PHONG_VERTEX_SHADER, PHONG_FRAGMENT_SHADER))
 		{
 			PLATINUM_ERROR("Cannot generate the phong shader.");
+			return;
+		}
+
+		if (!_reflectRefractShader.Compile(REFLECT_REFRACT_VERTEX_SHADER, REFLECT_REFRACT_FRAGMENT_SHADER))
+		{
+			PLATINUM_ERROR("Cannot generate the reflect/refract shader.");
 			return;
 		}
 
@@ -188,6 +200,23 @@ namespace PlatinumEngine
 
 	void Renderer::LoadMaterial(const Material& material)
 	{
+		if (material.useReflectionShader)
+		{
+			_reflectRefractShader.Bind();
+			_reflectRefractShader.SetUniform("useReflection", true);
+			_reflectRefractShader.SetUniform("refractionIndex", material.refractionIndex);
+			_reflectRefractShader.SetUniform("skybox", 7);
+			return;
+		}
+		if (material.useRefractionShader)
+		{
+			_reflectRefractShader.Bind();
+			_reflectRefractShader.SetUniform("useReflection", false);
+			_reflectRefractShader.SetUniform("refractionIndex", material.refractionIndex);
+			_reflectRefractShader.SetUniform("skybox", 7);
+			return;
+		}
+
 		_phongShader.Bind();
 		_phongShader.SetUniform("useTexture", material.useTexture);
 		if (material.diffuseTexture)
@@ -209,10 +238,6 @@ namespace PlatinumEngine
 		_phongShader.SetUniform("materialSpec", Maths::Vec3(0.1f, 0.1f, 0.1f));
 		_phongShader.SetUniform("shininess", material.shininessFactor);
 		_phongShader.SetUniform("useBlinnPhong", material.useBlinnPhong);
-		_phongShader.SetUniform("useReflection", material.useReflectionShader);
-
-		// Check scene editor for what value skybox is mapped to
-		_phongShader.SetUniform("skybox", 7);
 
 		// Reset state
 		glActiveTexture(GL_TEXTURE0);
@@ -221,6 +246,8 @@ namespace PlatinumEngine
 	// update model matrix in shader
 	void Renderer::SetModelMatrix(Maths::Mat4 mat)
 	{
+		_reflectRefractShader.Bind();
+		_reflectRefractShader.SetUniform("model", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("model", mat);
 	}
@@ -228,6 +255,8 @@ namespace PlatinumEngine
 	// update view matrix in shader
 	void Renderer::SetViewMatrix(Maths::Mat4 mat)
 	{
+		_reflectRefractShader.Bind();
+		_reflectRefractShader.SetUniform("view", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("view", mat);
 	}
@@ -235,6 +264,8 @@ namespace PlatinumEngine
 	// update perspective matrix in shader
 	void Renderer::SetProjectionMatrix(Maths::Mat4 mat)
 	{
+		_reflectRefractShader.Bind();
+		_reflectRefractShader.SetUniform("projection", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("projection", mat);
 	}
@@ -336,5 +367,11 @@ namespace PlatinumEngine
 		_phongShader.SetUniform("lightDiffuse", lightDiffuse);
 		_phongShader.SetUniform("lightSpecular", lightSpecular);
 		_phongShader.SetUniform("viewPos", Maths::Vec3(0.0, 0.0, 0.0));
+	}
+
+	void Renderer::SetCameraPos(const Maths::Vec3 &pos)
+	{
+		_reflectRefractShader.Bind();
+		_reflectRefractShader.SetUniform("cameraPos", pos);
 	}
 }

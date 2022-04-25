@@ -15,9 +15,6 @@ out vec3 vertexNormal;
 out vec2 vertexTextureCoordinate;
 out mat3 TBN;
 
-// Reflection properties
-out vec3 positionForReflection;
-
 void main()
 {
     gl_Position = projection * view * model * vec4(inVertex, 1.0);
@@ -31,8 +28,5 @@ void main()
     vec3 B = normalize(vec3(model * vec4(inBiTangent, 0.0)));
     vec3 N = normalize(vec3(model * vec4(inNormal, 0.0)));
     TBN = mat3(T, B, N);
-
-    // For reflection properties
-    positionForReflection = vec3(viewmod * vec4(inVertex, 1.0));
 }
 )"

@@ -154,15 +154,15 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::Text("%s", "Material Properties");
 		ImGui::Separator();
 
-		ImGui::Text("Shininess");
+		ImGui::Text("Specular Exponent");
 
-		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::SameLine();
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		ImGui::SliderFloat("##shininess",&(obj->GetComponent<RenderComponent>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 
 		ImGui::Text("Blinn-Phong");
-		ImGui::SameLine();
+		ImGui::SameLine(_textWidthMeshRenderComponent);
 		ImGui::Checkbox("##Blinn-Phong", &(obj->GetComponent<RenderComponent>()->material.useBlinnPhong));
 
 		ImGui::Text("Texture");
@@ -207,11 +207,20 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::SameLine();
 		ImGui::Checkbox("##UseNormalTexture", &(obj->GetComponent<RenderComponent>()->material.useNormalTexture));
 
-		ImGui::Separator();
 		ImGui::Text("Special Properties");
+		ImGui::Separator();
 		ImGui::Text("Reflection");
-		ImGui::SameLine();
+		ImGui::SameLine(_textWidthMeshRenderComponent);
 		ImGui::Checkbox("##UseRelfectionShader", &(obj->GetComponent<RenderComponent>()->material.useReflectionShader));
+		ImGui::Text("Refraction");
+		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::Checkbox("##UseRefracctionShader", &(obj->GetComponent<RenderComponent>()->material.useRefractionShader));
+		ImGui::Text("Refraction Index");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
+		// Setting max to 4 as you start to get unpleasing results past that
+		ImGui::SliderFloat("##refractionIndex",&(obj->GetComponent<RenderComponent>()->material.refractionIndex),1.0f, 4.f, "%.3f", ImGuiSliderFlags_None);
+		ImGui::PopItemWidth();
 	}
 }
 

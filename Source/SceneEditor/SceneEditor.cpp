@@ -484,6 +484,7 @@ namespace PlatinumEngine{
 			}
       
 			_renderer->SetLightProperties();
+			_renderer->SetCameraPos(_camera.GetCameraPosition());
 
 			// Render game objects
 			_scene->Render(*_renderer);
