@@ -985,6 +985,12 @@ namespace PlatinumEngine{
 		_selectedGameobject = inGameObject;
 	}
 
+	void SceneEditor::DeleteSelectedGameObject()
+	{
+		_scene->RemoveGameObject(*_selectedGameobject);
+		_selectedGameobject = nullptr;
+	}
+
 	GameObject* SceneEditor::GetSelectedGameobject()
 	{
 		return _selectedGameobject;

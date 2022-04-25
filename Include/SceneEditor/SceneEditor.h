@@ -112,6 +112,8 @@ namespace PlatinumEngine
 		 */
 		void SetSelectedGameobject(GameObject* inGameObject);
 
+		void DeleteSelectedGameObject();
+
 		/**
 		 * Get the private selected game object
 		 * @return
