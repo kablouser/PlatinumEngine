@@ -182,7 +182,10 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		{
 			auto asset_Helper = _assetHelper->ShowTextureGuiWindow();
 			if (std::get<0>(asset_Helper))
+			{
 				_activeGameObject->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
+				_activeGameObject->GetComponent<RenderComponent>()->material.useTexture = true;
+			}
 		}
 		ImGui::SameLine();
 		ImGui::Checkbox("##UseTexture", &(_activeGameObject->GetComponent<RenderComponent>()->material.useTexture));

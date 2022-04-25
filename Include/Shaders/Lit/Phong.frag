@@ -36,10 +36,6 @@ void main()
     {
         colour = texture(diffuseMap, vertexTextureCoordinate).rgb;
     }
-    else if (!useTexture && useNormalTexture)
-    {
-        colour = texture(normalMap, vertexTextureCoordinate).rgb;
-    }
 
     // ambient
     vec3 ambient = lightAmbient * colour;
@@ -52,7 +48,7 @@ void main()
 
     vec3 normal = normalize(vertexNormal);
 
-    if (useTexture && useNormalTexture)
+    if (useNormalTexture)
     {
         normal = texture(normalMap, vertexTextureCoordinate).rgb;
         normal = normal * 2.0 - 1.0;
