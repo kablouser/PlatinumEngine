@@ -200,8 +200,13 @@ namespace PlatinumEngine
 
 	void Renderer::LoadMaterial(const Material& material)
 	{
-		// If a user has ticked use normal texture, bind normal map shader
-		if (material.useNormalTexture && material.normalTexture && material.diffuseTexture)
+
+		// Use diffuse texture on its own
+		// Use normal texture on its own
+		// Use normal and diffuse texture
+
+		// Check case for using normal and diffuse texture as this will require normal shader
+		if (material.useNormalTexture && material.useTexture && material.normalTexture && material.diffuseTexture)
 		{
 			_normalMapShader.Bind();
 			// Bind diffuse map
@@ -222,15 +227,30 @@ namespace PlatinumEngine
 		else
 		{
 			_phongShader.Bind();
-			if (material.diffuseTexture && material.useTexture)
+
+			// Check if normal texture is given but no diffuse texture is given
+			if (material.normalTexture && material.useNormalTexture && !material.useTexture)
+			{
+				// Use the normal texture as the diffuse texture so a user can see it on screen
+				_phongShader.SetUniform("useTexture", true);
+				_phongShader.SetUniform("diffuseMap", (int) 0);
+				glActiveTexture(GL_TEXTURE0);
+				material.normalTexture->Bind();
+			}
+			// Only diffuse texture given
+			else if (material.diffuseTexture && material.useTexture)
 			{
 				_phongShader.SetUniform("useTexture", true);
 				_phongShader.SetUniform("diffuseMap", (int) 0);
 				glActiveTexture(GL_TEXTURE0);
 				material.diffuseTexture->Bind();
-			} else {
+			}
+			// No texture given
+			else {
 				_phongShader.SetUniform("useTexture", false);
 			}
+
+			// Other uniforms
 			_phongShader.SetUniform("materialSpec", Maths::Vec3(0.5f, 0.5f, 0.5f));
 			_phongShader.SetUniform("shininess", material.shininessFactor);
 			_phongShader.SetUniform("useBlinnPhong", material.useBlinnPhong);
