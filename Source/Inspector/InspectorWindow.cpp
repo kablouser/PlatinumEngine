@@ -450,21 +450,28 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 		ImGui::Text("Particle Settings");
 		ImGui::Text("Maximum Number of Particles");
 		ImGui::SameLine();
+		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		int numberOfParticles = obj->GetComponent<ParticleEffect>()->GetNumberOfParticles();
-		ImGui::SliderInt("##MaximumNumberOfParticles",&numberOfParticles,0.f, 1000, "%d", ImGuiSliderFlags_None);
+		ImGui::SliderInt("##MaximumNumberOfParticles",&numberOfParticles,0.f, 5000, "%d", ImGuiSliderFlags_None);
 		obj->GetComponent<ParticleEffect>()->SetNumberOfParticles(numberOfParticles);
+		ImGui::PopItemWidth();
 
 		ImGui::Text("Particle Lifetime");
 		ImGui::SameLine();
+		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
+
 		float respawnLifetime = obj->GetComponent<ParticleEffect>()->GetRespawnLifetime();
 		ImGui::SliderFloat("##RespawnLifetime", &respawnLifetime, 0.f, 10, "%.3f", ImGuiSliderFlags_None);
 		obj->GetComponent<ParticleEffect>()->SetRespawnLifetime(respawnLifetime);
+		ImGui::PopItemWidth();
 
 		ImGui::Text("Number of New Particles");
 		ImGui::SameLine();
+		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		int numberOfNewParticles = obj->GetComponent<ParticleEffect>()->GetNumberNewParticles();
 		ImGui::SliderInt("##NumberOfNewParticles",&numberOfNewParticles,0.f, 100, "%d", ImGuiSliderFlags_None);
 		obj->GetComponent<ParticleEffect>()->SetNumberNewParticles(numberOfNewParticles);
+		ImGui::PopItemWidth();
 	}
 }
 

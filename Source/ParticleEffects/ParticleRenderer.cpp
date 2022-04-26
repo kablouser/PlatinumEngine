@@ -29,15 +29,15 @@ namespace PlatinumEngine
 			// also set instance data
 			glGenBuffers(1, &instanceVBO);
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, instanceVBO));
-			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * MaxParticles, NULL, GL_STATIC_DRAW));
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * _numFloats * MaxParticles, NULL, GL_STATIC_DRAW));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-			glBindBufferRange(GL_UNIFORM_BUFFER, 0, instanceVBO, 0, sizeof(GLfloat) * 3 * MaxParticles);
+			glBindBufferRange(GL_UNIFORM_BUFFER, 0, instanceVBO, 0, sizeof(GLfloat) * _numFloats * MaxParticles);
 
 			// Instance data
 			GL_CHECK(glEnableVertexAttribArray(1));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, instanceVBO));
 			// this attribute comes from a different vertex buffer
-			GL_CHECK(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+			GL_CHECK(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0)); // position/life
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 			GL_CHECK(glVertexAttribDivisor(1, 1)); // tell OpenGL this is an instanced vertex attribute.
 		}
@@ -60,19 +60,20 @@ namespace PlatinumEngine
 
 		void ParticleRenderer::SetInput(const std::vector<Particle>& particles)
 		{
-			GLfloat newData[particles.size() * 3];
+			GLfloat newData[particles.size() * 4];
 			for (unsigned int i = 0; i < particles.size(); ++i)
 			{
-				newData[i * 3 + 0] = particles[i].position.x;
-				newData[i * 3 + 1] = particles[i].position.y;
-				newData[i * 3 + 2] = particles[i].position.z;
+				newData[i * 4 + 0] = particles[i].position.x;
+				newData[i * 4 + 1] = particles[i].position.y;
+				newData[i * 4 + 2] = particles[i].position.z;
+				newData[i * 4 + 3] = particles[i].life;
 			}
 
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, instanceVBO));
-			GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * 3 * particles.size(), &newData));
+			GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * _numFloats * particles.size(), &newData));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, instanceVBO));
-			GL_CHECK(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+			GL_CHECK(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 			NumParticles = (int) particles.size();
 		}

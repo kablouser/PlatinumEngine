@@ -92,15 +92,18 @@ namespace PlatinumEngine
 		void ParticleEmitter::RespawnParticle(Particle& p)
 		{
 			// Respawn by resetting values
-			float x = float(rand())/float((RAND_MAX)) * 5.0f - 2.5f;
-			float y = float(rand())/float((RAND_MAX)) * 5.0f - 2.5f;
-			float z = float(rand())/float((RAND_MAX)) * 5.0f - 2.5f;
-			p.position = Maths::Vec3(x, y, z);
+			float x = float(rand())/float((RAND_MAX)) * 1.0f - 0.5f;
+			float y = -1.0f;
+			float z = float(rand())/float((RAND_MAX)) * 1.0f - 0.5f;
+//			float x = 0.0f;
+//			float y = 0.0f;
+//			float z = 2.0f;
+			p.position = Maths::Vec3(0,0,0);
 			p.velocity = Maths::Vec3(x, y, z);
 			p.life = respawnLifetime;
 		}
 
-		void ParticleEmitter::SetRespawnLifetime(int lifetime)
+		void ParticleEmitter::SetRespawnLifetime(float lifetime)
 		{
 			respawnLifetime = lifetime;
 		}

@@ -25,6 +25,7 @@ namespace PlatinumEngine
 			int NumParticles;
 			GLfloat data[MaxParticles * 3];
 			unsigned int instanceVBO, quadVAO, quadVBO;
+			int _numFloats = 4;
 		};
 	}
 }

@@ -12,7 +12,7 @@ namespace PlatinumEngine
 {
 	namespace ParticleEffects
 	{
-		static const int MaxParticles = 1000;
+		static const int MaxParticles = 5000;
 		class ParticleEmitter
 		{
 		public:
@@ -21,7 +21,7 @@ namespace PlatinumEngine
 			void SetNumberOfParticles(int numberOfParticles);
 			[[nodiscard]] int GetNumberOfParticles();
 			[[nodiscard]] const std::vector<Particle> GetParticles() const;
-			void SetRespawnLifetime(int lifetime);
+			void SetRespawnLifetime(float lifetime);
 			float GetRespawnLifetime();
 			void SetNumberNewParticles(int numNewParticles);
 			int GetNumberNewParticles();
@@ -29,7 +29,7 @@ namespace PlatinumEngine
 			unsigned int FirstUnusedParticle();
 			void RespawnParticle(Particle &p);
 		private:
-			int _numberOfParticles = 10;
+			int _numberOfParticles = 100;
 			unsigned int LastUsedParticle = 0;
 			std::vector<Particle> _particleContainer; // Will be resized to MaxParticles in constructor
 			std::vector<Particle> _particles; // The alive particles to send to renderer
