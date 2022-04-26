@@ -1,11 +1,8 @@
-
 #include <ComponentComposition/GameObject.h>
 #include <SceneManager/Scene.h>
 #include <ComponentComposition/Component.h>
-#include <Helpers/VectorHelpers.h>
 #include <Logger/Logger.h>
-
-#include <utility>
+#include <algorithm>
 
 namespace PlatinumEngine
 {
@@ -41,7 +38,7 @@ namespace PlatinumEngine
 	{
 		return _isEnabled;
 	}
-  
+
 	void GameObject::SetEnabled(bool isEnabled, Scene& scene)
 	{
 		if (_isEnabled == isEnabled)
@@ -64,46 +61,39 @@ namespace PlatinumEngine
 	{
 		return _parent;
 	}
-  
-	void GameObject::SetParent(SavedReference<GameObject> parent, Scene& scene)
+
+	void GameObject::SetParent(GameObject* parent, Scene& scene)
 	{
-		if (_parent == parent)
+		if (_parent.pointer.get() == parent)
 			return;
 
+		SavedReference<GameObject>
+				parentSavedReference = scene.idSystem.GetSavedReference(parent),
+		        thisSavedReference = scene.idSystem.GetSavedReference(this);
+		if (!parentSavedReference)
+		{
+			PLATINUM_WARNING("Input parent is not in the ID System, cannot SetParent");
+			return;
+		}
+		if (!thisSavedReference)
+		{
+			PLATINUM_WARNING("This GameObject is not in the ID System, cannot SetParent");
+			return;
+		}
+
 		if (_parent)
-		{
 			_parent.pointer->RemoveChild(this);
-		}
 		else
-		{
 			// this has become NOT a root GameObject now
-			scene.RemoveRootGameObject(*this);
-		}
-    
+			scene.RemoveRootGameObject(thisSavedReference);
+
 		if (parent)
-		{
-			std::shared_ptr<GameObject> sharedPointer = scene.idSystem.GetSavedReference(this);
-			if (sharedPointer)
-			{
-				scene.idSystem.GetSavedReference<GameObject>(sharedPointer);
-				parent.pointer->_children.push_back({sharedPointer})
-			}
-			else
-			{
-
-			}
-
-
-			scene.idSystem.GetSavedReference<>()
-			parent.pointer->_children.push_back(this);
-		}
+			parent->_children.push_back(thisSavedReference);
 		else
-		{
 			// this has become a root GameObject now
-			scene._rootGameObjects.push_back(this);
-		}
+			scene._rootGameObjects.push_back(thisSavedReference);
 
-		_parent = parent;
+		_parent = parentSavedReference;
 		UpdateIsEnabledInHierarchy(scene);
 	}
 
@@ -116,17 +106,17 @@ namespace PlatinumEngine
 	{
 		return _children.size();
 	}
-  
-	GameObject* GameObject::GetChild(size_t index)
+
+	SavedReference<GameObject>& GameObject::GetChild(size_t index)
 	{
 		// range-checked indexing
 		return _children.at(index);
 	}
-  
+
 	size_t GameObject::GetChildIndex(GameObject* child) const
 	{
 		for (size_t i = 0; i < _children.size(); i++)
-			if (_children[i] == child)
+			if (_children[i].pointer.get() == child)
 				return i;
 		return (size_t)-1;
 	}
@@ -140,13 +130,13 @@ namespace PlatinumEngine
 		auto movedGameObjectIterator = std::find(_children.begin(), _children.end(), movedGameObject);
 
 		// use rotate to move the item in front of the target object
-		if(targetGameObjectIterator != _children.end() && movedGameObjectIterator != _children.end())
+		if (targetGameObjectIterator != _children.end() && movedGameObjectIterator != _children.end())
 		{
-			if(movedGameObjectIterator < targetGameObjectIterator)
-				std::rotate(movedGameObjectIterator, movedGameObjectIterator+1, targetGameObjectIterator+1);
+			if (movedGameObjectIterator < targetGameObjectIterator)
+				std::rotate(movedGameObjectIterator, movedGameObjectIterator + 1, targetGameObjectIterator + 1);
 
 			else if (movedGameObjectIterator > targetGameObjectIterator)
-				std::rotate(targetGameObjectIterator, movedGameObjectIterator, movedGameObjectIterator+1);
+				std::rotate(targetGameObjectIterator, movedGameObjectIterator, movedGameObjectIterator + 1);
 
 			// return true if moving successes
 			return true;
@@ -155,7 +145,7 @@ namespace PlatinumEngine
 		// return false if moving fails
 		return false;
 	}
-  
+
 	//--------------------------------------------------------------------------------------------------------------
 	// _components control
 	//--------------------------------------------------------------------------------------------------------------
@@ -164,8 +154,8 @@ namespace PlatinumEngine
 	{
 		return _components.size();
 	}
-  
-	Component* GameObject::GetComponent(size_t index)
+
+	SavedReference<Component>& GameObject::GetComponent(size_t index)
 	{
 		// range-checked indexing
 		return _components.at(index);
@@ -175,42 +165,52 @@ namespace PlatinumEngine
 	// Internal controls
 	//--------------------------------------------------------------------------------------------------------------
 
-	Component* GameObject::GetComponentInternal(const std::type_info& typeInfo)
+	SavedReference<Component> GameObject::GetComponentInternal(const std::type_info& typeInfo)
 	{
 		for (auto component: _components)
-			if (typeid(*component) == typeInfo)
+			if (typeid(*component.pointer) == typeInfo)
 				return component;
-		return nullptr;
+		return {}; // nullptr
 	}
 
-	Component* GameObject::GetParentComponentInternal(const std::type_info& typeInfo)
+	SavedReference<Component> GameObject::GetParentComponentInternal(const std::type_info& typeInfo)
 	{
-		GameObject* parent = GetParent();
+		auto parent = GetParent();
 		if (parent)
-			return parent->GetComponentInternal(typeInfo);
-		return nullptr;
+			return parent.pointer->GetComponentInternal(typeInfo);
+		return {}; // nullptr
 	}
 
 	void GameObject::RemoveChild(GameObject* child)
 	{
-		if (!VectorHelpers::RemoveFirst(_children, child))
+		for (size_t i = 0; i < _children.size(); ++i)
 		{
-			PLATINUM_ERROR("Hierarchy is invalid: _children is missing an element");
+			if (_children[i].pointer.get() == child)
+			{
+				_children.erase(_children.begin() + i);
+				return;
+			}
 		}
+		PLATINUM_ERROR("Hierarchy is invalid: _children is missing an element");
 	}
 
 	void GameObject::RemoveComponent(Component* component)
 	{
-		if (!VectorHelpers::RemoveFirst(_components, component))
+		for (size_t i = 0; i < _components.size(); ++i)
 		{
-			PLATINUM_ERROR("Hierarchy is invalid");
+			if (_components[i].pointer.get() == component)
+			{
+				_components.erase(_components.begin() + i);
+				return;
+			}
 		}
+		PLATINUM_ERROR("Hierarchy is invalid");
 	}
 
 	bool GameObject::CalculateIsEnabledInHierarchy() const
 	{
 		if (_parent)
-			return _isEnabled && _parent->_isEnabledInHierarchy;
+			return _isEnabled && _parent.pointer->_isEnabledInHierarchy;
 		else
 			return _isEnabled;
 	}

@@ -63,7 +63,7 @@ namespace PlatinumEngine
 
 		size_t GetRootGameObjectsCount() const;
 
-		GameObject* GetRootGameObject(size_t index);
+		SavedReference<GameObject>& GetRootGameObject(size_t index);
 
 		// Returns boolean to check if moving successes or not
 		// targetObject : a target object of which the moved object wants to move in front of

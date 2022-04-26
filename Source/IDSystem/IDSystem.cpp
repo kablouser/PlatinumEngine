@@ -211,7 +211,7 @@ namespace PlatinumEngine
 
 	std::pair<IDSystem::ID, std::shared_ptr<void>> IDSystem::GetSavedReferenceInternal(
 			void* rawPointer,
-			std::type_index&& typeIndex);
+			std::type_index&& typeIndex)
 	{
 		if (rawPointer == nullptr)
 			return {}; // nullptr
@@ -226,7 +226,7 @@ namespace PlatinumEngine
 		for (auto& idEntry : idMap)
 		{
 			if (idEntry.second.get() == rawPointer)
-				return idEntry.second;
+				return idEntry;
 		}
 		// id doesn't exist for type
 		return {}; // nullptr

@@ -51,8 +51,8 @@ namespace PlatinumEngine
 				new GameObject(std::move(name), std::move(parent), isEnabled),
 				idSystem);
 
-		if (parent.pointer)
-			parent->_children.push_back(newGameObject);
+		if (parent)
+			parent.pointer->_children.push_back(newGameObject);
 		else
 			_rootGameObjects.push_back(newGameObject);
 
@@ -97,7 +97,7 @@ namespace PlatinumEngine
 		return _rootGameObjects.size();
 	}
 
-	GameObject* Scene::GetRootGameObject(size_t index)
+	SavedReference<GameObject>& Scene::GetRootGameObject(size_t index)
 	{
 		// range checked indexing
 		return _rootGameObjects.at(index);

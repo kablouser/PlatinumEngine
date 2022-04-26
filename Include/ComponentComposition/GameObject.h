@@ -59,7 +59,7 @@ namespace PlatinumEngine
 
 		// Sets the parent of the current GameObject
 		// Removes it from old parent, updates the parent and then add to new parent
-		void SetParent(SavedReference<GameObject> parent, Scene& scene);
+		void SetParent(GameObject* parent, Scene& scene);
     
 		//--------------------------------------------------------------------------------------------------------------
 		// _children control
@@ -70,7 +70,7 @@ namespace PlatinumEngine
 		size_t GetChildrenCount() const;
 
 		// Returns child at index
-		GameObject* GetChild(size_t index);
+		SavedReference<GameObject>& GetChild(size_t index);
 
 		// Returns index of child based on their name
 		// (size_t)-1 if it doesn't exist
@@ -88,11 +88,11 @@ namespace PlatinumEngine
 		// Current component count
 		size_t GetComponentCount() const;
 
-		Component* GetComponent(size_t index);
+		SavedReference<Component>& GetComponent(size_t index);
 
 		// Returns existing component or nullptr if it doesn't exist
 		template<class T>
-		T* GetComponent()
+		SavedReference<T> GetComponent()
 		{
 			return dynamic_cast<T*>(GetComponentInternal(typeid(T)));
 		}
@@ -102,7 +102,7 @@ namespace PlatinumEngine
 		//--------------------------------------------------------------------------------------------------------------
 
 		template<class T>
-		T* GetParentComponent()
+		SavedReference<T> GetParentComponent()
 		{
 			return dynamic_cast<T*>(GetParentComponentInternal(typeid(T)));
 		}
@@ -134,9 +134,9 @@ namespace PlatinumEngine
 		// Internal controls
 		//--------------------------------------------------------------------------------------------------------------
 
-		Component* GetComponentInternal(const std::type_info& typeInfo);
+		SavedReference<Component> GetComponentInternal(const std::type_info& typeInfo);
 
-		Component* GetParentComponentInternal(const std::type_info& typeInfo);
+		SavedReference<Component> GetParentComponentInternal(const std::type_info& typeInfo);
 
 		// note: if you want to remove child from this GameObject, use GameObject::SetParent(nullptr);
 		void RemoveChild(GameObject* child);
