@@ -9,6 +9,7 @@
 #include <ComponentComposition/RenderComponent.h>
 #include <ComponentComposition/TransformComponent.h>
 #include <ComponentComposition/GameObject.h>
+#include <ComponentComposition/ParticleEffect.h>
 #include <SceneManager/SceneManager.h>
 #include <OpenGL/Mesh.h>
 #include <SceneEditor/SceneEditor.h>
@@ -26,6 +27,7 @@ namespace PlatinumEngine
 		void ShowMeshRenderComponent(Scene& scene);
 		void ShowTransformComponent(Scene& scene);
 		void ShowCameraComponent(Scene& scene);
+		void ShowParticleEffectComponent(Scene &scene);
 
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);

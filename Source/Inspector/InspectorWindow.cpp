@@ -41,7 +41,10 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 				ShowTransformComponent(scene);
 
 		  	if (obj->GetComponent<CameraComponent>())
-				  ShowCameraComponent(scene);
+				ShowCameraComponent(scene);
+
+		  	if (obj->GetComponent<ParticleEffect>() != nullptr)
+				ShowParticleEffectComponent(scene);
 
 		  	ImGui::Separator();
 		  	if (_isAddComponentWindowOpen)
@@ -427,6 +430,27 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 	}
 }
 
+void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
+{
+	auto obj = _sceneEditor->GetSelectedGameobject();
+
+	// If this gui is being shown, assumption that object has component
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_FIRE "  Particle Effect Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+	// TODO: Icon button maybe?
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveParticleEffectComponent")) {
+		// remove component
+		scene.RemoveComponent(*obj->GetComponent<ParticleEffect>());
+		return;
+	}
+
+	if (isHeaderOpen)
+	{
+
+	}
+}
+
 void InspectorWindow::ShowAddComponent(Scene& scene)
 {
 	if (ImGui::BeginChild("ComponentSelector"))
@@ -436,7 +460,8 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 		const char* components[] = {
 				"Mesh Render Component",
 				"Transform Component",
-				"Camera Component"
+				"Camera Component",
+				"Particle Effect Component"
 		};
 		static const char* selectedComponent = nullptr;
 		static char componentSelectorBuffer[128];
@@ -486,6 +511,11 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			else if (strcmp(selectedComponent, "Camera Component") == 0)
 			{
 				scene.AddComponent<CameraComponent>(obj);
+			}
+			else if (strcmp(selectedComponent, "Particle Effect Component") == 0)
+			{
+				// Add Particle Effect Component
+				scene.AddComponent<ParticleEffect>(obj);
 			}
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;

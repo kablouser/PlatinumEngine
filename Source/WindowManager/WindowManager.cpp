@@ -198,11 +198,12 @@ namespace PlatinumEngine
 			{}
 			ImGui::EndMenu();
 		}
-		if (ImGui::BeginMenu("Effect"))
+		if (ImGui::MenuItem(ICON_FA_FIRE " Particle Effect"))
 		{
-			if (ImGui::MenuItem("Particle System"))
-			{}
-			ImGui::EndMenu();
+			auto obj = scene.AddGameObject("Particle Effect");
+			scene.AddComponent<ParticleEffect>(obj);
+			scene.AddComponent<TransformComponent>(obj);
+			_sceneEditor->SetSelectedGameobject(obj);
 		}
 		if (ImGui::MenuItem("Camera"))
 		{}

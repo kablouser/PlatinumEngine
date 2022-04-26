@@ -87,6 +87,9 @@ namespace PlatinumEngine
 		// unbind grid shader
 		void EndGrid();
 
+		void BeginParticleShader();
+		void EndParticleShader();
+
 		/**
 		 * resize framebuffer, it's an interface for SceneEditor
 		 * @param framebuffer, targetSize
@@ -157,6 +160,7 @@ namespace PlatinumEngine
 		ShaderProgram _gridShader;
 		ShaderProgram _phongShader;
 		ShaderProgram _reflectRefractShader;
+		ShaderProgram _particleShader;
 
 		// ShaderInput _meshShaderInput, _lightShaderInput;
 

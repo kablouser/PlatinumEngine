@@ -42,6 +42,11 @@ const std::string REFLECT_REFRACT_VERTEX_SHADER =
 ;
 const std::string REFLECT_REFRACT_FRAGMENT_SHADER =
 #include <Shaders/Unlit/ReflectionRefraction.frag>
+const std::string PARTICLE_VERTEX_SHADER =
+#include <Shaders/Unlit/ParticleShader.vert>
+;
+const std::string PARTICLE_FRAGMENT_SHADER =
+#include <Shaders/Unlit/ParticleShader.frag>
 ;
 
 namespace PlatinumEngine
@@ -102,6 +107,12 @@ namespace PlatinumEngine
 		if (!_reflectRefractShader.Compile(REFLECT_REFRACT_VERTEX_SHADER, REFLECT_REFRACT_FRAGMENT_SHADER))
 		{
 			PLATINUM_ERROR("Cannot generate the reflect/refract shader.");
+			return;
+		}
+		
+		if (!_particleShader.Compile(PARTICLE_VERTEX_SHADER, PARTICLE_FRAGMENT_SHADER))
+		{
+			PLATINUM_ERROR("Cannot generate the particle shader.");
 			return;
 		}
 
@@ -181,6 +192,15 @@ namespace PlatinumEngine
 		_gridShader.Unbind();
 	}
 
+	void Renderer::BeginParticleShader()
+	{
+		_particleShader.Bind();
+	}
+
+	void Renderer::EndParticleShader()
+	{
+		_particleShader.Unbind();
+	}
 
 	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
 	{
@@ -248,6 +268,8 @@ namespace PlatinumEngine
 	{
 		_reflectRefractShader.Bind();
 		_reflectRefractShader.SetUniform("model", mat);
+		_particleShader.Bind();
+		_particleShader.SetUniform("model", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("model", mat);
 	}
@@ -257,6 +279,8 @@ namespace PlatinumEngine
 	{
 		_reflectRefractShader.Bind();
 		_reflectRefractShader.SetUniform("view", mat);
+		_particleShader.Bind();
+		_particleShader.SetUniform("view", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("view", mat);
 	}
@@ -266,6 +290,8 @@ namespace PlatinumEngine
 	{
 		_reflectRefractShader.Bind();
 		_reflectRefractShader.SetUniform("projection", mat);
+		_particleShader.Bind();
+		_particleShader.SetUniform("projection", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("projection", mat);
 	}
