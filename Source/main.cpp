@@ -78,12 +78,13 @@ int main(int, char**)
 
 		// construct logger before everything to save all logs
 		PlatinumEngine::Profiler profiler;
+		PlatinumEngine::IDSystem idSystem;
 		PlatinumEngine::AssetDatabase assetDatabase;
 		PlatinumEngine::AssetHelper assetHelper(&assetDatabase);
 		PlatinumEngine::Logger logger;
 		PlatinumEngine::InputManager inputManager;
 		PlatinumEngine::Renderer rasterRenderer;
-		PlatinumEngine::Scene scene;
+		PlatinumEngine::Scene scene(idSystem);
 		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer);
 		PlatinumEngine::HierarchyWindow hierarchyWindow(&sceneEditor);
 		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper);

@@ -50,10 +50,10 @@ namespace PlatinumEngine
 	Maths::Mat4 TransformComponent::GetLocalToWorldMatrix()
 	{
 		Maths::Mat4 transformMatrix = GetLocalToParentMatrix();
-		TransformComponent* transform = GetParentComponent<TransformComponent>();
+		SavedReference<TransformComponent> transform = GetParentComponent<TransformComponent>();
 		if (transform)
 			// recursive, slow but oh well
-			return transform->GetLocalToWorldMatrix() * transformMatrix;
+			return transform.pointer->GetLocalToWorldMatrix() * transformMatrix;
 		return transformMatrix;
 	}
 

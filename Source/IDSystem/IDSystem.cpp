@@ -3,9 +3,6 @@
 #include <iostream>
 #include <cassert> // for assert()
 
-// todo remove after debugging
-#include <Logger/Logger.h>
-
 namespace PlatinumEngine
 {
 	void IDSystem::StreamOut(std::ostream& outputStream, void* typeInstance)
@@ -243,8 +240,8 @@ namespace PlatinumEngine
 	}
 
 	IDSystem::ID IDSystem::AddInternal(
-			const std::shared_ptr<void>& pointer,
-			std::type_index&& typeIndex)
+			std::type_index&& typeIndex,
+			const std::shared_ptr<void>& pointer)
 	{
 		auto& idMap = managedMemory[typeIndex];
 		ID newID = GenerateID(idMap);

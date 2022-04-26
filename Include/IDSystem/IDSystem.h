@@ -8,7 +8,6 @@
 
 namespace PlatinumEngine
 {
-	// forward declare for IDSystem
 	template<typename T>
 	class SavedReference;
 
@@ -35,28 +34,39 @@ namespace PlatinumEngine
 		template<typename T>
 		SavedReference<T> GetSavedReference(ID id)
 		{
-			auto [_, sharedPointer] = GetSavedReferenceInternal(id, std::type_index(typeid(T)));
-			return {id, std::static_pointer_cast<T>(sharedPointer)};
+			auto[_, sharedPointer] = GetSavedReferenceInternal(id, std::type_index(typeid(T)));
+			// static_pointer_cast because no need to check type
+			return { id, std::static_pointer_cast<T>(sharedPointer) };
 		}
 
 		template<typename T>
 		SavedReference<T> GetSavedReference(T* rawPointer)
 		{
-			auto [id, sharedPointer] = GetSavedReferenceInternal(rawPointer, std::type_index(typeid(T)));
-			return {id, std::static_pointer_cast<T>(sharedPointer)};
+			auto[id, sharedPointer] = GetSavedReferenceInternal(
+					rawPointer,
+					// very important to have the pointer in-front of rawPointer, gets type of pointing to
+					std::type_index(typeid(*rawPointer))
+					);
+			// static_pointer_cast because no need to check type
+			return { id, std::static_pointer_cast<T>(sharedPointer) };
 		}
 
 		template<typename T>
-		ID Add(std::shared_ptr<T> pointer)
+		SavedReference<T> Add(std::shared_ptr<T> pointer)
 		{
-			return AddInternal(pointer, std::type_index(typeid(T)));
+			ID id = AddInternal(std::type_index(typeid(T)), pointer);
+			return { id, std::static_pointer_cast<void>(pointer) };
 		}
 
 		template<typename T>
-		bool Remove(ID id)
+		SavedReference<T> Add()
 		{
-			return RemoveInternal(id, std::type_index(typeid(T)));
-		};
+			return Add(std::make_shared<T>());
+		}
+
+		// forward declare
+		template<typename T>
+		bool Remove(SavedReference<T>& savedReference);
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Disgusting internal controls
@@ -70,14 +80,16 @@ namespace PlatinumEngine
 				void* rawPointer,
 				std::type_index&& typeIndex);
 
+		// Add with desired id
 		bool AddInternal(
 				const std::type_index& typeIndex,
 				ID id,
 				const std::shared_ptr<void>& pointer);
 
+		// Add with new random id
 		ID AddInternal(
-				const std::shared_ptr<void>& pointer,
-				std::type_index&& typeIndex);
+				std::type_index&& typeIndex,
+				const std::shared_ptr<void>& pointer);
 
 		bool RemoveInternal(
 				ID id,
@@ -100,10 +112,10 @@ namespace PlatinumEngine
 	};
 
 	/**
-	 * A reference that can be saved automatically.
-	 * Serializable.
-	 * @tparam T type of thing to save a reference to
-	 */
+ * A reference that can be saved automatically.
+ * Serializable.
+ * @tparam T type of thing to save a reference to
+ */
 	template<typename T>
 	class SavedReference
 	{
@@ -117,10 +129,9 @@ namespace PlatinumEngine
 		{
 		}
 
-		SavedReference(T* rawPointer, IDSystem& idSystem) :
-				pointer(rawPointer)
+		SavedReference(IDSystem::ID inID, std::shared_ptr<T> inPointer) :
+			id(inID), pointer(inPointer)
 		{
-			id = idSystem.Add(pointer);
 		}
 
 		void OnIDSystemUpdate(const IDSystem& idSystem)
@@ -140,4 +151,15 @@ namespace PlatinumEngine
 			return id == other.id;
 		}
 	};
+
+	// definition of forward declare
+	template<typename T>
+	bool IDSystem::Remove(SavedReference<T>& savedReference)
+	{
+		return RemoveInternal(
+				savedReference.id,
+				// performs dynamic cast if T is polymorphic
+				// otherwise its just type_index of T
+				std::type_index(typeid(savedReference.pointer.get())));
+	}
 }

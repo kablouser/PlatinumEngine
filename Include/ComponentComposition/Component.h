@@ -1,5 +1,7 @@
 #pragma once
+
 #include <Renderer/Renderer.h>
+#include <IDSystem/IDSystem.h>
 
 namespace PlatinumEngine
 {
@@ -59,13 +61,12 @@ namespace PlatinumEngine
 		// _gameObject controls
 		//--------------------------------------------------------------------------------------------------------------
 
-
 		/**
 		 * Gets the GameObject this component is attached to. Could be null.
 		 */
-		GameObject* GetGameObject();
+		SavedReference<GameObject>& GetGameObject();
 
-		void SetGameObject(GameObject* gameObject, Scene& scene);
+		void SetGameObject(SavedReference<GameObject> gameObject, Scene& scene);
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Events
@@ -112,30 +113,20 @@ namespace PlatinumEngine
 		//--------------------------------------------------------------------------------------------------------------
 
 		template<class T>
-		T* GetComponent()
-		{
-			return dynamic_cast<T*>(GetComponentInternal(typeid(T)));
-		}
+		SavedReference<T> GetComponent();
 
 		template<class T>
-		T* GetParentComponent()
-		{
-			return dynamic_cast<T*>(GetParentComponentInternal(typeid(T)));
-		}
+		SavedReference<T> GetParentComponent();
 
 	private:
 
-		GameObject* _gameObject;
+		SavedReference<GameObject> _gameObject;
 		bool _isEnabled;
 		bool _isEnabledInHierarchy;
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Internal controls
 		//--------------------------------------------------------------------------------------------------------------
-
-		Component* GetComponentInternal(const std::type_info& typeInfo);
-
-		Component* GetParentComponentInternal(const std::type_info& typeInfo);
 
 		/* Calculates whether the current value of IsEnabledInHierarchy using this parent
 		 * relies on parent being in a valid state
@@ -149,3 +140,26 @@ namespace PlatinumEngine
 		void UpdateIsEnabledInHierarchy(Scene& scene);
 	};
 }
+
+// TODO update transform component when this is fixed
+// do this to access GameObject::GetComponent<T>
+//#include <ComponentComposition/GameObject.h>
+//
+//namespace PlatinumEngine
+//{
+//	template<class T>
+//	SavedReference<T> Component::GetComponent()
+//	{
+//		if (_gameObject)
+//			return _gameObject.pointer->GetComponent<T>();
+//		return {};
+//	}
+//
+//	template<class T>
+//	SavedReference<T> Component::GetParentComponent()
+//	{
+//		if (_gameObject)
+//			return _gameObject.pointer->GetParentComponent<T>();
+//		return {};
+//	}
+//}

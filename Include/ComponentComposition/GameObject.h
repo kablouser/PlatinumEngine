@@ -59,7 +59,7 @@ namespace PlatinumEngine
 
 		// Sets the parent of the current GameObject
 		// Removes it from old parent, updates the parent and then add to new parent
-		void SetParent(GameObject* parent, Scene& scene);
+		void SetParent(SavedReference<GameObject> parent, Scene& scene);
     
 		//--------------------------------------------------------------------------------------------------------------
 		// _children control
@@ -94,7 +94,13 @@ namespace PlatinumEngine
 		template<class T>
 		SavedReference<T> GetComponent()
 		{
-			return dynamic_cast<T*>(GetComponentInternal(typeid(T)));
+			for (SavedReference<Component>& component: _components)
+			{
+				std::shared_ptr<T> castedPointer = std::dynamic_pointer_cast<T>(component.pointer);
+				if (castedPointer)
+					return {component.id, castedPointer};
+			}
+			return {}; // nullptr
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -104,7 +110,10 @@ namespace PlatinumEngine
 		template<class T>
 		SavedReference<T> GetParentComponent()
 		{
-			return dynamic_cast<T*>(GetParentComponentInternal(typeid(T)));
+			SavedReference<GameObject>& parent = GetParent();
+			if (parent)
+				return parent.pointer->GetComponent<T>();
+			return {}; // nullptr
 		}
 
 		std::string name;
@@ -134,15 +143,11 @@ namespace PlatinumEngine
 		// Internal controls
 		//--------------------------------------------------------------------------------------------------------------
 
-		SavedReference<Component> GetComponentInternal(const std::type_info& typeInfo);
-
-		SavedReference<Component> GetParentComponentInternal(const std::type_info& typeInfo);
-
 		// note: if you want to remove child from this GameObject, use GameObject::SetParent(nullptr);
-		void RemoveChild(GameObject* child);
+		void RemoveChild(SavedReference<GameObject>& child);
 
 		// note: if you want to remove component from this GameObject, use Component::SetGameObject(nullptr);
-		void RemoveComponent(Component* component);
+		void RemoveComponent(SavedReference<Component>& component);
 
 		// Calculates whether the current value of IsEnabledInHierarchy using this parent
 		// relies on parent being in a valid state
@@ -151,8 +156,6 @@ namespace PlatinumEngine
 		// Must be called everytime IsEnabledInHierarchy might be changed
 		// IsEnabledInHierarchy might change if _parent or _isEnabled is changed
 		// Uses scene to broadcast events when there's a change
-		void UpdateIsEnabledInHierarchy(Scene& scene);
+		void UpdateIsEnabledInHierarchy(Scene& scene, SavedReference<GameObject>& referenceToThis);
 	};
-
 }
-

@@ -22,14 +22,15 @@ namespace PlatinumEngine
 
 	Scene::~Scene()
 	{
-		for (auto gameObject: _gameObjects)
+		for (auto& gameObject: _gameObjects)
 		{
 			idSystem.RemoveInternal(
 					gameObject.id,
-					std::type_index(typeid(gameObject.pointer.get())) // this only works because gameObject is polymorphic
-					);
+					std::type_index(
+							typeid(gameObject.pointer.get())) // this only works because gameObject is polymorphic
+			);
 		}
-		for (auto component: _components)
+		for (auto& component: _components)
 		{
 			idSystem.RemoveInternal(
 					component.id,
@@ -47,21 +48,22 @@ namespace PlatinumEngine
 			SavedReference<GameObject> parent,
 			bool isEnabled)
 	{
-		SavedReference<GameObject> newGameObject(
-				new GameObject(std::move(name), std::move(parent), isEnabled),
-				idSystem);
+		SavedReference<GameObject> gameObject = idSystem.Add<GameObject>();
 
 		if (parent)
-			parent.pointer->_children.push_back(newGameObject);
+			parent.pointer->_children.push_back(gameObject);
 		else
-			_rootGameObjects.push_back(newGameObject);
+			_rootGameObjects.push_back(gameObject);
 
-		_gameObjects.push_back(newGameObject);
-		return newGameObject;
+		_gameObjects.push_back(gameObject);
+		return gameObject;
 	}
 
-	void Scene::RemoveGameObject(SavedReference<GameObject> gameObject)
+	void Scene::RemoveGameObject(SavedReference<GameObject>& gameObject)
 	{
+		if (!gameObject)
+			return;
+
 		// events are only called when the scene has started
 		if (_isStarted)
 		{
@@ -72,15 +74,11 @@ namespace PlatinumEngine
 		RemoveGameObjectRecurse(gameObject);
 
 		// you only need to clean up the top-most parent. Because everything underneath is deleted anyway.
-		GameObject* parent = gameObject.GetParent();
-		if(parent == nullptr)
-		{
-			RemoveRootGameObject(gameObject);
-		}
+		SavedReference<GameObject>& parent = gameObject.pointer->GetParent();
+		if (parent)
+			parent.pointer->RemoveChild(gameObject);
 		else
-		{
-			parent->RemoveChild(&gameObject);
-		}
+			RemoveRootGameObject(gameObject);
 	}
 
 	size_t Scene::GetGameObjectsCount() const
@@ -112,13 +110,13 @@ namespace PlatinumEngine
 		auto movedGameObjectIterator = std::find(_rootGameObjects.begin(), _rootGameObjects.end(), movedGameObject);
 
 		// use rotate to move the item in front of the target object
-		if(targetGameObjectIterator!= _rootGameObjects.end() && movedGameObjectIterator != _rootGameObjects.end())
+		if (targetGameObjectIterator != _rootGameObjects.end() && movedGameObjectIterator != _rootGameObjects.end())
 		{
-			if(movedGameObjectIterator < targetGameObjectIterator)
-			std::rotate(movedGameObjectIterator, movedGameObjectIterator+1, targetGameObjectIterator+1);
+			if (movedGameObjectIterator < targetGameObjectIterator)
+				std::rotate(movedGameObjectIterator, movedGameObjectIterator + 1, targetGameObjectIterator + 1);
 
 			else if (movedGameObjectIterator > targetGameObjectIterator)
-			std::rotate(targetGameObjectIterator, movedGameObjectIterator, movedGameObjectIterator+1);
+				std::rotate(targetGameObjectIterator, movedGameObjectIterator, movedGameObjectIterator + 1);
 
 			// return true if moving successes
 			return true;
@@ -133,31 +131,31 @@ namespace PlatinumEngine
 	// _components controls
 	//--------------------------------------------------------------------------------------------------------------
 
-	void Scene::RemoveComponent(Component& component)
+	void Scene::RemoveComponent(SavedReference<Component>& component)
 	{
+		if (!component)
+			return;
+
 		// trigger end of life cycle events
 		if (_isStarted)
 		{
 			// OnDisable specification
-			if (component._isEnabledInHierarchy)
-			{
-				component.OnDisable(*this);
-			}
-			component.OnEnd(*this);
+			if (component.pointer->_isEnabledInHierarchy)
+				component.pointer->OnDisable(*this);
+			component.pointer->OnEnd(*this);
 		}
 
-		if (component._gameObject)
-		{
-			component._gameObject->RemoveComponent(&component);
-		}
+		if (component.pointer->_gameObject)
+			component.pointer->_gameObject->RemoveComponent(component);
 
-		if (!VectorHelpers::RemoveFirst(_components, &component))
+		if (!VectorHelpers::RemoveFirst(_components, component))
 		{
 			PLATINUM_ERROR("Hierarchy is invalid: _components is missing an element");
 			return;
 		}
 
-		delete &component;
+		// practically, delete
+		idSystem.Remove(component);
 	}
 
 	size_t Scene::GetComponentsCount() const
@@ -184,15 +182,11 @@ namespace PlatinumEngine
 
 		_isStarted = true;
 
-		for (auto gameObject: _rootGameObjects)
-		{
-			BroadcastOnStart(*gameObject);
-		}
+		for (auto& gameObject: _rootGameObjects)
+			BroadcastOnStart(gameObject);
 
-		for (auto gameObject: _rootGameObjects)
-		{
-			BroadcastOnEnable(*gameObject);
-		}
+		for (auto& gameObject: _rootGameObjects)
+			BroadcastOnEnable(gameObject);
 	}
 
 	void Scene::End()
@@ -207,241 +201,178 @@ namespace PlatinumEngine
 
 		// OnDisable before OnEnd() according to specification
 
-		for (auto gameObject: _rootGameObjects)
-		{
-			BroadcastOnDisable(*gameObject);
-		}
+		for (auto& gameObject: _rootGameObjects)
+			BroadcastOnDisable(gameObject);
 
-		for (auto gameObject: _rootGameObjects)
-		{
-			BroadcastOnEnd(*gameObject);
-		}
+		for (auto& gameObject: _rootGameObjects)
+			BroadcastOnEnd(gameObject);
 	}
 
 	void Scene::Update(double deltaTime)
 	{
-		for (auto gameObject: _rootGameObjects)
-		{
-			BroadcastOnUpdate(*gameObject, deltaTime);
-		}
+		for (auto& gameObject: _rootGameObjects)
+			BroadcastOnUpdate(gameObject, deltaTime);
 	}
 
 	void Scene::Render(Renderer& renderer)
 	{
-		for (auto gameObject: _rootGameObjects)
-		{
-			BroadcastOnRender(*gameObject, renderer);
-		}
+		for (auto& gameObject: _rootGameObjects)
+			BroadcastOnRender(gameObject, renderer);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
 	// External controls
 	//--------------------------------------------------------------------------------------------------------------
 
-	void Scene::BroadcastOnStart(GameObject& gameObject)
+	void Scene::BroadcastOnStart(SavedReference<GameObject>& gameObject)
 	{
-		for (auto component: gameObject._components)
-		{
-			component->OnStart(*this);
-		}
-
-		for (auto child: gameObject._children)
-		{
-			BroadcastOnStart(*child);
-		}
-	}
-
-	void Scene::BroadcastOnEnd(GameObject& gameObject)
-	{
-		for (auto component: gameObject._components)
-		{
-			component->OnEnd(*this);
-		}
-
-		for (auto child: gameObject._children)
-		{
-			BroadcastOnEnd(*child);
-		}
-	}
-
-	void Scene::BroadcastOnEnable(GameObject& gameObject)
-	{
-		if (!gameObject._isEnabledInHierarchy)
+		if (!gameObject)
 			return;
 
-		for (auto component: gameObject._components)
-		{
-			if (component->_isEnabledInHierarchy)
-				component->OnEnable(*this);
-		}
+		for (auto& component: gameObject.pointer->_components)
+			component.pointer->OnStart(*this);
 
-		for (auto child: gameObject._children)
-		{
-			BroadcastOnEnable(*child);
-		}
+		for (auto& child: gameObject.pointer->_children)
+			BroadcastOnStart(child);
 	}
 
-	void Scene::BroadcastOnDisable(GameObject& gameObject)
+	void Scene::BroadcastOnEnd(SavedReference<GameObject>& gameObject)
 	{
-		if (!gameObject._isEnabledInHierarchy)
+		if (!gameObject)
 			return;
 
-		for (auto component: gameObject._components)
-		{
-			if (component->_isEnabledInHierarchy)
-				component->OnDisable(*this);
-		}
+		for (auto& component: gameObject.pointer->_components)
+			component.pointer->OnEnd(*this);
 
-		for (auto child: gameObject._children)
-		{
-			BroadcastOnDisable(*child);
-		}
+		for (auto& child: gameObject.pointer->_children)
+			BroadcastOnEnd(child);
 	}
 
-	void Scene::BroadcastOnUpdate(GameObject& gameObject, double deltaTime)
+	void Scene::BroadcastOnEnable(SavedReference<GameObject>& gameObject)
 	{
-		if (!gameObject._isEnabledInHierarchy)
+		if (!gameObject || !gameObject.pointer->_isEnabledInHierarchy)
 			return;
 
-		for (auto component: gameObject._components)
-		{
-			if (component->_isEnabledInHierarchy)
-				component->OnUpdate(*this, deltaTime);
-		}
+		for (auto& component: gameObject.pointer->_components)
+			if (component.pointer->_isEnabledInHierarchy)
+				component.pointer->OnEnable(*this);
 
-		for (auto child: gameObject._children)
-		{
-			BroadcastOnUpdate(*child, deltaTime);
-		}
+		for (auto& child: gameObject.pointer->_children)
+			BroadcastOnEnable(child);
 	}
 
-	void Scene::BroadcastOnRender(GameObject& gameObject, Renderer& renderer)
+	void Scene::BroadcastOnDisable(SavedReference<GameObject>& gameObject)
 	{
-		if (!gameObject._isEnabledInHierarchy)
+		if (!gameObject || !gameObject.pointer->_isEnabledInHierarchy)
 			return;
 
-		for (auto component: gameObject._components)
-		{
-			if (component->_isEnabledInHierarchy)
-				component->OnRender(*this, renderer);
-		}
+		for (auto& component: gameObject.pointer->_components)
+			if (component.pointer->_isEnabledInHierarchy)
+				component.pointer->OnDisable(*this);
 
-		for (auto child: gameObject._children)
-		{
-			BroadcastOnRender(*child, renderer);
-		}
+		for (auto& child: gameObject.pointer->_children)
+			BroadcastOnDisable(child);
 	}
 
-	void Scene::UpdateIsEnabledInHierarchy(GameObject& gameObject)
+	void Scene::BroadcastOnUpdate(SavedReference<GameObject>& gameObject, double deltaTime)
 	{
+		if (!gameObject || !gameObject.pointer->_isEnabledInHierarchy)
+			return;
+
+		for (auto& component: gameObject.pointer->_components)
+			if (component.pointer->_isEnabledInHierarchy)
+				component.pointer->OnUpdate(*this, deltaTime);
+
+		for (auto& child: gameObject.pointer->_children)
+			BroadcastOnUpdate(child, deltaTime);
+	}
+
+	void Scene::BroadcastOnRender(SavedReference<GameObject>& gameObject, Renderer& renderer)
+	{
+		if (!gameObject || !gameObject.pointer->_isEnabledInHierarchy)
+			return;
+
+		for (auto& component: gameObject.pointer->_components)
+			if (component.pointer->_isEnabledInHierarchy)
+				component.pointer->OnRender(*this, renderer);
+
+		for (auto& child: gameObject.pointer->_children)
+			BroadcastOnRender(child, renderer);
+	}
+
+	void Scene::UpdateIsEnabledInHierarchy(SavedReference<GameObject>& gameObject)
+	{
+		if(!gameObject)
+			return;
+
 		// recursively, broadcast the function UpdateIsEnabledInHierarchy to all it's components and children
+		for (auto& component: gameObject.pointer->_components)
+			component.pointer->UpdateIsEnabledInHierarchy(*this);
 
-		for (auto component: gameObject._components)
-		{
-			component->UpdateIsEnabledInHierarchy(*this);
-		}
-
-		for (auto child: gameObject._children)
-		{
+		for (auto& child: gameObject.pointer->_children)
 			// recurse
 			// UpdateIsEnabledInHierarchy could further call UpdateIsEnabledInHierarchy
-			child->UpdateIsEnabledInHierarchy(*this);
-		}
+			child.pointer->UpdateIsEnabledInHierarchy(*this);
 	}
 
-	Component* Scene::AddComponentInternal(Component& component, GameObject* gameObject, bool isEnabled)
+	SavedReference<Component> Scene::AddComponentInternal(
+			SavedReference<Component> component,
+			SavedReference<GameObject> gameObject,
+			bool isEnabled)
 	{
-		_components.push_back(&component);
+		_components.push_back(component);
 		// basically forcing a constructor on all components, regardless of base calling
-		component._gameObject = gameObject;
-		component._isEnabled = isEnabled;
-		component._isEnabledInHierarchy = component.CalculateIsEnabledInHierarchy();
+		component.pointer->_gameObject = gameObject;
+		component.pointer->_isEnabled = isEnabled;
+		component.pointer->_isEnabledInHierarchy = component.pointer->CalculateIsEnabledInHierarchy();
 
 		if (gameObject)
-		{
-			gameObject->_components.push_back(&component);
-		}
+			gameObject.pointer->_components.push_back(component);
 
 		if (_isStarted)
 		{
-			component.OnStart(*this);
-			if (component._isEnabledInHierarchy)
+			component.pointer->OnStart(*this);
+			if (component.pointer->_isEnabledInHierarchy)
 			{
-				component.OnEnable(*this);
+				component.pointer->OnEnable(*this);
 			}
 		}
 
-		return &component;
+		return component;
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
 	// Internal controls
 	//--------------------------------------------------------------------------------------------------------------
 
-	void Scene::RemoveGameObjectRecurse(GameObject& gameObject)
+	void Scene::RemoveGameObjectRecurse(SavedReference<GameObject>& gameObject)
 	{
-		// recurse
-		for (auto child: gameObject._children)
-		{
-			RemoveGameObjectRecurse(*child);
-		}
+		if (!gameObject)
+			return;
 
-		for (auto component: gameObject._components)
+		// recurse
+		for (auto& child: gameObject.pointer->_children)
+			RemoveGameObjectRecurse(child);
+
+		for (auto& component: gameObject.pointer->_components)
 		{
 			if (!VectorHelpers::RemoveFirst(_components, component))
-			{
 				PLATINUM_ERROR("Hierarchy is invalid: _components is missing an element");
-			}
-			delete component;
+			idSystem.Remove(component);
 		}
 
-		if (!VectorHelpers::RemoveFirst(_gameObjects, &gameObject))
-		{
+		if (!VectorHelpers::RemoveFirst(_gameObjects, gameObject))
 			PLATINUM_ERROR("Hierarchy is invalid: _gameObjects is missing an element");
-    }
 
-		delete &gameObject;
+		idSystem.Remove(gameObject);
 	}
 
-	void Scene::RemoveRootGameObject(GameObject& rootGameObject)
+	void Scene::RemoveRootGameObject(SavedReference<GameObject>& rootGameObject)
 	{
-		if (!VectorHelpers::RemoveFirst(_rootGameObjects, &rootGameObject))
-		{
+		if (!rootGameObject)
+			return;
+
+		if (!VectorHelpers::RemoveFirst(_rootGameObjects, rootGameObject))
 			PLATINUM_ERROR("Hierarchy is invalid: _rootGameObjects is missing an element");
-		}
-	}
-
-	Component* Scene::FindFirstComponentInternal(
-			bool requireEnabled,
-			const std::type_info& typeInfo)
-	{
-		for (auto rootGameObject : _rootGameObjects)
-		{
-			auto first = FindFirstComponentRecurse(requireEnabled, typeInfo, *rootGameObject);
-			if (first)
-				return first;
-		}
-		return nullptr;
-	}
-
-	Component* Scene::FindFirstComponentRecurse(
-			bool requireEnabled,
-			const std::type_info& typeInfo,
-			GameObject& gameObject)
-	{
-		if (requireEnabled && !gameObject._isEnabledInHierarchy)
-			return nullptr;
-
-		auto component = gameObject.GetComponentInternal(typeInfo);
-		if (component)
-			return component;
-
-		for (auto child : gameObject._children)
-		{
-			auto first = FindFirstComponentRecurse(requireEnabled, typeInfo, *child);
-			if (first)
-				return first;
-		}
-		return nullptr;
 	}
 }

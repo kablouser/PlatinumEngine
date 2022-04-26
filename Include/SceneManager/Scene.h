@@ -5,6 +5,7 @@
 #pragma once
 
 #include <vector>
+#include <queue>
 #include <string>
 #include <IDSystem/IDSystem.h>
 
@@ -53,7 +54,7 @@ namespace PlatinumEngine
 				SavedReference<GameObject> parent = {},
 				bool isEnabled = true);
 
-		void RemoveGameObject(SavedReference<GameObject> gameObject);
+		void RemoveGameObject(SavedReference<GameObject>& gameObject);
 
 		size_t GetGameObjectsCount() const;
 
@@ -76,27 +77,60 @@ namespace PlatinumEngine
 		//--------------------------------------------------------------------------------------------------------------
 
 		/**
-		 * Adds a component to the scene
-		 * If a game object is provided, then first checks if component exists.
-		 * 	If it does, returns this instead of creating a new one
+		 * Adds a component to the scene.
+		 * @tparam T
+		 * @param gameObject
+		 * @param isEnabled
+		 * @return
 		 */
 		template<typename T>
-		T* AddComponent(GameObject* gameObject = nullptr, bool isEnabled = true)
+		SavedReference<T> AddComponent(SavedReference<GameObject> gameObject = {}, bool isEnabled = true)
 		{
-			if (gameObject)
-				if (gameObject->GetComponent<T>())
-					return gameObject->GetComponent<T>();
-			return static_cast<T*>(AddComponentInternal(*static_cast<Component*>(new T()), gameObject, isEnabled));
+			return static_cast<T*>(AddComponentInternal(
+					idSystem.Add<T>(),
+					gameObject,
+					isEnabled));
 		}
 
-		void RemoveComponent(Component& component);
+		void RemoveComponent(SavedReference<Component>& component);
 
 		size_t GetComponentsCount() const;
 
 		template<typename T>
-		T* FindFirstComponent(bool requireEnabled = true)
+		SavedReference<T> FindFirstComponent(bool requireEnabled = true)
 		{
-			return dynamic_cast<T*>(FindFirstComponentInternal(requireEnabled, typeid(T)));
+			// cannot use recursive functions because template T needed
+			// for dynamic casting
+
+			std::queue<SavedReference<GameObject>*> gameObjectsToFind;
+			for (auto& root: _rootGameObjects)
+				gameObjectsToFind.push(&root);
+
+			while (!gameObjectsToFind.empty())
+			{
+				SavedReference<GameObject>* nextGameObject = gameObjectsToFind.front();
+				gameObjectsToFind.pop();
+
+				if (!nextGameObject->operator bool())
+					continue;
+
+				GameObject* rawPointer = nextGameObject->pointer.get();
+				if (requireEnabled && !rawPointer->_isEnabledInHierarchy)
+					continue;
+
+				// this is the dynamic cast
+				SavedReference<T> targetComponent = rawPointer->GetComponent<T>();
+				if (targetComponent)
+				{
+					if (!requireEnabled || targetComponent.pointer->_isEnabledInHierarchy)
+						return targetComponent;
+				}
+
+				for (SavedReference<GameObject>& child: nextGameObject->pointer->_children)
+					gameObjectsToFind.push(&child);
+			}
+
+			return {};
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -146,19 +180,19 @@ namespace PlatinumEngine
 		/**
 		 * Broadcasts OnStart event to the input gameObject and all of its' children regardless of enabled/disabled.
 		 */
-		void BroadcastOnStart(GameObject& gameObject);
+		void BroadcastOnStart(SavedReference<GameObject>& gameObject);
 
 		/**
 		 * Broadcasts OnEnd event to the input gameObject and all of its' children regardless of enabled/disabled.
 		 */
-		void BroadcastOnEnd(GameObject& gameObject);
+		void BroadcastOnEnd(SavedReference<GameObject>& gameObject);
 
 		/**
 		 * Broadcasts OnEnable event to the input gameObject and all of its' children iff *enabled in hierarchy*
 		 *
 		 * Used for jump starting the scene on Start().
 		 */
-		void BroadcastOnEnable(GameObject& gameObject);
+		void BroadcastOnEnable(SavedReference<GameObject>& gameObject);
 
 		/**
 		 * THIS AFFECTS ENABLED OBJECTS ONLY (counter-intuitive)
@@ -166,40 +200,35 @@ namespace PlatinumEngine
 		 *
 		 * Used for cleaning up objects no longer in use on End()/removal.
 		 */
-		void BroadcastOnDisable(GameObject& gameObject);
+		void BroadcastOnDisable(SavedReference<GameObject>& gameObject);
 
 		/**
 		 * Broadcasts OnUpdate event to the input gameObject and all of its' children iff "enabled in hierarchy".
 		 */
-		void BroadcastOnUpdate(GameObject& gameObject, double deltaTime);
+		void BroadcastOnUpdate(SavedReference<GameObject>& gameObject, double deltaTime);
 
 		/**
 		 * Broadcasts OnRender event to the input gameObject and all of its' children iff "enabled in hierarchy".
 		 */
-		void BroadcastOnRender(GameObject& gameObject, Renderer& renderer);
+		void BroadcastOnRender(SavedReference<GameObject>& gameObject, Renderer& renderer);
 
 		/**
 		 * Broadcasts UpdateIsEnabledInHierarchy event to the input gameObject and all of its' children
 		 * regardless of enabled/disabled.
 		 */
-		void UpdateIsEnabledInHierarchy(GameObject& gameObject);
+		void UpdateIsEnabledInHierarchy(SavedReference<GameObject>& gameObject);
 
-		Component* AddComponentInternal(Component& component, GameObject* gameObject, bool isEnabled);
+		SavedReference<Component> AddComponentInternal(
+				SavedReference<Component> component,
+				SavedReference<GameObject> gameObject,
+				bool isEnabled);
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Internal controls
 		//--------------------------------------------------------------------------------------------------------------
 
-		void RemoveGameObjectRecurse(GameObject& gameObject);
+		void RemoveGameObjectRecurse(SavedReference<GameObject>& gameObject);
 
-		void RemoveRootGameObject(GameObject& gameObject);
-
-		Component* FindFirstComponentInternal(
-				bool requireEnabled,
-				const std::type_info& typeInfo);
-		Component* FindFirstComponentRecurse(
-				bool requireEnabled,
-				const std::type_info& typeInfo,
-				GameObject& gameObject);
+		void RemoveRootGameObject(SavedReference<GameObject>& gameObject);
 	};
 }

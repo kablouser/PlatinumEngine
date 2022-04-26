@@ -27,7 +27,7 @@ namespace PlatinumEngine
 		glm::mat4 p = (glm::mat4)projection;
 
 		glm::vec3 result = glm::unProject(win, m, p, vp);
-		return {result.x, result.y, result.z};
+		return { result.x, result.y, result.z };
 	}
 
 	//Transform point from world to screen coordinates
@@ -44,7 +44,7 @@ namespace PlatinumEngine
 		glm::mat4 p = (glm::mat4)projection;
 
 		glm::vec3 result = glm::project(o, m, p, vp);
-		return {result.x, result.y, result.z};
+		return { result.x, result.y, result.z };
 	}
 
 	//Returns matrix that convert from world space to clip space (View*Projection matrix)
@@ -81,12 +81,14 @@ namespace PlatinumEngine
 	Maths::Mat4 CameraComponent::GetWorldToCameraMatrix()
 	{
 		Maths::Mat4 worldToCameraMatrix;
-		TransformComponent* tc = GetGameObject()->GetComponent<TransformComponent>();
-		if (tc != nullptr)
+		SavedReference<TransformComponent> tc;
+		if (GetGameObject() &&
+			// below also checks tc != null
+			(tc = GetGameObject().pointer->GetComponent<TransformComponent>()))
 		{
 			Maths::Mat4 invR, invT;
-			invR = Maths::Quaternion::QuaternionToMatrix(Maths::Quaternion::Inverse(tc->localRotation));
-			invT.SetTranslationMatrix(-tc->localPosition);
+			invR = Maths::Quaternion::QuaternionToMatrix(Maths::Quaternion::Inverse(tc.pointer->localRotation));
+			invT.SetTranslationMatrix(-tc.pointer->localPosition);
 			worldToCameraMatrix = invR * invT;
 		}
 		else
@@ -98,12 +100,14 @@ namespace PlatinumEngine
 	Maths::Mat4 CameraComponent::GetCameraToWorldMatrix()
 	{
 		Maths::Mat4 cameraToWorldMatrix;
-		TransformComponent* tc = GetGameObject()->GetComponent<TransformComponent>();
-		if (tc != nullptr)
+		SavedReference<TransformComponent> tc;
+		if (GetGameObject() &&
+			// below also checks tc != null
+			(tc = GetGameObject().pointer->GetComponent<TransformComponent>()))
 		{
 			Maths::Mat4 t, r;
-			t.SetTranslationMatrix(tc->localPosition);
-			r = Maths::Quaternion::QuaternionToMatrix(tc->localRotation);
+			t.SetTranslationMatrix(tc.pointer->localPosition);
+			r = Maths::Quaternion::QuaternionToMatrix(tc.pointer->localRotation);
 			cameraToWorldMatrix = t * r;
 		}
 		else

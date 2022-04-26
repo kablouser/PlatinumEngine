@@ -45,7 +45,8 @@ namespace PlatinumEngine
 			return;
 
 		_isEnabled = isEnabled;
-		UpdateIsEnabledInHierarchy(scene);
+		SavedReference<GameObject> referenceToThis = scene.idSystem.GetSavedReference(this);
+		UpdateIsEnabledInHierarchy(scene, referenceToThis);
 	}
 
 	bool GameObject::IsEnabledInHierarchy() const
@@ -62,39 +63,32 @@ namespace PlatinumEngine
 		return _parent;
 	}
 
-	void GameObject::SetParent(GameObject* parent, Scene& scene)
+	void GameObject::SetParent(SavedReference<GameObject> parent, Scene& scene)
 	{
-		if (_parent.pointer.get() == parent)
+		if (_parent == parent)
 			return;
 
-		SavedReference<GameObject>
-				parentSavedReference = scene.idSystem.GetSavedReference(parent),
-		        thisSavedReference = scene.idSystem.GetSavedReference(this);
-		if (!parentSavedReference)
-		{
-			PLATINUM_WARNING("Input parent is not in the ID System, cannot SetParent");
-			return;
-		}
-		if (!thisSavedReference)
+		SavedReference<GameObject> referenceToThis = scene.idSystem.GetSavedReference(this);
+		if (!referenceToThis)
 		{
 			PLATINUM_WARNING("This GameObject is not in the ID System, cannot SetParent");
 			return;
 		}
 
 		if (_parent)
-			_parent.pointer->RemoveChild(this);
+			_parent.pointer->RemoveChild(referenceToThis);
 		else
 			// this has become NOT a root GameObject now
-			scene.RemoveRootGameObject(thisSavedReference);
+			scene.RemoveRootGameObject(referenceToThis);
 
 		if (parent)
-			parent->_children.push_back(thisSavedReference);
+			parent.pointer->_children.push_back(referenceToThis);
 		else
 			// this has become a root GameObject now
-			scene._rootGameObjects.push_back(thisSavedReference);
+			scene._rootGameObjects.push_back(referenceToThis);
 
-		_parent = parentSavedReference;
-		UpdateIsEnabledInHierarchy(scene);
+		_parent = std::move(parent);
+		UpdateIsEnabledInHierarchy(scene, referenceToThis);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
@@ -165,27 +159,11 @@ namespace PlatinumEngine
 	// Internal controls
 	//--------------------------------------------------------------------------------------------------------------
 
-	SavedReference<Component> GameObject::GetComponentInternal(const std::type_info& typeInfo)
-	{
-		for (auto component: _components)
-			if (typeid(*component.pointer) == typeInfo)
-				return component;
-		return {}; // nullptr
-	}
-
-	SavedReference<Component> GameObject::GetParentComponentInternal(const std::type_info& typeInfo)
-	{
-		auto parent = GetParent();
-		if (parent)
-			return parent.pointer->GetComponentInternal(typeInfo);
-		return {}; // nullptr
-	}
-
-	void GameObject::RemoveChild(GameObject* child)
+	void GameObject::RemoveChild(SavedReference<GameObject>& child)
 	{
 		for (size_t i = 0; i < _children.size(); ++i)
 		{
-			if (_children[i].pointer.get() == child)
+			if (_children[i] == child)
 			{
 				_children.erase(_children.begin() + i);
 				return;
@@ -194,11 +172,11 @@ namespace PlatinumEngine
 		PLATINUM_ERROR("Hierarchy is invalid: _children is missing an element");
 	}
 
-	void GameObject::RemoveComponent(Component* component)
+	void GameObject::RemoveComponent(SavedReference<Component>& component)
 	{
 		for (size_t i = 0; i < _components.size(); ++i)
 		{
-			if (_components[i].pointer.get() == component)
+			if (_components[i] == component)
 			{
 				_components.erase(_components.begin() + i);
 				return;
@@ -215,7 +193,7 @@ namespace PlatinumEngine
 			return _isEnabled;
 	}
 
-	void GameObject::UpdateIsEnabledInHierarchy(Scene& scene)
+	void GameObject::UpdateIsEnabledInHierarchy(Scene& scene, SavedReference<GameObject>& referenceToThis)
 	{
 		bool isEnabledInHierarchyNow = CalculateIsEnabledInHierarchy();
 
@@ -224,6 +202,6 @@ namespace PlatinumEngine
 
 		_isEnabledInHierarchy = isEnabledInHierarchyNow;
 
-		scene.UpdateIsEnabledInHierarchy(*this);
+		scene.UpdateIsEnabledInHierarchy(referenceToThis);
 	}
 }
