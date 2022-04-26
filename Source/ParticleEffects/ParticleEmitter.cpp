@@ -19,6 +19,10 @@ namespace PlatinumEngine
 				RespawnParticle(p);
 				_particleContainer.emplace_back(p);
 			}
+
+			// Seed random generator
+			std::random_device rd;
+			std::mt19937 mt(rd());
 		}
 
 		/**
@@ -37,7 +41,7 @@ namespace PlatinumEngine
 				RespawnParticle(_particleContainer[unusedParticle]);
 			}
 
-			for (unsigned int i = 0; i < _numberOfParticles; ++i)
+			for (unsigned int i = 0; i < numberOfParticles; ++i)
 			{
 				Particle &p = _particleContainer[i];
 				// Reduce its life by delta time
@@ -54,17 +58,6 @@ namespace PlatinumEngine
 			}
 		}
 
-		void ParticleEmitter::SetNumberOfParticles(const int numberOfParticles)
-		{
-			_particles.clear();
-			_numberOfParticles = numberOfParticles;
-		}
-
-		int ParticleEmitter::GetNumberOfParticles()
-		{
-			return _numberOfParticles;
-		}
-
 		const std::vector<Particle> ParticleEmitter::GetParticles() const
 		{
 			return _particles;
@@ -72,7 +65,7 @@ namespace PlatinumEngine
 
 		unsigned int ParticleEmitter::FirstUnusedParticle()
 		{
-			for(int i = LastUsedParticle; i < _numberOfParticles; ++i){
+			for(int i = LastUsedParticle; i < numberOfParticles; ++i){
 				if (_particleContainer[i].life < 0){
 					LastUsedParticle = i;
 					return i;
@@ -92,35 +85,30 @@ namespace PlatinumEngine
 		void ParticleEmitter::RespawnParticle(Particle& p)
 		{
 			// Respawn by resetting values
-			float x = float(rand())/float((RAND_MAX)) * 1.0f - 0.5f;
-			float y = -1.0f;
-			float z = float(rand())/float((RAND_MAX)) * 1.0f - 0.5f;
-//			float x = 0.0f;
-//			float y = 0.0f;
-//			float z = 2.0f;
+			float x = (useRandomX) ? GetRandomFloat(minRandomX, maxRandomX) : initVelocityX;
+			float y = (useRandomY) ? GetRandomFloat(minRandomY, maxRandomY) : initVelocityY;
+			float z = (useRandomZ) ? GetRandomFloat(minRandomZ, maxRandomZ) : initVelocityZ;
+
 			p.position = Maths::Vec3(0,0,0);
-			p.velocity = Maths::Vec3(x, y, z);
+			// For some reason positive is the wrong way :(, probably a problem in the shader
+			p.velocity = Maths::Vec3(-x, -y, -z);
 			p.life = respawnLifetime;
 		}
 
-		void ParticleEmitter::SetRespawnLifetime(float lifetime)
+		float ParticleEmitter::GetRandomFloat(float min, float max)
 		{
-			respawnLifetime = lifetime;
-		}
+			// Swap values if there is a problem
+			if (max < min)
+			{
+				float temp = max;
+				max = min;
+				min = temp;
+			}
 
-		float ParticleEmitter::GetRespawnLifetime()
-		{
-			return respawnLifetime;
-		}
-
-		void ParticleEmitter::SetNumberNewParticles(int numNewParticles)
-		{
-			numberOfNewParticles = numNewParticles;
-		}
-
-		int ParticleEmitter::GetNumberNewParticles()
-		{
-			return numberOfNewParticles;
+			std::random_device rd;
+			std::mt19937 mt(rd());
+			std::uniform_real_distribution<float> dist(min, std::nextafter(max, FLT_MAX));
+			return dist(mt);
 		}
 	}
 }

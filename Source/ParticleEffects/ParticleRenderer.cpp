@@ -50,11 +50,9 @@ namespace PlatinumEngine
 		void ParticleRenderer::Render(Renderer& renderer)
 		{
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-			renderer.BeginParticleShader();
 			GL_CHECK(glBindVertexArray(quadVAO));
 			GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 6, NumParticles)); // 100 triangles of 6 vertices each
 			GL_CHECK(glBindVertexArray(0));
-			renderer.EndParticleShader();
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
 

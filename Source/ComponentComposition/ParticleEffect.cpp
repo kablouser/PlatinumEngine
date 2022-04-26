@@ -9,8 +9,7 @@ namespace PlatinumEngine
 {
 	ParticleEffect::ParticleEffect()
 	{
-		_particleEmitter.SetNumberOfParticles(_particleEmitter.GetNumberOfParticles());
-		_particleRenderer.SetInput(_particleEmitter.GetParticles());
+		particleRenderer.SetInput(particleEmitter.GetParticles());
 	}
 	void ParticleEffect::OnUpdate(Scene& scene, double deltaTime)
 	{
@@ -27,39 +26,15 @@ namespace PlatinumEngine
 			renderer.SetModelMatrix();
 
 		// Manually update here for now
-		_particleEmitter.UpdateParticles(0.016);
-		_particleRenderer.SetInput(_particleEmitter.GetParticles());
-		_particleRenderer.Render(renderer);
-	}
+		particleEmitter.UpdateParticles(0.016);
+		particleRenderer.SetInput(particleEmitter.GetParticles());
 
-	void ParticleEffect::SetNumberOfParticles(const int numParticles)
-	{
-		_particleEmitter.SetNumberOfParticles(numParticles);
-		_particleRenderer.SetInput(_particleEmitter.GetParticles());
-	}
-
-	int ParticleEffect::GetNumberOfParticles()
-	{
-		return _particleEmitter.GetNumberOfParticles();
-	}
-
-	void ParticleEffect::SetRespawnLifetime(float lifetime)
-	{
-		_particleEmitter.SetRespawnLifetime(lifetime);
-	}
-
-	float ParticleEffect::GetRespawnLifetime()
-	{
-		return _particleEmitter.GetRespawnLifetime();
-	}
-
-	void ParticleEffect::SetNumberNewParticles(int numNewParticles)
-	{
-		_particleEmitter.SetNumberNewParticles(numNewParticles);
-	}
-
-	int ParticleEffect::GetNumberNewParticles()
-	{
-		return _particleEmitter.GetNumberNewParticles();
+		// Bind shader stuff here
+		renderer.BeginParticleShader();
+		renderer.SetMaxLifeParticleShader(particleEmitter.respawnLifetime);
+		renderer.SetStartColourParticleShader(particleEmitter.startColour);
+		renderer.SetEndColourParticleShader(particleEmitter.endColour);
+		particleRenderer.Render(renderer);
+		renderer.EndParticleShader();
 	}
 }

@@ -89,6 +89,9 @@ namespace PlatinumEngine
 
 		void BeginParticleShader();
 		void EndParticleShader();
+		void SetMaxLifeParticleShader(float maxLife);
+		void SetStartColourParticleShader(Maths::Vec4 startColour);
+		void SetEndColourParticleShader(Maths::Vec4 endColour);
 
 		/**
 		 * resize framebuffer, it's an interface for SceneEditor

@@ -447,31 +447,101 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 
 	if (isHeaderOpen)
 	{
-		ImGui::Text("Particle Settings");
+		ImGui::Text("Emitter Settings");
+		ImGui::Separator();
 		ImGui::Text("Maximum Number of Particles");
-		ImGui::SameLine();
-		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
-		int numberOfParticles = obj->GetComponent<ParticleEffect>()->GetNumberOfParticles();
-		ImGui::SliderInt("##MaximumNumberOfParticles",&numberOfParticles,0.f, 5000, "%d", ImGuiSliderFlags_None);
-		obj->GetComponent<ParticleEffect>()->SetNumberOfParticles(numberOfParticles);
+		ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+		ImGui::SliderInt("##MaximumNumberOfParticles",&(obj->GetComponent<ParticleEffect>()->particleEmitter.numberOfParticles),0.f, 5000, "%d", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 
 		ImGui::Text("Particle Lifetime");
-		ImGui::SameLine();
-		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
+		ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
 
-		float respawnLifetime = obj->GetComponent<ParticleEffect>()->GetRespawnLifetime();
-		ImGui::SliderFloat("##RespawnLifetime", &respawnLifetime, 0.f, 10, "%.3f", ImGuiSliderFlags_None);
-		obj->GetComponent<ParticleEffect>()->SetRespawnLifetime(respawnLifetime);
+		ImGui::SliderFloat("##RespawnLifetime", &(obj->GetComponent<ParticleEffect>()->particleEmitter.respawnLifetime), 0.f, 10, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 
 		ImGui::Text("Number of New Particles");
-		ImGui::SameLine();
-		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
-		int numberOfNewParticles = obj->GetComponent<ParticleEffect>()->GetNumberNewParticles();
-		ImGui::SliderInt("##NumberOfNewParticles",&numberOfNewParticles,0.f, 100, "%d", ImGuiSliderFlags_None);
-		obj->GetComponent<ParticleEffect>()->SetNumberNewParticles(numberOfNewParticles);
+		ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+		ImGui::SliderInt("##NumberOfNewParticles",&(obj->GetComponent<ParticleEffect>()->particleEmitter.numberOfNewParticles),0.f, 100, "%d", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
+
+		ImGui::Text("Simple Velocity Settings");
+		ImGui::Separator();
+		ImGui::Text("Initial Velocity: ");
+		ImGui::SameLine();
+
+		ImGui::PushItemWidth(50);
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::InputFloat("##VelocityX", &(obj->GetComponent<ParticleEffect>()->particleEmitter.initVelocityX));
+		ImGui::SameLine();
+
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::InputFloat("##VelocityY", &(obj->GetComponent<ParticleEffect>()->particleEmitter.initVelocityY));
+		ImGui::SameLine();
+
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::InputFloat("##VelocityZ", &(obj->GetComponent<ParticleEffect>()->particleEmitter.initVelocityZ));
+
+		ImGui::Text("Random Velocity Settings");
+		ImGui::Separator();
+
+		ImGui::Text("Random X");
+		ImGui::SameLine();
+		ImGui::Checkbox("##RandomVelocityX", &(obj->GetComponent<ParticleEffect>()->particleEmitter.useRandomX));
+		ImGui::SameLine();
+
+		ImGui::Text("Min");
+		ImGui::SameLine();
+		ImGui::InputFloat("##MinRandomVelocityX", &(obj->GetComponent<ParticleEffect>()->particleEmitter.minRandomX));
+		ImGui::SameLine();
+
+		ImGui::Text("Max");
+		ImGui::SameLine();
+		ImGui::InputFloat("##MaxRandomVelocityX", &(obj->GetComponent<ParticleEffect>()->particleEmitter.maxRandomX));
+
+		ImGui::Text("Random Y");
+		ImGui::SameLine();
+		ImGui::Checkbox("##RandomVelocityY", &(obj->GetComponent<ParticleEffect>()->particleEmitter.useRandomY));
+		ImGui::SameLine();
+
+		ImGui::Text("Min");
+		ImGui::SameLine();
+		ImGui::InputFloat("##MinRandomVelocityY", &(obj->GetComponent<ParticleEffect>()->particleEmitter.minRandomY));
+		ImGui::SameLine();
+
+		ImGui::Text("Max");
+		ImGui::SameLine();
+		ImGui::InputFloat("##MaxRandomVelocityY", &(obj->GetComponent<ParticleEffect>()->particleEmitter.maxRandomY));
+
+		ImGui::Text("Random Z");
+		ImGui::SameLine();
+		ImGui::Checkbox("##RandomVelocityZ", &(obj->GetComponent<ParticleEffect>()->particleEmitter.useRandomZ));
+		ImGui::SameLine();
+
+		ImGui::Text("Min");
+		ImGui::SameLine();
+		ImGui::InputFloat("##MinRandomVelocityZ", &(obj->GetComponent<ParticleEffect>()->particleEmitter.minRandomZ));
+		ImGui::SameLine();
+
+		ImGui::Text("Max");
+		ImGui::SameLine();
+		ImGui::InputFloat("##MaxRandomVelocityZ", &(obj->GetComponent<ParticleEffect>()->particleEmitter.maxRandomZ));
+		ImGui::PopItemWidth();
+
+		ImGui::Text("Shading Settings");
+		ImGui::Separator();
+
+		ImGui::Text("Start Colour");
+		ImGui::SameLine();
+		ImGui::ColorPicker4("##PickleMe1", (float*)&(obj->GetComponent<ParticleEffect>()->particleEmitter.startColour));
+
+		ImGui::Text("End Colour");
+		ImGui::SameLine();
+		ImGui::ColorPicker4("##PickleMe", (float*)&(obj->GetComponent<ParticleEffect>()->particleEmitter.endColour));
+
 	}
 }
 

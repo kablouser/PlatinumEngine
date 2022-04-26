@@ -202,6 +202,24 @@ namespace PlatinumEngine
 		_particleShader.Unbind();
 	}
 
+	void Renderer::SetMaxLifeParticleShader(const float maxLife)
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform("maxLife", maxLife);
+	}
+
+	void Renderer::SetStartColourParticleShader(Maths::Vec4 startColour)
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform("startColour", startColour);
+	}
+
+	void Renderer::SetEndColourParticleShader(Maths::Vec4 endColour)
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform("endColour", endColour);
+	}
+
 	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
 	{
 		_framebuffer = *framebuffer;
