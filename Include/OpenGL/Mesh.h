@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <memory>
+#include <map>
 #include <OpenGL/Vertex.h>
 #include <OpenGL/Texture.h>
 #include <OpenGL/GLCheck.h>
@@ -29,7 +30,10 @@ namespace PlatinumEngine {
 		// For animation
 		std::vector<Animation> animations;
 		std::vector<BoneNode> nodes;
-		std::vector<Bone> bones;
+		std::vector<VertexBone> verticesBones;
+
+		// Maps
+		std::map<std::string, Bone> boneMapping;
 
 		// Record offset
 		std::vector<unsigned int> offset;

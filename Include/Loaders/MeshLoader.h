@@ -15,6 +15,9 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <ozz/base/io/stream.h>
+#include <ozz/animation/runtime/skeleton.h>
+#include <ozz/base/io/archive.h>
 #include <glm/glm.hpp>
 
 // Post processing options: http://assimp.sourceforge.net/lib_html/postprocess_8h.html
@@ -57,7 +60,7 @@ namespace PlatinumEngine
 		 */
 		void AddMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset);
 
-		void AddBoneData(Mesh &outMesh, aiBone* bone, unsigned int offset);
+		void AddBoneData(Mesh &outMesh, aiMesh *mesh, unsigned int offset);
 
 		void AddNodeData(Mesh &outMesh, aiNode* rootNode);
 

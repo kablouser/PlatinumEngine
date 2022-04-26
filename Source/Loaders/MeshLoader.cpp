@@ -4,6 +4,7 @@
 
 #include "Loaders/MeshLoader.h"
 
+
 namespace PlatinumEngine
 {
 	namespace Loaders
@@ -70,6 +71,18 @@ namespace PlatinumEngine
 			}
 
 			// Crate scene from file
+			ozz::io::File file(filePath.c_str(), "rb");
+			if (!file.opened())
+			{
+				PLATINUM_WARNING("OZZ IO cannot open this file.");
+			}
+			ozz::io::IArchive archive(&file);
+
+			if (!archive.TestTag<ozz::animation::Skeleton>())
+			{
+				PLATINUM_WARNING(std::string("Archive for ") + filePath +std::string(" doesn't contain the expected object type."));
+			}
+
 			const aiScene *scene = import.ReadFile(filePath, flags);
 			if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 			{
@@ -83,12 +96,9 @@ namespace PlatinumEngine
 			unsigned int offset = 0;
 			for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 			{
+				unsigned int tempOffset = offset;
 				AddMeshData(returnMesh, scene->mMeshes[i], offset);
-
-				for(unsigned int j=0;j<scene->mMeshes[i]->mNumBones; ++j)
-				{
-					AddBoneData(returnMesh, scene->mMeshes[i]->mBones[j], offset);
-				}
+				AddBoneData(returnMesh, scene->mMeshes[i], tempOffset);
 			}
 
 
@@ -172,21 +182,53 @@ namespace PlatinumEngine
 			offset += highestIndex + 1;
 		}
 
-		void AddBoneData(Mesh &outMesh, aiBone* inBone, unsigned int offset)
+		void AddBoneData(Mesh &outMesh, aiMesh* inMesh, unsigned int offset)
 		{
+			// Bond variables
 			Bone bone;
+			aiBone* inBone;
+			unsigned int boneID = 0, numOfBones = 0;
+			unsigned int offSetForBoneID = outMesh.boneMapping.size();
+			outMesh.verticesBones.resize(outMesh.vertices.size());
+			if(outMesh.verticesBones.empty())
+			{
+				PLATINUM_WARNING("There is no vertex attached to the bone.");
+			}
 
-			// Name
-			bone.boneName = inBone->mName.C_Str();
+			for(unsigned int k =0 ;k < inMesh->mNumBones; k++)
+			{
+				inBone = inMesh->mBones[k];
 
-			// Weight
-			for(int i = 0; i < inBone->mNumWeights; i++)
-				bone.weights.emplace_back(Weight{inBone->mWeights[i].mVertexId + offset, inBone->mWeights[i].mWeight});
+				// Name
+				bone.boneName = inBone->mName.C_Str();
 
-			// Matrix
-			bone.SetTranformMatrixByaiMatrix(inBone->mOffsetMatrix);
+				// Update bone mapping
+				if (outMesh.boneMapping.find(bone.boneName) == outMesh.boneMapping.end())
+				{
+					// Update bone id
+					boneID = numOfBones;
+					bone.boneID = boneID;
 
-			outMesh.bones.emplace_back(bone);
+					// Matrix
+					bone.SetTranformMatrixByaiMatrix(inBone->mOffsetMatrix);
+
+					// Update bone map
+					outMesh.boneMapping[bone.boneName] = bone;
+				}
+				else
+				{
+					boneID = outMesh.boneMapping[bone.boneName].boneID - offSetForBoneID;
+				}
+
+				// Update VertexBone info
+				for(unsigned int i = 0; i < inBone->mNumWeights; ++i)
+				{
+					if(outMesh.verticesBones.size() > inBone->mWeights->mVertexId + offset)
+						outMesh.verticesBones[inBone->mWeights->mVertexId + offset].AddBone(boneID,inBone->mWeights->mWeight);
+					else
+						PLATINUM_WARNING("Vertex number doesn't match the vertex id in bones info read by Assimp.");
+				}
+			}
 		}
 
 		void AddNodeData( Mesh &outMesh, aiNode *rootNode)
@@ -242,7 +284,6 @@ namespace PlatinumEngine
 			// Channels
 			for(unsigned int i =0; i<inAnimation->mNumChannels; ++i)
 				animation.AddChannelByaiNodeAnim(inAnimation->mChannels[i]);
-
 
 			outMesh.animations.emplace_back(animation);
 		}

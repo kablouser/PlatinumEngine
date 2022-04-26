@@ -93,6 +93,19 @@ add_subdirectory("stb CMake")
 FetchContent_Declare(bullet3 GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git GIT_TAG 3.22b)
 FetchContent_MakeAvailable(bullet3)
 #-----------------------------
+# ozz
+set(ozz_build_fbx OFF)
+set(ozz_build_gltf OFF)
+set(ozz_build_samples OFF)
+set(ozz_build_howtos ON)
+set(ozz_build_tests OFF)
+set(ozz_build_tools OFF)
+set(ozz_build_postfix OFF)
+FetchContent_Declare(ozz GIT_REPOSITORY https://github.com/guillaumeblanc/ozz-animation.git GIT_TAG 0.14.0)
+FetchContent_MakeAvailable(ozz)
+
+
+#-----------------------------
 # Add more libraries from git repos here:
 #-----------------------------
 
@@ -230,6 +243,7 @@ set(PROJECT_LIBRARIES
 	"SDL2-static;"
 	"SDL2_mixer;"
 
+	"ozz_animation;"
   )
 
 # different targets
