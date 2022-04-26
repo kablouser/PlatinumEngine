@@ -13,11 +13,10 @@ namespace PlatinumEngine
 		struct Particle
 		{
 			Maths::Vec3 position;
-			Maths::Vec3 velocity;
 			float life;
 
 			// a default constructor for easy creation
-			Particle() : position(Maths::Vec3(0.0f, 0.0f, 0.0f)), velocity(Maths::Vec3(0.0f, 0.0f, 0.0f)), life(0.0f) {}
+			Particle() : position(Maths::Vec3(0.0f, 0.0f, 0.0f)), life(0.0f) {}
 		};
 	}
 }

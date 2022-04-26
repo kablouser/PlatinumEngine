@@ -1,6 +1,7 @@
 R"(
 #version 330 core
 layout (location = 0) in vec3 inVertex;
+layout (location = 1) in vec3 Position;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -24,6 +25,6 @@ void main()
     ModelView[2][0] = 0;
     ModelView[2][1] = 0;
     ModelView[2][2] = d;
-    gl_Position = projection * ModelView * vec4(inVertex, 1.0);
+    gl_Position = projection * ModelView * vec4(inVertex + Position, 1.0);
 }
 )"

@@ -127,6 +127,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/Texture.cpp;"
 	"Source/OpenGL/Material.cpp;"
 	
+	"Source/ParticleEffects/ParticleEmitter.cpp"
 	"Source/ParticleEffects/ParticleRenderer.cpp;"
 	
 	"Source/Profiler/Profiler.cpp;"

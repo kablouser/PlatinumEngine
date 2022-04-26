@@ -11,13 +11,17 @@ namespace PlatinumEngine
 {
 	namespace ParticleEffects
 	{
+		static const int MaxParticles = 1000;
 		class ParticleEmitter
 		{
 		public:
-			ParticleEmitter() = default;
-		public:
-			int numberOfParticles = 0;
+			ParticleEmitter();
+			void SetNumberOfParticles(int numberOfParticles);
+			[[nodiscard]] int GetNumberOfParticles();
+			[[nodiscard]] const std::vector<Particle> GetParticles() const;
 		private:
+			int _numberOfParticles = 10;
+			std::vector<Particle> _particleContainer;
 			std::vector<Particle> _particles;
 		};
 	}

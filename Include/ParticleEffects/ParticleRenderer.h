@@ -4,8 +4,10 @@
 
 #pragma once
 
-#include <OpenGL/ShaderInput.h>
 #include <Renderer/Renderer.h>
+#include <ParticleEffects/Particle.h>
+#include <ParticleEffects/ParticleEmitter.h>
+#include <Logger/Logger.h>
 
 namespace PlatinumEngine
 {
@@ -15,14 +17,14 @@ namespace PlatinumEngine
 		{
 		public:
 			ParticleRenderer();
+			~ParticleRenderer();
 			void Render(Renderer& renderer);
+			void SetInput(const std::vector<Particle> &particles);
+			void Clear();
 		private:
-			ShaderInput _shaderInput;
-			std::vector<Vertex> vertices = {{{1.0f, -1.0f, 0.0f}},
-											{{-1.0f, -1.0f, 0.0f}},
-											{{1.0f, 1.0f, 0.0f}},
-											{{-1.0f, 1.0f, 0.0f}}};
-			std::vector<unsigned int> indices = {1, 2, 0, 1, 3, 2};
+			int NumParticles;
+			GLfloat data[MaxParticles * 3];
+			unsigned int instanceVBO, quadVAO, quadVBO;
 		};
 	}
 }

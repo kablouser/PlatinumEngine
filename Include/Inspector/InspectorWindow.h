@@ -10,6 +10,7 @@
 #include <ComponentComposition/TransformComponent.h>
 #include <ComponentComposition/GameObject.h>
 #include <ComponentComposition/ParticleEffect.h>
+#include <ParticleEffects/ParticleEmitter.h>
 #include <SceneManager/SceneManager.h>
 #include <OpenGL/Mesh.h>
 #include <SceneEditor/SceneEditor.h>

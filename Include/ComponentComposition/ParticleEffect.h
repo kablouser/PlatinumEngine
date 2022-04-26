@@ -14,10 +14,12 @@ namespace PlatinumEngine
 	class ParticleEffect : public Component
 	{
 	public:
-		ParticleEffect() = default;
+		ParticleEffect();
 
 		void OnUpdate(Scene& scene, double deltaTime) override;
 		void OnRender(Scene& scene, Renderer& renderer) override;
+		void SetNumberOfParticles(int numParticles);
+		int GetNumberOfParticles();
 	private:
 		ParticleEffects::ParticleEmitter _particleEmitter;
 		ParticleEffects::ParticleRenderer _particleRenderer;

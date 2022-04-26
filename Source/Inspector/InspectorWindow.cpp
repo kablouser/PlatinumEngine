@@ -447,7 +447,12 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 
 	if (isHeaderOpen)
 	{
-
+		ImGui::Text("Particle Settings");
+		ImGui::Text("Number of Particles");
+		ImGui::SameLine();
+		int numberOfParticles = obj->GetComponent<ParticleEffect>()->GetNumberOfParticles();
+		ImGui::SliderInt("##NumberOfParticles",&numberOfParticles,0.f, 1000, "%d", ImGuiSliderFlags_None);
+		obj->GetComponent<ParticleEffect>()->SetNumberOfParticles(numberOfParticles);
 	}
 }
 
