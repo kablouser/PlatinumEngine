@@ -26,7 +26,9 @@ namespace PlatinumEngine
 		else
 			renderer.SetModelMatrix();
 
-
+		// Manually update here for now
+		_particleEmitter.UpdateParticles(0.016);
+		_particleRenderer.SetInput(_particleEmitter.GetParticles());
 		_particleRenderer.Render(renderer);
 	}
 
@@ -39,5 +41,25 @@ namespace PlatinumEngine
 	int ParticleEffect::GetNumberOfParticles()
 	{
 		return _particleEmitter.GetNumberOfParticles();
+	}
+
+	void ParticleEffect::SetRespawnLifetime(float lifetime)
+	{
+		_particleEmitter.SetRespawnLifetime(lifetime);
+	}
+
+	float ParticleEffect::GetRespawnLifetime()
+	{
+		return _particleEmitter.GetRespawnLifetime();
+	}
+
+	void ParticleEffect::SetNumberNewParticles(int numNewParticles)
+	{
+		_particleEmitter.SetNumberNewParticles(numNewParticles);
+	}
+
+	int ParticleEffect::GetNumberNewParticles()
+	{
+		return _particleEmitter.GetNumberNewParticles();
 	}
 }
