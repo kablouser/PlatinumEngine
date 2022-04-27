@@ -42,6 +42,7 @@ const std::string REFLECT_REFRACT_VERTEX_SHADER =
 ;
 const std::string REFLECT_REFRACT_FRAGMENT_SHADER =
 #include <Shaders/Unlit/ReflectionRefraction.frag>
+;
 const std::string PARTICLE_VERTEX_SHADER =
 #include <Shaders/Unlit/ParticleShader.vert>
 ;
@@ -415,6 +416,7 @@ namespace PlatinumEngine
 
 	void Renderer::SetCameraPos(const Maths::Vec3 &pos)
 	{
+		cameraPos = pos;
 		_reflectRefractShader.Bind();
 		_reflectRefractShader.SetUniform("cameraPos", pos);
 	}

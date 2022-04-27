@@ -18,7 +18,7 @@ namespace PlatinumEngine
 		{
 		public:
 			ParticleEmitter();
-			void UpdateParticles(float deltaTime);
+			void UpdateParticles(float deltaTime, const Maths::Vec3 &cameraPos);
 			[[nodiscard]] const std::vector<Particle> GetParticles() const;
 		public:
 			// Emitter Settings

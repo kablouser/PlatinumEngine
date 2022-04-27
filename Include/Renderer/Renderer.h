@@ -153,6 +153,9 @@ namespace PlatinumEngine
 		// void LoadLight(const Light &light);
 		void LoadLight();
 
+	public:
+		Maths::Vec3 cameraPos;
+
 	private:
 
 		// true iff all init steps were successful

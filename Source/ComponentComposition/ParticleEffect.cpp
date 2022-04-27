@@ -26,7 +26,7 @@ namespace PlatinumEngine
 			renderer.SetModelMatrix();
 
 		// Manually update here for now
-		particleEmitter.UpdateParticles(0.016);
+		particleEmitter.UpdateParticles(0.016, renderer.cameraPos);
 		particleRenderer.SetInput(particleEmitter.GetParticles());
 
 		// Bind shader stuff here

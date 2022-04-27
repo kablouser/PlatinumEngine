@@ -29,7 +29,7 @@ namespace PlatinumEngine
 		 * Updates all particles
 		 * @param deltaTime
 		 */
-		void ParticleEmitter::UpdateParticles(float deltaTime)
+		void ParticleEmitter::UpdateParticles(float deltaTime, const Maths::Vec3 &cameraPos)
 		{
 			// Clear what particles are sent to renderer
 			_particles.clear();
@@ -48,14 +48,19 @@ namespace PlatinumEngine
 				p.life -= deltaTime;
 
 				// If the particle remains alive, update its position
-				if (p.life > 0.0f)
+				if (p.life >= 0.0f)
 				{
 					p.velocity += Maths::Vec3(0.0f,-1.0f, 0.0f) * (float)deltaTime;
 					p.position -= p.velocity * deltaTime;
+					Maths::Vec3 vector = p.position - cameraPos;
+					p.distanceFromCamera = Maths::Length(vector);
 
 					_particles.emplace_back(p);
 				}
 			}
+
+			// Sort them based on distance from camera
+			std::sort(&_particles[0], &_particles[_particles.size()]);
 		}
 
 		const std::vector<Particle> ParticleEmitter::GetParticles() const

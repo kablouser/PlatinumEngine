@@ -534,14 +534,19 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 		ImGui::Text("Shading Settings");
 		ImGui::Separator();
 
+		auto flags = ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview;
+
 		ImGui::Text("Start Colour");
-		ImGui::SameLine();
-		ImGui::ColorPicker4("##PickleMe1", (float*)&(obj->GetComponent<ParticleEffect>()->particleEmitter.startColour));
+		ImGui::SameLine(90.0f);
+		ImGui::PushItemWidth(180.0f);
+		ImGui::ColorPicker4("##PickleMe1", (float*)&(obj->GetComponent<ParticleEffect>()->particleEmitter.startColour), flags);
+		ImGui::PopItemWidth();
 
 		ImGui::Text("End Colour");
-		ImGui::SameLine();
-		ImGui::ColorPicker4("##PickleMe", (float*)&(obj->GetComponent<ParticleEffect>()->particleEmitter.endColour));
-
+		ImGui::SameLine(90.0f);
+		ImGui::PushItemWidth(180.0f);
+		ImGui::ColorPicker4("##PickleMe", (float*)&(obj->GetComponent<ParticleEffect>()->particleEmitter.endColour), flags);
+		ImGui::PopItemWidth();
 	}
 }
 
