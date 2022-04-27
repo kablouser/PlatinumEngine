@@ -12,6 +12,7 @@
 #include <OpenGL/Mesh.h>
 #include <GLFW/glfw3.h>
 #include "OpenGL/Material.h"
+#include <ParticleEffects/ParticleRenderer.h>
 
 namespace PlatinumEngine
 {
@@ -87,11 +88,13 @@ namespace PlatinumEngine
 		// unbind grid shader
 		void EndGrid();
 
+		// Particle shader uniforms
 		void BeginParticleShader();
 		void EndParticleShader();
 		void SetMaxLifeParticleShader(float maxLife);
 		void SetStartColourParticleShader(Maths::Vec4 startColour);
 		void SetEndColourParticleShader(Maths::Vec4 endColour);
+		void SetUseCosineInterpolatorParticleShader(bool useCosineInterpolator);
 
 		/**
 		 * resize framebuffer, it's an interface for SceneEditor
@@ -155,6 +158,7 @@ namespace PlatinumEngine
 
 	public:
 		Maths::Vec3 cameraPos;
+		ParticleEffects::ParticleRenderer particleRenderer;
 
 	private:
 

@@ -133,6 +133,8 @@ namespace PlatinumEngine
 		// check for uncaught errors
 //		GL_CHECK();
 
+		particleRenderer.Init();
+
 		_isInitGood = true;
 	}
 
@@ -220,6 +222,13 @@ namespace PlatinumEngine
 		_particleShader.Bind();
 		_particleShader.SetUniform("endColour", endColour);
 	}
+
+	void Renderer::SetUseCosineInterpolatorParticleShader(bool useCosineInterpolator)
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform("useCosineInterpolator", useCosineInterpolator);
+	}
+
 
 	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
 	{

@@ -19,7 +19,7 @@ namespace PlatinumEngine
 		void OnUpdate(Scene& scene, double deltaTime) override;
 		void OnRender(Scene& scene, Renderer& renderer) override;
 	public:
-		ParticleEffects::ParticleEmitter particleEmitter;
-		ParticleEffects::ParticleRenderer particleRenderer;
+		std::unique_ptr<ParticleEffects::ParticleEmitter> particleEmitter;
+//		std::unique_ptr<ParticleEffects::ParticleRenderer> particleRenderer;
 	};
 }

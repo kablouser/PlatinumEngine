@@ -9,8 +9,10 @@ namespace PlatinumEngine
 {
 	ParticleEffect::ParticleEffect()
 	{
-		particleRenderer.SetInput(particleEmitter.GetParticles());
+		particleEmitter = std::make_unique<ParticleEffects::ParticleEmitter>();
+//		particleRenderer = std::make_unique<ParticleEffects::ParticleRenderer>();
 	}
+
 	void ParticleEffect::OnUpdate(Scene& scene, double deltaTime)
 	{
 		std::cout << "updating";
@@ -31,15 +33,19 @@ namespace PlatinumEngine
 			renderer.SetModelMatrix();
 
 		// Manually update here for now
-		particleEmitter.UpdateParticles(0.016, renderer.cameraPos);
-		particleRenderer.SetInput(particleEmitter.GetParticles());
+		particleEmitter->UpdateParticles(0.016, renderer.cameraPos);
+		if (particleEmitter->particles)
+		{
+			// Bind shader stuff here
+			renderer.particleRenderer.SetInput(particleEmitter->particles);
+			renderer.BeginParticleShader();
+			renderer.SetMaxLifeParticleShader(particleEmitter->respawnLifetime);
+			renderer.SetStartColourParticleShader(particleEmitter->startColour);
+			renderer.SetEndColourParticleShader(particleEmitter->endColour);
+			renderer.SetUseCosineInterpolatorParticleShader(particleEmitter->useCosineInterpolator);
+			renderer.particleRenderer.Render();
+			renderer.EndParticleShader();
+		}
 
-		// Bind shader stuff here
-		renderer.BeginParticleShader();
-		renderer.SetMaxLifeParticleShader(particleEmitter.respawnLifetime);
-		renderer.SetStartColourParticleShader(particleEmitter.startColour);
-		renderer.SetEndColourParticleShader(particleEmitter.endColour);
-		particleRenderer.Render(renderer);
-		renderer.EndParticleShader();
 	}
 }

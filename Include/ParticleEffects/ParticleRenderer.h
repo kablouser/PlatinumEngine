@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <Renderer/Renderer.h>
 #include <ParticleEffects/Particle.h>
 #include <ParticleEffects/ParticleEmitter.h>
 #include <Logger/Logger.h>
@@ -18,12 +17,13 @@ namespace PlatinumEngine
 		public:
 			ParticleRenderer();
 			~ParticleRenderer();
-			void Render(Renderer& renderer);
-			void SetInput(const std::vector<Particle> &particles);
+			void Init();
+			void Render();
+			void SetInput(const std::unique_ptr<std::vector<Particle>> &particles);
 			void Clear();
 		private:
 			int _numParticles;
-			unsigned int _positionLifeVBO, _particleVertexVAO, _particleVertexVBO;
+			unsigned int _positionLifeVBO = 0, _particleVertexVAO = 0, _particleVertexVBO = 0;
 			int _numFloats = 4;
 
 			// These are the vertices of the billboard for a particle

@@ -11,7 +11,11 @@ namespace PlatinumEngine
 		ParticleEmitter::ParticleEmitter()
 		{
 			// Allocate enough space for all our particles, and so we can index into it straight away
-			_particleContainer.resize(MaxParticles);
+//			_particleContainer.resize(MaxParticles);
+//			_particleContainer = std::vector<Particle>(MaxParticles);
+			_particleContainer = std::make_unique<std::vector<Particle>>(MaxParticles);
+			particles = std::make_unique<std::vector<Particle>>();
+			_mt = std::mt19937(_rd());
 		}
 
 		/**
@@ -21,16 +25,26 @@ namespace PlatinumEngine
 		void ParticleEmitter::UpdateParticles(float deltaTime, const Maths::Vec3 &cameraPos)
 		{
 			// Clear what particles are sent to renderer
-			_particles.clear();
+			if (!particles)
+				return;
 
-			// Spawn a set number of new particles every frame
-			for (unsigned int i = 0; i < numberOfNewParticles; ++i)
+			particles->clear();
+
+			// Only spawn particles if enough time has passed
+			_timeSinceLastSpawn += deltaTime;
+			while (_timeSinceLastSpawn > spawnInterval)
 			{
-				// Find which particle to respawn in the particle container, so we don't infinitely spawn too many
-				unsigned int indexOfDeadParticle = FirstDeadParticle();
+				// Spawn a set number of new particles every spawn interval
+				for (unsigned int i = 0; i < numberOfNewParticles; ++i)
+				{
+					// Find which particle to respawn in the particle container, so we don't infinitely spawn too many
+					unsigned int indexOfDeadParticle = FirstDeadParticle();
 
-				// Now respawn that particle (hopefully it was dead anyway)
-				RespawnParticle(_particleContainer[indexOfDeadParticle]);
+					// Now respawn that particle (hopefully it was dead anyway)
+					RespawnParticle(_particleContainer->at(indexOfDeadParticle));
+				}
+
+				_timeSinceLastSpawn -= spawnInterval;
 			}
 
 			// Edit the particles in the container
@@ -39,31 +53,27 @@ namespace PlatinumEngine
 			for (unsigned int i = 0; i < numberOfParticles; ++i)
 			{
 				// Just so we don't have to index every time
-				Particle &p = _particleContainer[i];
+				Particle &p = _particleContainer->at(i);
 
 				// Reduce its life by delta time to start killing it
 				p.life -= deltaTime;
 
 				// If the particle remains alive, update its properties
-				if (p.life >= 0.0f)
+				if (p.life > 0.0f)
 				{
-					p.velocity += -actingForce * (float)deltaTime;
-					p.position -= p.velocity * deltaTime;
+					p.velocity += actingForce * deltaTime;
+					p.position += p.velocity * deltaTime;
 					Maths::Vec3 vector = p.position - cameraPos;
 					p.distanceFromCamera = Maths::Length(vector);
 
 					// Adding to list of alive particles
-					_particles.emplace_back(p);
+					particles->emplace_back(p);
 				}
 			}
 
 			// Sort them based on distance from camera
-			std::sort(&_particles[0], &_particles[_particles.size()]);
-		}
-
-		std::vector<Particle> ParticleEmitter::GetParticles() const
-		{
-			return _particles;
+			if (particles->size() > 1)
+				std::sort(&particles->at(0), &particles->at(particles->size()-1));
 		}
 
 		/**
@@ -74,23 +84,23 @@ namespace PlatinumEngine
 		unsigned int ParticleEmitter::FirstDeadParticle()
 		{
 			// Fingers crossed it's found this way
-			for(int i = _lastDeadParticle; i < numberOfParticles; ++i)
+			for(unsigned int i = _lastDeadParticle; i < numberOfParticles; ++i)
 			{
-				if (_particleContainer[i].life < 0)
+				if (_particleContainer->at(i).life < 0)
 				{
 					// Keep track of the particle we just killed as chances are the next one after will be dead
-					_lastDeadParticle = i;
+					_lastDeadParticle = i + 1;
 					return i;
 				}
 			}
 
 			// Wasn't found so linear search the rest of the particles :(
-			for(int i = 0; i < _lastDeadParticle; ++i)
+			for(int i = 0; i <= _lastDeadParticle; ++i)
 			{
-				if (_particleContainer[i].life < 0)
+				if (_particleContainer->at(i).life < 0)
 				{
 					// Update so next time we should avoid this loop again
-					_lastDeadParticle = i;
+					_lastDeadParticle = i + 1;
 					return i;
 				}
 			}
@@ -107,15 +117,16 @@ namespace PlatinumEngine
 		{
 			// Respawn by resetting values
 			// Init velocity values
-			float x = (useRandomInitVelocityX) ? GetRandomFloat(minMaxVelocityX) : initVelocity.x;
-			float y = (useRandomInitVelocityY) ? GetRandomFloat(minMaxVelocityY) : initVelocity.y;
-			float z = (useRandomInitVelocityZ) ? GetRandomFloat(minMaxVelocityZ) : initVelocity.z;
-			// For some reason positive is the wrong way :(, probably a problem in the shader (also acting force
-			// negated in update function)
-			p.velocity = Maths::Vec3(-x, -y, -z);
+			float xVelocity = (useRandomInitVelocityX) ? GetRandomFloat(minMaxVelocityX) : initVelocity.x;
+			float yVelocity = (useRandomInitVelocityY) ? GetRandomFloat(minMaxVelocityY) : initVelocity.y;
+			float zVelocity = (useRandomInitVelocityZ) ? GetRandomFloat(minMaxVelocityZ) : initVelocity.z;
+			p.velocity = Maths::Vec3(xVelocity, yVelocity, zVelocity);
 
 			// Init position
-			p.position = Maths::Vec3(0,0,0);
+			float xPosition = (useRandomInitPositionX) ? GetRandomFloat(minMaxPositionX) : initPosition.x;
+			float yPosition = (useRandomInitPositionY) ? GetRandomFloat(minMaxPositionY) : initPosition.y;
+			float zPosition = (useRandomInitPositionZ) ? GetRandomFloat(minMaxPositionZ) : initPosition.z;
+			p.position = Maths::Vec3(xPosition, yPosition, zPosition);
 
 			p.life = respawnLifetime;
 		}
@@ -127,20 +138,10 @@ namespace PlatinumEngine
 		 */
 		float ParticleEmitter::GetRandomFloat(float minMax[2])
 		{
-			// Swap values to ensure generator works as expected
-			if (minMax[0] < minMax[1])
-			{
-				float temp = minMax[1];
-				minMax[1] = minMax[0];
-				minMax[0] = temp;
-			}
-
-			std::random_device rd;
-			std::mt19937 mt(rd());
 			// Use next after so distribution is inclusive of max value, i.e.
 			// [min, max] instead of [min, max)
 			std::uniform_real_distribution<float> dist(minMax[0], std::nextafter(minMax[1], FLT_MAX));
-			return dist(mt);
+			return dist(_mt);
 		}
 	}
 }

@@ -447,153 +447,231 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 
 	if (isHeaderOpen)
 	{
-		ImGui::Text("Emitter Settings");
-		ImGui::Separator();
-		ImGui::Text("Maximum Particles: ");
-		ImGui::SameLine(_textWidthParticleEffectComponent);
-		ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
-		ImGui::SliderInt("##MaximumNumberOfParticles",&(obj->GetComponent<ParticleEffect>()->particleEmitter.numberOfParticles),0.f, 5000, "%d", ImGuiSliderFlags_None);
-		ImGui::PopItemWidth();
+		auto component = obj->GetComponent<ParticleEffect>();
 
-		ImGui::Text("Particle Lifetime: ");
-		ImGui::SameLine(_textWidthParticleEffectComponent);
-		ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
-
-		ImGui::SliderFloat("##RespawnLifetime: ", &(obj->GetComponent<ParticleEffect>()->particleEmitter.respawnLifetime), 0.f, 10, "%.3f", ImGuiSliderFlags_None);
-		ImGui::PopItemWidth();
-
-		ImGui::Text("New Particles: ");
-		ImGui::SameLine(_textWidthParticleEffectComponent);
-		ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
-		ImGui::SliderInt("##NumberOfNewParticles",&(obj->GetComponent<ParticleEffect>()->particleEmitter.numberOfNewParticles),0.f, 100, "%d", ImGuiSliderFlags_None);
-		ImGui::PopItemWidth();
-
-		ImGui::Text("Acting Force: ");
-		ImGui::SameLine(_textWidthParticleEffectComponentSmall);
-
-		ImGui::PushItemWidth(50);
-		ImGui::Text("X");
-		ImGui::SameLine();
-		ImGui::InputFloat("##ActingForceX", &(obj->GetComponent<ParticleEffect>()->particleEmitter.actingForce[0]));
-		ImGui::SameLine();
-
-		ImGui::Text("Y");
-		ImGui::SameLine();
-		ImGui::InputFloat("##ActingForceY", &(obj->GetComponent<ParticleEffect>()->particleEmitter.actingForce[1]));
-		ImGui::SameLine();
-
-		ImGui::Text("Z");
-		ImGui::SameLine();
-		ImGui::InputFloat("##ActingForceZ", &(obj->GetComponent<ParticleEffect>()->particleEmitter.actingForce[2]));
-
-		ImGui::NewLine();
-		ImGui::Text("Velocity Settings");
-		ImGui::Separator();
-		ImGui::Text("Initial Velocity: ");
-		ImGui::SameLine(_textWidthParticleEffectComponentSmall);
-
-		ImGui::PushItemWidth(50);
-		ImGui::Text("X");
-		ImGui::SameLine();
-		ImGui::InputFloat("##VelocityX", &(obj->GetComponent<ParticleEffect>()->particleEmitter.initVelocity[0]));
-		ImGui::SameLine();
-
-		ImGui::Text("Y");
-		ImGui::SameLine();
-		ImGui::InputFloat("##VelocityY", &(obj->GetComponent<ParticleEffect>()->particleEmitter.initVelocity[1]));
-		ImGui::SameLine();
-
-		ImGui::Text("Z");
-		ImGui::SameLine();
-		ImGui::InputFloat("##VelocityZ", &(obj->GetComponent<ParticleEffect>()->particleEmitter.initVelocity[2]));
-
-		ImGui::Text("Random X");
-		ImGui::SameLine();
-		ImGui::Checkbox("##RandomVelocityX", &(obj->GetComponent<ParticleEffect>()->particleEmitter.useRandomInitVelocityX));
-		ImGui::SameLine();
-
-		ImGui::Text("Min");
-		ImGui::SameLine();
-		ImGui::InputFloat("##MinRandomVelocityX", &(obj->GetComponent<ParticleEffect>()->particleEmitter.minMaxVelocityX[0]));
-		ImGui::SameLine();
-
-		ImGui::Text("Max");
-		ImGui::SameLine();
-		ImGui::InputFloat("##MaxRandomVelocityX", &(obj->GetComponent<ParticleEffect>()->particleEmitter.minMaxVelocityX[1]));
-
-		ImGui::Text("Random Y");
-		ImGui::SameLine();
-		ImGui::Checkbox("##RandomVelocityY", &(obj->GetComponent<ParticleEffect>()->particleEmitter.useRandomInitVelocityY));
-		ImGui::SameLine();
-
-		ImGui::Text("Min");
-		ImGui::SameLine();
-		ImGui::InputFloat("##MinRandomVelocityY", &(obj->GetComponent<ParticleEffect>()->particleEmitter.minMaxVelocityY[0]));
-		ImGui::SameLine();
-
-		ImGui::Text("Max");
-		ImGui::SameLine();
-		ImGui::InputFloat("##MaxRandomVelocityY", &(obj->GetComponent<ParticleEffect>()->particleEmitter.minMaxVelocityY[1]));
-
-		ImGui::Text("Random Z");
-		ImGui::SameLine();
-		ImGui::Checkbox("##RandomVelocityZ", &(obj->GetComponent<ParticleEffect>()->particleEmitter.useRandomInitVelocityZ));
-		ImGui::SameLine();
-
-		ImGui::Text("Min");
-		ImGui::SameLine();
-		ImGui::InputFloat("##MinRandomVelocityZ", &(obj->GetComponent<ParticleEffect>()->particleEmitter.minMaxVelocityZ[0]));
-		ImGui::SameLine();
-
-		ImGui::Text("Max");
-		ImGui::SameLine();
-		ImGui::InputFloat("##MaxRandomVelocityZ", &(obj->GetComponent<ParticleEffect>()->particleEmitter.minMaxVelocityZ[1]));
-		ImGui::PopItemWidth();
-
-		ImGui::NewLine();
-		ImGui::Text("Shading Settings");
-		ImGui::Separator();
-
-		auto ColourPickerFlags = ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview;
-
-		ImGui::Text("Start Colour: ");
-		ImGui::SameLine(_textWidthParticleEffectComponentSmall);
-		ImVec4 startColour((obj->GetComponent<ParticleEffect>()->particleEmitter.startColour[0]),
-				(obj->GetComponent<ParticleEffect>()->particleEmitter.startColour[1]),
-				(obj->GetComponent<ParticleEffect>()->particleEmitter.startColour[2]),
-				(obj->GetComponent<ParticleEffect>()->particleEmitter.startColour[3]));
-		ImGui::PushItemWidth(20);
-		if (ImGui::ColorButton("##ButtonStartColour", startColour))
+		if (ImGui::CollapsingHeader("Emitter Settings"))
 		{
-			ImGui::OpenPopup("##PickStartColour");
-		}
-		ImGui::PopItemWidth();
-		if (ImGui::BeginPopup("##PickStartColour"))
-		{
-			ImGui::PushItemWidth(180.0f);
-			ImGui::ColorPicker4("##StartColour", (float*)&(obj->GetComponent<ParticleEffect>()->particleEmitter.startColour), ColourPickerFlags);
+			ImGui::Text("Maximum Particles: ");
+			ImGui::SameLine(_textWidthParticleEffectComponent);
+			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+			ImGui::SliderInt("##MaximumNumberOfParticles",&(component->particleEmitter->numberOfParticles),0.f, 5000, "%d", ImGuiSliderFlags_None);
 			ImGui::PopItemWidth();
-			ImGui::EndPopup();
+
+			ImGui::Text("Particle Lifetime: ");
+			ImGui::SameLine(_textWidthParticleEffectComponent);
+			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+
+			ImGui::SliderFloat("##RespawnLifetime: ", &(component->particleEmitter->respawnLifetime), 0.f, 10, "%.3f", ImGuiSliderFlags_None);
+			ImGui::PopItemWidth();
+
+			ImGui::Text("New Particles: ");
+			ImGui::SameLine(_textWidthParticleEffectComponent);
+			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+			ImGui::SliderInt("##NumberOfNewParticles",&(component->particleEmitter->numberOfNewParticles),0.f, 100, "%d", ImGuiSliderFlags_None);
+			ImGui::PopItemWidth();
+
+			ImGui::Text("Spawn Interval: ");
+			ImGui::SameLine(_textWidthParticleEffectComponent);
+			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+			ImGui::SliderFloat("##SpawnIntervalParticles", &(component->particleEmitter->spawnInterval),0.016f, 5, "%.3f", ImGuiSliderFlags_None);
+			ImGui::PopItemWidth();
+
+			ImGui::Text("Acting Force: ");
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
+
+			ImGui::PushItemWidth(50);
+			ImGui::Text("X");
+			ImGui::SameLine();
+			ImGui::InputFloat("##ActingForceX", &(component->particleEmitter->actingForce[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Y");
+			ImGui::SameLine();
+			ImGui::InputFloat("##ActingForceY", &(component->particleEmitter->actingForce[1]));
+			ImGui::SameLine();
+
+			ImGui::Text("Z");
+			ImGui::SameLine();
+			ImGui::InputFloat("##ActingForceZ", &(component->particleEmitter->actingForce[2]));
 		}
 
-		ImGui::Text("End Colour: ");
-		ImGui::SameLine(_textWidthParticleEffectComponentSmall);
-		ImVec4 endColour((obj->GetComponent<ParticleEffect>()->particleEmitter.endColour[0]),
-						(obj->GetComponent<ParticleEffect>()->particleEmitter.endColour[1]),
-						(obj->GetComponent<ParticleEffect>()->particleEmitter.endColour[2]),
-						(obj->GetComponent<ParticleEffect>()->particleEmitter.endColour[3]));
-		ImGui::PushItemWidth(20);
-		if (ImGui::ColorButton("##ButtonEndColour", endColour))
+		if (ImGui::CollapsingHeader("Position Settings"))
 		{
-			ImGui::OpenPopup("##PickEndColour");
-		}
-		ImGui::PopItemWidth();
-		if (ImGui::BeginPopup("##PickEndColour"))
-		{
-			ImGui::PushItemWidth(180.0f);
-			ImGui::ColorPicker4("##EndColour", (float*)&(obj->GetComponent<ParticleEffect>()->particleEmitter.endColour), ColourPickerFlags);
+			ImGui::Text("Initial Position: ");
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
+
+			ImGui::PushItemWidth(50);
+			ImGui::Text("X");
+			ImGui::SameLine();
+			ImGui::InputFloat("##PositionX", &(component->particleEmitter->initPosition[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Y");
+			ImGui::SameLine();
+			ImGui::InputFloat("##PositionY", &(component->particleEmitter->initPosition[1]));
+			ImGui::SameLine();
+
+			ImGui::Text("Z");
+			ImGui::SameLine();
+			ImGui::InputFloat("##PositionZ", &(component->particleEmitter->initPosition[2]));
+
+			ImGui::Text("Random X");
+			ImGui::SameLine();
+			ImGui::Checkbox("##RandomPositionX", &(component->particleEmitter->useRandomInitPositionX));
+			ImGui::SameLine();
+
+			ImGui::Text("Min");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MinRandomPositionX", &(component->particleEmitter->minMaxPositionX[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Max");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MaxRandomPositionX", &(component->particleEmitter->minMaxPositionX[1]));
+
+			ImGui::Text("Random Y");
+			ImGui::SameLine();
+			ImGui::Checkbox("##RandomPositionY", &(component->particleEmitter->useRandomInitPositionY));
+			ImGui::SameLine();
+
+			ImGui::Text("Min");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MinRandomPositionY", &(component->particleEmitter->minMaxPositionY[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Max");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MaxRandomPositionY", &(component->particleEmitter->minMaxPositionY[1]));
+
+			ImGui::Text("Random Z");
+			ImGui::SameLine();
+			ImGui::Checkbox("##RandomPositionZ", &(component->particleEmitter->useRandomInitPositionZ));
+			ImGui::SameLine();
+
+			ImGui::Text("Min");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MinRandomPositionZ", &(component->particleEmitter->minMaxPositionZ[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Max");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MaxRandomPositionZ", &(component->particleEmitter->minMaxPositionZ[1]));
 			ImGui::PopItemWidth();
-			ImGui::EndPopup();
+		}
+
+		if (ImGui::CollapsingHeader("Velocity Settings"))
+		{
+			ImGui::Text("Initial Velocity: ");
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
+
+			ImGui::PushItemWidth(50);
+			ImGui::Text("X");
+			ImGui::SameLine();
+			ImGui::InputFloat("##VelocityX", &(component->particleEmitter->initVelocity[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Y");
+			ImGui::SameLine();
+			ImGui::InputFloat("##VelocityY", &(component->particleEmitter->initVelocity[1]));
+			ImGui::SameLine();
+
+			ImGui::Text("Z");
+			ImGui::SameLine();
+			ImGui::InputFloat("##VelocityZ", &(component->particleEmitter->initVelocity[2]));
+
+			ImGui::Text("Random X");
+			ImGui::SameLine();
+			ImGui::Checkbox("##RandomVelocityX", &(component->particleEmitter->useRandomInitVelocityX));
+			ImGui::SameLine();
+
+			ImGui::Text("Min");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MinRandomVelocityX", &(component->particleEmitter->minMaxVelocityX[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Max");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MaxRandomVelocityX", &(component->particleEmitter->minMaxVelocityX[1]));
+
+			ImGui::Text("Random Y");
+			ImGui::SameLine();
+			ImGui::Checkbox("##RandomVelocityY", &(component->particleEmitter->useRandomInitVelocityY));
+			ImGui::SameLine();
+
+			ImGui::Text("Min");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MinRandomVelocityY", &(component->particleEmitter->minMaxVelocityY[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Max");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MaxRandomVelocityY", &(component->particleEmitter->minMaxVelocityY[1]));
+
+			ImGui::Text("Random Z");
+			ImGui::SameLine();
+			ImGui::Checkbox("##RandomVelocityZ", &(component->particleEmitter->useRandomInitVelocityZ));
+			ImGui::SameLine();
+
+			ImGui::Text("Min");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MinRandomVelocityZ", &(component->particleEmitter->minMaxVelocityZ[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Max");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MaxRandomVelocityZ", &(component->particleEmitter->minMaxVelocityZ[1]));
+			ImGui::PopItemWidth();
+		}
+
+		if (ImGui::CollapsingHeader("Shader Settings"))
+		{
+			auto ColourPickerFlags = ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview;
+
+			ImGui::Text("Start Colour: ");
+			ImGui::SameLine();
+			ImVec4 startColour((component->particleEmitter->startColour[0]),
+					(component->particleEmitter->startColour[1]),
+					(component->particleEmitter->startColour[2]),
+					(component->particleEmitter->startColour[3]));
+			ImGui::PushItemWidth(20);
+			if (ImGui::ColorButton("##ButtonStartColour", startColour))
+			{
+				ImGui::OpenPopup("##PickStartColour");
+			}
+			ImGui::PopItemWidth();
+			if (ImGui::BeginPopup("##PickStartColour"))
+			{
+				ImGui::PushItemWidth(180.0f);
+				ImGui::ColorPicker4("##StartColour", (float*)&(component->particleEmitter->startColour), ColourPickerFlags);
+				ImGui::PopItemWidth();
+				ImGui::EndPopup();
+			}
+
+			ImGui::SameLine();
+
+			ImGui::Text("End Colour: ");
+			ImGui::SameLine();
+			ImVec4 endColour((component->particleEmitter->endColour[0]),
+					(component->particleEmitter->endColour[1]),
+					(component->particleEmitter->endColour[2]),
+					(component->particleEmitter->endColour[3]));
+			ImGui::PushItemWidth(20);
+			if (ImGui::ColorButton("##ButtonEndColour", endColour))
+			{
+				ImGui::OpenPopup("##PickEndColour");
+			}
+			ImGui::PopItemWidth();
+			if (ImGui::BeginPopup("##PickEndColour"))
+			{
+				ImGui::PushItemWidth(180.0f);
+				ImGui::ColorPicker4("##EndColour", (float*)&(component->particleEmitter->endColour), ColourPickerFlags);
+				ImGui::PopItemWidth();
+				ImGui::EndPopup();
+			}
+
+			ImGui::Text("Use Cosine Interpolator");
+			ImGui::SameLine();
+			ImGui::Checkbox("##UseCosineInterpolator", &(component->particleEmitter->useCosineInterpolator));
 		}
 	}
 }
