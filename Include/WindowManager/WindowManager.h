@@ -12,6 +12,7 @@
 #include <SceneManager/HierarchyWindow.h>
 #include <Profiler/Profiler.h>
 #include <Logger/Logger.h>
+#include <TypeDatabase/TypeDatabase.h>
 
 namespace PlatinumEngine
 {
@@ -24,7 +25,9 @@ namespace PlatinumEngine
 					  Logger *logger,
 					  InspectorWindow *inspector,
 					  Profiler *profiler,
-					  ProjectWindow *projectWindow
+					  ProjectWindow *projectWindow,
+					  IDSystem& idSystem,
+					  TypeDatabase& typeDatabase
 					  );
 
 		///-----------------------------------
@@ -39,8 +42,8 @@ namespace PlatinumEngine
 		void SetUpMainMenu(Scene &scene);
 
         //file section
-        static void LoadFile();
-        static void SaveFile();
+        void LoadFile(Scene& scene);
+		void SaveFile(Scene& scene);
 
         //shortcuts for main menu bars
 		///-----------------------------------
@@ -108,5 +111,8 @@ namespace PlatinumEngine
 		InspectorWindow *_inspector;
 		Profiler *_profiler;
 		ProjectWindow *_projectWindow;
+		IDSystem& _idSystem;
+		TypeDatabase& _typeDatabase;
+
 	};
 }

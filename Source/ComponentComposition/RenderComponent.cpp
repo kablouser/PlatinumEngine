@@ -15,9 +15,9 @@ namespace PlatinumEngine
 
 	void RenderComponent::OnRender(Scene& scene, Renderer& renderer)
 	{
-		TransformComponent* transform = GetComponent<TransformComponent>();
+		SavedReference<TransformComponent> transform = GetComponent<TransformComponent>();
 		if (transform)
-			renderer.SetModelMatrix(transform->GetLocalToWorldMatrix());
+			renderer.SetModelMatrix(transform.pointer->GetLocalToWorldMatrix());
 		else
 			renderer.SetModelMatrix();
 

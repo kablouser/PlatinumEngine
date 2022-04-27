@@ -11,19 +11,25 @@
 namespace PlatinumEngine
 {
 	// ---FUNCTION
-	void HierarchyWindow::DisplayTreeNote(GameObject* gameObject, Scene& scene, ModeForDraggingBehavior modeForDraggingBehavior)
+	void HierarchyWindow::DisplayTreeNote(
+			SavedReference<GameObject>& gameObject,
+			Scene& scene,
+			ModeForDraggingBehavior modeForDraggingBehavior)
 	{
+		if (!gameObject)
+			return;
 
 		// Store the states (is expanded or not) of the node
-		bool is_expanded = ImGui::TreeNodeEx(gameObject,
-				ImGuiTreeNodeFlags_FramePadding|(gameObject->GetChildrenCount()==0 ? ImGuiTreeNodeFlags_Leaf : 0),
+		bool is_expanded = ImGui::TreeNodeEx(gameObject.pointer.get(),
+				ImGuiTreeNodeFlags_FramePadding|
+				(gameObject.pointer->GetChildrenCount()==0 ? ImGuiTreeNodeFlags_Leaf : 0),
 				"%s","");
 
 		// this is to make sure the selectable block below is on the same line
 		ImGui::SameLine();
 
 		// push id of current node
-		ImGui::PushID(gameObject);
+		ImGui::PushID(gameObject.pointer.get());
 
 		// check if the current game object is selected
 		if(_sceneEditor->GetSelectedGameobject() == gameObject)
@@ -34,7 +40,7 @@ namespace PlatinumEngine
 		}
 
 		// create selectable block
-		ImGui::Selectable((std::string{ICON_FA_CIRCLE_NODES} + " " + gameObject->name).c_str(), false);
+		ImGui::Selectable((std::string(ICON_FA_CIRCLE_NODES) + " " + gameObject.pointer->name).c_str(), false);
 
 		// check if the current game object is selected
 		if(_sceneEditor->GetSelectedGameobject() == gameObject)
@@ -56,7 +62,12 @@ namespace PlatinumEngine
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 		{
 			// Set payload to carry the game object
-			ImGui::SetDragDropPayload("DragGameObject", &gameObject, sizeof(GameObject*));
+			ImGui::SetDragDropPayload(
+					"DragGameObject",
+					// pointer to SavedReference (id and pointer)
+					&gameObject,
+					// same as sizeof(SavedReference), not sizeof(SavedReference&)
+					sizeof(gameObject));
 
 			// End the DragDropSource
 			ImGui::EndDragDropSource();
@@ -72,7 +83,7 @@ namespace PlatinumEngine
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DragGameObject"))
 			{
 
-				GameObject* payloadPointer = *(GameObject**)payload->Data;
+				SavedReference<GameObject> payloadPointer = *(SavedReference<GameObject>*)payload->Data;
 
 				// check move behavior mode
 				// if the mode is to change hierarchy between game objects
@@ -80,8 +91,8 @@ namespace PlatinumEngine
 				{
 
 					// check if the dragged objects is the parent or ancestor of the target object
-					GameObject* temp = gameObject->GetParent();
-					while(temp != nullptr)
+					SavedReference<GameObject>& temp = gameObject.pointer->GetParent();
+					while(temp)
 					{
 						if(temp == payloadPointer)
 						{
@@ -89,12 +100,12 @@ namespace PlatinumEngine
 							break;
 						}
 
-						temp = temp->GetParent();
+						temp = temp.pointer->GetParent();
 					}
 
-					if(temp == nullptr)
+					if(!temp) // if null
 						// change the dragged object's parent
-						payloadPointer->SetParent(gameObject, scene);
+						payloadPointer.pointer->SetParent(gameObject, scene);
 				}
 				// if the mode is to change order between game objects
 				else
@@ -102,12 +113,12 @@ namespace PlatinumEngine
 					// check if the two game object have a same parent
 					// when the two game objects do not have same a parent
 					// change the parent of dragged object to be the same as the target object
-					if(payloadPointer->GetParent() == gameObject->GetParent())
+					if(payloadPointer.pointer->GetParent() == gameObject.pointer->GetParent())
 					{
-						
+
 						// move the position of the dragged objects in the list
 						// move the position of objects with no parent
-						if (payloadPointer->GetParent() == nullptr)
+						if (!payloadPointer.pointer->GetParent())
 						{
 							if (!scene.MoveRootGameObjectPositionInList(gameObject, payloadPointer))
 								PlatinumEngine::Logger::LogInfo("Cannot move game object to the new position.");
@@ -116,9 +127,9 @@ namespace PlatinumEngine
 						// move the position of objects with the same parent
 						else
 						{
-							if (!gameObject->GetParent()->MoveChildGameObjectPositionInList(gameObject, payloadPointer))
+							if (!gameObject.pointer->GetParent().pointer->
+								MoveChildGameObjectPositionInList(gameObject, payloadPointer))
 								PlatinumEngine::Logger::LogInfo("Cannot move game object to the new position.");
-
 						}
 					}
 				}
@@ -140,10 +151,10 @@ namespace PlatinumEngine
 		{
 
 			// Loop through the children under this node
-			for(int i = 0; i < gameObject->GetChildrenCount(); i++)
+			for(int i = 0; i < gameObject.pointer->GetChildrenCount(); i++)
 			{
 
-				DisplayTreeNote(gameObject->GetChild(i), scene, modeForDraggingBehavior);
+				DisplayTreeNote(gameObject.pointer->GetChild(i), scene, modeForDraggingBehavior);
 
 			}
 
@@ -157,7 +168,7 @@ namespace PlatinumEngine
 		// Generate the Hierarchy window
 		if(ImGui::Begin(ICON_FA_BARS_STAGGERED " Hierarchy Window", isOpen))
 		{
-			
+
 			// Gui for choosing hierarchy behaviour mode
 			if (ImGui::RadioButton("Change Hierarchy", _modeForDraggingBehavior == _hierarchyMode))
 			{
@@ -165,7 +176,7 @@ namespace PlatinumEngine
 			}
 
 			ImGui::SameLine();
-			
+
 			if (ImGui::RadioButton("Change Order", _modeForDraggingBehavior == _orderMode))
 			{
 				_modeForDraggingBehavior = _orderMode;
@@ -183,7 +194,7 @@ namespace PlatinumEngine
 
 			// Create Invisible button for achieving dragging tree node to the root game object list behavior
 			ImVec2 windowSize = ImGui::GetContentRegionAvail();
-			
+
 			ImGui::InvisibleButton(" ", ImVec2(windowSize.x,150));
 
 			// Add Drop Events
@@ -202,7 +213,7 @@ namespace PlatinumEngine
 						if (_modeForDraggingBehavior == _hierarchyMode)
 						{
 							// change the dragged object's parent
-							payloadPointer->SetParent(nullptr, scene);
+							payloadPointer->SetParent({}, scene);
 						}
 					}
 				}
@@ -211,14 +222,14 @@ namespace PlatinumEngine
 				{
 					char* payloadPointer = (char*)payload->Data;
 					int size = payload->DataSize;
-					std::string filePath = "";
+					std::string filePath;
 					for(int i=0;i<size;i++)
 						filePath+=*(payloadPointer+i);
 					std::filesystem::path payloadPath = std::filesystem::path(filePath);
 					if(payloadPath.extension()==".obj")
 					{
 						std::string name = payloadPath.stem().string();
-						GameObject* go = scene.AddGameObject(name);
+						SavedReference<GameObject> go = scene.AddGameObject(name);
 						scene.AddComponent<TransformComponent>(go);
 						scene.AddComponent<RenderComponent>(go);
 					}

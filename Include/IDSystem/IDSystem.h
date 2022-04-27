@@ -46,7 +46,7 @@ namespace PlatinumEngine
 					rawPointer,
 					// very important to have the pointer in-front of rawPointer, gets type of pointing to
 					std::type_index(typeid(*rawPointer))
-					);
+			);
 			// static_pointer_cast because no need to check type
 			return { id, std::static_pointer_cast<T>(sharedPointer) };
 		}
@@ -55,7 +55,7 @@ namespace PlatinumEngine
 		SavedReference<T> Add(std::shared_ptr<T> pointer)
 		{
 			ID id = AddInternal(std::type_index(typeid(T)), pointer);
-			return { id, std::static_pointer_cast<void>(pointer) };
+			return { id, pointer };
 		}
 
 		template<typename T>
@@ -112,10 +112,10 @@ namespace PlatinumEngine
 	};
 
 	/**
- * A reference that can be saved automatically.
- * Serializable.
- * @tparam T type of thing to save a reference to
- */
+	 * A reference that can be saved automatically.
+	 * Serializable.
+	 * @tparam T type of thing to save a reference to
+	 */
 	template<typename T>
 	class SavedReference
 	{
@@ -130,7 +130,7 @@ namespace PlatinumEngine
 		}
 
 		SavedReference(IDSystem::ID inID, std::shared_ptr<T> inPointer) :
-			id(inID), pointer(inPointer)
+				id(inID), pointer(inPointer)
 		{
 		}
 
@@ -149,6 +149,25 @@ namespace PlatinumEngine
 		bool operator==(const SavedReference& other)
 		{
 			return id == other.id;
+		}
+
+		// Dynamic casting to reference of another type
+		template<typename U>
+		explicit operator SavedReference<U>() const
+		{
+			std::shared_ptr<U> castedPointer = std::dynamic_pointer_cast<U>(pointer);
+			if (castedPointer)
+				return { id, castedPointer };
+			else
+				return {}; // nullptr
+		}
+
+		// NO TYPE CHECKING, VERY DANGEROUS
+		// Dynamic casting to reference of another type
+		template<typename U>
+		SavedReference<U> UnsafeCast() const
+		{
+			return { id, std::static_pointer_cast<U>(pointer) };
 		}
 	};
 

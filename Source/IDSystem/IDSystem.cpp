@@ -1,5 +1,6 @@
 #include <IDSystem/IDSystem.h>
 #include <TypeDatabase/TypeDatabase.h>
+#include <Logger/Logger.h>
 #include <iostream>
 #include <cassert> // for assert()
 

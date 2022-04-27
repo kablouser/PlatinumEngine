@@ -81,10 +81,8 @@ namespace PlatinumEngine
 	Maths::Mat4 CameraComponent::GetWorldToCameraMatrix()
 	{
 		Maths::Mat4 worldToCameraMatrix;
-		SavedReference<TransformComponent> tc;
-		if (GetGameObject() &&
-			// below also checks tc != null
-			(tc = GetGameObject().pointer->GetComponent<TransformComponent>()))
+		SavedReference<TransformComponent> tc = GetComponent<TransformComponent>();
+		if (tc)
 		{
 			Maths::Mat4 invR, invT;
 			invR = Maths::Quaternion::QuaternionToMatrix(Maths::Quaternion::Inverse(tc.pointer->localRotation));
@@ -100,10 +98,8 @@ namespace PlatinumEngine
 	Maths::Mat4 CameraComponent::GetCameraToWorldMatrix()
 	{
 		Maths::Mat4 cameraToWorldMatrix;
-		SavedReference<TransformComponent> tc;
-		if (GetGameObject() &&
-			// below also checks tc != null
-			(tc = GetGameObject().pointer->GetComponent<TransformComponent>()))
+		SavedReference<TransformComponent> tc = GetComponent<TransformComponent>();
+		if (tc)
 		{
 			Maths::Mat4 t, r;
 			t.SetTranslationMatrix(tc.pointer->localPosition);

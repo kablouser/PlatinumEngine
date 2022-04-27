@@ -1,6 +1,5 @@
 #include <ComponentComposition/GameObject.h>
 #include <SceneManager/Scene.h>
-#include <ComponentComposition/Component.h>
 #include <Logger/Logger.h>
 #include <algorithm>
 
@@ -115,7 +114,9 @@ namespace PlatinumEngine
 		return (size_t)-1;
 	}
 
-	bool GameObject::MoveChildGameObjectPositionInList(GameObject* targetObject, GameObject* movedGameObject)
+	bool GameObject::MoveChildGameObjectPositionInList(
+			SavedReference<GameObject>& targetObject,
+			SavedReference<GameObject>& movedGameObject)
 	{
 		// get iterators for the selected target game object
 		auto targetGameObjectIterator = std::find(_children.begin(), _children.end(), targetObject);

@@ -9,7 +9,6 @@
 #include <ComponentComposition/RenderComponent.h>
 #include <ComponentComposition/TransformComponent.h>
 #include <ComponentComposition/GameObject.h>
-#include <SceneManager/SceneManager.h>
 #include <OpenGL/Mesh.h>
 
 #include <IconsFontAwesome6.h>
@@ -20,7 +19,7 @@ namespace PlatinumEngine
 	public:
 		InspectorWindow(AssetHelper* assetHelper);
 		void ShowGUIWindow(bool* isOpen, Scene& scene);
-		void SetActiveGameObject(GameObject* gameObject);
+		void SetActiveGameObject(SavedReference<GameObject>& gameObject);
 	private:
 		// TODO: Add specific component guis as components are created
 		void ShowMeshRenderComponent(Scene& scene);
@@ -33,7 +32,7 @@ namespace PlatinumEngine
 		void cameraComponentHelper(char* cameraType[]);
 	private:
 		AssetHelper* _assetHelper;
-		GameObject* _activeGameObject = nullptr;
+		SavedReference<GameObject> _activeGameObject;
 		std::string _meshFileName;
 		bool _isAddComponentWindowOpen = false;
 

@@ -8,8 +8,6 @@
 #include <Helpers/VectorHelpers.h>
 #include <Logger/Logger.h>
 
-#include <utility>
-
 namespace PlatinumEngine
 {
 	//--------------------------------------------------------------------------------------------------------------
@@ -101,7 +99,9 @@ namespace PlatinumEngine
 		return _rootGameObjects.at(index);
 	}
 
-	bool Scene::MoveRootGameObjectPositionInList(GameObject* targetObject, GameObject* movedGameObject)
+	bool Scene::MoveRootGameObjectPositionInList(
+			SavedReference<GameObject>& targetObject,
+			SavedReference<GameObject>& movedGameObject)
 	{
 		// get iterators for the selected target game object
 		auto targetGameObjectIterator = std::find(_rootGameObjects.begin(), _rootGameObjects.end(), targetObject);
@@ -127,11 +127,11 @@ namespace PlatinumEngine
 	}
 
 
-//--------------------------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------------------------------
 	// _components controls
 	//--------------------------------------------------------------------------------------------------------------
 
-	void Scene::RemoveComponent(SavedReference<Component>& component)
+	void Scene::RemoveComponentInternal(SavedReference<Component> component)
 	{
 		if (!component)
 			return;
@@ -146,7 +146,7 @@ namespace PlatinumEngine
 		}
 
 		if (component.pointer->_gameObject)
-			component.pointer->_gameObject->RemoveComponent(component);
+			component.pointer->_gameObject.pointer->RemoveComponent(component);
 
 		if (!VectorHelpers::RemoveFirst(_components, component))
 		{
@@ -302,7 +302,7 @@ namespace PlatinumEngine
 
 	void Scene::UpdateIsEnabledInHierarchy(SavedReference<GameObject>& gameObject)
 	{
-		if(!gameObject)
+		if (!gameObject)
 			return;
 
 		// recursively, broadcast the function UpdateIsEnabledInHierarchy to all it's components and children
@@ -312,10 +312,10 @@ namespace PlatinumEngine
 		for (auto& child: gameObject.pointer->_children)
 			// recurse
 			// UpdateIsEnabledInHierarchy could further call UpdateIsEnabledInHierarchy
-			child.pointer->UpdateIsEnabledInHierarchy(*this);
+			child.pointer->UpdateIsEnabledInHierarchy(*this, child);
 	}
 
-	SavedReference<Component> Scene::AddComponentInternal(
+	void Scene::AddComponentInternal(
 			SavedReference<Component> component,
 			SavedReference<GameObject> gameObject,
 			bool isEnabled)
@@ -337,8 +337,6 @@ namespace PlatinumEngine
 				component.pointer->OnEnable(*this);
 			}
 		}
-
-		return component;
 	}
 
 	//--------------------------------------------------------------------------------------------------------------

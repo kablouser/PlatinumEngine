@@ -76,24 +76,24 @@ namespace PlatinumEngine
 				glEnable(GL_DEPTH_TEST);
 				glViewport(0, 0, _framebufferWidth, _framebufferHeight);
 
-				switch (camera->clearMode)
+				switch (camera.pointer->clearMode)
 				{
 				case CameraComponent::ClearMode::skybox:
 					break;
 				case CameraComponent::ClearMode::backgroundColor:
 					glClearColor(
-							camera->backgroundColor.r,
-							camera->backgroundColor.g,
-							camera->backgroundColor.b,
-							camera->backgroundColor.a);
+							camera.pointer->backgroundColor.r,
+							camera.pointer->backgroundColor.g,
+							camera.pointer->backgroundColor.b,
+							camera.pointer->backgroundColor.a);
 					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 					break;
 				case CameraComponent::ClearMode::none:
 					break;
 				}
 
-				_renderer->SetViewMatrix(camera->GetViewMatrix());
-				_renderer->SetProjectionMatrix(camera->GetProjectionMatrix(
+				_renderer->SetViewMatrix(camera.pointer->GetViewMatrix());
+				_renderer->SetProjectionMatrix(camera.pointer->GetProjectionMatrix(
 						{(float)_framebufferWidth, (float)_framebufferHeight}));
 			}
 			else

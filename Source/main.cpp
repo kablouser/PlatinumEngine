@@ -10,6 +10,7 @@
 #include <InputManager/InputManager.h>
 #include <Renderer/Renderer.h>
 #include <WindowManager/WindowManager.h>
+#include <TypeDatabase/TypeDatabase.h>
 
 #include <AssetDatabase/AssetHelper.h>
 
@@ -78,6 +79,8 @@ int main(int, char**)
 
 		// construct logger before everything to save all logs
 		PlatinumEngine::Profiler profiler;
+		// typeDatabase before idSystem, and everything that uses type reflection
+		PlatinumEngine::TypeDatabase typeDatabase;
 		PlatinumEngine::IDSystem idSystem;
 		PlatinumEngine::AssetDatabase assetDatabase;
 		PlatinumEngine::AssetHelper assetHelper(&assetDatabase);
@@ -90,7 +93,8 @@ int main(int, char**)
 		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper);
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
 		PlatinumEngine::ProjectWindow projectWindow;
-		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler, &projectWindow);
+		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger,
+				&inspectorWindow, &profiler, &projectWindow, idSystem, typeDatabase);
 
 		// Main loop
 		while (!glfwWindowShouldClose(window))

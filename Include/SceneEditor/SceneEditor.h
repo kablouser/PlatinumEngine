@@ -54,7 +54,7 @@ namespace PlatinumEngine
 		 * @param clickedPosition : the mouse position when it is clicked
 		 * @return
 		 */
-		GameObject* FindClickedObject(ImVec2& clickedPosition);
+		SavedReference<GameObject> FindClickedObject(ImVec2& clickedPosition);
 
 
 		/**
@@ -66,8 +66,12 @@ namespace PlatinumEngine
 		 * @param closestZValueForCrossPoint  : the z value of the intersection/clicked point of the previous temporary selected game object.
 		 * @return : return the selected game object with the shortest distance to the near panel.
 		 */
-		GameObject* UpdateSelectedGameObject(GameObject* currentCheckingGameobject, PlatinumEngine::Maths::Vec3 inRay,
-				const PlatinumEngine::Maths::Vec3& inCameraPosition, GameObject* currentSelectedGameObject, float& closestZValueForCrossPoint);
+		SavedReference<GameObject>& UpdateSelectedGameObject(
+				SavedReference<GameObject>& currentCheckingGameobject,
+				PlatinumEngine::Maths::Vec3 inRay,
+				const PlatinumEngine::Maths::Vec3& inCameraPosition,
+				SavedReference<GameObject>& currentSelectedGameObject,
+				float& closestZValueForCrossPoint);
 
 		/**
 		 * Transforming world coordinate into screen coordinate and use interpolation
@@ -78,7 +82,11 @@ namespace PlatinumEngine
 		 * @param closestZValueForCrossPoint : the z value of the intersection/clicked point of the previous temporary selected game object.
 		 * @return : return the selected game object with the shortest distance to the near panel.
 		 */
-		GameObject* UpdateSelectedGameObject(GameObject* currentCheckingGameobject, GameObject* currentSelectedGameObject, Maths::Vec2 clickedPosition, float& closestZValueForCrossPoint);
+		SavedReference<GameObject>& UpdateSelectedGameObject(
+				SavedReference<GameObject>& currentCheckingGameobject,
+				SavedReference<GameObject>& currentSelectedGameObject,
+				Maths::Vec2 clickedPosition,
+				float& closestZValueForCrossPoint);
 
 
 		/**
@@ -110,13 +118,13 @@ namespace PlatinumEngine
 		 * Update selected game object
 		 * @param inGameObject
 		 */
-		void SetSelectedGameobject(GameObject* inGameObject);
+		void SetSelectedGameobject(SavedReference<GameObject>& inGameObject);
 
 		/**
 		 * Get the private selected game object
 		 * @return
 		 */
-		GameObject* GetSelectedGameobject();
+		SavedReference<GameObject>& GetSelectedGameobject();
 
 
 
@@ -154,7 +162,7 @@ namespace PlatinumEngine
 		ShaderInput _skyBoxShaderInput;
 
 		// Store
-		GameObject* _selectedGameobject;
+		SavedReference<GameObject> _selectedGameobject;
 
 		//ImGuizmo
 		float _snap[3];

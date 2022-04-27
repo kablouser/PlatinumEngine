@@ -82,9 +82,9 @@ namespace PlatinumEngine
 	void TransformComponent::SetLocalToWorldMatrix(Maths::Mat4 LocalToWorld)
 	{
 		Maths::Mat4 ParentToWorld, LocalToParent;
-		auto parent = GetParentComponent<TransformComponent>();
+		SavedReference<TransformComponent> parent = GetParentComponent<TransformComponent>();
 		if (parent)
-			ParentToWorld = parent->GetLocalToWorldMatrix();
+			ParentToWorld = parent.pointer->GetLocalToWorldMatrix();
 		else
 			ParentToWorld.SetIdentityMatrix();
 

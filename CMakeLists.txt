@@ -139,7 +139,6 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	
 	"Source/SceneManager/HierarchyWindow.cpp;"
 	"Source/SceneManager/Scene.cpp;"
-	"Source/SceneManager/SceneManager.cpp;"
 	
 	"Source/TypeDatabase/TypeDatabase.cpp;"
 	"Source/TypeDatabase/TypeDatabaseInit.cpp;"

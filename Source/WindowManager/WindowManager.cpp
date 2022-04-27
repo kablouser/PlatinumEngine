@@ -15,7 +15,9 @@ namespace PlatinumEngine
 								Logger *logger,
 								InspectorWindow *inspector,
 								Profiler *profiler,
-								ProjectWindow *projectWindow
+								ProjectWindow *projectWindow,
+								IDSystem& idSystem,
+								TypeDatabase& typeDatabase
 								):
 								_gameWindow(gameWindow),
 								_sceneEditor(sceneEditor),
@@ -23,7 +25,9 @@ namespace PlatinumEngine
 								_logger(logger),
 								_inspector(inspector),
 								_profiler(profiler),
-								_projectWindow(projectWindow)
+								_projectWindow(projectWindow),
+								_idSystem(idSystem),
+								_typeDatabase(typeDatabase)
 	{
 	}
 
@@ -48,8 +52,8 @@ namespace PlatinumEngine
 		if (_showWindowLight) 			ShowWindowLight(&_showWindowLight);
 		if (_showWindowLogger)   		ShowWindowLogger(&_showWindowLogger);
 		if(_showWindowProfiler) 		ShowWindowProfiler(&_showWindowProfiler);
-		if (_showFileLoad) 				LoadFile();
-		if (_showFileSave) 				SaveFile();
+		if (_showFileLoad) 				LoadFile(scene);
+		if (_showFileSave) 				SaveFile(scene);
 
 		///-------------------------------------------------------------------
 		/// set up the main menu bar
@@ -138,14 +142,20 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	/// This section is for main menu bar "file" part file dialog showing
 	///--------------------------------------------------------------------------
-	void WindowManager::LoadFile()
+	void WindowManager::LoadFile(Scene& scene)
 	{
+		// TODO change to deserialize
+		_typeDatabase.Serialize(std::cout, &scene);
+		_showFileLoad = false;
 		std::string x;
 		x = PlatinumEngine::FileDialog::LoadFile();
 		std::cout << x << std::endl;
 	}
-	void WindowManager::SaveFile()
+	void WindowManager::SaveFile(Scene& scene)
 	{
+		_typeDatabase.Serialize(std::cout, &_idSystem);
+		_typeDatabase.Serialize(std::cout, &scene);
+		_showFileSave = false;
 		std::string x;
 		x = PlatinumEngine::FileDialog::SaveFile();
 		std::cout << x << std::endl;

@@ -190,9 +190,16 @@ namespace PlatinumEngine
 			return factory;
 		}
 
+		// default magical template (for user defined types)
+		template<typename T, typename U = void>
+		bool CreateIfAutomatic()
+		{
+			// default, user defined types cannot be automatically created
+			return false;
+		}
+
 		// magical template for arithmetic types
-		template<typename T,
-				std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
+		template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, T>>
 		bool CreateIfAutomatic()
 		{
 			// if type info NOT in database
@@ -202,26 +209,13 @@ namespace PlatinumEngine
 		}
 
 		// magical template for std::vector<T> types
-		template<typename T,
-				std::enable_if_t<is_specialization<T, std::vector>::value, bool> = true>
+		template<typename T, std::enable_if_t<is_specialization<T, std::vector>::value, T>>
 		bool CreateIfAutomatic()
 		{
 			// if type info NOT in database
 			if (!GetTypeInfo<T>().first)
 				CreateVectorTypeInfo<typename T::value_type>();
 			return true;
-		}
-
-		// magical template for user defined types
-		template<typename T,
-				std::enable_if_t<
-						!std::is_arithmetic_v<T> &&
-						!is_specialization<T, std::vector>::value,
-						bool> = true>
-		bool CreateIfAutomatic()
-		{
-			// default, user defined types cannot be automatically created
-			return false;
 		}
 
 		template<typename T>
@@ -298,6 +292,7 @@ namespace PlatinumEngine
 		template<typename T>
 		void Serialize(std::ostream& ostream, T* typeInstance)
 		{
+			CreateIfAutomatic<T>();
 			SerializeInternal(
 					ostream,
 					typeInstance,
@@ -315,6 +310,7 @@ namespace PlatinumEngine
 		template<typename T>
 		DeserializeReturnCode Deserialize(std::istream& istream, T* typeInstance)
 		{
+			CreateIfAutomatic<T>();
 			return DeserializeInternal(
 					istream,
 					typeInstance,

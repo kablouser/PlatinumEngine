@@ -69,7 +69,9 @@ namespace PlatinumEngine
 		// Returns boolean to check if moving successes or not
 		// targetObject : a target object of which the moved object wants to move in front of
 		// movedGameObject : an object that want to be moved
-		bool MoveRootGameObjectPositionInList(GameObject* targetObject, GameObject* movedGameObject);
+		bool MoveRootGameObjectPositionInList(
+				SavedReference<GameObject>& targetObject,
+				SavedReference<GameObject>& movedGameObject);
 
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -86,13 +88,23 @@ namespace PlatinumEngine
 		template<typename T>
 		SavedReference<T> AddComponent(SavedReference<GameObject> gameObject = {}, bool isEnabled = true)
 		{
-			return static_cast<T*>(AddComponentInternal(
-					idSystem.Add<T>(),
+			SavedReference<T> componentReference = idSystem.Add<T>();
+			AddComponentInternal(
+					(SavedReference<Component>)componentReference,
 					gameObject,
-					isEnabled));
+					isEnabled);
+			return componentReference;
 		}
 
-		void RemoveComponent(SavedReference<Component>& component);
+		template<typename T>
+		void RemoveComponent(SavedReference<T> component)
+		{
+			static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
+			// we can use UnsafeCast because Component is base of T
+			RemoveComponentInternal(std::move(component.template UnsafeCast<Component>()));
+		}
+
+		void RemoveComponentInternal(SavedReference<Component> component);
 
 		size_t GetComponentsCount() const;
 
@@ -218,7 +230,7 @@ namespace PlatinumEngine
 		 */
 		void UpdateIsEnabledInHierarchy(SavedReference<GameObject>& gameObject);
 
-		SavedReference<Component> AddComponentInternal(
+		void AddComponentInternal(
 				SavedReference<Component> component,
 				SavedReference<GameObject> gameObject,
 				bool isEnabled);

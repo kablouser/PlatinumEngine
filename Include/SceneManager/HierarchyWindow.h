@@ -49,7 +49,10 @@ namespace PlatinumEngine
 		 * @param gameObject : the game object that is processing
 		 * @param scene : scene object reference that carries the game object hierarchy structure
 		 */
-		void DisplayTreeNote(GameObject* gameObject, Scene& scene, ModeForDraggingBehavior modeForDraggingBehavior);
+		void DisplayTreeNote(
+				SavedReference<GameObject>& gameObject,
+				Scene& scene,
+				ModeForDraggingBehavior modeForDraggingBehavior);
 
 		// ---> PARAMETER
 		ModeForDraggingBehavior _modeForDraggingBehavior;
