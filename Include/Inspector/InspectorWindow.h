@@ -48,7 +48,7 @@ namespace PlatinumEngine
 		float _itemWidthMeshRenderComponent = 160.f;
 		float _textWidthTransformComponent = 90.f;
 		float _textWidthCameraComponent = 135.0f;
-		float _textWidthParticleEffectComponent = 140.0f;
+		float _textWidthParticleEffectComponent = 135.0f;
 		float _textWidthParticleEffectComponentSmall = 100.0f;
 		float _itemWidthParticleEffectComponent = 180.0f;
 		std::vector<std::string> _temp = {"Perspective", "Orthographic"};

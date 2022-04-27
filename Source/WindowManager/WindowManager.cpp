@@ -181,11 +181,30 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	void WindowManager::ShowMenuGameObject(Scene &scene)
 	{
-		if (ImGui::MenuItem(ICON_FA_CIRCLE_NODES " Create Empty"))
+		if (ImGui::MenuItem("Create Empty"))
 		{
 			scene.AddGameObject();
 		}
-
+		if (ImGui::BeginMenu("Create Game Object"))
+		{
+			if (ImGui::MenuItem(ICON_FA_CAMERA " Camera"))
+			{
+				auto obj = scene.AddGameObject("Camera");
+				scene.AddComponent<CameraComponent>(obj);
+				scene.AddComponent<TransformComponent>(obj);
+				_sceneEditor->SetSelectedGameobject(obj);
+			}
+			if (ImGui::MenuItem("Light"))
+			{}
+			if (ImGui::MenuItem(ICON_FA_FIRE " Particle Effect"))
+			{
+				auto obj = scene.AddGameObject("Particle Effect");
+				scene.AddComponent<ParticleEffect>(obj);
+				scene.AddComponent<TransformComponent>(obj);
+				_sceneEditor->SetSelectedGameobject(obj);
+			}
+			ImGui::EndMenu();
+		}
 		if (ImGui::BeginMenu("3D Object"))
 		{
 			if (ImGui::MenuItem("Cube"))
@@ -198,17 +217,6 @@ namespace PlatinumEngine
 			{}
 			ImGui::EndMenu();
 		}
-		if (ImGui::MenuItem(ICON_FA_FIRE " Particle Effect"))
-		{
-			auto obj = scene.AddGameObject("Particle Effect");
-			scene.AddComponent<ParticleEffect>(obj);
-			scene.AddComponent<TransformComponent>(obj);
-			_sceneEditor->SetSelectedGameobject(obj);
-		}
-		if (ImGui::MenuItem("Camera"))
-		{}
-		if (ImGui::MenuItem("Light"))
-		{}
 	}
 
 	///--------------------------------------------------------------------------

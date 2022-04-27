@@ -486,7 +486,8 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 		ImGui::SameLine();
 		ImGui::InputFloat("##ActingForceZ", &(obj->GetComponent<ParticleEffect>()->particleEmitter.actingForce[2]));
 
-		ImGui::Text("Simple Velocity Settings");
+		ImGui::NewLine();
+		ImGui::Text("Velocity Settings");
 		ImGui::Separator();
 		ImGui::Text("Initial Velocity: ");
 		ImGui::SameLine(_textWidthParticleEffectComponentSmall);
@@ -505,9 +506,6 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 		ImGui::Text("Z");
 		ImGui::SameLine();
 		ImGui::InputFloat("##VelocityZ", &(obj->GetComponent<ParticleEffect>()->particleEmitter.initVelocity[2]));
-
-		ImGui::Text("Random Velocity Settings");
-		ImGui::Separator();
 
 		ImGui::Text("Random X");
 		ImGui::SameLine();
@@ -552,6 +550,7 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 		ImGui::InputFloat("##MaxRandomVelocityZ", &(obj->GetComponent<ParticleEffect>()->particleEmitter.minMaxVelocityZ[1]));
 		ImGui::PopItemWidth();
 
+		ImGui::NewLine();
 		ImGui::Text("Shading Settings");
 		ImGui::Separator();
 
