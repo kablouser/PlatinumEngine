@@ -21,6 +21,10 @@
 #include <InputManager/InputManager.h>
 #include <IconsFontAwesome6.h>
 #include <ImGuizmo.h>
+
+//Asset Helper
+#include "AssetDatabase/AssetHelper.h"
+
 namespace PlatinumEngine
 {
 	class SceneEditor
@@ -143,7 +147,7 @@ namespace PlatinumEngine
 		void CreateGridShaderInput();
 
 		// ___CONSTRUCTOR___
-		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer);
+		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer, AssetHelper* assetHelper);
 
 	private:
 
@@ -177,6 +181,7 @@ namespace PlatinumEngine
 		InputManager* _inputManager;
 		Scene* _scene;
 		Renderer* _renderer;
+		AssetHelper* _assetHelper;
 
 		// Values for Camera
 		EditorCamera _camera;
