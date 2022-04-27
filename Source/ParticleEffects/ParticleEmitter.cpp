@@ -50,7 +50,7 @@ namespace PlatinumEngine
 				// If the particle remains alive, update its position
 				if (p.life >= 0.0f)
 				{
-					p.velocity += Maths::Vec3(0.0f,-1.0f, 0.0f) * (float)deltaTime;
+					p.velocity += -actingForce * (float)deltaTime;
 					p.position -= p.velocity * deltaTime;
 					Maths::Vec3 vector = p.position - cameraPos;
 					p.distanceFromCamera = Maths::Length(vector);
@@ -90,29 +90,33 @@ namespace PlatinumEngine
 		void ParticleEmitter::RespawnParticle(Particle& p)
 		{
 			// Respawn by resetting values
-			float x = (useRandomX) ? GetRandomFloat(minRandomX, maxRandomX) : initVelocityX;
-			float y = (useRandomY) ? GetRandomFloat(minRandomY, maxRandomY) : initVelocityY;
-			float z = (useRandomZ) ? GetRandomFloat(minRandomZ, maxRandomZ) : initVelocityZ;
-
-			p.position = Maths::Vec3(0,0,0);
-			// For some reason positive is the wrong way :(, probably a problem in the shader
+			// Init velocity values
+			float x = (useRandomInitVelocityX) ? GetRandomFloat(minMaxVelocityX) : initVelocity.x;
+			float y = (useRandomInitVelocityY) ? GetRandomFloat(minMaxVelocityY) : initVelocity.y;
+			float z = (useRandomInitVelocityZ) ? GetRandomFloat(minMaxVelocityZ) : initVelocity.z;
+			// For some reason positive is the wrong way :(, probably a problem in the shader (also acting force
+			// negated in update function)
 			p.velocity = Maths::Vec3(-x, -y, -z);
+
+			// Init position
+			p.position = Maths::Vec3(0,0,0);
+
 			p.life = respawnLifetime;
 		}
 
-		float ParticleEmitter::GetRandomFloat(float min, float max)
+		float ParticleEmitter::GetRandomFloat(float minMax[2])
 		{
 			// Swap values if there is a problem
-			if (max < min)
+			if (minMax[0] < minMax[1])
 			{
-				float temp = max;
-				max = min;
-				min = temp;
+				float temp = minMax[1];
+				minMax[1] = minMax[0];
+				minMax[0] = temp;
 			}
 
 			std::random_device rd;
 			std::mt19937 mt(rd());
-			std::uniform_real_distribution<float> dist(min, std::nextafter(max, FLT_MAX));
+			std::uniform_real_distribution<float> dist(minMax[0], std::nextafter(minMax[1], FLT_MAX));
 			return dist(mt);
 		}
 	}
