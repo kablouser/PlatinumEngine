@@ -18,6 +18,11 @@ namespace PlatinumEngine
 
 	void ParticleEffect::OnRender(Scene& scene, Renderer& renderer)
 	{
+		// TODO:
+		// 	Adjust initial position settings
+		// 	Non-linear interpolation between colours
+		// 	Textures?
+		//  Noise/Different distribution algorithms, Will need new emitter classes inheriting from base emitter
 		// Render all particles
 		TransformComponent* transform = GetComponent<TransformComponent>();
 		if (transform)

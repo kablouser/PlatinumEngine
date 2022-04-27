@@ -22,10 +22,17 @@ namespace PlatinumEngine
 			void SetInput(const std::vector<Particle> &particles);
 			void Clear();
 		private:
-			int NumParticles;
-			GLfloat data[MaxParticles * 3];
-			unsigned int instanceVBO, quadVAO, quadVBO;
+			int _numParticles;
+			unsigned int _positionLifeVBO, _particleVertexVAO, _particleVertexVBO;
 			int _numFloats = 4;
+
+			// These are the vertices of the billboard for a particle
+			const float _vertices[12] = {
+					-0.5f, -0.5f, 0.0f,
+					0.5f, -0.5f, 0.0f,
+					-0.5f, 0.5f, 0.0f,
+					0.5f, 0.5f, 0.0f,
+			};
 		};
 	}
 }

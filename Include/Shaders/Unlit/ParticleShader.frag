@@ -10,6 +10,7 @@ uniform vec4 endColour;
 
 void main()
 {
+    // Linear interpolation
     // Q1*(1-r) + Q2*r
     float value = (1.0 / maxLife) * life;
     float r = endColour.r*(1-value) + startColour.r * value;

@@ -10,19 +10,8 @@ namespace PlatinumEngine
 	{
 		ParticleEmitter::ParticleEmitter()
 		{
+			// Allocate enough space for all our particles, and so we can index into it straight away
 			_particleContainer.resize(MaxParticles);
-
-			// For now refresh particle list
-			for (unsigned int i = 0; i < 10; ++i)
-			{
-				auto p = Particle();
-				RespawnParticle(p);
-				_particleContainer.emplace_back(p);
-			}
-
-			// Seed random generator
-			std::random_device rd;
-			std::mt19937 mt(rd());
 		}
 
 		/**
@@ -34,20 +23,28 @@ namespace PlatinumEngine
 			// Clear what particles are sent to renderer
 			_particles.clear();
 
-			// Spawn new particles every frame
+			// Spawn a set number of new particles every frame
 			for (unsigned int i = 0; i < numberOfNewParticles; ++i)
 			{
-				unsigned int unusedParticle = FirstUnusedParticle();
-				RespawnParticle(_particleContainer[unusedParticle]);
+				// Find which particle to respawn in the particle container, so we don't infinitely spawn too many
+				unsigned int indexOfDeadParticle = FirstDeadParticle();
+
+				// Now respawn that particle (hopefully it was dead anyway)
+				RespawnParticle(_particleContainer[indexOfDeadParticle]);
 			}
 
+			// Edit the particles in the container
+			// Store the alive ones separately for renderer (inefficient)
+			// TODO: the above but better
 			for (unsigned int i = 0; i < numberOfParticles; ++i)
 			{
+				// Just so we don't have to index every time
 				Particle &p = _particleContainer[i];
-				// Reduce its life by delta time
+
+				// Reduce its life by delta time to start killing it
 				p.life -= deltaTime;
 
-				// If the particle remains alive, update its position
+				// If the particle remains alive, update its properties
 				if (p.life >= 0.0f)
 				{
 					p.velocity += -actingForce * (float)deltaTime;
@@ -55,6 +52,7 @@ namespace PlatinumEngine
 					Maths::Vec3 vector = p.position - cameraPos;
 					p.distanceFromCamera = Maths::Length(vector);
 
+					// Adding to list of alive particles
 					_particles.emplace_back(p);
 				}
 			}
@@ -63,30 +61,48 @@ namespace PlatinumEngine
 			std::sort(&_particles[0], &_particles[_particles.size()]);
 		}
 
-		const std::vector<Particle> ParticleEmitter::GetParticles() const
+		std::vector<Particle> ParticleEmitter::GetParticles() const
 		{
 			return _particles;
 		}
 
-		unsigned int ParticleEmitter::FirstUnusedParticle()
+		/**
+		 * Finds the first dead particle in the particle container
+		 * Is used to index into particle container and respawn the first dead particle we find
+		 * @return
+		 */
+		unsigned int ParticleEmitter::FirstDeadParticle()
 		{
-			for(int i = LastUsedParticle; i < numberOfParticles; ++i){
-				if (_particleContainer[i].life < 0){
-					LastUsedParticle = i;
+			// Fingers crossed it's found this way
+			for(int i = _lastDeadParticle; i < numberOfParticles; ++i)
+			{
+				if (_particleContainer[i].life < 0)
+				{
+					// Keep track of the particle we just killed as chances are the next one after will be dead
+					_lastDeadParticle = i;
 					return i;
 				}
 			}
 
-			for(int i = 0; i < LastUsedParticle; ++i){
-				if (_particleContainer[i].life < 0){
-					LastUsedParticle = i;
+			// Wasn't found so linear search the rest of the particles :(
+			for(int i = 0; i < _lastDeadParticle; ++i)
+			{
+				if (_particleContainer[i].life < 0)
+				{
+					// Update so next time we should avoid this loop again
+					_lastDeadParticle = i;
 					return i;
 				}
 			}
 
+			// Just overwrite the first one it will still look nice
 			return 0;
 		}
 
+		/**
+		 * Given a particle in the particle container, reset its properties
+		 * @param p
+		 */
 		void ParticleEmitter::RespawnParticle(Particle& p)
 		{
 			// Respawn by resetting values
@@ -104,9 +120,14 @@ namespace PlatinumEngine
 			p.life = respawnLifetime;
 		}
 
+		/**
+		 * Simple random number generator to generate a float between two values
+		 * @param minMax
+		 * @return
+		 */
 		float ParticleEmitter::GetRandomFloat(float minMax[2])
 		{
-			// Swap values if there is a problem
+			// Swap values to ensure generator works as expected
 			if (minMax[0] < minMax[1])
 			{
 				float temp = minMax[1];
@@ -116,6 +137,8 @@ namespace PlatinumEngine
 
 			std::random_device rd;
 			std::mt19937 mt(rd());
+			// Use next after so distribution is inclusive of max value, i.e.
+			// [min, max] instead of [min, max)
 			std::uniform_real_distribution<float> dist(minMax[0], std::nextafter(minMax[1], FLT_MAX));
 			return dist(mt);
 		}

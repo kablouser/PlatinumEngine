@@ -19,7 +19,7 @@ namespace PlatinumEngine
 		public:
 			ParticleEmitter();
 			void UpdateParticles(float deltaTime, const Maths::Vec3 &cameraPos);
-			[[nodiscard]] const std::vector<Particle> GetParticles() const;
+			[[nodiscard]] std::vector<Particle> GetParticles() const;
 		public:
 			// Emitter Settings
 			int numberOfParticles = 500;
@@ -40,11 +40,11 @@ namespace PlatinumEngine
 			Maths::Vec4 startColour = Maths::Vec4(1,1,1,1);
 			Maths::Vec4 endColour = Maths::Vec4(0,0,0,0);
 		private:
-			unsigned int FirstUnusedParticle();
+			unsigned int FirstDeadParticle();
 			void RespawnParticle(Particle &p);
 			float GetRandomFloat(float minMax[2]);
 		private:
-			unsigned int LastUsedParticle = 0;
+			unsigned int _lastDeadParticle = 0;
 			std::vector<Particle> _particleContainer; // Will be resized to MaxParticles in constructor
 			std::vector<Particle> _particles; // The alive particles to send to renderer
 		};
