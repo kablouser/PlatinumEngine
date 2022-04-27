@@ -25,7 +25,7 @@ namespace PlatinumEngine
 
 			bool operator < (const Particle& p) const
 			{
-				return (distanceFromCamera < p.distanceFromCamera);
+				return (distanceFromCamera > p.distanceFromCamera);
 			}
 		};
 	}
