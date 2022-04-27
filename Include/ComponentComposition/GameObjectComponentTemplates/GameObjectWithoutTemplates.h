@@ -9,6 +9,7 @@
 #include <vector>
 #include <typeinfo>
 #include <IDSystem/IDSystem.h>
+#include <TypeDatabase/TypeDatabase.h>
 
 namespace PlatinumEngine
 {
@@ -24,6 +25,8 @@ namespace PlatinumEngine
 		friend class Component;
 
 	public:
+
+		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Public constructors/destructors

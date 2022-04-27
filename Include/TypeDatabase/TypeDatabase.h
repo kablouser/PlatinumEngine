@@ -17,6 +17,7 @@
 
 #include <Helpers/VectorHelpers.h>
 #include <TypeDatabase/VectorCollection.h>
+#include <IDSystem/IDSystem.h>
 
 namespace PlatinumEngine
 {
@@ -45,6 +46,7 @@ namespace PlatinumEngine
 		prefix = "auto __cdecl PlatinumEngine::TypeName<";
 		suffix = ">(void)";
 #endif
+		auto x = name.data();
 		name.remove_prefix(prefix.size());
 		name.remove_suffix(suffix.size());
 		return name;
@@ -171,7 +173,7 @@ namespace PlatinumEngine
 		//-----------------------------------------------------------------------
 
 		template<typename T>
-		TypeInfoFactory BeginAbstractTypeInfo(bool isCollection = false)
+		TypeInfoFactory BeginTypeInfoWithoutAllocator(bool isCollection = false)
 		{
 			return BeginAbstractTypeInfoInternal(
 					isCollection,
@@ -183,34 +185,26 @@ namespace PlatinumEngine
 		TypeInfoFactory BeginTypeInfo(bool isCollection = false)
 		{
 			static_assert(!std::is_abstract<T>(), "T should be NOT abstract.");
-			TypeInfoFactory factory = BeginAbstractTypeInfo<T>(isCollection);
+			TypeInfoFactory factory = BeginTypeInfoWithoutAllocator<T>(isCollection);
 			// you cannot make_shared with abstract type
 			_typeInfos.at(factory.typeInfoIndex).allocate = []() -> std::shared_ptr<void>
 			{ return std::make_shared<T>(); };
 			return factory;
 		}
 
-		// default magical template (for user defined types)
-		template<typename T, typename U = void>
-		bool CreateIfAutomatic()
-		{
-			// default, user defined types cannot be automatically created
-			return false;
-		}
-
 		// magical template for arithmetic types
-		template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, T>>
-		bool CreateIfAutomatic()
+		template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
+		bool CreateIfAutomatic(int)
 		{
 			// if type info NOT in database
 			if (!GetTypeInfo<T>().first)
-				CreateArithmeticTypeInfo<T>();
+				CreateTypeInfoWithAutoStreams<T>();
 			return true;
 		}
 
 		// magical template for std::vector<T> types
-		template<typename T, std::enable_if_t<is_specialization<T, std::vector>::value, T>>
-		bool CreateIfAutomatic()
+		template<typename T, std::enable_if_t<is_specialization<T, std::vector>::value, int> = 0>
+		bool CreateIfAutomatic(int)
 		{
 			// if type info NOT in database
 			if (!GetTypeInfo<T>().first)
@@ -218,10 +212,40 @@ namespace PlatinumEngine
 			return true;
 		}
 
-		template<typename T>
-		void CreateArithmeticTypeInfo()
+		// magical template for std::string types
+		template<typename T, std::enable_if_t<std::is_same_v<T, std::string>, int> = 0>
+		bool CreateIfAutomatic(int)
 		{
-			assert(std::is_arithmetic<T>::value && "T should be arithmetic.");
+			// if type info NOT in database
+			if (!GetTypeInfo<T>().first)
+				// TODO :: std::string CANNOT be streamed automatically
+				CreateTypeInfoWithAutoStreams<T>();
+			return true;
+		}
+
+		// magical template for PlatinumEngine::SavedReference<T> types
+		template<typename T, std::enable_if_t<is_specialization<T, SavedReference>::value, int> = 0>
+		bool CreateIfAutomatic(int)
+		{
+			// if type info NOT in database
+			if (!GetTypeInfo<T>().first)
+				// only save the id, not the pointer
+				BeginTypeInfo<T>()
+				        .template WithField<IDSystem::ID>("id", PLATINUM_OFFSETOF(T, id));
+			return true;
+		}
+
+		// default magical template (for user defined types)
+		template<typename T>
+		bool CreateIfAutomatic(...)
+		{
+			// default, user defined types cannot be automatically created
+			return false;
+		}
+
+		template<typename T>
+		void CreateTypeInfoWithAutoStreams()
+		{
 			TypeInfoFactory factory = BeginTypeInfo<T>();
 			TypeInfo& typeInfo = _typeInfos.at(factory.typeInfoIndex);
 			typeInfo.streamOut =
@@ -366,7 +390,7 @@ namespace PlatinumEngine
 	template<typename T>
 	TypeInfoFactory& TypeInfoFactory::WithField(std::string fieldName, size_t offset)
 	{
-		typeDatabase.CreateIfAutomatic<T>();
+		typeDatabase.CreateIfAutomatic<T>(0);
 		return *WithFieldInternal(fieldName, offset, std::type_index(typeid(T)));
 	}
 }

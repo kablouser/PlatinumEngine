@@ -8,6 +8,7 @@
 #include <queue>
 #include <string>
 #include <IDSystem/IDSystem.h>
+#include <TypeDatabase/TypeDatabase.h>
 
 #include <ComponentComposition/GameObject.h>
 
@@ -26,6 +27,8 @@ namespace PlatinumEngine
 	public:
 
 		IDSystem& idSystem;
+
+		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Constructors/destructors

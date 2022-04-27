@@ -69,7 +69,7 @@ TEST_CASE("Serialization", "[serialization]")
 		}
 	};
 
-	database.BeginAbstractTypeInfo<AbstractClass>()
+	database.BeginTypeInfoWithoutAllocator<AbstractClass>()
 			.WithField<float>("time", PLATINUM_OFFSETOF(AbstractClass, time))
 			.WithField<PlainStructure>("data", PLATINUM_OFFSETOF(AbstractClass, data))
 			.WithField<UnknownType>("unknownData", PLATINUM_OFFSETOF(AbstractClass, unknownData));

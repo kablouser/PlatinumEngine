@@ -1,5 +1,7 @@
 #include <TypeDatabase/TypeDatabase.h>
 #include <IDSystem/IDSystem.h>
+#include <SceneManager/Scene.h>
+#include <ComponentComposition/GameObject.h>
 
 void PlatinumEngine::TypeDatabase::Init()
 {
@@ -10,13 +12,9 @@ void PlatinumEngine::TypeDatabase::Init()
 		idSystemTypeInfo.streamOut = IDSystem::StreamOut;
 	}
 
-	{
-		struct MyStruct { int autoField; };
-		BeginTypeInfo<MyStruct>()
-		        .WithField<int>("auto field", 0);
-		MyStruct instance;
-		Serialize(std::cout, &instance);
-	}
+	Scene::CreateTypeInfo(*this);
+	GameObject::CreateTypeInfo(*this);
 
-
+	// this checks all fields/things are defined properly
+	FinalCheck();
 }

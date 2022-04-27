@@ -10,6 +10,25 @@
 
 namespace PlatinumEngine
 {
+	//------------------------------------------------------------------------------------------------------------------
+	// Serialization stuff
+	//------------------------------------------------------------------------------------------------------------------
+
+	void Scene::CreateTypeInfo(TypeDatabase& typeDatabase)
+	{
+		/*
+		bool _isStarted;
+		std::vector<SavedReference<GameObject>> _gameObjects;
+		std::vector<SavedReference<GameObject>> _rootGameObjects;
+		std::vector<SavedReference<Component>> _components;
+		 */
+		typeDatabase.BeginTypeInfoWithoutAllocator<Scene>()
+				.WithField<bool>("_isStarted", PLATINUM_OFFSETOF(Scene, _isStarted))
+				.WithField<std::vector<SavedReference<GameObject>>>("_gameObjects", PLATINUM_OFFSETOF(Scene, _gameObjects))
+				.WithField<std::vector<SavedReference<GameObject>>>("_rootGameObjects", PLATINUM_OFFSETOF(Scene, _rootGameObjects))
+				.WithField<std::vector<SavedReference<GameObject>>>("_components", PLATINUM_OFFSETOF(Scene, _components));
+	}
+
 	//--------------------------------------------------------------------------------------------------------------
 	// Constructors/destructors
 	//--------------------------------------------------------------------------------------------------------------
@@ -46,7 +65,8 @@ namespace PlatinumEngine
 			SavedReference<GameObject> parent,
 			bool isEnabled)
 	{
-		SavedReference<GameObject> gameObject = idSystem.Add<GameObject>();
+		SavedReference<GameObject> gameObject = idSystem.Add<GameObject>(
+				std::make_shared<GameObject>(name, parent, isEnabled));
 
 		if (parent)
 			parent.pointer->_children.push_back(gameObject);

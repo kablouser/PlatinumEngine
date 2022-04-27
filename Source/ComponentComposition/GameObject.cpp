@@ -5,6 +5,25 @@
 
 namespace PlatinumEngine
 {
+	void GameObject::CreateTypeInfo(TypeDatabase& typeDatabase)
+	{
+		/*
+  		std::string name;
+		SavedReference<GameObject> _parent;
+		bool _isEnabled;
+		bool _isEnabledInHierarchy;
+		std::vector<SavedReference<GameObject>> _children;
+		std::vector<SavedReference<Component>> _components;
+		 */
+		typeDatabase.BeginTypeInfoWithoutAllocator<GameObject>()
+				.WithField<std::string>("name", PLATINUM_OFFSETOF(GameObject, name))
+				.WithField<SavedReference<GameObject>>("_parent", PLATINUM_OFFSETOF(GameObject, _parent))
+				.WithField<bool>("_isEnabled", PLATINUM_OFFSETOF(GameObject, _isEnabled))
+				.WithField<bool>("_isEnabledInHierarchy", PLATINUM_OFFSETOF(GameObject, _isEnabledInHierarchy))
+				.WithField<std::vector<SavedReference<GameObject>>>("_children", PLATINUM_OFFSETOF(GameObject, _children))
+				.WithField<std::vector<SavedReference<GameObject>>>("_components", PLATINUM_OFFSETOF(GameObject, _components));
+	}
+
 	//--------------------------------------------------------------------------------------------------------------
 	// Constructors/destructors
 	//--------------------------------------------------------------------------------------------------------------
