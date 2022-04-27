@@ -4,24 +4,26 @@
 
 #pragma once
 
-#include <ComponentComposition/Collider.h>
+#include <ComponentComposition/Component.h>
+#include <btBulletCollisionCommon.h>
 
 namespace PlatinumEngine
 {
-	class BoxCollider: public Collider
+	class BoxCollider: public Component
 	{
 	public:
 		BoxCollider();
 
-		void SetSize(Maths::Vec3 size);
+	public:
+		Maths::Vec3 size;
+		Maths::Vec3 center;
 
-		Maths::Vec3 GetSize();
-
+		btCollisionShape* GetShape();
+	private:
+		void OnStart(Scene& scene) override;
+		void OnEnd(Scene& scene) override;
 
 	private:
-		Maths::Vec3 _size;
-
-	private:
-		void CreateShape();
+		btCollisionShape* _boxShape;
 	};
 }

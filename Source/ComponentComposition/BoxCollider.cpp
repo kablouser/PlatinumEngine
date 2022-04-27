@@ -3,29 +3,28 @@
 //
 
 #include "ComponentComposition/BoxCollider.h"
-
+#include "Physics/Physics.h"
 namespace PlatinumEngine
 {
-	BoxCollider::BoxCollider(): _size(Maths::Vec3(1,1,1))
+	BoxCollider::BoxCollider(): size(Maths::Vec3(1,1,1)),
+								center(Maths::Vec3(0.f, 0.f, 0.f))
 								{
-									SetCenter(Maths::Vec3(0.f, 0.f, 0.f));
-									CreateShape();
+
 								}
 
-	void BoxCollider::CreateShape()
+	void BoxCollider::OnStart(Scene& scene)
 	{
-		_shape = new btBoxShape(Physics::convertVector(_size));
+		_boxShape = new btBoxShape(Physics::convertVector(size));
 	}
 
-	Maths::Vec3 BoxCollider::GetSize()
+	void BoxCollider::OnEnd(Scene& scene)
 	{
-		return _size;
+		delete _boxShape;
 	}
 
-	void BoxCollider::SetSize(Maths::Vec3 size)
+	btCollisionShape* BoxCollider::GetShape()
 	{
-		_size = size;
-		CreateShape();
+		return _boxShape;
 	}
 }
 

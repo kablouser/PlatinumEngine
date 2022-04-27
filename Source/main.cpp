@@ -77,19 +77,23 @@ int main(int, char**)
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
 		// construct logger before everything to save all logs
+		PlatinumEngine::Time time;
+		PlatinumEngine::Physics physics;
 		PlatinumEngine::Profiler profiler;
 		PlatinumEngine::AssetDatabase assetDatabase;
 		PlatinumEngine::AssetHelper assetHelper(&assetDatabase);
 		PlatinumEngine::Logger logger;
 		PlatinumEngine::InputManager inputManager;
 		PlatinumEngine::Renderer rasterRenderer;
-		PlatinumEngine::Scene scene;
-		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer);
+		PlatinumEngine::Scene scene(physics);
+		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer, &time, &physics);
 		PlatinumEngine::HierarchyWindow hierarchyWindow(&sceneEditor);
-		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper, &sceneEditor);
-		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
+		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper, &sceneEditor, &physics);
+		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer, &time, &physics);
 		PlatinumEngine::ProjectWindow projectWindow;
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler, &projectWindow);
+
+		physics.Initialize();
 
 		// Main loop
 		while (!glfwWindowShouldClose(window))
@@ -150,7 +154,8 @@ int main(int, char**)
 			glfwSwapBuffers(window);
 		}
 
-
+		// Cleanup bullet physics
+		physics.CleanUp();
 
 		// Cleanup ImGui
 		ImGui_ImplOpenGL3_Shutdown();

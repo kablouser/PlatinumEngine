@@ -5,6 +5,8 @@
 #include "GameWindow/GameWindow.h"
 #include <ComponentComposition/MeshRender.h>
 #include <ComponentComposition/Camera.h>
+
+
 namespace PlatinumEngine
 {
 	PlatinumEngine::GameWindow::GameWindow()
@@ -12,44 +14,78 @@ namespace PlatinumEngine
 
 	}
 
-	PlatinumEngine::GameWindow::GameWindow(InputManager* inputManager, Scene* scene, Renderer* renderer)
-		: _renderer(renderer), _scene(scene), _inputManager(inputManager),_renderTexture()
+	PlatinumEngine::GameWindow::GameWindow(InputManager* inputManager, Scene* scene, Renderer* renderer, Time* time, Physics* physics)
+		: _renderer(renderer), _scene(scene), _inputManager(inputManager),_time(time), _physics(physics), _renderTexture(),	_skyboxTexture(),
+			_skyBoxShaderInput(), isPaused(true), _isPlay(true)
 	{
+		// Setup skybox texture
+
+		_skyboxTexture.CreateCubeMap({"./Assets/Texture/Left_X.png",
+									  "./Assets/Texture/Right_X.png",
+									  "./Assets/Texture/Up_Y.png",
+									  "./Assets/Texture/Bottom_Y.png",
+									  "./Assets/Texture/Front_Z.png",
+									  "./Assets/Texture/Back_Z.png"});
+		// Setup skybox texture shader input
+		CreateSkyBoxShaderInput();
+
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
 		if (!_renderTexture.Create(_framebufferWidth, _framebufferHeight))
 			return;
 	}
 
-	void PlatinumEngine::GameWindow::ShowGuiWindow(bool* outIsOpen)
+	void GameWindow::ShowGuiWindow(bool* outIsOpen)
 	{
 		if(ImGui::Begin(ICON_FA_GAMEPAD " Game View", outIsOpen))
 		{
 			auto targetSize = ImGui::GetContentRegionAvail();
 
-			if(_onUpdate && _onPlay)
-			{
-				//_mouseButtonType = _inputManager->GetMouseDown();
-				//_mouseMoveDelta = _inputManager->GetMouseMoveVector();
-				//_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
-				double deltaTime = glfwGetTime() - _previousTime;
-				Update(deltaTime);
-			}
+			if(!isPaused)
+				Play();
 			Render(targetSize, _scene);
 		}
-    
 		ImGui::End();
 	}
 
-	void PlatinumEngine::GameWindow::Pause(bool OnPause)
+	void GameWindow::Step()
 	{
-		_onPlay = !OnPause;
+		isPaused = true;
+		Update(_time->GetDelta());
 	}
 
-	void PlatinumEngine::GameWindow::Step()
+	void GameWindow::Pause()
 	{
-		_onPlay = false;
-		Update(1.0 / 30.0);
+		isPaused = true;
+	}
+
+	void GameWindow::Play()
+	{
+		_scene->Start();
+		_time->update(isPaused);
+		Update(_time->GetDelta());
+	}
+	void PlatinumEngine::GameWindow::Update(double deltaTime)
+	{
+		// check if there is any mouse input
+		switch(_mouseButtonType)
+		{
+		case 0: break;
+		case 1: break;
+		case 2: break;
+		default: break;
+		}
+
+		// check if there is any wheel input
+		if (_wheelValueDelta != 0) {}
+
+		// check if there is any keyboard input
+		if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
+			_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
+		{}
+
+		_scene->Update(deltaTime);
+		_physics->Update(deltaTime);
 	}
 
 	void GameWindow::Render(ImVec2 targetSize, Scene* scene)
@@ -75,10 +111,33 @@ namespace PlatinumEngine
 
 				glEnable(GL_DEPTH_TEST);
 				glViewport(0, 0, _framebufferWidth, _framebufferHeight);
+				glViewport(0, 0, _framebufferWidth, _framebufferHeight);
+				glClearColor(0.2784f, 0.2784f, 0.2784f, 1.0f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+				Maths::Mat4 scaleMatrix;
 				switch (camera->clearMode)
 				{
 				case Camera::ClearMode::skybox:
+					// ---------------- Render SKY BOX ---------------- //
+					// discard the depth of the skybox
+					glDisable(GL_DEPTH_TEST);
+					glDepthMask(false);
+					_renderer->BeginSkyBoxShader();
+					// matrix for rescaling the skybox based on the near panel distance
+					scaleMatrix.SetScaleMatrix(
+							Maths::Vec3(((float)camera->nearClippingPlane * 2.f), ((float)camera->nearClippingPlane * 2.f), ((float)camera->nearClippingPlane * 2.f)));
+					// set matrix uniform
+					_renderer->SetViewMatrixSkyBox(camera->GetViewMatrixRotationOnly()* scaleMatrix);
+					_renderer->SetProjectionMatrixSkyBox(camera->GetProjectionMatrix(Maths::Vec2((float)_framebufferWidth,(float)_framebufferHeight)));
+					_skyboxTexture.BindCubeMap();
+					_skyBoxShaderInput.Draw();
+					_renderer->EndSkyBoxShader();
+					_skyboxTexture.UnbindCubeMap();
+					_renderer->Begin();
+					// enable depth test for the later rendering
+					glDepthMask(true);
+					glEnable(GL_DEPTH_TEST);
 					break;
 				case Camera::ClearMode::backgroundColor:
 					glClearColor(
@@ -104,12 +163,16 @@ namespace PlatinumEngine
 					_hasWarningBeenShown = true;
 				}
 			}
-
 			scene->Render(*_renderer);
 			_renderer->End();
 
+			// unbind framebuffer
 			_renderTexture.Unbind();
+
+			// reset setting after rendering
 			glDisable(GL_DEPTH_TEST);
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
 
 
 			// display updated framebuffer
@@ -117,27 +180,62 @@ namespace PlatinumEngine
 		}
 	}
 
-	void PlatinumEngine::GameWindow::Update(double deltaTime)
+	///--------------------------------------------
+	/// SkyBox
+	///--------------------------------------------
+	void GameWindow::CreateSkyBoxShaderInput()
 	{
-		// check if there is any mouse input
-		switch(_mouseButtonType)
-		{
-		case 0: break;
-		case 1: break;
-		case 2: break;
-		default: break;
-		}
 
-		// check if there is any wheel input
-		if (_wheelValueDelta != 0) {}
+		std::vector<Vertex> skyboxVertices = {
+				{Maths::Vec3(-1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
 
-		// check if there is any keyboard input
-		if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
-			_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
-		{}
+				{Maths::Vec3(-1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
 
-		_scene->Update(deltaTime);
-		_previousTime += deltaTime;
+				{Maths::Vec3(1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+
+				{Maths::Vec3(-1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+
+				{Maths::Vec3(-1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f,  1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f,  1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+
+				{Maths::Vec3(-1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f, -1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(-1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+				{Maths::Vec3(1.0f, -1.0f,  1.0f),Maths::Vec3(),Maths::Vec2()},
+		};
+
+		std::vector<GLuint> indices = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+									   16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+									   30, 31, 32, 33, 34, 35};
+
+
+		_skyBoxShaderInput.Set(skyboxVertices, indices);
 	}
 
 }

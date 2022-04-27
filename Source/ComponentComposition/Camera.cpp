@@ -94,6 +94,21 @@ namespace PlatinumEngine
 		return worldToCameraMatrix;
 	}
 
+	Maths::Mat4 Camera::GetViewMatrixRotationOnly()
+	{
+		Maths::Mat4 worldToCameraMatrix;
+		Transform* tc = GetGameObject()->GetComponent<Transform>();
+		if (tc != nullptr)
+		{
+			Maths::Mat4 invR, invT;
+			invR = Maths::Quaternion::QuaternionToMatrix(Maths::Quaternion::Inverse(tc->localRotation));
+			worldToCameraMatrix = invR;
+		}
+		else
+			worldToCameraMatrix.SetIdentityMatrix();
+		return worldToCameraMatrix;
+	}
+
 	//Returns matrix that convert from camera coordinates to world coordinates (Inverse View matrix)
 	Maths::Mat4 Camera::GetCameraToWorldMatrix()
 	{
@@ -110,4 +125,6 @@ namespace PlatinumEngine
 			cameraToWorldMatrix.SetIdentityMatrix();
 		return cameraToWorldMatrix;
 	}
+
+
 }

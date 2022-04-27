@@ -5,7 +5,7 @@
 #pragma once
 
 #include <ComponentComposition/Component.h>
-#include <Physics/Physics.h>
+#include <btBulletCollisionCommon.h>
 
 namespace PlatinumEngine
 {
@@ -28,24 +28,5 @@ namespace PlatinumEngine
 			f = friction;
 			b = bounciness;
 		}
-	};
-
-	class Collider: public Component
-	{
-	public:
-		//Every collider has a position
-		//This is realtive to the transforms position
-		void SetCenter(Maths::Vec3 center);
-		Maths::Vec3 GetCenter();
-
-		btCollisionShape* GetShape();
-
-		void CleanUp();
-
-	protected:
-		btCollisionShape* _shape;
-		PhysicalMaterial _material;
-
-		Maths::Vec3 _center;
 	};
 }

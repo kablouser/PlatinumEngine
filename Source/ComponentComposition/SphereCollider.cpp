@@ -6,23 +6,22 @@
 
 namespace PlatinumEngine
 {
-	SphereCollider::SphereCollider():_radius(0.5f)
+	SphereCollider::SphereCollider():radius(0.5f), center(Maths::Vec3(0.f, 0.f, 0.f))
 	{
-		SetCenter(Maths::Vec3(0.f, 0.f, 0.f));
-		CreateShape();
 	}
 
-	void SphereCollider::SetRadius(float radius)
+	void SphereCollider::OnStart(Scene& scene)
 	{
-		_radius = radius;
-	}
-	float SphereCollider::GetRadius()
-	{
-		return _radius;
+		_sphereShape = new btSphereShape(radius);
 	}
 
-	void SphereCollider::CreateShape()
+	void SphereCollider::OnEnd(Scene& scene)
 	{
-		_shape = new btSphereShape(_radius);
+		delete _sphereShape;
+	}
+
+	btCollisionShape* SphereCollider::GetShape()
+	{
+		return _sphereShape;
 	}
 }

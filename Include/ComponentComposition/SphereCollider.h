@@ -4,23 +4,26 @@
 
 #pragma once
 
-#include <ComponentComposition/Collider.h>
+#include <ComponentComposition/Component.h>
+#include <btBulletCollisionCommon.h>
 
 namespace PlatinumEngine
 {
-	class SphereCollider: public Collider
+	class SphereCollider: public Component
 	{
 	public:
 		SphereCollider();
 
-		void SetRadius(float radius);
-		float GetRadius();
-
-
-	private:
-		float _radius;
+		btCollisionShape* GetShape();
+	public:
+		float radius;
+		Maths::Vec3 center;
 
 	private:
-		void CreateShape();
+		void OnStart(Scene& scene);
+		void OnEnd(Scene& scene);
+
+	private:
+		btCollisionShape* _sphereShape;
 	};
 }

@@ -7,8 +7,8 @@
 
 using namespace PlatinumEngine;
 
-InspectorWindow::InspectorWindow(AssetHelper* assetHelper, SceneEditor* sceneEditor) :
-	_assetHelper(assetHelper), _sceneEditor(sceneEditor) {}
+InspectorWindow::InspectorWindow(AssetHelper* assetHelper, SceneEditor* sceneEditor, Physics* physics) :
+	_assetHelper(assetHelper), _sceneEditor(sceneEditor), _physics(physics) {}
 
 void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 {
@@ -130,7 +130,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 				{
 					std::cout<<"NAME: "<<payloadPath.filename().string()<<"\n";
 					//Maybe we SetMesh on obj
-					//_activeGameObject->GetComponent<MeshRender>()->SetMesh(mesh);
+					//obj->GetComponent<MeshRender>()->SetMesh(mesh);
 				}
 			}
 			// End DragDropTarget
@@ -438,37 +438,35 @@ void InspectorWindow::ShowBoxColliderComponent(Scene& scene)
 
 	if(isHeaderOpen)
 	{
-		auto center = obj->GetComponent<BoxCollider>()->GetCenter();
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Center: ");
 		ImGui::SameLine(_sameLine -16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Xpos", &center.x, 0.001f);
+		ImGui::DragFloat("##XcenBox", &obj->GetComponent<BoxCollider>()->center.x, 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Ypos", &center.y, 0.001f);
+		ImGui::DragFloat("##YcenBox", &obj->GetComponent<BoxCollider>()->center.y, 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Zpos", &center.z, 0.001f);
+		ImGui::DragFloat("##ZcenBox", &obj->GetComponent<BoxCollider>()->center.z, 0.001f);
 
-		auto size = obj->GetComponent<BoxCollider>()->GetSize();
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Size: ");
 		ImGui::SameLine(_sameLine -16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Xpos", &size.x, 0.001f);
+		ImGui::DragFloat("##Xsize", &obj->GetComponent<BoxCollider>()->size.x, 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Ypos", &size.y, 0.001f);
+		ImGui::DragFloat("##Ysize", &obj->GetComponent<BoxCollider>()->size.y, 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Zpos", &size.z, 0.001f);
+		ImGui::DragFloat("##Zsize", &obj->GetComponent<BoxCollider>()->size.z, 0.001f);
 	}
 }
 
@@ -488,33 +486,30 @@ void InspectorWindow::ShowCapsuleColliderComponent(Scene& scene)
 
 	if(isHeaderOpen)
 	{
-		auto center = obj->GetComponent<CapsuleCollider>()->GetCenter();
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Center: ");
 		ImGui::SameLine(_sameLine -16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Xpos", &center.x, 0.001f);
+		ImGui::DragFloat("##XcenCap", &obj->GetComponent<CapsuleCollider>()->center.x, 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Ypos", &center.y, 0.001f);
+		ImGui::DragFloat("##YcenCap", &obj->GetComponent<CapsuleCollider>()->center.y, 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Zpos", &center.z, 0.001f);
+		ImGui::DragFloat("##ZcenCap", &obj->GetComponent<CapsuleCollider>()->center.z, 0.001f);
 
-		auto radius = obj->GetComponent<CapsuleCollider>()->GetRadius();
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Radius: ");
 		ImGui::SameLine(_sameLine);
-		ImGui::DragFloat("##Radius", &radius, 0.001f);
+		ImGui::DragFloat("##RadiusCap", &obj->GetComponent<CapsuleCollider>()->radius, 0.001f);
 
-		auto height = obj->GetComponent<CapsuleCollider>()->GetHeight();
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Height: ");
 		ImGui::SameLine(_sameLine);
-		ImGui::DragFloat("##Radius", &height, 0.001f);
+		ImGui::DragFloat("##Height", &obj->GetComponent<CapsuleCollider>()->height, 0.001f);
 	}
 }
 
@@ -532,27 +527,25 @@ void InspectorWindow::ShowSphereColliderComponent(Scene& scene)
 
 	if(isHeaderOpen)
 	{
-		auto center = obj->GetComponent<BoxCollider>()->GetCenter();
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Center: ");
 		ImGui::SameLine(_sameLine -16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Xpos", &center.x, 0.001f);
+		ImGui::DragFloat("##Xcen", &obj->GetComponent<SphereCollider>()->center.x, 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Ypos", &center.y, 0.001f);
+		ImGui::DragFloat("##Ycen", &obj->GetComponent<SphereCollider>()->center.y, 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Zpos", &center.z, 0.001f);
+		ImGui::DragFloat("##Zcen", &obj->GetComponent<SphereCollider>()->center.z, 0.001f);
 
-		auto radius = obj->GetComponent<CapsuleCollider>()->GetRadius();
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Radius: ");
 		ImGui::SameLine(_sameLine);
-		ImGui::DragFloat("##Radius", &radius, 0.001f);
+		ImGui::DragFloat("##RadiusSph", &obj->GetComponent<SphereCollider>()->radius, 0.001f);
 	}
 }
 
@@ -571,6 +564,28 @@ void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
 	if(isHeaderOpen)
 	{
 
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Mass: ");
+		ImGui::SameLine(_sameLine);
+		ImGui::DragFloat("##Mass", &obj->GetComponent<RigidBody>()->mass, 0.001f);
+
+
+		ImGui::PushItemWidth(50);
+		ImGui::Text("IsKinematic: ");
+		ImGui::SameLine(_sameLine);
+		ImGui::Checkbox("##kinematic", &obj->GetComponent<RigidBody>()->kinematic);
+
+
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Damping: ");
+		ImGui::SameLine(_sameLine);
+		ImGui::DragFloat("##Damping", &obj->GetComponent<RigidBody>()->damping, 0.001f);
+
+
+		ImGui::PushItemWidth(50);
+		ImGui::Text("AngularDamping: ");
+		ImGui::SameLine(_sameLine);
+		ImGui::DragFloat("##AngularDamping", &obj->GetComponent<RigidBody>()->angularDamping, 0.001f);
 	}
 }
 
@@ -640,7 +655,15 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			}
 			else if (strcmp(selectedComponent, "RigidBody Component") == 0)
 			{
-				scene.AddComponent<RigidBody>(obj);
+				if(obj && (obj->GetComponent<BoxCollider>() ||
+				        				 obj->GetComponent<SphereCollider>() ||
+				               			 obj->GetComponent<CapsuleCollider>()))
+				{
+					scene.AddComponent<RigidBody>(obj);
+					_physics->AddRigidBody(obj);
+				}
+				else
+					PLATINUM_WARNING("Please Add Collider First");
 			}
 			else if (strcmp(selectedComponent, "BoxCollider Component") == 0)
 			{

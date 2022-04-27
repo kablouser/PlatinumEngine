@@ -21,12 +21,16 @@
 #include <InputManager/InputManager.h>
 #include <IconsFontAwesome6.h>
 #include <ImGuizmo.h>
+#include <Helpers/Time.h>
+#include <Physics/Physics.h>
+
 namespace PlatinumEngine
 {
 	class SceneEditor
 	{
 	public:
-		// ___VARIABLE___
+		// ___CONSTRUCTOR___
+		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer, Time* time, Physics* physics);
 
 
 		// ___FUNCTION___
@@ -39,9 +43,19 @@ namespace PlatinumEngine
 		void ShowGUIWindow(bool* outIsOpen);
 
 		/**
-		 * Update data in Scene Editor
+		 *
+		 * @param targetSize: window size
+		 * @param IsProjectionUpdated
+		 * @param currentGizmoMode
+		 * @param currentGizmoOperation
 		 */
-		void Update(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE, ImGuizmo::OPERATION);
+		void Render(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation);
+
+		/**
+		 *
+		 * @param Time: DeltaTime
+		 */
+		void Update(double Time);
 
 		/**
 		 * Function to detect which object shown in scene editor is selected
@@ -107,7 +121,7 @@ namespace PlatinumEngine
 		bool DoInterpolationCheck(std::array<Maths::Vec2,3> triangle, Maths::Vec2 point, float& x, float& y, float& z);
 
 		/**
-		 * Update selected game object
+		 * Render selected game object
 		 * @param inGameObject
 		 */
 		void SetSelectedGameobject(GameObject* inGameObject);
@@ -142,8 +156,6 @@ namespace PlatinumEngine
 		 */
 		void CreateGridShaderInput();
 
-		// ___CONSTRUCTOR___
-		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer);
 
 	private:
 
@@ -177,6 +189,8 @@ namespace PlatinumEngine
 		InputManager* _inputManager;
 		Scene* _scene;
 		Renderer* _renderer;
+		Time* _time;
+		Physics* _physics;
 
 		// Values for Camera
 		EditorCamera _camera;

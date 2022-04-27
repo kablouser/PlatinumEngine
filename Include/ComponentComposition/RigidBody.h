@@ -17,41 +17,33 @@ namespace PlatinumEngine
 	{
 		friend class RigidBody;
 	public:
+		//Constructor
 		RigidBody();
-		//set up the rigidBody, called after physics world set up
-		void Initialize();
 
-		//Setters
-		void SetMass(float mass);
-		void SetForce(Maths::Vec3 force);
-		void SetKinematic(bool value);
-		void SetDamping(float damping);
-		void SetAngularDamping(float angularDamping);
-		//Getters
-		float GetMass();
-		Maths::Vec3 GetForce();
-		bool GetKinematic();
-		float GetDamping();
-		float GetAngularDamping();
+		btTransform GetWorldTransform(); // Get the WorldTransform matrix
+		Maths::Vec3 GetBulletRotation(); // Get the Bullet RigidBody Rotation Vector
+		Maths::Vec3 GetBulletPosition(); // Get the Bullet RigidBody Translation Vector
 
-		btTransform GetWorldTransform();
-		Maths::Vec3 GetBulletRotation();
-		Maths::Vec3 GetBulletPosition();
+	public:
+		bool kinematic; //kinematic
+		float mass; // mass
+		float damping; // damping
+		float angularDamping; // angularDamping
 
+	private:
+		// Set the rigidBody when it starts
+		void OnStart(Scene& scene) override;
 
+		// Clean up all bullet pointers
+		void OnEnd(Scene& scene) override;
 	private:
 		Maths::Vec3 _inertia;
 		Maths::Vec3 _linearVelocity;
 		Maths::Vec3 _angularVelocity;
 
-
-		bool _kinematic;
-		float _mass;
-		float _damping;
-		float _angularDamping;
-
+		//pointer of bullet objects
 		btRigidBody* _rigidBody;
-		Collider* collider;
-		Physics* _physics;
+		btDefaultMotionState* _motionState;
+
 	};
 }

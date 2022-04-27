@@ -24,7 +24,7 @@ namespace PlatinumEngine
 	class InspectorWindow
 	{
 	public:
-		InspectorWindow(AssetHelper* assetHelper, SceneEditor* sceneEditor);
+		InspectorWindow(AssetHelper* assetHelper, SceneEditor* sceneEditor, Physics* physics);
 		void ShowGUIWindow(bool* isOpen, Scene& scene);
 	private:
 		// TODO: Add specific component guis as components are created
@@ -39,11 +39,11 @@ namespace PlatinumEngine
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);
 
-		void cameraComponentHelper(char* cameraType[]);
-		void capsuleColliderHelper();
 	private:
 		AssetHelper* _assetHelper;
 		SceneEditor* _sceneEditor;
+		Physics* _physics;
+
 		std::string _meshFileName;
 		bool _isAddComponentWindowOpen = false;
 

@@ -29,6 +29,7 @@ namespace PlatinumEngine
 
 	/// this is a bool parameter used for disable or enable the pause and step button
 	static bool enablePauseButton = true;
+	static bool enableStepButton = false;
 	///--------------------------------------------------------------------------
 	/// this function will create a basic window when you open the Platinum Engine
 	///--------------------------------------------------------------------------
@@ -104,31 +105,23 @@ namespace PlatinumEngine
 			///------------------------------------------------------------------
 			if (ImGui::Button(ICON_FA_PLAY "##Play"))
 			{
-				_gameWindow->_onUpdate = !_gameWindow->_onUpdate;
-				if(_gameWindow->_onUpdate)
-				{
+					_gameWindow->isPaused = false;
 					enablePauseButton = !enablePauseButton;
-				}
-				else if(!_gameWindow->_onUpdate)
-				{
-					enablePauseButton = true;
-				}
+					enableStepButton = !enableStepButton;
 			}
 
   			// activate or inactive pause and step button
 			ImGui::BeginDisabled(enablePauseButton);
 			if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
 			{
-				_pause = !_pause;
-				_gameWindow->Pause(_pause);
+				_gameWindow->Pause();
 			}
 
 			if (ImGui::Button(ICON_FA_FORWARD_STEP "##Step"))
 			{
-				if(!_pause)
-					_pause = true;
 				_gameWindow->Step();
 			}
+
 			ImGui::EndDisabled();
 
 			ImGui::EndMainMenuBar();

@@ -6,34 +6,26 @@
 
 namespace PlatinumEngine
 {
-	CapsuleCollider::CapsuleCollider():_radius(0.5f),
-									   _height(1.5f)
+	CapsuleCollider::CapsuleCollider():radius(0.5f),
+									   height(1.5f),
+									   center(Maths::Vec3(0.f, 0.f, 0.f))
 	{
-		SetCenter(Maths::Vec3(0.f, 0.f, 0.f));
-		CreateShape();
+
 	}
 
-	void CapsuleCollider::SetRadius(float radius)
+	void CapsuleCollider::OnStart(Scene& scene)
 	{
-		_radius = radius;
-	}
-	float CapsuleCollider::GetRadius()
-	{
-		return _radius;
+		_capsuleShape = new btCapsuleShape(radius, height);
 	}
 
-	void CapsuleCollider::SetHeight(float height)
+	void CapsuleCollider::OnEnd(Scene& scene)
 	{
-		_height = height;
-	}
-	float CapsuleCollider::GetHeight()
-	{
-		return _height;
+		delete _capsuleShape;
 	}
 
-	void CapsuleCollider::CreateShape()
+	btCollisionShape* CapsuleCollider::GetShape()
 	{
-		_shape = new btCapsuleShape(_radius, _height);
+		return _capsuleShape;
 	}
 
 }

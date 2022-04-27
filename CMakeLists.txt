@@ -107,6 +107,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/ComponentComposition/BoxCollider.cpp;"
 	"Source/ComponentComposition/CapsuleCollider.cpp;"
 	"Source/ComponentComposition/SphereCollider.cpp;"
+	"Source/ComponentComposition/Collider.cpp;"
 	
 	"Source/GameWindow/GameWindow.cpp;"
 	
@@ -133,7 +134,6 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/Texture.cpp;"
 	"Source/OpenGL/Material.cpp;"
 	
-	"Source/Physics/Collision.cpp;"
 	"Source/Physics/Physics.cpp;"
 	
 	"Source/Profiler/Profiler.cpp;"
@@ -153,7 +153,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/WindowManager/WindowManager.cpp;"
 	)
 
-add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN} Source/ComponentComposition/Collider.cpp Include/ComponentComposition/Collider.h)
+add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 
 
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -161,7 +161,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 	"${CMAKE_CURRENT_LIST_DIR}/Fonts"
 	"${FETCHCONTENT_BASE_DIR}/imguizmo-src"
 	"${FETCHCONTENT_BASE_DIR}/stb-src"
-	"${FETCHCONTENT_BASE_DIR}/bullet-src/src"
+	"${FETCHCONTENT_BASE_DIR}/bullet3-src/src"
 	)
 #-----------------------------
 

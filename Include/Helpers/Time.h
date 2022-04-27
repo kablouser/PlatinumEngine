@@ -24,17 +24,24 @@ namespace PlatinumEngine
 
 	public:
 		//Called at the start of the main loop
-		void update()
+		void update(bool isPause)
 		{
 			//Find delta time
-			Time::currentFrame = (float)glfwGetTime();
+			if(isPause)
+			{
+				Time::currentFrame = Time::lastFrame;
+			}
+			else
+			{
+				Time::currentFrame = (float)glfwGetTime();
+			}
 			Time::delta = Time::currentFrame - Time::lastFrame;
 
-			//Update time
+			//Render time
 			Time::time = (float)glfwGetTime();
 
 			//Find FPS
-			Time::fps = 1 / Time::delta;
+			Time::fps = 1.0f / Time::delta;
 
 			//Done
 			Time::framesPassed++;
@@ -42,13 +49,18 @@ namespace PlatinumEngine
 			Time::lastFrame = Time::currentFrame;
 		}
 
+		void Stop()
+		{
+
+		}
+
 		//Since all values should be read only they need getters
 		float getCurrentFrame() { return Time::currentFrame; }
 		int   getFramesPassed() { return Time::framesPassed; }
 		float getLastFrame() { return Time::lastFrame; }
 		float getSeconds() { return Time::seconds; }
-		float getDelta() { return Time::delta; }
+		float GetDelta() { return Time::delta; }
 		float getTime() { return Time::time; }
 		float getFps() { return Time::fps; }
-	} Time;
+	};
 }

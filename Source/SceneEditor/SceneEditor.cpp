@@ -16,13 +16,16 @@ namespace PlatinumEngine{
 
 	// ___CONSTRUCTOR___
 
-	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer):
+	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer, Time* time, Physics* physics):
 			_ifCameraSettingWindowOpen(false),
 			_camera(), _fov(60), _near(0.1), _far(10000),
 
 			_inputManager(inputManager),
 			_scene(scene),
 			_renderer(renderer),
+			_time(time),
+			_physics(physics),
+
 			_renderTexture(),
 
 			_selectedGameobject(nullptr),
@@ -285,9 +288,9 @@ namespace PlatinumEngine{
 			{
 
 				//------------------
-				// Update Data
+				// Render Data
 				//------------------
-				Update(targetSize, isProjectionUpdated, _currentGizmoMode, _currentGizmoOperation);
+				Render(targetSize, isProjectionUpdated, _currentGizmoMode, _currentGizmoOperation);
 			}
 			ImGui::EndChild();
 		}
@@ -299,7 +302,7 @@ namespace PlatinumEngine{
 
 
 
-	void SceneEditor::Update(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
+	void SceneEditor::Render(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
 	{
 
 		//--------------------------------
@@ -350,7 +353,7 @@ namespace PlatinumEngine{
 
 
 		//---------------------------
-		// Update projection matrix
+		// Render projection matrix
 		//---------------------------
 
 		// check camera type
@@ -429,6 +432,34 @@ namespace PlatinumEngine{
 				// enable depth test for the later rendering
 				glDepthMask(true);
 			}
+			// ------------- Render Game Objects ------------- //
+			// Start rendering (bind a shader)
+			_renderer->Begin();
+
+			// Render rendering information to renderer
+			_renderer->SetModelMatrix();
+
+			// check if the view matrix is passed to shader
+
+			//if(!_camera.CheckIfViewMatrixUsed())
+			{
+				_renderer->SetViewMatrix(_camera.viewMatrix4);
+				_camera.MarkViewMatrixAsUsed();
+			}
+			//if(!_camera.CheckIfProjectionMatrixUsed())
+			{
+				_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
+				_camera.MarkProjectionMatrixAsUsed();
+			}
+      
+			_renderer->SetLightProperties();
+
+			// Render game objects
+			_scene->Render(*_renderer);
+
+			// End rendering (unbind a shader)
+			_renderer->End();
+
 
 			// -------------------- Render GRID ------------------ //
 			if(_enableGrid)
@@ -507,6 +538,12 @@ namespace PlatinumEngine{
 			_camera.UpdateCameraQuaternion();
 		}
 
+	}
+
+	void SceneEditor::Update(double deltaTime)
+	{
+		_scene->Update(deltaTime);
+		_physics->Update(deltaTime);
 	}
 
 	///--------------------------------------------
@@ -1032,6 +1069,10 @@ namespace PlatinumEngine{
 
 	}
 
+
+	///--------------------------------------------
+	/// SkyBox
+	///--------------------------------------------
 	void SceneEditor::CreateSkyBoxShaderInput()
 	{
 

@@ -8,9 +8,10 @@
 #include <btBulletCollisionCommon.h>
 
 #include <ComponentComposition/GameObject.h>
-
+#include <ComponentComposition/Collider.h>
 #include <Maths/Vectors.h>
 #include <Maths/Quaternion.h>
+#include <Helpers/Time.h>
 
 #include <vector>
 
@@ -22,7 +23,8 @@ namespace PlatinumEngine
 		Physics();
 		~Physics();
 
-		void Update();
+		//Update the physics world by delta time
+		void Update(double time);
 
 		void SetGravity(float gravity);
 
@@ -31,6 +33,7 @@ namespace PlatinumEngine
 		//helper function helps to convert vectors, quaternions and scalars from bullet to us or us to bullet
 		static btQuaternion convertEulerToQuaternion(const btVector3& vector);
 		static Maths::Quaternion convertVQuaternionBack(const btQuaternion& quaternion);
+		static btQuaternion convertQuaternion(const Maths::Quaternion& quaternion);
 		static Maths::Vec3 convertVectorBack(const btVector3& vector);
 		static btVector3  convertVector(Maths::Vec3 vector);
 
@@ -39,6 +42,10 @@ namespace PlatinumEngine
 		void AddRigidBody(GameObject* gameObject);
 		void AddBulletBody(btRigidBody* rigidBody);
 		void RemoveBulletBody(btRigidBody* rigidBody);
+
+		//initialize and cleanup the bullet physics world
+		void Initialize();
+		void CleanUp();
 
 	private://paramters and objects
 		//bullet init objects
@@ -53,11 +60,5 @@ namespace PlatinumEngine
 
 		//Holds the current gravity value
 		float _gravity;
-
-	private://functions
-
-		//initialize and cleanup the bullet physics world
-		void Initialize();
-		void CleanUp();
 	};
 }

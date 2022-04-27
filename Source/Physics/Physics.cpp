@@ -1,22 +1,23 @@
 //
-// Created by 肖宜辰 on 2022/4/22.
+// Created by shawn on 2022/4/22.
 //
 
 #include "Physics/Physics.h"
-#include <Helpers/Time.h>
+
 
 #include <ComponentComposition/RigidBody.h>
 #include <ComponentComposition/BoxCollider.h>
 #include <ComponentComposition/SphereCollider.h>
 #include <ComponentComposition/CapsuleCollider.h>
+#include <ComponentComposition/Transform.h>
 
 #include <Logger/Logger.h>
 
 namespace PlatinumEngine
 {
-	Physics::Physics() { Initialize(); };
+	Physics::Physics():_gravity(9.81f) {};
 
-	Physics::~Physics() { CleanUp(); };
+	Physics::~Physics() {};
 
 	//initialize all bullet class objects and set bullet physics world
 	void Physics::Initialize()
@@ -33,7 +34,7 @@ namespace PlatinumEngine
 		_solver = new btSequentialImpulseConstraintSolver;
 
 		_bulletWorld = new btDiscreteDynamicsWorld(_dispatcher, _broadPhase, _solver, _config);
-		SetGravity(9.81f);
+		SetGravity(-_gravity);
 	}
 
 	//clean up all the bullet object pointer
@@ -41,8 +42,8 @@ namespace PlatinumEngine
 	{
 		delete _bulletWorld;
 		delete _solver;
-		delete _config;
 		delete _dispatcher;
+		delete _config;
 		delete _broadPhase;
 	}
 
@@ -60,10 +61,21 @@ namespace PlatinumEngine
 		return _gravity;
 	}
 
-	//Update the
-	void Physics::Update()
+	//Render the bulletWorld
+	void Physics::Update(double time)
 	{
-		_bulletWorld->stepSimulation(Time.getDelta(), 10);
+		PLATINUM_INFO("Render");
+		_bulletWorld->stepSimulation((btScalar)time, 10);
+
+		//All physics rigidbodys need there updated position to refelect what bullet decides
+		for (auto & _physicsObject : _physicsObjects)
+		{
+			//The actual position is a combination of the rigidbodys position and the transform position
+			_physicsObject->GetComponent<Transform>()->localPosition = _physicsObject->GetComponent<RigidBody>()->GetBulletPosition();
+			_physicsObject->GetComponent<Transform>()->localRotation = Maths::Quaternion(_physicsObject->GetComponent<RigidBody>()->GetBulletRotation().x,
+																							  _physicsObject->GetComponent<RigidBody>()->GetBulletRotation().y,
+																							  _physicsObject->GetComponent<RigidBody>()->GetBulletRotation().z);
+		}
 	}
 
 	void Physics::AddRigidBody(GameObject* gameObject)
@@ -100,7 +112,7 @@ namespace PlatinumEngine
 	}
 	Maths::Vec3 Physics::convertVectorBack(const btVector3& vector)
 	{
-		return Maths::Vec3(vector.getX(), vector.getY(), vector.getZ());
+		return {vector.getX(), vector.getY(), vector.getZ()};
 	}
 
 	btQuaternion Physics::convertEulerToQuaternion(const btVector3& vector)
@@ -109,7 +121,12 @@ namespace PlatinumEngine
 	}
 	Maths::Quaternion Physics::convertVQuaternionBack(const btQuaternion& quaternion)
 	{
-		return Maths::Quaternion(quaternion.getW(), quaternion.getX(), quaternion.getY(), quaternion.getZ());
+		return {quaternion.getW(), quaternion.getX(), quaternion.getY(), quaternion.getZ()};
+	}
+
+	btQuaternion Physics::convertQuaternion(const Maths::Quaternion& quaternion)
+	{
+		return btQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
 	}
 
 }

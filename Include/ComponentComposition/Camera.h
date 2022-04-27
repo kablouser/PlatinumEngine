@@ -40,7 +40,10 @@ namespace PlatinumEngine
 		Maths::Mat4 GetViewMatrix();
 		//Also known as View Matrix
 		Maths::Mat4 GetWorldToCameraMatrix();
+		Maths::Mat4 GetViewMatrixRotationOnly();
 		//Also known as Inverse View Matrix
 		Maths::Mat4 GetCameraToWorldMatrix();
+		//Get the rotation matrix from biew matrix
+
 	};
 }
