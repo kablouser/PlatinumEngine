@@ -5,6 +5,8 @@ out vec4 outColour;
 in vec3 position;
 in float life;
 in vec2 texCoords;
+in vec3 velocity;
+in float scale;
 
 uniform float maxLife;
 
@@ -77,17 +79,27 @@ void main()
 
     if (useShadeByLife)
     {
-        // Set them this way to the lerp is done from spawning until death
-        curMin = maxVal;
-        curMax = minVal;
-        curValue = life;
+        curValue = maxLife - life;
     }
     if (useShadeByPosition)
     {
         curValue = distance(vec3(0,0,0), position);
     }
+    if (useShadeBySpeed)
+    {
+        curValue = length(velocity);
+    }
+    if (useShadeBySize)
+    {
+        curValue = scale;
+    }
 
     float t = (((curValue - curMin) * (targetMax - targetMin)) / (curMax - curMin)) + targetMin;
+
+    if (curValue < curMin)
+        t = 0.0f;
+    if (curValue > curMax)
+        t = 1.0f;
 
     outColour = LerpColour(StartColour, EndColour, t);
 }

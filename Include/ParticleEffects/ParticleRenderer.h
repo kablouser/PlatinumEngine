@@ -23,7 +23,7 @@ namespace PlatinumEngine
 			void Clear();
 		private:
 			int _numParticles;
-			unsigned int _positionLifeVBO = 0, _particleVertexVAO = 0, _particleVertexVBO = 0;
+			unsigned int _positionLifeVBO = 0, _velocityScaleVBO = 0, _particleVertexVAO = 0, _particleVertexVBO = 0;
 			int _numFloats = 4;
 
 			// These are the vertices of the billboard for a particle

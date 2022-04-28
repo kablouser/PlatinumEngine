@@ -16,6 +16,7 @@ namespace PlatinumEngine
 			Maths::Vec3 velocity;
 			float life;
 			float distanceFromCamera;
+			float scale;
 
 			// a default constructor for easy creation
 			Particle() : position(Maths::Vec3(0.0f, 0.0f, 0.0f)),

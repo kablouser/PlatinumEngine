@@ -46,6 +46,7 @@ namespace PlatinumEngine
 		{
 			// We know we want to send a set number of floats to the shader so allocate space for that
 			GLfloat newData[particles->size() * 4];
+			GLfloat newData2[particles->size() * 4];
 
 			// Now, loop each alive particle and send the data across
 			for (unsigned int i = 0; i < particles->size(); ++i)
@@ -54,6 +55,10 @@ namespace PlatinumEngine
 				newData[i * 4 + 1] = particles->at(i).position.y;
 				newData[i * 4 + 2] = particles->at(i).position.z;
 				newData[i * 4 + 3] = particles->at(i).life;
+				newData2[i * 4 + 0] = particles->at(i).velocity.x;
+				newData2[i * 4 + 1] = particles->at(i).velocity.y;
+				newData2[i * 4 + 2] = particles->at(i).velocity.z;
+				newData2[i * 4 + 3] = particles->at(i).scale;
 			}
 
 			// Now, set the sub-data of the big buffer we created earlier, that way we only render particles in use
@@ -62,6 +67,13 @@ namespace PlatinumEngine
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _positionLifeVBO));
 			GL_CHECK(glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0));
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _velocityScaleVBO));
+			GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * _numFloats * particles->size(), &newData));
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _velocityScaleVBO));
+			GL_CHECK(glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
 			// Need to store this to know how many particles to draw in instance call
@@ -107,7 +119,21 @@ namespace PlatinumEngine
 			GL_CHECK(glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
+			if (_velocityScaleVBO == 0)
+				GL_CHECK(glGenBuffers(1, &_velocityScaleVBO));
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _velocityScaleVBO));
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * _numFloats * MaxParticles, NULL, GL_STATIC_DRAW));
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+			GL_CHECK(glBindBufferRange(GL_UNIFORM_BUFFER, 0, _velocityScaleVBO, 0, sizeof(GLfloat) * _numFloats * MaxParticles));
+
+			// Need to tell opengl what values to send to shader and in what format
+			GL_CHECK(glEnableVertexAttribArray(3));
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _velocityScaleVBO));
+			GL_CHECK(glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0));
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
 			GL_CHECK(glVertexAttribDivisor(2, 1)); // tell OpenGL this is an instanced vertex attribute.
+			GL_CHECK(glVertexAttribDivisor(3, 1)); // tell OpenGL this is an instanced vertex attribute.
 		}
 	}
 }

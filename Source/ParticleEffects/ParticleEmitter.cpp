@@ -65,6 +65,7 @@ namespace PlatinumEngine
 					p.position += p.velocity * deltaTime;
 					Maths::Vec3 vector = p.position - cameraPos;
 					p.distanceFromCamera = Maths::Length(vector);
+					p.scale = 0.5f * p.life;
 
 					// Adding to list of alive particles
 					particles->emplace_back(p);

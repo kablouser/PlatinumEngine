@@ -3,6 +3,7 @@ R"(
 layout (location = 0) in vec3 inVertex;
 layout (location = 1) in vec2 inTextureCoords;
 layout (location = 2) in vec4 inPosition;
+layout (location = 3) in vec4 inVelocity;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -12,9 +13,15 @@ uniform vec3 cameraPos;
 out float life;
 out vec2 texCoords;
 out vec3 position;
+out vec3 velocity;
+out float scale;
 
 void main()
 {
+    position = inPosition.xyz;
+    life = inPosition.w;
+    velocity = inVelocity.xyz;
+    scale = inVelocity.w;
     texCoords = inTextureCoords;
     vec3 Position = inPosition.xyz;
     mat4 ModelView = view * model;
@@ -33,9 +40,7 @@ void main()
     ModelView[2][0] = 0;
 //    ModelView[2][1] = 0;
     ModelView[2][2] = d;
-    gl_Position = projection * ModelView * vec4(inVertex + Position, 1.0);
-    position = inPosition.xyz;
-    life = inPosition.w;
+    gl_Position = projection * ModelView * vec4(scale * inVertex + Position, 1.0);
 
     // Billboarding cylindrical
 //    vec3 _pos = (inVertex + inPosition.xyz);
