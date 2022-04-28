@@ -995,10 +995,16 @@ namespace PlatinumEngine{
 		return currentSelectedGameObject;
 	}
 
-	void SceneEditor::SetSelectedGameobject(SavedReference<GameObject>& inGameObject)
+	void SceneEditor::SetSelectedGameobject(SavedReference<GameObject> inGameObject)
 	{
 		// do NOT move this, copy it
 		_selectedGameobject = SavedReference<GameObject>(inGameObject);
+	}
+
+	void SceneEditor::DeleteSelectedGameObject()
+	{
+		_scene->RemoveGameObject(_selectedGameobject);
+		_selectedGameobject = {};
 	}
 
 	SavedReference<GameObject>& SceneEditor::GetSelectedGameobject()

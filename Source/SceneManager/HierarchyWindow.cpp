@@ -57,6 +57,37 @@ namespace PlatinumEngine
 			_sceneEditor->SetSelectedGameobject(gameObject);
 		}
 
+		// Handle right click menu for a game object
+		if (ImGui::IsItemClicked(1))
+		{
+			ImGui::OpenPopup("RightClickGameObject");
+		}
+		if (ImGui::BeginPopup("RightClickGameObject"))
+		{
+			ImGui::Text("Remove Object");
+			if (ImGui::IsItemClicked())
+			{
+				if (gameObject == _sceneEditor->GetSelectedGameobject())
+					_sceneEditor->DeleteSelectedGameObject();
+				else
+				{
+					// For a safe delete, we need to check if the selected game object is a child of the selected
+					// object to delete
+					auto parent = _sceneEditor->GetSelectedGameobject()->GetParent();
+					while (parent)
+					{
+						// Manually set nullptr as we know we will remove directly later
+						if (parent == gameObject)
+							_sceneEditor->SetSelectedGameobject(nullptr);
+						parent = parent->GetParent();
+					}
+
+					scene.RemoveGameObject(*gameObject);
+				}
+			}
+			ImGui::EndPopup();
+		}
+
 
 		// Add Drag and Drop Events
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))

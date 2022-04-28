@@ -10,6 +10,7 @@
 #include <ComponentComposition/TransformComponent.h>
 #include <ComponentComposition/GameObject.h>
 #include <OpenGL/Mesh.h>
+#include <SceneEditor/SceneEditor.h>
 
 #include <IconsFontAwesome6.h>
 namespace PlatinumEngine
@@ -17,7 +18,7 @@ namespace PlatinumEngine
 	class InspectorWindow
 	{
 	public:
-		InspectorWindow(AssetHelper* assetHelper);
+		InspectorWindow(AssetHelper* assetHelper, SceneEditor* sceneEditor);
 		void ShowGUIWindow(bool* isOpen, Scene& scene);
 		void SetActiveGameObject(SavedReference<GameObject>& gameObject);
 	private:
@@ -33,6 +34,7 @@ namespace PlatinumEngine
 	private:
 		AssetHelper* _assetHelper;
 		SavedReference<GameObject> _activeGameObject;
+		SceneEditor* _sceneEditor;
 		std::string _meshFileName;
 		bool _isAddComponentWindowOpen = false;
 

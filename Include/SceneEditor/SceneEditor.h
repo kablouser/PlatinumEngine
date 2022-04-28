@@ -120,6 +120,8 @@ namespace PlatinumEngine
 		 */
 		void SetSelectedGameobject(SavedReference<GameObject>& inGameObject);
 
+		void DeleteSelectedGameObject();
+
 		/**
 		 * Get the private selected game object
 		 * @return
