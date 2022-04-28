@@ -40,15 +40,13 @@ namespace PlatinumEngine
 			renderer.particleRenderer.SetInput(particleEmitter->particles);
 			renderer.BeginParticleShader();
 			renderer.SetMaxLifeParticleShader(particleEmitter->respawnLifetime);
-			renderer.SetStartColourParticleShader(particleEmitter->startColour);
-			renderer.SetEndColourParticleShader(particleEmitter->endColour);
-			renderer.SetControlPointParticleShader(particleEmitter->P2Times, particleEmitter->P2Colour, 2);
-			renderer.SetControlPointParticleShader(particleEmitter->P3Times, particleEmitter->P3Colour, 3);
+			renderer.SetStartColourParticleShader(startColour);
+			renderer.SetEndColourParticleShader(endColour);
 			renderer.SetTextureParticleShader(texture, useTexture);
-			renderer.SetShadeBy(shadeBy);
+			renderer.SetShadeByParticleShader(shadeBy);
+			renderer.SetMinMaxShadeByParticleShader(minShadeValue, maxShadeValue);
 			renderer.particleRenderer.Render();
 			renderer.EndParticleShader();
 		}
-
 	}
 }

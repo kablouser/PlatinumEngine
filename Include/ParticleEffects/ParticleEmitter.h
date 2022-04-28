@@ -44,25 +44,6 @@ namespace PlatinumEngine
 			float minMaxVelocityY[2] = {0.0f, 1.0f};
 			float minMaxVelocityZ[2] = {-1.0f, 1.0f};
 
-			// Shader settings
-			Maths::Vec4 startColour = Maths::Vec4(1,1,1,1);
-			Maths::Vec4 endColour = Maths::Vec4(0,0,0,0);
-			Maths::Vec4 P2Colour = Maths::Vec4(1,1,1,1);
-			float P2Time = 0.0f;
-			Maths::Vec4 P3Colour = Maths::Vec4(0,0,0,0);
-			float P3Time = 1.0f;
-
-			Maths::Vec2 startRed = Maths::Vec2(0.0f, 1.0f);
-			Maths::Vec2 P2Red = Maths::Vec2(0.0f, 1.0f);
-			Maths::Vec2 P3Red = Maths::Vec2(1.0f, 0.0f);
-			Maths::Vec2 endRed = Maths::Vec2(1.0f, 0.0f);
-
-			// Bezier curve values
-			// Start and end have fixed time, 0 and 1 respectively
-			// RGBA times for P2 and P3
-			float P2Times[4] = {0,0,0,0};
-			float P3Times[4] = {1,1,1,1};
-
 			std::unique_ptr<std::vector<Particle>> particles;
 		private:
 			unsigned int FirstDeadParticle();

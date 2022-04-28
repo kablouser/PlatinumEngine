@@ -26,5 +26,9 @@ namespace PlatinumEngine
 		Texture *texture = nullptr;
 		bool useTexture = false;
 		std::string shadeBy = "Life";
+		Maths::Vec4 startColour = Maths::Vec4(1,0,0,1);
+		Maths::Vec4 endColour = Maths::Vec4(0,1,0,0);
+		float minShadeValue = 0.0f;
+		float maxShadeValue = 4.0f;
 	};
 }

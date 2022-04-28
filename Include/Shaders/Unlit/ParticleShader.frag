@@ -2,6 +2,7 @@ R"(
 #version 330 core
 
 out vec4 outColour;
+in vec3 position;
 in float life;
 in vec2 texCoords;
 
@@ -21,6 +22,8 @@ uniform bool useShadeByLife;
 uniform bool useShadeByPosition;
 uniform bool useShadeBySpeed;
 uniform bool useShadeBySize;
+uniform float minVal;
+uniform float maxVal;
 
 // Bezier functions
 vec2 Lerp(vec2 start, vec2 end, float t)
@@ -68,16 +71,20 @@ void main()
     float targetMin = 0.0f;
     float targetMax = 1.0f;
 
-    float curMin;
-    float curMax;
+    float curMin = minVal;
+    float curMax = maxVal;
     float curValue;
 
     if (useShadeByLife)
     {
         // Set them this way to the lerp is done from spawning until death
-        curMin = maxLife;
-        curMax = 0;
+        curMin = maxVal;
+        curMax = minVal;
         curValue = life;
+    }
+    if (useShadeByPosition)
+    {
+        curValue = distance(vec3(0,0,0), position);
     }
 
     float t = (((curValue - curMin) * (targetMax - targetMin)) / (curMax - curMin)) + targetMin;

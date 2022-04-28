@@ -11,6 +11,7 @@ uniform vec3 cameraPos;
 
 out float life;
 out vec2 texCoords;
+out vec3 position;
 
 void main()
 {
@@ -33,6 +34,7 @@ void main()
 //    ModelView[2][1] = 0;
     ModelView[2][2] = d;
     gl_Position = projection * ModelView * vec4(inVertex + Position, 1.0);
+    position = inPosition.xyz;
     life = inPosition.w;
 
     // Billboarding cylindrical

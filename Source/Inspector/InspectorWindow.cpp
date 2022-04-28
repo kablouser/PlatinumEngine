@@ -626,15 +626,97 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 
 		if (ImGui::CollapsingHeader("Shader Settings"))
 		{
-			// Pick Texture, yes/no
-			// Set number cols and rows in texture
+			auto ColourPickerFlags =
+					ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_AlphaBar;
+
+			ImGui::Text("Start Colour: ");
+			ImGui::SameLine();
+			ImVec4 startColour((component->startColour[0]),
+					(component->startColour[1]),
+					(component->startColour[2]),
+					(component->startColour[3]));
+			ImGui::PushItemWidth(20);
+			if (ImGui::ColorButton("##ButtonStartColour", startColour))
+			{
+				ImGui::OpenPopup("##PickStartColour");
+			}
+			ImGui::PopItemWidth();
+			if (ImGui::BeginPopup("##PickStartColour"))
+			{
+				ImGui::PushItemWidth(180.0f);
+				ImGui::ColorPicker4("##StartColour", (float*)&(component->startColour),
+						ColourPickerFlags);
+				ImGui::PopItemWidth();
+				ImGui::EndPopup();
+			}
+
+			ImGui::SameLine();
+			ImGui::Text("End Colour: ");
+			ImGui::SameLine();
+			ImVec4 endColour((component->endColour[0]),
+					(component->endColour[1]),
+					(component->endColour[2]),
+					(component->endColour[3]));
+			ImGui::PushItemWidth(20);
+			if (ImGui::ColorButton("##ButtonEndColour", endColour))
+			{
+				ImGui::OpenPopup("##PickEndColour");
+			}
+			ImGui::PopItemWidth();
+			if (ImGui::BeginPopup("##PickEndColour"))
+			{
+				ImGui::PushItemWidth(180.0f);
+				ImGui::ColorPicker4("##EndColour", (float*)&(component->endColour), ColourPickerFlags);
+				ImGui::PopItemWidth();
+				ImGui::EndPopup();
+			}
+
+			// Possible options to shade by
+			const std::string items[] = {"Life", "Position", "Size", "Speed"};
+			ImGui::Text("Shade by: ");
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall-30);
+			ImGui::PushItemWidth(80);
+			if (ImGui::BeginCombo("##ShadeByCombo", component->shadeBy.c_str()))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+				{
+					bool is_selected = (component->shadeBy == items[n]);
+					if (ImGui::Selectable(items[n].c_str(), is_selected))
+						component->shadeBy = items[n];
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::SameLine();
+			ImGui::Text("Min");
+			float maxVal = 100.0f;
+			if (component->shadeBy == "Life")
+			{
+				maxVal = component->particleEmitter->respawnLifetime;
+				if (component->maxShadeValue > maxVal)
+					component->maxShadeValue = maxVal;
+				if (component->minShadeValue > maxVal)
+					component->minShadeValue = maxVal;
+			}
+			ImGui::SameLine();
+			ImGui::PushItemWidth(50);
+			ImGui::SliderFloat("##MinShadeValue", &component->minShadeValue, 0.f, maxVal, "%.3f", ImGuiSliderFlags_None);
+			ImGui::PopItemWidth();
+			ImGui::SameLine();
+			ImGui::Text("Max");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(50);
+			ImGui::SliderFloat("##MaxShadeValue", &component->maxShadeValue, 0.f, maxVal, "%.3f", ImGuiSliderFlags_None);
+			ImGui::PopItemWidth();
+
 			char textureBuffer[64];
 			if(component->texture != nullptr)
 				strcpy(textureBuffer,  component->texture->fileName.c_str());
 			else
 				memset(textureBuffer, 0, 64 * sizeof(char));
 			ImGui::Text("%s", "Texture:");
-			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall-30);
 			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
 			ImGui::InputText("##ParticleEffectTexture", textureBuffer, sizeof(textureBuffer), ImGuiInputTextFlags_ReadOnly);
 			ImGui::PopItemWidth();
@@ -650,70 +732,6 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 			}
 			ImGui::SameLine();
 			ImGui::Checkbox("##UseParticleEffectTexture", &(component->useTexture));
-
-			auto ColourPickerFlags =
-					ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_AlphaBar;
-
-			ImGui::Text("Start Colour: ");
-			ImGui::SameLine();
-			ImVec4 startColour((component->particleEmitter->startColour[0]),
-					(component->particleEmitter->startColour[1]),
-					(component->particleEmitter->startColour[2]),
-					(component->particleEmitter->startColour[3]));
-			ImGui::PushItemWidth(20);
-			if (ImGui::ColorButton("##ButtonStartColour", startColour))
-			{
-				ImGui::OpenPopup("##PickStartColour");
-			}
-			ImGui::PopItemWidth();
-			if (ImGui::BeginPopup("##PickStartColour"))
-			{
-				ImGui::PushItemWidth(180.0f);
-				ImGui::ColorPicker4("##StartColour", (float*)&(component->particleEmitter->startColour),
-						ColourPickerFlags);
-				ImGui::PopItemWidth();
-				ImGui::EndPopup();
-			}
-
-			ImGui::SameLine();
-			ImGui::Text("End Colour: ");
-			ImGui::SameLine();
-			ImVec4 endColour((component->particleEmitter->endColour[0]),
-					(component->particleEmitter->endColour[1]),
-					(component->particleEmitter->endColour[2]),
-					(component->particleEmitter->endColour[3]));
-			ImGui::PushItemWidth(20);
-			if (ImGui::ColorButton("##ButtonEndColour", endColour))
-			{
-				ImGui::OpenPopup("##PickEndColour");
-			}
-			ImGui::PopItemWidth();
-			if (ImGui::BeginPopup("##PickEndColour"))
-			{
-				ImGui::PushItemWidth(180.0f);
-				ImGui::ColorPicker4("##EndColour", (float*)&(component->particleEmitter->endColour), ColourPickerFlags);
-				ImGui::PopItemWidth();
-				ImGui::EndPopup();
-			}
-
-			// Possible options to shade by
-			const std::string items[] = {"Life", "Position", "Size", "Speed"};
-			ImGui::Text("Shade by: ");
-			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
-			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
-			if (ImGui::BeginCombo("##ShadeByCombo", component->shadeBy.c_str()))
-			{
-				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
-				{
-					bool is_selected = (component->shadeBy == items[n]);
-					if (ImGui::Selectable(items[n].c_str(), is_selected))
-						component->shadeBy = items[n];
-					if (is_selected)
-						ImGui::SetItemDefaultFocus();
-				}
-				ImGui::EndCombo();
-			}
-			ImGui::PopItemWidth();
 
 //			// Red Bezier
 //			ImVec2 array[4] = {ImVec2(0, component->particleEmitter->startColour[0]),

@@ -268,7 +268,7 @@ namespace PlatinumEngine
 		}
 	}
 
-	void Renderer::SetShadeBy(const std::string &shadeBy)
+	void Renderer::SetShadeByParticleShader(const std::string &shadeBy)
 	{
 		_particleShader.Bind();
 
@@ -288,6 +288,13 @@ namespace PlatinumEngine
 			_particleShader.SetUniform("useShadeBySize", true);
 		else
 			_particleShader.SetUniform("useShadeByLife", true); // as a back up plan
+	}
+
+	void Renderer::SetMinMaxShadeByParticleShader(float min, float max)
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform("minVal", min);
+		_particleShader.SetUniform("maxVal", max);
 	}
 
 	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
