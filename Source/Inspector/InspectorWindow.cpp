@@ -625,10 +625,10 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 
 		if (ImGui::CollapsingHeader("Shader Settings"))
 		{
-			auto ColourPickerFlags = ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview;
+			auto ColourPickerFlags = ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_AlphaBar;
 
 			ImGui::Text("Start Colour: ");
-			ImGui::SameLine();
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
 			ImVec4 startColour((component->particleEmitter->startColour[0]),
 					(component->particleEmitter->startColour[1]),
 					(component->particleEmitter->startColour[2]),
@@ -647,10 +647,60 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 				ImGui::EndPopup();
 			}
 
+			ImGui::Text("P2 Colour: ");
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
+			ImVec4 P2((component->particleEmitter->P2Colour[0]),
+					(component->particleEmitter->P2Colour[1]),
+					(component->particleEmitter->P2Colour[2]),
+					(component->particleEmitter->P2Colour[3]));
+			ImGui::PushItemWidth(20);
+			if (ImGui::ColorButton("##ButtonP2Colour", P2))
+			{
+				ImGui::OpenPopup("##PickP2Colour");
+			}
+			ImGui::PopItemWidth();
+			if (ImGui::BeginPopup("##PickP2Colour"))
+			{
+				ImGui::PushItemWidth(180.0f);
+				ImGui::ColorPicker4("##P2Colour", (float*)&(component->particleEmitter->P2Colour), ColourPickerFlags);
+				ImGui::PopItemWidth();
+				ImGui::EndPopup();
+			}
+
 			ImGui::SameLine();
+			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+			ImGui::SliderFloat("##P2Time",&(component->particleEmitter->P2Time), 0.f, component->particleEmitter->respawnLifetime, "%.3f", ImGuiSliderFlags_None);
+			ImGui::PopItemWidth();
+
+			ImGui::Text("P3 Colour: ");
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
+			ImVec4 P3((component->particleEmitter->P3Colour[0]),
+					(component->particleEmitter->P3Colour[1]),
+					(component->particleEmitter->P3Colour[2]),
+					(component->particleEmitter->P3Colour[3]));
+			ImGui::PushItemWidth(20);
+			if (ImGui::ColorButton("##ButtonP3Colour", P3))
+			{
+				ImGui::OpenPopup("##PickP3Colour");
+			}
+			ImGui::PopItemWidth();
+			if (ImGui::BeginPopup("##PickP3Colour"))
+			{
+				ImGui::PushItemWidth(180.0f);
+				ImGui::ColorPicker4("##P3Colour", (float*)&(component->particleEmitter->P3Colour), ColourPickerFlags);
+				ImGui::PopItemWidth();
+				ImGui::EndPopup();
+			}
+
+			ImGui::SameLine();
+			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+			ImGui::SliderFloat("##P3Time",&(component->particleEmitter->P3Time), 0.f, component->particleEmitter->respawnLifetime, "%.3f", ImGuiSliderFlags_None);
+			ImGui::PopItemWidth();
+
+//			ImGui::SameLine();
 
 			ImGui::Text("End Colour: ");
-			ImGui::SameLine();
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
 			ImVec4 endColour((component->particleEmitter->endColour[0]),
 					(component->particleEmitter->endColour[1]),
 					(component->particleEmitter->endColour[2]),
@@ -668,10 +718,6 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 				ImGui::PopItemWidth();
 				ImGui::EndPopup();
 			}
-
-			ImGui::Text("Use Cosine Interpolator");
-			ImGui::SameLine();
-			ImGui::Checkbox("##UseCosineInterpolator", &(component->particleEmitter->useCosineInterpolator));
 		}
 	}
 }

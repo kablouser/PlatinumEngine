@@ -47,7 +47,10 @@ namespace PlatinumEngine
 			// Shader settings
 			Maths::Vec4 startColour = Maths::Vec4(1,1,1,1);
 			Maths::Vec4 endColour = Maths::Vec4(0,0,0,0);
-			bool useCosineInterpolator = false;
+			Maths::Vec4 P2Colour = Maths::Vec4(1,1,1,1);
+			float P2Time = 0.0f;
+			Maths::Vec4 P3Colour = Maths::Vec4(0,0,0,0);
+			float P3Time = respawnLifetime;
 
 			std::unique_ptr<std::vector<Particle>> particles;
 		private:

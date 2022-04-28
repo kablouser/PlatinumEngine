@@ -223,12 +223,38 @@ namespace PlatinumEngine
 		_particleShader.SetUniform("endColour", endColour);
 	}
 
-	void Renderer::SetUseCosineInterpolatorParticleShader(bool useCosineInterpolator)
+	void Renderer::SetControlPointParticleShader(float time, Maths::Vec4 colour, int P)
 	{
 		_particleShader.Bind();
-		_particleShader.SetUniform("useCosineInterpolator", useCosineInterpolator);
-	}
+		switch (P)
+		{
+		case 2:
+		{
+			_particleShader.SetUniform("P2r", Maths::Vec2(time, colour.r));
+			_particleShader.SetUniform("P2g", Maths::Vec2(time, colour.g));
+			_particleShader.SetUniform("P2b", Maths::Vec2(time, colour.b));
+			_particleShader.SetUniform("P2a", Maths::Vec2(time, colour.a));
+			break;
+		}
+		case 3:
+		{
+			_particleShader.SetUniform("P3r", Maths::Vec2(time, colour.r));
+			_particleShader.SetUniform("P3g", Maths::Vec2(time, colour.g));
+			_particleShader.SetUniform("P3b", Maths::Vec2(time, colour.b));
+			_particleShader.SetUniform("P3a", Maths::Vec2(time, colour.a));
+			break;
+		}
+		default:
+		{
+			_particleShader.SetUniform("P2r", Maths::Vec2(time, colour.r));
+			_particleShader.SetUniform("P2g", Maths::Vec2(time, colour.g));
+			_particleShader.SetUniform("P2b", Maths::Vec2(time, colour.b));
+			_particleShader.SetUniform("P2a", Maths::Vec2(time, colour.a));
+			break;
+		}
 
+		}
+	}
 
 	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
 	{
@@ -428,5 +454,7 @@ namespace PlatinumEngine
 		cameraPos = pos;
 		_reflectRefractShader.Bind();
 		_reflectRefractShader.SetUniform("cameraPos", pos);
+		_particleShader.Bind();
+		_particleShader.SetUniform("cameraPos", pos);
 	}
 }
