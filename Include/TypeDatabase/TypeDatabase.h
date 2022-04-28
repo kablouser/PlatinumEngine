@@ -117,10 +117,13 @@ namespace PlatinumEngine
 	class TypeInfoFactory
 	{
 	public:
+		// warning: you shouldn't need to access this index
 		size_t typeInfoIndex;
 		TypeDatabase& typeDatabase;
 
 		TypeInfoFactory(size_t inTypeInfoIndex, TypeDatabase& inTypeDatabase);
+
+		TypeInfo& GetTypeInfo();
 
 		//-----------------------------------------------------------------------
 		// Factory pattern thingy
@@ -157,11 +160,16 @@ namespace PlatinumEngine
 		// singleton instance
 		static TypeDatabase* Instance;
 
+		static void StreamOutString(std::ostream& outputStream, void* typeInstance);
+
+		static void StreamInString(std::istream& inputStream, void* typeInstance);
+
 		//-----------------------------------------------------------------------
 		// Constructor
 		//-----------------------------------------------------------------------
 
 		TypeDatabase();
+
 		~TypeDatabase();
 
 		// note: defined in TypeDatabaseInit.cpp
@@ -187,7 +195,7 @@ namespace PlatinumEngine
 			static_assert(!std::is_abstract<T>(), "T should be NOT abstract.");
 			TypeInfoFactory factory = BeginTypeInfoWithoutAllocator<T>(isCollection);
 			// you cannot make_shared with abstract type
-			_typeInfos.at(factory.typeInfoIndex).allocate = []() -> std::shared_ptr<void>
+			factory.GetTypeInfo().allocate = []() -> std::shared_ptr<void>
 			{ return std::make_shared<T>(); };
 			return factory;
 		}
@@ -208,7 +216,12 @@ namespace PlatinumEngine
 		{
 			// if type info NOT in database
 			if (!GetTypeInfo<T>().first)
-				CreateVectorTypeInfo<typename T::value_type>();
+			{
+				// try to create the element type info. e.g: std::vector<double> would try to create double typeInfo
+				CreateIfAutomatic < typename T::value_type > (0);
+				BeginTypeInfo<std::vector<typename T::value_type>>(true)
+						.WithCollection(std::make_unique<PlatinumEngine::VectorCollection<typename T::value_type>>());
+			}
 			return true;
 		}
 
@@ -218,24 +231,44 @@ namespace PlatinumEngine
 		{
 			// if type info NOT in database
 			if (!GetTypeInfo<T>().first)
-				// TODO :: std::string CANNOT be streamed automatically
-				CreateTypeInfoWithAutoStreams<T>();
+			{
+				TypeInfoFactory factory = BeginTypeInfo<T>();
+				TypeInfo& typeInfo = factory.GetTypeInfo();
+				typeInfo.streamOut = StreamOutString;
+				typeInfo.streamIn = StreamInString;
+				// full name std::__cxx11::basic_string<char>
+				// too long, so let's give it an alias
+				typeInfo.typeName = "std::string";
+				_typeNames.insert({ "std::string", factory.typeInfoIndex });
+			}
 			return true;
 		}
 
 		// magical template for PlatinumEngine::SavedReference<T> types
-		template<typename T, std::enable_if_t<is_specialization<T, SavedReference>::value, int> = 0>
+		template<typename T, std::enable_if_t<is_specialization<T, PlatinumEngine::SavedReference>::value, int> = 0>
 		bool CreateIfAutomatic(int)
 		{
 			// if type info NOT in database
 			if (!GetTypeInfo<T>().first)
-				// only save the id, not the pointer
-				BeginTypeInfo<T>()
-				        .template WithField<IDSystem::ID>("id", PLATINUM_OFFSETOF(T, id));
+			{
+				TypeInfoFactory factory = BeginTypeInfo<T>();
+				TypeInfo& typeInfo = factory.GetTypeInfo();
+				typeInfo.streamOut =
+						[](std::ostream& outputStream, void* typeInstance) -> void
+						{
+							outputStream << ((T*)typeInstance)->id;
+						};
+				typeInfo.streamIn =
+						[](std::istream& inputStream, void* typeInstance) -> void
+						{
+							inputStream >> ((T*)typeInstance)->id;
+						};
+			}
 			return true;
 		}
 
 		// default magical template (for user defined types)
+		// NOTE: MUST call with an int like this: CreateIfAutomatic(0);
 		template<typename T>
 		bool CreateIfAutomatic(...)
 		{
@@ -247,7 +280,7 @@ namespace PlatinumEngine
 		void CreateTypeInfoWithAutoStreams()
 		{
 			TypeInfoFactory factory = BeginTypeInfo<T>();
-			TypeInfo& typeInfo = _typeInfos.at(factory.typeInfoIndex);
+			TypeInfo& typeInfo = factory.GetTypeInfo();
 			typeInfo.streamOut =
 					[](std::ostream& outputStream, void* typeInstance) -> void
 					{
@@ -258,15 +291,6 @@ namespace PlatinumEngine
 					{
 						inputStream >> *(T*)typeInstance;
 					};
-		}
-
-		template<typename ElementType>
-		void CreateVectorTypeInfo()
-		{
-			// try to create the element type info. e.g: std::vector<double> would try to create double typeInfo
-			CreateIfAutomatic<ElementType>();
-			BeginTypeInfo<std::vector<ElementType>>(true)
-					.WithCollection(std::make_unique<PlatinumEngine::VectorCollection<ElementType>>());
 		}
 
 		bool FinalCheck();
@@ -286,16 +310,10 @@ namespace PlatinumEngine
 		}
 
 		//-----------------------------------------------------------------------
-		// Get Type Name
+		// Get Stored Type Name
 		//-----------------------------------------------------------------------
 
-		const char* GetTypeName(const std::type_index& typeIndex);
-
-		template<typename T>
-		const char* GetTypeName()
-		{
-			return GetTypeName(std::type_index(typeid(T)));
-		}
+		const char* GetStoredTypeName(const std::type_index& typeIndex);
 
 		//-----------------------------------------------------------------------
 		// Output Type Info
@@ -316,7 +334,7 @@ namespace PlatinumEngine
 		template<typename T>
 		void Serialize(std::ostream& ostream, T* typeInstance)
 		{
-			CreateIfAutomatic<T>();
+			CreateIfAutomatic<T>(0);
 			SerializeInternal(
 					ostream,
 					typeInstance,
@@ -334,7 +352,7 @@ namespace PlatinumEngine
 		template<typename T>
 		DeserializeReturnCode Deserialize(std::istream& istream, T* typeInstance)
 		{
-			CreateIfAutomatic<T>();
+			CreateIfAutomatic<T>(0);
 			return DeserializeInternal(
 					istream,
 					typeInstance,

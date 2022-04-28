@@ -148,9 +148,6 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	)
 
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
-
-
-target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts" "${FETCHCONTENT_BASE_DIR}/imguizmo-src" "${FETCHCONTENT_BASE_DIR}/stb-src")
 #-----------------------------
 
 
@@ -167,8 +164,22 @@ set(UNIT_TESTS
 	"Test/IDSystem/TestIDSystem.cpp;"
 	)
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
+#-----------------------------
 
-target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts")
+
+#-----------------------------
+# IMPORTANT SECTION! Include files
+#-----------------------------
+# list of folders to include
+set(PROJECT_INCLUDES
+	"Include;"
+	"Fonts;"
+	"${FETCHCONTENT_BASE_DIR}/imguizmo-src;"
+	"${FETCHCONTENT_BASE_DIR}/stb-src;"
+	)
+# different targets
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDES})
+target_include_directories(tests PRIVATE ${PROJECT_INCLUDES})
 #-----------------------------
 
 

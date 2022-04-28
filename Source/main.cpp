@@ -50,9 +50,10 @@ int main(int, char**)
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImPlot::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		ImGuiIO& io = ImGui::GetIO();
+		(void)io;
 
-		const ImWchar aw_icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
+		const ImWchar aw_icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 
 		ImFontConfig config;
 		config.MergeMode = true;
@@ -96,6 +97,11 @@ int main(int, char**)
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger,
 				&inspectorWindow, &profiler, &projectWindow, idSystem, typeDatabase);
 
+		// create some default game object
+		scene.AddComponent<PlatinumEngine::RenderComponent>(
+				scene.AddGameObject("Default GameObject")).pointer->
+				SetMesh(assetDatabase.GetLoadedMeshAsset(assetDatabase.GetMeshAssetIDs()[0]));
+
 		// Main loop
 		while (!glfwWindowShouldClose(window))
 		{
@@ -123,7 +129,7 @@ int main(int, char**)
 					PlatinumEngine::Profiler::Section dockingSection("Docking");
 					ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 				}
-				
+
 				{
 					PlatinumEngine::Profiler::Section windowManagerSection("Window Manager");
 					windowManager.ShowGUI(scene);
@@ -151,7 +157,7 @@ int main(int, char**)
 			}
 			// don't include swap buffers function in the frame for profiling
 			// swap buffers waits for vsync
-	
+
 			glfwSwapBuffers(window);
 		}
 

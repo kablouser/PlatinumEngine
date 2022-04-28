@@ -149,7 +149,7 @@ TEST_CASE("Serialization", "[serialization]")
 				furtherChildObject,
 		};
 
-		database.CreateVectorTypeInfo<FurtherChildClass>();
+		database.CreateIfAutomatic<std::vector<FurtherChildClass>>(0);
 
 		std::ostringstream serializedData;
 		database.Serialize(serializedData, &vectorOfNestedData);
@@ -170,4 +170,21 @@ TEST_CASE("Serialization", "[serialization]")
 
 	database.BeginTypeInfo<UnknownType>();
 	CHECK(database.FinalCheck());
+
+	THEN("String streaming, escaping quotes")
+	{
+		std::istringstream inputStringStream;
+		std::ostringstream outputStringStream;
+		std::string spec1 = "Hello my name is \"Bob\"!";
+//		PlatinumEngine::TypeDatabase::StreamOutString(std::cout, &spec1);
+//		std::cout << std::endl;
+		PlatinumEngine::TypeDatabase::StreamOutString(outputStringStream, &spec1);
+
+		inputStringStream.str(outputStringStream.str());
+		std::string readIn = "Garbage.";
+		PlatinumEngine::TypeDatabase::StreamInString(inputStringStream, &readIn);
+//		std::cout << readIn << std::endl;
+
+		CHECK(spec1 == readIn);
+	}
 }

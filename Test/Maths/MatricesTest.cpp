@@ -105,7 +105,7 @@ TEST_CASE("MatrixConstructors", "[maths][matrices][vector]")
 						   1,3,1,1,
 						   1,2,1,1,
 						   1,1,9,1};
-			mat4 = PlatinumEngine::Maths::Matrix<4,4,int>(temp);
+			mat4.ConvertFromArray(temp, 16);
 
 			REQUIRE(mat4[2][3] == 9);
 

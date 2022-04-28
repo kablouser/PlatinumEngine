@@ -25,7 +25,7 @@ namespace PlatinumEngine
 			namedIDMaps.emplace_back(
 					typeEntry.first,
 					&typeEntry.second,
-					TypeDatabase::Instance->GetTypeName(typeEntry.first)
+					TypeDatabase::Instance->GetStoredTypeName(typeEntry.first)
 			);
 		}
 
