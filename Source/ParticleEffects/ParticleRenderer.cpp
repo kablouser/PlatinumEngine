@@ -26,12 +26,19 @@ namespace PlatinumEngine
 			// Creates a glow effect
 			GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE));
 
+			// Make sure depth test is on and reset if needed later
+			GLboolean isUsingDepthTest;
+			GL_CHECK(glGetBooleanv(GL_DEPTH_TEST, &isUsingDepthTest));
+			glDisable(GL_DEPTH_TEST);
+
 			// The good stuff, instanced rendering
 			GL_CHECK(glBindVertexArray(_particleVertexVAO));
-			GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 6, _numParticles));
+			GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, _numParticles));
 			GL_CHECK(glBindVertexArray(0));
 
 			// Reset for other rendering
+			if (isUsingDepthTest)
+				glEnable(GL_DEPTH_TEST);
 			GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 		}
 
@@ -54,7 +61,7 @@ namespace PlatinumEngine
 			GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * _numFloats * particles->size(), &newData));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _positionLifeVBO));
-			GL_CHECK(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0));
+			GL_CHECK(glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
 			// Need to store this to know how many particles to draw in instance call
@@ -78,7 +85,11 @@ namespace PlatinumEngine
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _particleVertexVBO));
 			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(_vertices), _vertices, GL_STATIC_DRAW));
 			GL_CHECK(glEnableVertexAttribArray(0));
-			GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+
+			// Vertex coords
+			GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0));
+			GL_CHECK(glEnableVertexAttribArray(1));
+			GL_CHECK(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),  (void*)(3 * sizeof(float))));
 
 			// Now it gets funky
 			// Because we're instancing set VBO sizes to max size possible and init as NULL
@@ -91,12 +102,12 @@ namespace PlatinumEngine
 			GL_CHECK(glBindBufferRange(GL_UNIFORM_BUFFER, 0, _positionLifeVBO, 0, sizeof(GLfloat) * _numFloats * MaxParticles));
 
 			// Need to tell opengl what values to send to shader and in what format
-			GL_CHECK(glEnableVertexAttribArray(1));
+			GL_CHECK(glEnableVertexAttribArray(2));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _positionLifeVBO));
-			GL_CHECK(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0));
+			GL_CHECK(glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-			GL_CHECK(glVertexAttribDivisor(1, 1)); // tell OpenGL this is an instanced vertex attribute.
+			GL_CHECK(glVertexAttribDivisor(2, 1)); // tell OpenGL this is an instanced vertex attribute.
 		}
 	}
 }

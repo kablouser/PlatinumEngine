@@ -1,7 +1,8 @@
 R"(
 #version 330 core
 layout (location = 0) in vec3 inVertex;
-layout (location = 1) in vec4 inPosition;
+layout (location = 1) in vec2 inTextureCoords;
+layout (location = 2) in vec4 inPosition;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -9,9 +10,11 @@ uniform mat4 projection;
 uniform vec3 cameraPos;
 
 out float life;
+out vec2 texCoords;
 
 void main()
 {
+    texCoords = inTextureCoords;
     vec3 Position = inPosition.xyz;
     mat4 ModelView = view * model;
     float d = sqrt((ModelView[0][0] * ModelView[0][0]) + (ModelView[0][1] * ModelView[0][1]) + (ModelView[0][2] * ModelView[0][2]));

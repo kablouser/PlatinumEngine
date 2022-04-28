@@ -626,11 +626,36 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 
 		if (ImGui::CollapsingHeader("Shader Settings"))
 		{
+			// Pick Texture, yes/no
+			// Set number cols and rows in texture
+			char textureBuffer[64];
+			if(component->texture != nullptr)
+				strcpy(textureBuffer,  component->texture->fileName.c_str());
+			else
+				memset(textureBuffer, 0, 64 * sizeof(char));
+			ImGui::Text("%s", "Texture:");
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
+			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+			ImGui::InputText("##ParticleEffectTexture", textureBuffer, sizeof(textureBuffer), ImGuiInputTextFlags_ReadOnly);
+			ImGui::PopItemWidth();
+			ImGui::SameLine();
+			if(ImGui::Button("Select##ParticleEffectTexture"))
+			{
+				ImGui::OpenPopup("Select Particle Effect Texture");
+			}
+			{
+				auto asset_Helper = _assetHelper->ShowGeneralTextureGuiWindow("Select Particle Effect Texture");
+				if (std::get<0>(asset_Helper))
+					component->texture = std::get<1>(asset_Helper);
+			}
+			ImGui::SameLine();
+			ImGui::Checkbox("##UseParticleEffectTexture", &(component->useTexture));
+
 			auto ColourPickerFlags =
 					ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_AlphaBar;
 
 			ImGui::Text("Start Colour: ");
-			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
+			ImGui::SameLine();
 			ImVec4 startColour((component->particleEmitter->startColour[0]),
 					(component->particleEmitter->startColour[1]),
 					(component->particleEmitter->startColour[2]),
@@ -650,50 +675,9 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 				ImGui::EndPopup();
 			}
 
-			ImGui::Text("P2 Colour: ");
-			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
-			ImVec4 P2((component->particleEmitter->P2Colour[0]),
-					(component->particleEmitter->P2Colour[1]),
-					(component->particleEmitter->P2Colour[2]),
-					(component->particleEmitter->P2Colour[3]));
-			ImGui::PushItemWidth(20);
-			if (ImGui::ColorButton("##ButtonP2Colour", P2))
-			{
-				ImGui::OpenPopup("##PickP2Colour");
-			}
-			ImGui::PopItemWidth();
-			if (ImGui::BeginPopup("##PickP2Colour"))
-			{
-				ImGui::PushItemWidth(180.0f);
-				ImGui::ColorPicker4("##P2Colour", (float*)&(component->particleEmitter->P2Colour), ColourPickerFlags);
-				ImGui::PopItemWidth();
-				ImGui::EndPopup();
-			}
-
-			ImGui::Text("P3 Colour: ");
-			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
-			ImVec4 P3((component->particleEmitter->P3Colour[0]),
-					(component->particleEmitter->P3Colour[1]),
-					(component->particleEmitter->P3Colour[2]),
-					(component->particleEmitter->P3Colour[3]));
-			ImGui::PushItemWidth(20);
-			if (ImGui::ColorButton("##ButtonP3Colour", P3))
-			{
-				ImGui::OpenPopup("##PickP3Colour");
-			}
-			ImGui::PopItemWidth();
-			if (ImGui::BeginPopup("##PickP3Colour"))
-			{
-				ImGui::PushItemWidth(180.0f);
-				ImGui::ColorPicker4("##P3Colour", (float*)&(component->particleEmitter->P3Colour), ColourPickerFlags);
-				ImGui::PopItemWidth();
-				ImGui::EndPopup();
-			}
-
-//			ImGui::SameLine();
-
+			ImGui::SameLine();
 			ImGui::Text("End Colour: ");
-			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
+			ImGui::SameLine();
 			ImVec4 endColour((component->particleEmitter->endColour[0]),
 					(component->particleEmitter->endColour[1]),
 					(component->particleEmitter->endColour[2]),
@@ -712,76 +696,39 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 				ImGui::EndPopup();
 			}
 
-			// Red Bezier
-			ImVec2 array[4] = {ImVec2(0, component->particleEmitter->startColour[0]),
-							   ImVec2(component->particleEmitter->P2Times[0], component->particleEmitter->P2Colour[0]),
-							   ImVec2(component->particleEmitter->P3Times[0], component->particleEmitter->P3Colour[0]),
-							   ImVec2(1, component->particleEmitter->endColour[0])};
-//			ImGui::MyBezier("HelloRed", array);
+			// Possible options to shade by
+			const std::string items[] = {"Life", "Position", "Size", "Speed"};
+			ImGui::Text("Shade by: ");
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
+			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+			if (ImGui::BeginCombo("##ShadeByCombo", component->shadeBy.c_str()))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+				{
+					bool is_selected = (component->shadeBy == items[n]);
+					if (ImGui::Selectable(items[n].c_str(), is_selected))
+						component->shadeBy = items[n];
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::PopItemWidth();
 
-			// Now set values back for red channel
-			component->particleEmitter->startColour[0] = array[0][1];
-		   	component->particleEmitter->P2Times[0] = array[1][0];
-		   	component->particleEmitter->P2Colour[0] = array[1][1];
-			component->particleEmitter->P3Times[0] = array[2][0];
-			component->particleEmitter->P3Colour[0] = array[2][1];
-			component->particleEmitter->endColour[0] = array[3][1];
-
-			// Green Bezier
-			array[0][1] = component->particleEmitter->startColour[1];
-			array[1][0] = component->particleEmitter->P2Times[1];
-			array[1][1] = component->particleEmitter->P2Colour[1];
-			array[2][0] = component->particleEmitter->P3Times[1];
-			array[2][1] = component->particleEmitter->P3Colour[1];
-			array[3][1] = component->particleEmitter->endColour[1];
-
-			ImGui::SameLine();
-//			ImGui::MyBezier("HelloGreen", array);
-
-			// Now set values back for green channel
-			component->particleEmitter->startColour[1] = array[0][1];
-			component->particleEmitter->P2Times[1] = array[1][0];
-			component->particleEmitter->P2Colour[1] = array[1][1];
-			component->particleEmitter->P3Times[1] = array[2][0];
-			component->particleEmitter->P3Colour[1] = array[2][1];
-			component->particleEmitter->endColour[1] = array[3][1];
-
-			// Blue Bezier
-			array[0][1] = component->particleEmitter->startColour[2];
-			array[1][0] = component->particleEmitter->P2Times[2];
-			array[1][1] = component->particleEmitter->P2Colour[2];
-			array[2][0] = component->particleEmitter->P3Times[2];
-			array[2][1] = component->particleEmitter->P3Colour[2];
-			array[3][1] = component->particleEmitter->endColour[2];
-
-//			ImGui::MyBezier("HelloBlue", array);
-
-			// Now set values back for green channel
-			component->particleEmitter->startColour[2] = array[0][1];
-			component->particleEmitter->P2Times[2] = array[1][0];
-			component->particleEmitter->P2Colour[2] = array[1][1];
-			component->particleEmitter->P3Times[2] = array[2][0];
-			component->particleEmitter->P3Colour[2] = array[2][1];
-			component->particleEmitter->endColour[2] = array[3][1];
-
-			// Alpha Bezier
-			array[0][1] = component->particleEmitter->startColour[3];
-			array[1][0] = component->particleEmitter->P2Times[3];
-			array[1][1] = component->particleEmitter->P2Colour[3];
-			array[2][0] = component->particleEmitter->P3Times[3];
-			array[2][1] = component->particleEmitter->P3Colour[3];
-			array[3][1] = component->particleEmitter->endColour[3];
-
-			ImGui::SameLine();
-//			ImGui::MyBezier("HelloAlpha", array);
-
-			// Now set values back for green channel
-			component->particleEmitter->startColour[3] = array[0][1];
-			component->particleEmitter->P2Times[3] = array[1][0];
-			component->particleEmitter->P2Colour[3] = array[1][1];
-			component->particleEmitter->P3Times[3] = array[2][0];
-			component->particleEmitter->P3Colour[3] = array[2][1];
-			component->particleEmitter->endColour[3] = array[3][1];
+//			// Red Bezier
+//			ImVec2 array[4] = {ImVec2(0, component->particleEmitter->startColour[0]),
+//							   ImVec2(component->particleEmitter->P2Times[0], component->particleEmitter->P2Colour[0]),
+//							   ImVec2(component->particleEmitter->P3Times[0], component->particleEmitter->P3Colour[0]),
+//							   ImVec2(1, component->particleEmitter->endColour[0])};
+////			ImGui::MyBezier("HelloRed", array);
+//
+//			// Now set values back for red channel
+//			component->particleEmitter->startColour[0] = array[0][1];
+//		   	component->particleEmitter->P2Times[0] = array[1][0];
+//		   	component->particleEmitter->P2Colour[0] = array[1][1];
+//			component->particleEmitter->P3Times[0] = array[2][0];
+//			component->particleEmitter->P3Colour[0] = array[2][1];
+//			component->particleEmitter->endColour[0] = array[3][1];
 		}
 	}
 }

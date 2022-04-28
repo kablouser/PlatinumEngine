@@ -27,11 +27,12 @@ namespace PlatinumEngine
 			int _numFloats = 4;
 
 			// These are the vertices of the billboard for a particle
-			const float _vertices[12] = {
-					-0.5f, -0.5f, 0.0f,
-					0.5f, -0.5f, 0.0f,
-					-0.5f, 0.5f, 0.0f,
-					0.5f, 0.5f, 0.0f,
+			const float _vertices[20] = {
+					// position 					 // Texture coords
+					0.5f, -0.5f, 0.0f,  1.0f, 1.0f,
+					-0.5f, -0.5f, 0.0f, 0.0f, 1.0f,
+					0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+					-0.5f, 0.5f, 0.0f, 0.0f, 0.0f
 			};
 		};
 	}

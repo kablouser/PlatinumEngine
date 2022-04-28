@@ -44,6 +44,8 @@ namespace PlatinumEngine
 			renderer.SetEndColourParticleShader(particleEmitter->endColour);
 			renderer.SetControlPointParticleShader(particleEmitter->P2Times, particleEmitter->P2Colour, 2);
 			renderer.SetControlPointParticleShader(particleEmitter->P3Times, particleEmitter->P3Colour, 3);
+			renderer.SetTextureParticleShader(texture, useTexture);
+			renderer.SetShadeBy(shadeBy);
 			renderer.particleRenderer.Render();
 			renderer.EndParticleShader();
 		}

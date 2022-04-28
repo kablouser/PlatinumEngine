@@ -25,6 +25,7 @@ namespace PlatinumEngine
 
 		 std::tuple<bool, Texture*> ShowTextureGuiWindow();
 		 std::tuple<bool, Texture*> ShowNormalTextureGuiWindow();
+		 std::tuple<bool, Texture*> ShowGeneralTextureGuiWindow(const char *popUpName);
 	private:
 		AssetDatabase* _assetDatabase;
 	};

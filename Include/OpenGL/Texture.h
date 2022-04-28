@@ -17,7 +17,7 @@ namespace PlatinumEngine
 
 		~Texture();
 
-		void Create(GLsizei width, GLsizei height, const void* pixelData = nullptr);
+		void Create(GLsizei width, GLsizei height, const void* pixelData = nullptr, int nrComponents = 3);
 
 		void CreateCubeMap(std::vector<std::string> faces);
 

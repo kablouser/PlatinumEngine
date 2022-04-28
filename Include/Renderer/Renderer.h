@@ -95,6 +95,8 @@ namespace PlatinumEngine
 		void SetStartColourParticleShader(Maths::Vec4 startColour);
 		void SetEndColourParticleShader(Maths::Vec4 endColour);
 		void SetControlPointParticleShader(float time[4], Maths::Vec4 colour, int P = 2);
+		void SetTextureParticleShader(Texture* texture, bool useTexture);
+		void SetShadeBy(const std::string &shadeBy);
 
 		/**
 		 * resize framebuffer, it's an interface for SceneEditor

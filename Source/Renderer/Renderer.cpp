@@ -214,13 +214,13 @@ namespace PlatinumEngine
 	void Renderer::SetStartColourParticleShader(Maths::Vec4 startColour)
 	{
 		_particleShader.Bind();
-		_particleShader.SetUniform("startColour", startColour);
+		_particleShader.SetUniform("StartColour", startColour);
 	}
 
 	void Renderer::SetEndColourParticleShader(Maths::Vec4 endColour)
 	{
 		_particleShader.Bind();
-		_particleShader.SetUniform("endColour", endColour);
+		_particleShader.SetUniform("EndColour", endColour);
 	}
 
 	void Renderer::SetControlPointParticleShader(float time[4], Maths::Vec4 colour, int P)
@@ -254,6 +254,40 @@ namespace PlatinumEngine
 		}
 
 		}
+	}
+
+	void Renderer::SetTextureParticleShader(Texture* texture, bool useTexture)
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform("useTexture", useTexture);
+		if (texture)
+		{
+			_particleShader.SetUniform("sampleTexture", (int)0);
+			glActiveTexture(GL_TEXTURE0);
+			texture->Bind();
+		}
+	}
+
+	void Renderer::SetShadeBy(const std::string &shadeBy)
+	{
+		_particleShader.Bind();
+
+		// Set all shade by to false
+		_particleShader.SetUniform("useShadeByLife", false);
+		_particleShader.SetUniform("useShadeByPosition", false);
+		_particleShader.SetUniform("useShadeBySpeed", false);
+		_particleShader.SetUniform("useShadeBySize", false);
+		// Then set the selected shade by to true
+		if (shadeBy == "Life")
+			_particleShader.SetUniform("useShadeByLife", true);
+		else if (shadeBy == "Position")
+			_particleShader.SetUniform("useShadeByPosition", true);
+		else if (shadeBy == "Speed")
+			_particleShader.SetUniform("useShadeBySpeed", true);
+		else if (shadeBy == "Size")
+			_particleShader.SetUniform("useShadeBySize", true);
+		else
+			_particleShader.SetUniform("useShadeByLife", true); // as a back up plan
 	}
 
 	void Renderer::SetFramebuffer(Framebuffer* framebuffer)

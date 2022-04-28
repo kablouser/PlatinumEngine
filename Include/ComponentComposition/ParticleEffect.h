@@ -8,6 +8,7 @@
 #include <ComponentComposition/TransformComponent.h>
 #include <ParticleEffects/ParticleEmitter.h>
 #include <ParticleEffects/ParticleRenderer.h>
+#include <OpenGL/Texture.h>
 
 namespace PlatinumEngine
 {
@@ -20,6 +21,10 @@ namespace PlatinumEngine
 		void OnRender(Scene& scene, Renderer& renderer) override;
 	public:
 		std::unique_ptr<ParticleEffects::ParticleEmitter> particleEmitter;
-//		std::unique_ptr<ParticleEffects::ParticleRenderer> particleRenderer;
+
+		// Values which the particle emitter does not need to know but are user define-able options
+		Texture *texture = nullptr;
+		bool useTexture = false;
+		std::string shadeBy = "Life";
 	};
 }
