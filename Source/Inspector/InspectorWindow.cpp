@@ -103,7 +103,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::Text("Mesh Properties");
 		ImGui::Separator();
 		ImGui::Text("File");
-		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::SameLine(_textWidth);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 
 		// store the current mesh name into mesh buffer, so that we can display it in the input text box
@@ -139,7 +139,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 
-		if(ImGui::Button("Select Mesh"))
+		if(ImGui::Button("Select"))
 		{
 			ImGui::OpenPopup("Select Mesh");
 		}
@@ -168,17 +168,17 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 
 		ImGui::Text("Shininess");
 
-		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::SameLine(_textWidth);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		ImGui::SliderFloat("##shininess",&(obj->GetComponent<MeshRender>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 
 		ImGui::Text("Blinn-Phong");
-		ImGui::SameLine();
+		ImGui::SameLine(_textWidth);
 		ImGui::Checkbox("##Blinn-Phong", &(obj->GetComponent<MeshRender>()->material.useBlinnPhong));
 
 		ImGui::Text("Texture");
-		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::SameLine(_textWidth);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 
 		// store the current material name into mesh buffer, so that we can display it in the input text box
@@ -202,7 +202,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::Checkbox("##UseTexture", &(obj->GetComponent<MeshRender>()->material.useTexture));
 
 		ImGui::Text("%s", "Normal Map");
-		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::SameLine(_textWidth);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		ImGui::InputText("##Normal Map Name", normalTextureBuffer, sizeof(normalTextureBuffer), ImGuiInputTextFlags_ReadOnly);
 		ImGui::PopItemWidth();
@@ -239,7 +239,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 	{
 		ImGui::PushItemWidth(50);
 		ImGui::Text(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT " Position: ");
-		ImGui::SameLine(_textWidthTransform);
+		ImGui::SameLine(_textWidth - 16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Xpos", &obj->GetComponent<Transform>()->localPosition[0], 0.001f);
@@ -254,7 +254,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
     
     	Maths::Vec3 eulerRotation = obj->GetComponent<Transform>()->localRotation.EulerAngles();
 		ImGui::Text(ICON_FA_ROTATE " Rotation: ");
-		ImGui::SameLine(_textWidthTransformComponent);
+		ImGui::SameLine(_textWidth - 16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Xrot", &eulerRotation[0], 0.001f);
@@ -271,7 +271,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 
 		ImGui::Text(ICON_FA_MAXIMIZE " Scale: ");
 		// Scale is special case and needs some extra offset applied
-		ImGui::SameLine(_textWidthTransformComponent + 16.0f);
+		ImGui::SameLine(_textWidth);
 		ImGui::InputFloat("##scale", &obj->GetComponent<Transform>()->localScale);
 		ImGui::PopItemWidth();
 	}
@@ -310,7 +310,7 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
       }
 
 			ImGui::Text("Projection Type");
-			ImGui::SameLine(_textWidthCameraComponent);
+			ImGui::SameLine(_textWidth);
 			ImGui::SetNextItemWidth(_itemWidthMeshRenderComponent);
 			ImGui::InputText("##Projection Type", cameraType, sizeof(cameraType), ImGuiInputTextFlags_ReadOnly);
 			ImGui::SameLine();
@@ -351,7 +351,7 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 
 
 			ImGui::Text("Clear Mode");
-			ImGui::SameLine(_textWidthCameraComponent);
+			ImGui::SameLine(_textWidth);
 			ImGui::SetNextItemWidth(_itemWidthMeshRenderComponent);
 			ImGui::InputText("##Clear Mode", clearMode, sizeof(clearMode), ImGuiInputTextFlags_ReadOnly);
 			ImGui::SameLine();
@@ -407,19 +407,19 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 		float orthographicSize;
 
 		ImGui::Text("Field of View: ");
-		ImGui::SameLine(_textWidthCameraComponent);
+		ImGui::SameLine(_textWidth);
 		ImGui::InputFloat("##FOV", &camera->fov);
 
 		ImGui::Text("Near Clipping Plane: ");
-		ImGui::SameLine(_textWidthCameraComponent);
+		ImGui::SameLine(_textWidth);
 		ImGui::InputFloat("##NearClippingPlane", &camera->nearClippingPlane);
 
 		ImGui::Text("Far Clipping Plane: ");
-		ImGui::SameLine(_textWidthCameraComponent);
+		ImGui::SameLine(_textWidth);
 		ImGui::InputFloat("##FarClippingPlane", &camera->farClippingPlane);
 
 		ImGui::Text("Orthographic Size: ");
-		ImGui::SameLine(_textWidthCameraComponent);
+		ImGui::SameLine(_textWidth);
 		ImGui::InputFloat("##OrthographicSize", &camera->orthographicSize);
 	}
 }
@@ -428,7 +428,7 @@ void InspectorWindow::ShowBoxColliderComponent(Scene& scene)
 {
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_BOX "  BoxCollider Component", ImGuiTreeNodeFlags_AllowItemOverlap);
-
+	auto obj = _sceneEditor->GetSelectedGameobject();
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveBoxColliderComponent")) {
 		// remove component
@@ -440,7 +440,7 @@ void InspectorWindow::ShowBoxColliderComponent(Scene& scene)
 	{
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Center: ");
-		ImGui::SameLine(_sameLine -16.f);
+		ImGui::SameLine(_textWidth - 16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::DragFloat("##XcenBox", &obj->GetComponent<BoxCollider>()->center.x, 0.001f);
@@ -455,7 +455,7 @@ void InspectorWindow::ShowBoxColliderComponent(Scene& scene)
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Size: ");
-		ImGui::SameLine(_sameLine -16.f);
+		ImGui::SameLine(_textWidth - 16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Xsize", &obj->GetComponent<BoxCollider>()->size.x, 0.001f);
@@ -476,7 +476,7 @@ void InspectorWindow::ShowCapsuleColliderComponent(Scene& scene)
 
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_CAPSULES "  CapsuleCollider Component", ImGuiTreeNodeFlags_AllowItemOverlap);
-
+	auto obj = _sceneEditor->GetSelectedGameobject();
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveBoxColliderComponent")) {
 		// remove component
@@ -488,7 +488,7 @@ void InspectorWindow::ShowCapsuleColliderComponent(Scene& scene)
 	{
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Center: ");
-		ImGui::SameLine(_sameLine -16.f);
+		ImGui::SameLine(_textWidth - 16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::DragFloat("##XcenCap", &obj->GetComponent<CapsuleCollider>()->center.x, 0.001f);
@@ -503,12 +503,12 @@ void InspectorWindow::ShowCapsuleColliderComponent(Scene& scene)
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Radius: ");
-		ImGui::SameLine(_sameLine);
+		ImGui::SameLine(_textWidth);
 		ImGui::DragFloat("##RadiusCap", &obj->GetComponent<CapsuleCollider>()->radius, 0.001f);
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Height: ");
-		ImGui::SameLine(_sameLine);
+		ImGui::SameLine(_textWidth);
 		ImGui::DragFloat("##Height", &obj->GetComponent<CapsuleCollider>()->height, 0.001f);
 	}
 }
@@ -517,7 +517,7 @@ void InspectorWindow::ShowSphereColliderComponent(Scene& scene)
 {
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_CIRCLE "  SphereCollider Component", ImGuiTreeNodeFlags_AllowItemOverlap);
-
+	auto obj = _sceneEditor->GetSelectedGameobject();
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveBoxColliderComponent")) {
 		// remove component
@@ -529,7 +529,7 @@ void InspectorWindow::ShowSphereColliderComponent(Scene& scene)
 	{
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Center: ");
-		ImGui::SameLine(_sameLine -16.f);
+		ImGui::SameLine(_textWidth - 16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Xcen", &obj->GetComponent<SphereCollider>()->center.x, 0.001f);
@@ -544,7 +544,7 @@ void InspectorWindow::ShowSphereColliderComponent(Scene& scene)
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Radius: ");
-		ImGui::SameLine(_sameLine);
+		ImGui::SameLine(_textWidth);
 		ImGui::DragFloat("##RadiusSph", &obj->GetComponent<SphereCollider>()->radius, 0.001f);
 	}
 }
@@ -553,7 +553,7 @@ void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
 {
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_USER "  RigidBody Component", ImGuiTreeNodeFlags_AllowItemOverlap);
-
+	auto obj = _sceneEditor->GetSelectedGameobject();
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveRigidBodyComponent")) {
 		// remove component
@@ -566,25 +566,25 @@ void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Mass: ");
-		ImGui::SameLine(_sameLine);
+		ImGui::SameLine(_textWidth);
 		ImGui::DragFloat("##Mass", &obj->GetComponent<RigidBody>()->mass, 0.001f);
 
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("IsKinematic: ");
-		ImGui::SameLine(_sameLine);
+		ImGui::SameLine(_textWidth);
 		ImGui::Checkbox("##kinematic", &obj->GetComponent<RigidBody>()->kinematic);
 
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Damping: ");
-		ImGui::SameLine(_sameLine);
+		ImGui::SameLine(_textWidth);
 		ImGui::DragFloat("##Damping", &obj->GetComponent<RigidBody>()->damping, 0.001f);
 
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("AngularDamping: ");
-		ImGui::SameLine(_sameLine);
+		ImGui::SameLine(_textWidth);
 		ImGui::DragFloat("##AngularDamping", &obj->GetComponent<RigidBody>()->angularDamping, 0.001f);
 	}
 }

@@ -106,8 +106,7 @@ namespace PlatinumEngine
 			if (ImGui::Button(ICON_FA_PLAY "##Play"))
 			{
 					_gameWindow->isPaused = false;
-					enablePauseButton = !enablePauseButton;
-					enableStepButton = !enableStepButton;
+					enablePauseButton = false;
 			}
 
   			// activate or inactive pause and step button

@@ -34,7 +34,7 @@ namespace PlatinumEngine
 		_solver = new btSequentialImpulseConstraintSolver;
 
 		_bulletWorld = new btDiscreteDynamicsWorld(_dispatcher, _broadPhase, _solver, _config);
-		SetGravity(-_gravity);
+		SetGravity(_gravity);
 	}
 
 	//clean up all the bullet object pointer
