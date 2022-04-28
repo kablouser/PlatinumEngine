@@ -223,33 +223,33 @@ namespace PlatinumEngine
 		_particleShader.SetUniform("endColour", endColour);
 	}
 
-	void Renderer::SetControlPointParticleShader(float time, Maths::Vec4 colour, int P)
+	void Renderer::SetControlPointParticleShader(float time[4], Maths::Vec4 colour, int P)
 	{
 		_particleShader.Bind();
 		switch (P)
 		{
 		case 2:
 		{
-			_particleShader.SetUniform("P2r", Maths::Vec2(time, colour.r));
-			_particleShader.SetUniform("P2g", Maths::Vec2(time, colour.g));
-			_particleShader.SetUniform("P2b", Maths::Vec2(time, colour.b));
-			_particleShader.SetUniform("P2a", Maths::Vec2(time, colour.a));
+			_particleShader.SetUniform("P2r", Maths::Vec2(time[0], colour.r));
+			_particleShader.SetUniform("P2g", Maths::Vec2(time[1], colour.g));
+			_particleShader.SetUniform("P2b", Maths::Vec2(time[2], colour.b));
+			_particleShader.SetUniform("P2a", Maths::Vec2(time[3], colour.a));
 			break;
 		}
 		case 3:
 		{
-			_particleShader.SetUniform("P3r", Maths::Vec2(time, colour.r));
-			_particleShader.SetUniform("P3g", Maths::Vec2(time, colour.g));
-			_particleShader.SetUniform("P3b", Maths::Vec2(time, colour.b));
-			_particleShader.SetUniform("P3a", Maths::Vec2(time, colour.a));
+			_particleShader.SetUniform("P3r", Maths::Vec2(time[0], colour.r));
+			_particleShader.SetUniform("P3g", Maths::Vec2(time[1], colour.g));
+			_particleShader.SetUniform("P3b", Maths::Vec2(time[2], colour.b));
+			_particleShader.SetUniform("P3a", Maths::Vec2(time[3], colour.a));
 			break;
 		}
 		default:
 		{
-			_particleShader.SetUniform("P2r", Maths::Vec2(time, colour.r));
-			_particleShader.SetUniform("P2g", Maths::Vec2(time, colour.g));
-			_particleShader.SetUniform("P2b", Maths::Vec2(time, colour.b));
-			_particleShader.SetUniform("P2a", Maths::Vec2(time, colour.a));
+			_particleShader.SetUniform("P2r", Maths::Vec2(time[0], colour.r));
+			_particleShader.SetUniform("P2g", Maths::Vec2(time[1], colour.g));
+			_particleShader.SetUniform("P2b", Maths::Vec2(time[2], colour.b));
+			_particleShader.SetUniform("P2a", Maths::Vec2(time[3], colour.a));
 			break;
 		}
 

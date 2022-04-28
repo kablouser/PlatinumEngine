@@ -5,6 +5,7 @@
 #include <Inspector/InspectorWindow.h>
 #include <ComponentComposition/CameraComponent.h>
 #include <ImGuizmo.h>
+#include <Inspector/Bezier.h>
 
 using namespace PlatinumEngine;
 
@@ -625,7 +626,8 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 
 		if (ImGui::CollapsingHeader("Shader Settings"))
 		{
-			auto ColourPickerFlags = ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_AlphaBar;
+			auto ColourPickerFlags =
+					ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_AlphaBar;
 
 			ImGui::Text("Start Colour: ");
 			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
@@ -642,7 +644,8 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 			if (ImGui::BeginPopup("##PickStartColour"))
 			{
 				ImGui::PushItemWidth(180.0f);
-				ImGui::ColorPicker4("##StartColour", (float*)&(component->particleEmitter->startColour), ColourPickerFlags);
+				ImGui::ColorPicker4("##StartColour", (float*)&(component->particleEmitter->startColour),
+						ColourPickerFlags);
 				ImGui::PopItemWidth();
 				ImGui::EndPopup();
 			}
@@ -667,11 +670,6 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 				ImGui::EndPopup();
 			}
 
-			ImGui::SameLine();
-			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
-			ImGui::SliderFloat("##P2Time",&(component->particleEmitter->P2Time), 0.f, component->particleEmitter->respawnLifetime, "%.3f", ImGuiSliderFlags_None);
-			ImGui::PopItemWidth();
-
 			ImGui::Text("P3 Colour: ");
 			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
 			ImVec4 P3((component->particleEmitter->P3Colour[0]),
@@ -691,11 +689,6 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 				ImGui::PopItemWidth();
 				ImGui::EndPopup();
 			}
-
-			ImGui::SameLine();
-			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
-			ImGui::SliderFloat("##P3Time",&(component->particleEmitter->P3Time), 0.f, component->particleEmitter->respawnLifetime, "%.3f", ImGuiSliderFlags_None);
-			ImGui::PopItemWidth();
 
 //			ImGui::SameLine();
 
@@ -718,6 +711,77 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 				ImGui::PopItemWidth();
 				ImGui::EndPopup();
 			}
+
+			// Red Bezier
+			ImVec2 array[4] = {ImVec2(0, component->particleEmitter->startColour[0]),
+							   ImVec2(component->particleEmitter->P2Times[0], component->particleEmitter->P2Colour[0]),
+							   ImVec2(component->particleEmitter->P3Times[0], component->particleEmitter->P3Colour[0]),
+							   ImVec2(1, component->particleEmitter->endColour[0])};
+//			ImGui::MyBezier("HelloRed", array);
+
+			// Now set values back for red channel
+			component->particleEmitter->startColour[0] = array[0][1];
+		   	component->particleEmitter->P2Times[0] = array[1][0];
+		   	component->particleEmitter->P2Colour[0] = array[1][1];
+			component->particleEmitter->P3Times[0] = array[2][0];
+			component->particleEmitter->P3Colour[0] = array[2][1];
+			component->particleEmitter->endColour[0] = array[3][1];
+
+			// Green Bezier
+			array[0][1] = component->particleEmitter->startColour[1];
+			array[1][0] = component->particleEmitter->P2Times[1];
+			array[1][1] = component->particleEmitter->P2Colour[1];
+			array[2][0] = component->particleEmitter->P3Times[1];
+			array[2][1] = component->particleEmitter->P3Colour[1];
+			array[3][1] = component->particleEmitter->endColour[1];
+
+			ImGui::SameLine();
+//			ImGui::MyBezier("HelloGreen", array);
+
+			// Now set values back for green channel
+			component->particleEmitter->startColour[1] = array[0][1];
+			component->particleEmitter->P2Times[1] = array[1][0];
+			component->particleEmitter->P2Colour[1] = array[1][1];
+			component->particleEmitter->P3Times[1] = array[2][0];
+			component->particleEmitter->P3Colour[1] = array[2][1];
+			component->particleEmitter->endColour[1] = array[3][1];
+
+			// Blue Bezier
+			array[0][1] = component->particleEmitter->startColour[2];
+			array[1][0] = component->particleEmitter->P2Times[2];
+			array[1][1] = component->particleEmitter->P2Colour[2];
+			array[2][0] = component->particleEmitter->P3Times[2];
+			array[2][1] = component->particleEmitter->P3Colour[2];
+			array[3][1] = component->particleEmitter->endColour[2];
+
+//			ImGui::MyBezier("HelloBlue", array);
+
+			// Now set values back for green channel
+			component->particleEmitter->startColour[2] = array[0][1];
+			component->particleEmitter->P2Times[2] = array[1][0];
+			component->particleEmitter->P2Colour[2] = array[1][1];
+			component->particleEmitter->P3Times[2] = array[2][0];
+			component->particleEmitter->P3Colour[2] = array[2][1];
+			component->particleEmitter->endColour[2] = array[3][1];
+
+			// Alpha Bezier
+			array[0][1] = component->particleEmitter->startColour[3];
+			array[1][0] = component->particleEmitter->P2Times[3];
+			array[1][1] = component->particleEmitter->P2Colour[3];
+			array[2][0] = component->particleEmitter->P3Times[3];
+			array[2][1] = component->particleEmitter->P3Colour[3];
+			array[3][1] = component->particleEmitter->endColour[3];
+
+			ImGui::SameLine();
+//			ImGui::MyBezier("HelloAlpha", array);
+
+			// Now set values back for green channel
+			component->particleEmitter->startColour[3] = array[0][1];
+			component->particleEmitter->P2Times[3] = array[1][0];
+			component->particleEmitter->P2Colour[3] = array[1][1];
+			component->particleEmitter->P3Times[3] = array[2][0];
+			component->particleEmitter->P3Colour[3] = array[2][1];
+			component->particleEmitter->endColour[3] = array[3][1];
 		}
 	}
 }
