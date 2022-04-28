@@ -118,7 +118,7 @@ namespace PlatinumEngine
 		 * Update selected game object
 		 * @param inGameObject
 		 */
-		void SetSelectedGameobject(SavedReference<GameObject>& inGameObject);
+		void SetSelectedGameobject(SavedReference<GameObject> inGameObject);
 
 		void DeleteSelectedGameObject();
 

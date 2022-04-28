@@ -27,7 +27,7 @@ namespace PlatinumEngine
 			}
 			for(auto meshAssetID : _assetDatabase->GetMeshAssetIDs())
 			{
-				if(_assetDatabase->TryGetAsset(meshAssetID.id, asset))
+				if(_assetDatabase->GetAsset(meshAssetID.id, asset))
 				{
 					if (filter.PassFilter(asset.path.string().c_str()))
 					{
@@ -67,7 +67,7 @@ namespace PlatinumEngine
 			}
 			for(auto textureAssetID : _assetDatabase->GetTextureAssetIDs())
 			{
-				if(_assetDatabase->TryGetAsset(textureAssetID.id, asset))
+				if(_assetDatabase->GetAsset(textureAssetID.id, asset))
 				{
 					if (filter.PassFilter(asset.path.string().c_str()))
 					{
@@ -107,7 +107,7 @@ namespace PlatinumEngine
 			}
 			for(auto textureAssetID : _assetDatabase->GetTextureAssetIDs())
 			{
-				if(_assetDatabase->TryGetAsset(textureAssetID.id, asset))
+				if(_assetDatabase->GetAsset(textureAssetID.id, asset))
 				{
 					if (filter.PassFilter(asset.path.string().c_str()))
 					{

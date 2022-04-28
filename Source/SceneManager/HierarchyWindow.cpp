@@ -73,16 +73,16 @@ namespace PlatinumEngine
 				{
 					// For a safe delete, we need to check if the selected game object is a child of the selected
 					// object to delete
-					auto parent = _sceneEditor->GetSelectedGameobject()->GetParent();
+					auto parent = _sceneEditor->GetSelectedGameobject().pointer->GetParent();
 					while (parent)
 					{
 						// Manually set nullptr as we know we will remove directly later
 						if (parent == gameObject)
-							_sceneEditor->SetSelectedGameobject(nullptr);
-						parent = parent->GetParent();
+							_sceneEditor->SetSelectedGameobject({});
+						parent = parent.pointer->GetParent();
 					}
 
-					scene.RemoveGameObject(*gameObject);
+					scene.RemoveGameObject(gameObject);
 				}
 			}
 			ImGui::EndPopup();

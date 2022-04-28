@@ -9,6 +9,9 @@
 
 namespace PlatinumEngine
 {
+	// forward declare for Create function
+	struct PixelData;
+
 	class Texture
 	{
 	public:
@@ -17,7 +20,7 @@ namespace PlatinumEngine
 
 		~Texture();
 
-		void Create(GLsizei width, GLsizei height, const void* pixelData = nullptr);
+		void Create(const PixelData& pixelData);
 
 		void CreateCubeMap(std::vector<std::string> faces);
 
@@ -40,10 +43,15 @@ namespace PlatinumEngine
 	public:
 		PixelData();
 		~PixelData();
-		void Create(const std::string& filePath);
+		bool Create(const std::string& filePath);
 
-		int width, height, nrComponents;
+		int width, height;
+//     N=#comp     components
+//       1           grey
+//       2           grey, alpha
+//       3           red, green, blue
+//       4           red, green, blue, alpha
+		int numberOfComponents;
 		unsigned char *pixelData;
-
 	};
 }

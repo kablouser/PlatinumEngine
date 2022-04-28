@@ -30,7 +30,7 @@ namespace PlatinumEngine
 		 * @param outNormals  : where normals are stored
 		 * @param outTextureCoords : where texture coords are stored
 		 */
-		void LoadMesh(const std::string &filePath, std::vector<glm::vec3> &outPositions, std::vector<glm::vec3> &outNormals, std::vector<glm::vec2> &outTextureCoords);
+		void LoadMesh(const std::filesystem::path& filePath, std::vector<glm::vec3> &outPositions, std::vector<glm::vec3> &outNormals, std::vector<glm::vec2> &outTextureCoords);
 
 		/**
 		 * Convert an assimp mesh to individual positon, normal, texture coord vectors
@@ -45,9 +45,9 @@ namespace PlatinumEngine
 		 * Loads a file into a mesh
 		 * @param filePath : Location of file
 		 * @param JoinVertices : Will join vertices so the mesh contains unique vertices only, default true
-		 * @return : Mesh data structure
+		 * @return if good: {true, Mesh data structure}, otherwise {false, null}
 		 */
-		Mesh LoadMesh(const std::string &filePath, bool JoinVertices=true, bool CalcTangents=true);
+		std::pair<bool, std::shared_ptr<Mesh>> LoadMesh(const std::filesystem::path& filePath, bool JoinVertices=true, bool CalcTangents=true);
 
 		/**
 		 * AddInternal new mesh data to an existing mesh

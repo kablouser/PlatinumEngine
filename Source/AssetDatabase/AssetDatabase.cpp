@@ -1,4 +1,4 @@
-#include "AssetDatabase/AssetDatabase.h"
+#include <AssetDatabase/AssetDatabase.h>
 
 #include <limits>
 #include <cassert>
@@ -27,7 +27,7 @@ namespace
 
 		uint64_t hash = fnv_offset_basis;
 
-		for(auto c: text)
+		for (auto c: text)
 		{
 			hash ^= c;
 			hash *= fnv_prime;
@@ -39,6 +39,15 @@ namespace
 
 namespace PlatinumEngine
 {
+	std::type_index Asset::GetTypeIndex() const
+	{
+		auto findExtension = Loaders::EXTENSION_TO_TYPE.find(path.extension().string());
+		if (findExtension == Loaders::EXTENSION_TO_TYPE.end())
+			return std::type_index(typeid(void));
+		else
+			return findExtension->second;
+	}
+
 	//--------------------------------------------------------------------------------------------------------------
 	// Static
 	//--------------------------------------------------------------------------------------------------------------
@@ -46,7 +55,7 @@ namespace PlatinumEngine
 	std::ostream& operator<<(std::ostream& output, AssetDatabase& assetDatabase)
 	{
 		output << AssetDatabase::FIRST_LINE << std::endl;
-		for (const auto& asset: assetDatabase._database)
+		for (const auto& asset: assetDatabase._assets)
 		{
 			output
 					<< asset.id << ','
@@ -59,17 +68,16 @@ namespace PlatinumEngine
 
 	std::istream& operator>>(std::istream& input, AssetDatabase& assetDatabase)
 	{
-		// enforce a empty object
-		assetDatabase._database.clear();
-		assetDatabase._assetIDsMap.clear();
+		// enforce an empty object,
+		// AssetDatabase only deals with inputs. There is no reason to write out changes in it's data structure.
+		assetDatabase._assets.clear();
+		assetDatabase._assetIndicesByType.clear();
 
 		{
 			std::string firstLine;
 			std::getline(input, firstLine);
 			if (firstLine != AssetDatabase::FIRST_LINE)
-			{
 				PLATINUM_WARNING("AssetDatabase stream input: unexpected first line");
-			}
 		}
 
 		Asset asset;
@@ -80,29 +88,9 @@ namespace PlatinumEngine
 			   input >> asset.doesExist && input.get() &&
 			   std::getline(input, filePath))
 		{
-			// construct path object, could exist or not exist
-			asset.path = filesystem::path(filePath);
-
-			// find id
-			auto i = assetDatabase._assetIDsMap.find(asset.id);
-			// if id is unique
-			if (i == assetDatabase._assetIDsMap.end())
-			{
-				assetDatabase._database.push_back(asset);
-				assert(assetDatabase._assetIDsMap.insert({ asset.id, assetDatabase._database.size() - 1 }).second);
-			}
-			else
-			{
-				// index of existing AssetID in database
-				size_t databaseIndex = i->second;
-				PLATINUM_WARNING_STREAM
-						<< "AssetDatabase input data is bad. Same AssetID was declared for multiple files: "
-						<< assetDatabase._database.at(databaseIndex).path
-						<< " and "
-						<< asset.path
-						<< " at line " << line;
-			}
-
+			// don't check asset here, checks come later
+			asset.path = filesystem::path(AssetDatabase::StandardisePath(filePath));
+			assetDatabase._assets.push_back(asset);
 			++line;
 		}
 
@@ -167,8 +155,6 @@ namespace PlatinumEngine
 	//--------------------------------------------------------------------------------------------------------------
 
 	AssetDatabase::AssetDatabase() :
-			_generator(std::random_device()()),
-			_anyNumber(std::numeric_limits<HashType>::min(), std::numeric_limits<HashType>::max()),
 			_assetsFolderPath("./Assets"),
 			_assetDatabasePath("./Assets/AssetDatabase.csv")
 	{
@@ -181,44 +167,23 @@ namespace PlatinumEngine
 		_assetDatabasePath = std::move(assetDatabasePath);
 	}
 
-	AssetDatabase::~AssetDatabase()
-	{
-		DeleteLoadedAssets();
-	}
-
 	//--------------------------------------------------------------------------------------------------------------
 	// Getters
 	//--------------------------------------------------------------------------------------------------------------
 
-	bool AssetDatabase::TryGetAsset(AssetID id, Asset& outAsset)
+	std::pair<bool, const Asset*> AssetDatabase::GetAsset(std::filesystem::path withPath)
 	{
-		auto i = _assetIDsMap.find(id);
-		if (i == _assetIDsMap.end())
-			return false;
-		else
+		for (Asset& asset: _assets)
 		{
-			// range-checked indexing
-			outAsset = _database.at(i->second);
-			return true;
+			if (std::filesystem::equivalent(asset.path, withPath))
+				return { true, &asset };
 		}
+		return { false, nullptr };
 	}
 
-	bool AssetDatabase::TryGetAsset(const std::string& filePath, Asset& outAsset)
+	const std::vector<Asset>& AssetDatabase::GetAssets() const
 	{
-		for (auto& i: _database)
-		{
-			if (i.path == filePath)
-			{
-				outAsset = i;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	const std::vector<Asset>& AssetDatabase::GetDatabase() const
-	{
-		return _database;
+		return _assets;
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
@@ -241,7 +206,7 @@ namespace PlatinumEngine
 		for (auto findHash = findHashesBegin; findHash != findHashesEnd; ++findHash)
 		{
 			size_t databaseIndex = findHash->second;
-			if (_database.at(databaseIndex).doesExist)
+			if (_assets.at(databaseIndex).doesExist)
 			{
 				++outExistCount;
 				outLastDatabaseIndex = databaseIndex;
@@ -260,20 +225,20 @@ namespace PlatinumEngine
 	void AssetDatabase::PurgeNonExistAssets()
 	{
 		// just weird c++ code to remove if some condition is met
-		_database.erase(
+		_assets.erase(
 				std::remove_if(
-						_database.begin(),
-						_database.end(),
+						_assets.begin(),
+						_assets.end(),
 						[](Asset& asset)
 						{
 							return !asset.doesExist;
 						}),
-				_database.end());
+				_assets.end());
 
-		RebuildAssetIDsMap();
+		RebuildStoredMap();
 	}
 
-	void AssetDatabase::Update()
+	void AssetDatabase::Update(IDSystem& idSystem)
 	{
 		if (filesystem::exists(_assetDatabasePath))
 		{
@@ -287,12 +252,8 @@ namespace PlatinumEngine
 		{
 			std::vector<filesystem::path> currentExistingPaths;
 			for (filesystem::recursive_directory_iterator i(_assetsFolderPath), end; i != end; ++i)
-			{
 				if (!is_directory(i->path()))
-				{
 					currentExistingPaths.push_back(i->path());
-				}
-			}
 			UpdateWithCurrentPaths(currentExistingPaths);
 		}
 
@@ -304,175 +265,66 @@ namespace PlatinumEngine
 				PLATINUM_ERROR_STREAM << "AssetDatabase cannot be opened: " << _assetDatabasePath;
 		}
 
-		ReloadAssets();
+		ReloadAssets(idSystem);
 	}
 
-	void AssetDatabase::ReloadAssets()
+	void AssetDatabase::ReloadAssets(IDSystem& idSystem)
 	{
-		// each entry corresponds to the loader in the ALLOWED_EXTENSIONS
-		std::vector<std::function<void*(const std::filesystem::path &filePath)>> loaders{
-				// remember to add the allocated data to its individual list
-				[&](const std::filesystem::path& filePath) -> void*
-				{
-					Mesh* allocateMesh = new Mesh;
-					*allocateMesh = Loaders::LoadMesh(filePath.string());
-					_loadedMeshAssets.push_back(allocateMesh);
-					allocateMesh->fileName = filePath.filename().string();
-					return allocateMesh;
-				},
-
-				[&](const std::filesystem::path& filePath) -> void*
-				{
-					PixelData pixelData;
-					Texture* allocateTexture = new Texture;
-					pixelData.Create(filePath.string());
-					allocateTexture->Create(pixelData.width, pixelData.height, (const void*)pixelData.pixelData);
-					_loadedTextureAssets.emplace_back(allocateTexture);
-					allocateTexture->fileName = filePath.filename().string();
-					return allocateTexture;
-				},
-		};
-
-		// check there's an entry for each ALLOWED_EXTENSIONS
-		assert(loaders.size() == ALLOWED_EXTENSIONS.size());
-
-		std::map<std::string, size_t> fileExtensionToLoader;
-		for (size_t i = 0; i < ALLOWED_EXTENSIONS.size(); ++i)
+		// TODO not finished
+		
+		for (Asset& asset: _assets)
 		{
-			// this will fail if there's duplicates in ALLOWED_EXTENSIONS
-			assert(fileExtensionToLoader.insert({ ALLOWED_EXTENSIONS[i], i }).second);
-		}
-
-		DeleteLoadedAssets();
-		_loadedAssets.resize(_database.size());
-
-		for (size_t i = 0; i < _database.size(); ++i)
-		{
-			if (_database[i].doesExist)
-			{
-				auto filePath = _database[i].path;
-				auto findFilePath = fileExtensionToLoader.find(GetExtension(filePath.string()));
-
-				if (findFilePath == fileExtensionToLoader.end())
-				{
-					PLATINUM_WARNING_STREAM << "AssetDatabase could not load asset, extension not supported: "
-											<<
-											_database[i].path;
-				}
-				else
-				{
-					size_t loadersIndex = findFilePath->second;
-					_loadedAssets.at(i) = loaders.at(loadersIndex)(filePath);
-				}
-			}
-		}
-	}
-
-	//--------------------------------------------------------------------------------------------------------------
-	// Get Loaded Asset functions
-	//--------------------------------------------------------------------------------------------------------------
-
-	std::vector<MeshAssetID> AssetDatabase::GetMeshAssetIDs(bool requireExist) const
-	{
-		std::vector<MeshAssetID> results;
-		for (const auto& asset: _database)
-		{
-			if (requireExist && !asset.doesExist)
+			if (!asset.doesExist)
 				continue;
 
-			if (GetExtension(asset.path.string()) == "obj")
+			auto findExtension = Loaders::EXTENSION_TO_TYPE.find(asset.path.extension().string());
+			if (findExtension == Loaders::EXTENSION_TO_TYPE.end())
 			{
-				results.push_back({ asset.id });
-			}
-		}
-		return results;
-	}
-
-	Mesh* AssetDatabase::GetLoadedMeshAsset(MeshAssetID meshAssetID)
-	{
-		return (*this)[meshAssetID];
-	}
-
-	Mesh* AssetDatabase::operator[](MeshAssetID meshAssetID)
-	{
-		auto findID = _assetIDsMap.find(meshAssetID.id);
-		if (findID == _assetIDsMap.end())
-			return nullptr;
-
-		size_t databaseIndex = findID->second;
-		if (_database[databaseIndex].doesExist)
-		{
-			if (GetExtension(_database[databaseIndex].path.string()) == "obj")
-				return static_cast<Mesh*>(_loadedAssets[databaseIndex]);
-			else
-				PLATINUM_WARNING_STREAM << "AssetDatabase: can't load get loaded asset because the type you want "
-										   "is different to the type stored";
-		}
-
-		return nullptr;
-	}
-
-	std::vector<TextureAssetID> AssetDatabase::GetTextureAssetIDs(bool requireExist) const
-	{
-		std::vector<TextureAssetID> results;
-		for (const auto& asset: _database)
-		{
-			if (requireExist && !asset.doesExist)
+				PLATINUM_WARNING_STREAM << "AssetDatabase could not load asset, extension not supported: "
+										<< asset.path;
 				continue;
-
-			if (GetExtension(asset.path.string()) == "png")
-			{
-				results.push_back({ asset.id });
 			}
-		}
-		return results;
-	}
 
-	Texture* AssetDatabase::GetLoadedTextureAsset(TextureAssetID textureAssetID)
-	{
-		return (*this)[textureAssetID];
-	}
-
-	Texture* AssetDatabase::operator[](TextureAssetID textureAssetID)
-	{
-		auto findID = _assetIDsMap.find(textureAssetID.id);
-		if (findID == _assetIDsMap.end())
-			return nullptr;
-
-		size_t databaseIndex = findID->second;
-		if (_database[databaseIndex].doesExist)
-		{
-			if (GetExtension(_database[databaseIndex].path.string()) == "png")
-				return static_cast<Texture*>(_loadedAssets[databaseIndex]);
+			std::shared_ptr<void> pointer;
+			if (findExtension->second == typeid(Mesh))
+			{
+				auto[success, meshPointer]= Loaders::LoadMesh(asset.path);
+				if (!success)
+					continue;
+				pointer = std::move(meshPointer);
+			}
+			else if (findExtension->second == typeid(Texture))
+			{
+				PixelData pixelData;
+				if (!pixelData.Create(asset.path.string()))
+					continue;
+				std::shared_ptr<Texture> texturePointer = std::make_shared<Texture>();
+				texturePointer->Create(pixelData);
+				pointer = std::move(texturePointer);
+			}
 			else
-				PLATINUM_WARNING_STREAM << "AssetDatabase: can't load get loaded asset because the type you want "
-										   "is different to the type stored";
-		}
+			{
+				PLATINUM_WARNING_STREAM << "AssetDatabase could not load asset, extension not supported: "
+										<< asset.path;
+				continue;
+			}
 
-		return nullptr;
+			idSystem.Overwrite(findExtension->second, asset.id, pointer);
+		}
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
 	// Internal
 	//--------------------------------------------------------------------------------------------------------------
 
-	AssetID AssetDatabase::GenerateAssetID()
+	void AssetDatabase::RebuildStoredMap()
 	{
-		AssetID assetID;
-		do
+		_assetIndicesByType.clear();
+		for (size_t i = 0; i < _assets.size(); ++i)
 		{
-			assetID = _anyNumber(_generator);
-		} while (0 < _assetIDsMap.count(assetID));
-		return assetID;
-	}
-
-	void AssetDatabase::RebuildAssetIDsMap()
-	{
-		_assetIDsMap.clear();
-		for (size_t i = 0; i < _database.size(); ++i)
-		{
-			if (!_assetIDsMap.insert({ _database[i].id, i }).second)
-				throw std::exception();
+			if (!_assets[i].doesExist)
+				continue; // exclude non-existent assets
+			_assetIndicesByType[_assets[i].GetTypeIndex()].push_back(i);
 		}
 	}
 
@@ -487,7 +339,7 @@ namespace PlatinumEngine
 
 		{
 			size_t databaseIndex = 0;
-			for (auto& asset: _database)
+			for (auto& asset: _assets)
 			{
 				// ensure current database is update to date
 				asset.doesExist = filesystem::exists(asset.path);
@@ -515,7 +367,7 @@ namespace PlatinumEngine
 				// not "allowed"
 				continue;
 			if (path == assetDatabasePath)
-				// don't store the assets database file
+				// don't store the asset database file
 				continue;
 
 			HashType hash = HashFile(path);
@@ -543,8 +395,8 @@ namespace PlatinumEngine
 				{
 					// asset previously existed, it was renamed/moved
 					// update path in existing entry
-					_database.at(lastDatabaseIndex).doesExist = true;
-					_database.at(lastDatabaseIndex).path = path;
+					_assets.at(lastDatabaseIndex).doesExist = true;
+					_assets.at(lastDatabaseIndex).path = path;
 				}
 				else
 				{
@@ -560,10 +412,10 @@ namespace PlatinumEngine
 							path
 					};
 
-					_database.push_back(asset);
-					assert(_assetIDsMap.insert({ asset.id, _database.size() - 1 }).second);
-					assert(pathsMap.insert({ path, _database.size() - 1 }).second);
-					hashesMap.insert({ asset.hash, _database.size() - 1 });
+					_assets.push_back(asset);
+					assert(_assetIDsMap.insert({ asset.id, _assets.size() - 1 }).second);
+					assert(pathsMap.insert({ path, _assets.size() - 1 }).second);
+					hashesMap.insert({ asset.hash, _assets.size() - 1 });
 				}
 			}
 			else
@@ -571,7 +423,7 @@ namespace PlatinumEngine
 				// found path
 				size_t databaseIndex = findPath->second;
 				// compare hash of current path with existing Asset
-				if (hash == _database.at(databaseIndex).hash)
+				if (hash == _assets.at(databaseIndex).hash)
 				{
 					// good, nothing to do
 					if (debugMessages)
@@ -601,8 +453,8 @@ namespace PlatinumEngine
 					{
 						// asset previously existed, it was renamed/moved
 						// update path in existing entry
-						_database.at(databaseIndex).path = path;
-						_database.at(databaseIndex).doesExist = true;
+						_assets.at(databaseIndex).path = path;
+						_assets.at(databaseIndex).doesExist = true;
 					}
 					else
 					{
@@ -610,22 +462,11 @@ namespace PlatinumEngine
 						// asset duplicated in another path
 
 						// update existing entry
-						_database.at(databaseIndex).hash = hash;
-						_database.at(databaseIndex).doesExist = true;
+						_assets.at(databaseIndex).hash = hash;
+						_assets.at(databaseIndex).doesExist = true;
 					}
 				}
 			}
 		}
-	}
-
-	void AssetDatabase::DeleteLoadedAssets()
-	{
-		for (auto mesh: _loadedMeshAssets)
-		{
-			delete mesh;
-		}
-
-		_loadedAssets.clear();
-		_loadedMeshAssets.clear();
 	}
 }

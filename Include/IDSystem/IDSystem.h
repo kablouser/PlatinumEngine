@@ -69,6 +69,16 @@ namespace PlatinumEngine
 		bool Remove(SavedReference<T>& savedReference);
 
 		//--------------------------------------------------------------------------------------------------------------
+		// For the Asset Database to load stuff
+		//--------------------------------------------------------------------------------------------------------------
+
+		/**
+		 * If type and id doesn't exist in system, then adds it.
+		 * If type and id already exists, replaces them with new pointer.
+		 */
+		void Overwrite(const std::type_index& typeIndex, ID id, std::shared_ptr<void>& pointer);
+
+		//--------------------------------------------------------------------------------------------------------------
 		// Disgusting internal controls
 		//--------------------------------------------------------------------------------------------------------------
 
@@ -82,7 +92,7 @@ namespace PlatinumEngine
 
 		// Add with desired id
 		bool AddInternal(
-				const std::type_index& typeIndex,
+				std::type_index&& typeIndex,
 				ID id,
 				const std::shared_ptr<void>& pointer);
 
@@ -103,11 +113,10 @@ namespace PlatinumEngine
 
 	private:
 		typedef std::map<ID, std::shared_ptr<void>> IDMap;
-
 		std::map<std::type_index, IDMap> managedMemory;
+
 		// random number generator
 		std::mt19937 _generator;
-
 		std::uniform_int_distribution<ID> _anyNumber;
 	};
 

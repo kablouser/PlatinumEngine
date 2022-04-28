@@ -184,6 +184,11 @@ namespace PlatinumEngine
 	{
 	}
 
+	void IDSystem::Overwrite(const std::type_index& typeIndex, ID id, std::shared_ptr<void>& pointer)
+	{
+		managedMemory[typeIndex][id] = pointer;
+	}
+
 	std::pair<IDSystem::ID, std::shared_ptr<void>> IDSystem::GetSavedReferenceInternal(
 			std::size_t id,
 			std::type_index&& typeIndex)
@@ -231,7 +236,7 @@ namespace PlatinumEngine
 	}
 
 	bool IDSystem::AddInternal(
-			const std::type_index& typeIndex,
+			std::type_index&& typeIndex,
 			IDSystem::ID id,
 			const std::shared_ptr<void>& pointer)
 	{

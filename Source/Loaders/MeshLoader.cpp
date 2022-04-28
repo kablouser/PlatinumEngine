@@ -8,18 +8,13 @@ namespace PlatinumEngine
 {
 	namespace Loaders
 	{
-		void LoadMesh(const std::string &filePath, std::vector<glm::vec3> &outPositions, std::vector<glm::vec3> &outNormals, std::vector<glm::vec2> &outTextureCoords)
+		void LoadMesh(const std::filesystem::path& filePath, std::vector<glm::vec3> &outPositions, std::vector<glm::vec3> &outNormals, std::vector<glm::vec2> &outTextureCoords)
 		{
-			// First check if the file is okay
-			if (!ExtensionAllowed(GetExtension(filePath)))
-			{
-				PLATINUM_ERROR({"Extension for file \"" + filePath + "\" not allowed"});
-				return;
-			}
+			// no point in checking extension here, just load it if possible
 
 			// Load file
 			Assimp::Importer import;
-			const aiScene *scene = import.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs);
+			const aiScene *scene = import.ReadFile(filePath.string(), aiProcess_Triangulate | aiProcess_FlipUVs);
 			if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 			{
 				PLATINUM_ERROR(import.GetErrorString());
@@ -48,14 +43,9 @@ namespace PlatinumEngine
 			}
 		}
 
-		Mesh LoadMesh(const std::string &filePath, const bool JoinVertices, const bool CalcTangents)
+		std::pair<bool, std::shared_ptr<Mesh>> LoadMesh(const std::filesystem::path& filePath, const bool JoinVertices, const bool CalcTangents)
 		{
-			// First check if the file is okay
-			if (!ExtensionAllowed(GetExtension(filePath)))
-			{
-				PLATINUM_ERROR({"Extension for file \"" + filePath + "\" not allowed"});
-				return {};
-			}
+			// no point in checking extension here, just load it if possible
 
 			// Load file
 			Assimp::Importer import;
@@ -70,23 +60,23 @@ namespace PlatinumEngine
 			}
 
 			// Crate scene from file
-			const aiScene *scene = import.ReadFile(filePath, flags);
+			const aiScene *scene = import.ReadFile(filePath.string(), flags);
 			if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 			{
 				PLATINUM_ERROR(import.GetErrorString());
-				return {};
+				return {false, {}};
 			}
 
 			// Loop all meshes and add data
-			Mesh returnMesh;
+			std::shared_ptr<Mesh> returnMesh = std::make_shared<Mesh>();
 			// Keep track of offset for multiple meshes
 			unsigned int offset = 0;
 			for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 			{
-				AddMeshData(returnMesh, scene->mMeshes[i], offset);
+				AddMeshData(*returnMesh.get(), scene->mMeshes[i], offset);
 			}
 
-			return returnMesh;
+			return {true, std::move(returnMesh)};
 		}
 
 		void AddMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset)

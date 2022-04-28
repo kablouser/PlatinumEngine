@@ -2,27 +2,17 @@
 // Created by Matt on 03/03/2022.
 //
 
-#include "Loaders/LoaderCommon.h"
+#include <Loaders/LoaderCommon.h>
 
 namespace PlatinumEngine
 {
-	std::string GetExtension(const std::string &filePath)
+	namespace Loaders
 	{
-		return filePath.substr(filePath.find_last_of(".") + 1);
-	}
-
-	bool ExtensionAllowed(const std::string &extension)
-	{
-		bool isAllowed = false;
-		for (unsigned int i = 0; i < ALLOWED_EXTENSIONS.size(); ++i)
+		bool ExtensionAllowed(const std::filesystem::path& path)
 		{
-			if (ALLOWED_EXTENSIONS[i] == extension)
-			{
-				isAllowed = true;
-				break;
-			}
+			auto findExtension = EXTENSION_TO_TYPE.find(path.extension().string());
+			return findExtension != EXTENSION_TO_TYPE.end();
 		}
-		return isAllowed;
 	}
 }
 
