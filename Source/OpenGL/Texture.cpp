@@ -29,6 +29,8 @@ namespace PlatinumEngine
 		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
+		this->width = width;
+		this->height = height;
 	}
 
 	void Texture::CreateCubeMap(std::vector<std::string> faces)

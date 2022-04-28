@@ -58,7 +58,7 @@ namespace PlatinumEngine
 		}
 		if (ImGui::BeginPopup("RightClickGameObject"))
 		{
-			ImGui::Text("Remove Object");
+			ImGui::Selectable("Remove Object");
 			if (ImGui::IsItemClicked())
 			{
 				if (gameObject == _sceneEditor->GetSelectedGameobject())
@@ -78,6 +78,36 @@ namespace PlatinumEngine
 
 					scene.RemoveGameObject(*gameObject);
 				}
+			}
+			ImGui::Selectable("Duplicate Object");
+			if (ImGui::IsItemClicked())
+			{
+				GameObject* duplicateGameObject = scene.AddGameObject(gameObject->name);;
+				RenderComponent* gameObjectRC = gameObject->GetComponent<RenderComponent>();
+				TransformComponent* gameObjectTC = gameObject->GetComponent<TransformComponent>();
+
+				//Manual copy of parameters
+				if(gameObjectRC != nullptr)
+				{
+					scene.AddComponent<RenderComponent>(duplicateGameObject);
+					RenderComponent* dupObjectRC = duplicateGameObject->GetComponent<RenderComponent>();
+					dupObjectRC->material.diffuseTexture = gameObjectRC->material.diffuseTexture;
+					dupObjectRC->material.normalTexture = gameObjectRC->material.normalTexture;
+					dupObjectRC->material.useTexture = gameObjectRC->material.useTexture;
+					dupObjectRC->material.useNormalTexture = gameObjectRC->material.useNormalTexture;
+					dupObjectRC->material.useBlinnPhong = gameObjectRC->material.useBlinnPhong;
+					dupObjectRC->material.shininessFactor = gameObjectRC->material.shininessFactor;
+					dupObjectRC->SetMesh(gameObjectRC->GetMesh());
+				}
+				if(gameObjectTC != nullptr)
+				{
+					scene.AddComponent<TransformComponent>(duplicateGameObject);
+					TransformComponent* dupObjectTC = duplicateGameObject->GetComponent<TransformComponent>();
+					dupObjectTC->localPosition = gameObjectTC->localPosition;
+					dupObjectTC->localRotation = gameObjectTC->localRotation;
+					dupObjectTC->localScale = gameObjectTC->localScale;
+				}
+				ImGui::CloseCurrentPopup();
 			}
 			ImGui::EndPopup();
 		}

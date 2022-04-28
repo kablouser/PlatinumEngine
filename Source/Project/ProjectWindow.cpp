@@ -13,29 +13,78 @@ void ProjectWindow::ShowGUIWindow(bool* isOpen)
 {
 	if (ImGui::Begin(ICON_FA_FOLDER " Project Window"))
 	{
+		//Top Bar for Project Window
 		static char assetSelectorBuffer[128];
 		ImGui::InputText("##FilterAssets", assetSelectorBuffer, IM_ARRAYSIZE(assetSelectorBuffer));
 		ImGui::SameLine();
 		ImGui::Text("%s", ICON_FA_MAGNIFYING_GLASS);
+		ImGui::SameLine();
 
-		// If we don't have something to search for, use default assets folder
-		_toFind = assetSelectorBuffer;
-		if (!_toFind.empty())
+		//Settings for Toggle (Preview Button)
+
+		if(_isPreviewEnabled)
 		{
-			// Recursively search for the target string in each directory
-			for (std::filesystem::recursive_directory_iterator i(_parentFolder), end; i != end; ++i)
+			//Preview Button Settings
+			ImGuiStyle style = ImGui::GetStyle();
+			ImGui::PushID("Preview");
+			ImGui::PushStyleColor(ImGuiCol_Button, style.Colors[ImGuiCol_ButtonActive]);
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, style.Colors[ImGuiCol_ButtonActive]);
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, style.Colors[ImGuiCol_ButtonActive]);
+			ImGui::Button("Preview");
+			if (ImGui::IsItemClicked(0))
 			{
-				// Find search string in filename, also check if parent path contains search string to avoid adding twice
-				if (i->path().filename().string().find(_toFind) != std::string::npos && (i->path().parent_path().string().find(_toFind) == std::string::npos))
-				{
-					ShowTreeNode(i->path());
-				}
+				_isPreviewEnabled = false;
+				_childWindowCount -= 1;
 			}
+
+			ImGui::PopStyleColor(3);
+			ImGui::PopID();
 		}
 		else
 		{
-			ShowTreeNode(std::filesystem::path(_parentFolder));
+			if (ImGui::Button("Preview"))
+			{
+				_isPreviewEnabled = true;
+				_childWindowCount += 1;
+			}
+
 		}
+
+		//Child Windows
+		if(ImGui::BeginChild("Project View",ImVec2(ImGui::GetWindowWidth()/_childWindowCount,0),true))
+		{
+			// If we don't have something to search for, use default assets folder
+			_toFind = assetSelectorBuffer;
+			if (!_toFind.empty())
+			{
+				// Recursively search for the target string in each directory
+				for (std::filesystem::recursive_directory_iterator i(_parentFolder), end; i != end; ++i)
+				{
+					// Find search string in filename, also check if parent path contains search string to avoid adding twice
+					if (i->path().filename().string().find(_toFind) != std::string::npos && (i->path().parent_path().string().find(_toFind) == std::string::npos))
+					{
+						ShowTreeNode(i->path());
+					}
+				}
+			}
+			else
+			{
+				ShowTreeNode(std::filesystem::path(_parentFolder));
+			}
+		}
+		ImGui::EndChild();
+
+		if(_isPreviewEnabled)
+		{
+			ImGui::SameLine();
+			if(ImGui::BeginChild("Preview Window",ImVec2(ImGui::GetWindowWidth()/_childWindowCount,0),true))
+			{
+				if(!_previewFilePath.empty())
+					ShowProjectWindowPreview(_previewFilePath);
+			}
+			ImGui::EndChild();
+		}
+
 	}
 
 	ImGui::End();
@@ -56,6 +105,51 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 		// Hide label of node using "##" (this is so we can have fancy icons)
 		bool isExpanded = ImGui::TreeNodeEx((std::string{"##"} + dir.filename().string()).c_str(), flags);
 
+		bool isRemoved = false;
+
+		//Right-click actions
+		bool renameFolder = false;
+		if(ImGui::BeginPopupContextItem())
+		{
+			if (ImGui::Selectable("Add Folder"))
+			{
+				std::string name = "New Folder";
+				std::filesystem::path newFolderPath = std::filesystem::path(dir.string()+"/"+name);
+				int i=2;
+				while(exists(newFolderPath))
+				{
+					newFolderPath = std::filesystem::path(dir.string()+"/"+name+" ("+std::to_string(i)+")");
+					i++;
+				}
+				std::filesystem::create_directory(newFolderPath);
+			}
+			if(ImGui::Selectable("Remove Folder"))
+			{
+				isRemoved = true;
+			}
+			if(_moveType!=MoveType::none)
+			{
+				if (ImGui::Selectable("Paste File"))
+				{
+					if (_moveType == MoveType::copy)
+					{
+						std::filesystem::path newPath = std::filesystem::path(
+								dir.string() + "/" + _moveFilePath.filename().string());
+						std::filesystem::copy_file(_moveFilePath, newPath);
+						_moveType = MoveType::none;
+					}
+					if (_moveType == MoveType::cut)
+					{
+						std::filesystem::path newPath = std::filesystem::path(
+								dir.string() + "/" + _moveFilePath.filename().string());
+						std::filesystem::rename(_moveFilePath, newPath);
+						_moveType = MoveType::none;
+					}
+				}
+			}
+			ImGui::EndPopup();
+		}
+
 		// Only show sub-contents if tree node is expanded
 		if (isExpanded)
 		{
@@ -63,7 +157,7 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 			ImGui::SameLine();
 			ImGui::Text("%s", (std::string{ICON_FA_FOLDER_OPEN} + " " + dir.filename().string()).c_str());
 
-      //drag and drop
+			//Drag-and-Drop actions
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
@@ -84,7 +178,7 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 			// Add closed folder icon and name
 			ImGui::SameLine();
 			ImGui::Text("%s", (std::string{ICON_FA_FOLDER} + " " + dir.filename().string()).c_str());
-      //drag and drop
+			//Drag-and-Drop actions
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
@@ -93,6 +187,10 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 				ImGui::EndDragDropTarget();
 			}
 		}
+
+		//Remove it if flag is set to true
+		if(isRemoved)
+			std::filesystem::remove_all(dir.string());
 	}
 	else
 	{
@@ -102,48 +200,76 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 			// A path is a leaf of a tree (i.e. it cannot be expanded)
 			ImGui::TreeNodeEx(dir.filename().string().c_str(), flags | ImGuiTreeNodeFlags_Leaf);
 
+			//If we click on the file
+			//if(ImGui::IsItemHovered() && ImGui::IsMouseReleased(0))
+			if(ImGui::IsItemClicked(0))
+			{
+				_previewFilePath = dir;
+			}
+
 			//Right-click actions
 			if (ImGui::BeginPopupContextItem())
 			{
+				//Specific extension related functionalities
 				if(dir.extension()==".obj")
-				if (ImGui::Selectable("Add Mesh"))
 				{
-					if(dir.extension()==".obj")
+					if (ImGui::Selectable("Add Mesh"))
 					{
-						GameObject* go = _scene->AddGameObject(dir.stem().string());
-						_scene->AddComponent<TransformComponent>(go);
-						_scene->AddComponent<RenderComponent>(go);
-						auto asset_Helper = _assetHelper->GetMeshAsset(dir.string());
-						if (std::get<0>(asset_Helper))
-							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+						if (dir.extension() == ".obj")
+						{
+							GameObject* go = _scene->AddGameObject(dir.stem().string());
+							_scene->AddComponent<TransformComponent>(go);
+							_scene->AddComponent<RenderComponent>(go);
+							auto asset_Helper = _assetHelper->GetMeshAsset(dir.string());
+							if (std::get<0>(asset_Helper))
+								go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+						}
 					}
 				}
 				if(dir.extension()==".png")
 				{
 					GameObject* go = _sceneEditor->GetSelectedGameobject();
-					if(go == nullptr)
-						ImGui::CloseCurrentPopup();
-					if (ImGui::Selectable("Add Texture"))
+					if(go != nullptr)
 					{
+						if (ImGui::Selectable("Add Texture"))
+						{
 							auto asset_Helper = _assetHelper->GetTextureAsset(dir.string());
 							if (std::get<0>(asset_Helper))
 							{
 								go->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
 								go->GetComponent<RenderComponent>()->material.useTexture = true;
 							}
-					}
-					if (ImGui::Selectable("Add Normal"))
-					{
+						}
+						if (ImGui::Selectable("Add Normal"))
+						{
 							auto asset_Helper = _assetHelper->GetTextureAsset(dir.string());
 							if (std::get<0>(asset_Helper))
 								go->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
+						}
 					}
+				}
+
+				//General file functionalities
+				if (ImGui::Selectable("Copy File"))
+				{
+					_moveFilePath = dir;
+					_moveType = MoveType::copy;
+				}
+				if (ImGui::Selectable("Cut File"))
+				{
+					_moveFilePath = dir;
+					_moveType = MoveType::cut;
+				}
+				if (ImGui::Selectable("Delete File"))
+				{
+					std::filesystem::remove(dir);
 				}
 				ImGui::EndPopup();
 			}
 
 			ImGui::TreePop();
 
+			//Drag-and-Drop actions
 			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 			{
 				// Set payload to carry the filepath
@@ -180,5 +306,82 @@ void ProjectWindow::DragDropMoveRegularFile(std::filesystem::path dir, const ImG
 	}
 }
 
-ProjectWindow::ProjectWindow(Scene* scene, AssetHelper* assetHelper, SceneEditor* sceneEditor): _scene(scene), _assetHelper(assetHelper), _sceneEditor(sceneEditor)
+/**
+ * This handles file previews and displays relevant information about the file
+ * @param filePath the current selected file to preview
+ */
+void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
+{
+	//Preview the image
+	if(filePath.extension()==".png")
+	{
+		//Grab the texture from AssetDatabase (pre-loaded, so we don't need to load again here)
+		Texture* image = new Texture;
+		auto asset_Helper = _assetHelper->GetTextureAsset(filePath.string());
+		if (std::get<0>(asset_Helper))
+			image = std::get<1>(asset_Helper);
+		ImGui::Image((void*)(intptr_t)image->GetOpenGLHandle(), ImVec2(128,128));
+
+		ImGui::Text("Type: IMAGE");
+
+		std::string dim = std::to_string(image->width)+" x "+std::to_string(image->height);
+		ImGui::Text("Dimensions: ");
+		ImGui::SameLine();
+		ImGui::Text(dim.c_str());
+	}
+
+	//Preview the mesh
+	else if(filePath.extension()==".obj")
+	{
+		//Probably want to have a separate renderer?
+
+		ImGui::Text("Type: MESH");
+	}
+
+	//Preview the audio
+	else if(filePath.extension()==".wav")
+	{
+		//Just simple play/pause/stop button to preview
+
+		ImGui::Text("Type: AUDIO");
+	}
+
+	//Any other file
+	else
+	{
+		//We just display general info (if any)
+		ImGui::Text("Type: OTHER");
+	}
+
+	//Common info
+	ImGui::Text("Name: ");
+	ImGui::SameLine();
+	ImGui::Text(filePath.filename().string().c_str());
+
+	ImGui::Text("Size: ");
+	ImGui::SameLine();
+	ImGui::Text(FormatFileSize(file_size(filePath)).c_str());
+}
+
+/**
+ * This handles filesize conversions so it outputs a filesize in human-readable format
+ * @param size the size of file in bytes
+ * @param precision how many decimal places to display (default: 2)
+ * @return FileSize in human-readable format (default decimal point precision: 2)
+ */
+std::string ProjectWindow::FormatFileSize(uintmax_t size, int precision)
+{
+	int i = 0;
+	const char *sizes[5] = { "B", "KB", "MB", "GB", "TB" };
+	double dblByte = size;
+	for (i = 0; i < 5 && size >= 1024; i++, size /= 1024)
+		dblByte = size / 1024.f;
+
+	std::stringstream stream;
+	stream << std::fixed << std::setprecision(precision) << dblByte;
+	return (stream.str()+" "+sizes[i]);
+}
+
+ProjectWindow::ProjectWindow(Scene* scene, AssetHelper* assetHelper, SceneEditor* sceneEditor):
+	_scene(scene), _assetHelper(assetHelper), _sceneEditor(sceneEditor)
 {}
