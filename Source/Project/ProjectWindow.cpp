@@ -320,7 +320,7 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 		auto asset_Helper = _assetHelper->GetTextureAsset(filePath.string());
 		if (std::get<0>(asset_Helper))
 			image = std::get<1>(asset_Helper);
-		ImGui::Image((void*)(intptr_t)image->GetOpenGLHandle(), ImVec2(128,128));
+		ImGui::Image((void*)(intptr_t)image->GetOpenGLHandle(), ImVec2(256,256));
 
 		ImGui::Text("Type: IMAGE");
 
@@ -333,7 +333,71 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 	//Preview the mesh
 	else if(filePath.extension()==".obj")
 	{
-		//Probably want to have a separate renderer?
+		//We can also define a subwindow to display a resizable framebuffer in future
+		//auto targetSize = ImGui::GetContentRegionAvail();
+
+		_framebufferWidth = 256;
+		_framebufferHeight = 256;
+		//Create the texture of fixed size (No need for checks since we know that framebuffer will be of sufficient size)
+		_renderTexture.Create(_framebufferWidth, _framebufferHeight);
+
+		// bind framebuffer
+		_renderTexture.Bind();
+
+		// initiate setting before rendering
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glViewport(0, 0, _framebufferWidth, _framebufferHeight);
+		glClearColor(0.2784f, 0.2784f, 0.2784f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		// Start rendering (bind a shader)
+		_renderer->Begin();
+
+		// Get the mesh to be rendered
+		Mesh* mesh;
+		auto asset_Helper = _assetHelper->GetMeshAsset(filePath.string());
+		if (std::get<0>(asset_Helper))
+			mesh = std::get<1>(asset_Helper);
+
+		ShaderInput _shaderInput;
+		if(mesh != nullptr)
+		{
+			_shaderInput.Clear();
+			_shaderInput.Set(mesh->vertices, mesh->indices);
+		}
+		else
+			_shaderInput.Clear();
+		_shaderInput.Draw();
+
+		//TODO: Fix the view matrix
+		PlatinumEngine::Maths::Mat4 rotation, translation;
+		Maths::Mat4 viewMatrix4(1.f);
+		rotation.SetRotationMatrix(Maths::Quaternion::Inverse(Maths::Quaternion::identity));
+		translation.SetTranslationMatrix(Maths::Vec3(0.f, 0.f, 1.f));
+		viewMatrix4 = rotation*translation;
+
+		//Setup renderer's settings
+		_renderer->SetModelMatrix();
+		_renderer->SetViewMatrix(viewMatrix4);
+		_renderer->SetProjectionMatrix();
+		_renderer->SetLightProperties();
+
+		// End rendering (unbind a shader)
+		_renderer->End();
+
+		// unbind framebuffer
+		_renderTexture.Unbind();
+
+		// reset setting after rendering
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		// display updated framebuffer
+		ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), ImVec2(_framebufferWidth,_framebufferHeight));
 
 		ImGui::Text("Type: MESH");
 	}
@@ -342,6 +406,8 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 	else if(filePath.extension()==".wav")
 	{
 		//Just simple play/pause/stop button to preview
+
+		//We should consider any kind of audio to be of type music?
 
 		ImGui::Text("Type: AUDIO");
 	}
@@ -384,4 +450,9 @@ std::string ProjectWindow::FormatFileSize(uintmax_t size, int precision)
 
 ProjectWindow::ProjectWindow(Scene* scene, AssetHelper* assetHelper, SceneEditor* sceneEditor):
 	_scene(scene), _assetHelper(assetHelper), _sceneEditor(sceneEditor)
-{}
+{
+	_framebufferWidth = 1;
+	_framebufferHeight = 1;
+	if (!_renderTexture.Create(_framebufferWidth, _framebufferHeight))
+		return;
+}

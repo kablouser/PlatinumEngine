@@ -35,6 +35,10 @@ namespace PlatinumEngine
 		std::filesystem::path _previewFilePath;
 		int _childWindowCount = 1;
 		bool _isPreviewEnabled = false;
+		Renderer* _renderer = new Renderer;
+		Framebuffer _renderTexture;
+		int _framebufferWidth;
+		int _framebufferHeight;
 
 		//Filesystem related
 		enum class MoveType {copy, cut, none};
