@@ -11,8 +11,6 @@ namespace PlatinumEngine
 		ParticleEmitter::ParticleEmitter()
 		{
 			// Allocate enough space for all our particles, and so we can index into it straight away
-//			_particleContainer.resize(MaxParticles);
-//			_particleContainer = std::vector<Particle>(MaxParticles);
 			_particleContainer = std::make_unique<std::vector<Particle>>(MaxParticles);
 			particles = std::make_unique<std::vector<Particle>>();
 			_mt = std::mt19937(_rd());
@@ -49,7 +47,7 @@ namespace PlatinumEngine
 
 			// Edit the particles in the container
 			// Store the alive ones separately for renderer (inefficient)
-			// TODO: the above but better
+			// TODO: read above
 			for (unsigned int i = 0; i < numberOfParticles; ++i)
 			{
 				// Just so we don't have to index every time
@@ -65,7 +63,15 @@ namespace PlatinumEngine
 					p.position += p.velocity * deltaTime;
 					Maths::Vec3 vector = p.position - cameraPos;
 					p.distanceFromCamera = Maths::Length(vector);
-					p.scale = 0.5f * p.life;
+
+					// TODO: Let user choose how to scale particle and by what factor
+//					p.scale = 0.5f * p.life;
+					p.textureIndex = Maths::Vec2(0,0);
+					float lifeAsFraction = p.life / (respawnLifetime);
+					int currentIndex = floor(lifeAsFraction * numRowsInTexture * numColsInTexture);
+					int j = currentIndex / numColsInTexture;
+					int k = currentIndex - j * numColsInTexture;
+					p.textureIndex = Maths::Vec2(numRowsInTexture - k - 1, numColsInTexture - j - 1);
 
 					// Adding to list of alive particles
 					particles->emplace_back(p);

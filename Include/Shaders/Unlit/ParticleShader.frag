@@ -7,6 +7,7 @@ in float life;
 in vec2 texCoords;
 in vec3 velocity;
 in float scale;
+in vec2 textureIndex;
 
 uniform float maxLife;
 
@@ -18,6 +19,10 @@ uniform vec4 EndColour;
 // Texture handling
 uniform bool useTexture;
 uniform sampler2D sampleTexture;
+uniform float textureWidth;
+uniform float textureHeight;
+uniform float spriteWidth;
+uniform float spriteHeight;
 
 // Determine what to shade by
 uniform bool useShadeByLife;
@@ -63,9 +68,13 @@ vec4 LerpColour(vec4 startColour, vec4 endColour, float t)
 
 void main()
 {
+    // TODO: Modulate with colour
     if (useTexture)
     {
-        outColour = texture(sampleTexture, texCoords).rgba;
+        // Compute uv coords for this particle using indices to index into texture atlas
+        vec2 coords = vec2(((texCoords.x * spriteWidth) + (textureIndex.x*spriteWidth)) / textureWidth,
+                           ((texCoords.y * spriteHeight) + (textureIndex.y*spriteHeight)) / textureHeight);
+        outColour = texture(sampleTexture, coords).rgba;
         return;
     }
 

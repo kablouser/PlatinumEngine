@@ -7,6 +7,7 @@
 #include <vector>
 #include <random>
 #include <ParticleEffects/Particle.h>
+#include <OpenGL/Texture.h>
 
 namespace PlatinumEngine
 {
@@ -23,7 +24,7 @@ namespace PlatinumEngine
 			int numberOfParticles = 500;
 			float respawnLifetime = 4.0f; // Particles will have this initial lifetime
 			int numberOfNewParticles = 2; // How many particles to spawn each frame
-			float spawnInterval = 0.5;
+			float spawnInterval = 4.5;
 			Maths::Vec3 actingForce = {0.0f, 1.0f, 0.0f};
 
 			// Position Settings
@@ -44,6 +45,11 @@ namespace PlatinumEngine
 			float minMaxVelocityY[2] = {0.0f, 1.0f};
 			float minMaxVelocityZ[2] = {-1.0f, 1.0f};
 
+			// Info needed to calc texture coords appropriately
+			Texture *texture = nullptr;
+			int numRowsInTexture = 1;
+			int numColsInTexture = 1;
+
 			std::unique_ptr<std::vector<Particle>> particles;
 		private:
 			unsigned int FirstDeadParticle();
@@ -51,13 +57,10 @@ namespace PlatinumEngine
 			float GetRandomFloat(float minMax[2]);
 		private:
 			unsigned int _lastDeadParticle = 0;
-//			std::vector<Particle> _particleContainer{MaxParticles}; // Will be resized to MaxParticles in constructor
-//			std::vector<Particle> _particles; // The alive particles to send to renderer
 			float _timeSinceLastSpawn = 0.0f;
 			std::random_device _rd;
 			std::mt19937 _mt;
 			std::unique_ptr<std::vector<Particle>> _particleContainer;
-//			std::unique_ptr<std::vector<Particle>> _particles;
 		};
 	}
 }
