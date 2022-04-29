@@ -15,7 +15,7 @@
 
 namespace PlatinumEngine
 {
-	Physics::Physics():_gravity(9.81f) {};
+	Physics::Physics():_gravity(1.f) {};
 
 	Physics::~Physics() {};
 

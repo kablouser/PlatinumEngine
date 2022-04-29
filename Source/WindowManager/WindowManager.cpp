@@ -125,7 +125,6 @@ namespace PlatinumEngine
 			if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
 			{
 				_gameWindow->Pause();
-				_scene->End();
 			}
 
 			if (ImGui::Button(ICON_FA_FORWARD_STEP "##Step"))

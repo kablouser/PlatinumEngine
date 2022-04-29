@@ -21,20 +21,15 @@ namespace PlatinumEngine
 		//Calculating delta time
 		float lastFrame = 0.0f;
 		float currentFrame = 0.0f;
+		float startFrame;
 
 	public:
 		//Called at the start of the main loop
-		void update(bool isPause)
+
+		void Update()
 		{
-			//Find delta time
-			if(isPause)
-			{
-				Time::currentFrame = Time::lastFrame;
-			}
-			else
-			{
-				Time::currentFrame = (float)glfwGetTime();
-			}
+			Time::currentFrame = (float)glfwGetTime();
+
 			Time::delta = Time::currentFrame - Time::lastFrame;
 
 			//Render time
@@ -55,7 +50,7 @@ namespace PlatinumEngine
 		}
 
 		//Since all values should be read only they need getters
-		float getCurrentFrame() { return Time::currentFrame; }
+		float getCurrentFrame() { return Time::currentFrame ; }
 		int   getFramesPassed() { return Time::framesPassed; }
 		float getLastFrame() { return Time::lastFrame; }
 		float getSeconds() { return Time::seconds; }

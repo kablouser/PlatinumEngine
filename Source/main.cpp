@@ -94,7 +94,7 @@ int main(int, char**)
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler, &projectWindow, &scene);
 
 		physics.Initialize();
-
+		time.Update();
 		// Main loop
 		while (!glfwWindowShouldClose(window))
 		{
@@ -155,6 +155,7 @@ int main(int, char**)
 		}
 
 		// Cleanup bullet physics
+		scene.End();
 		physics.CleanUp();
 
 		// Cleanup ImGui
