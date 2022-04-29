@@ -33,9 +33,9 @@ namespace PlatinumEngine
 	private:
 		//Preview related
 		std::filesystem::path _previewFilePath;
-		int _childWindowCount = 1;
-		bool _isPreviewEnabled = false;
-		Renderer* _renderer = new Renderer;
+		int _childWindowCount;
+		bool _isPreviewEnabled;
+		Renderer* _renderer;
 		Framebuffer _renderTexture;
 		int _framebufferWidth;
 		int _framebufferHeight;

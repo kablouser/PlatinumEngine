@@ -201,7 +201,6 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 			ImGui::TreeNodeEx(dir.filename().string().c_str(), flags | ImGuiTreeNodeFlags_Leaf);
 
 			//If we click on the file
-			//if(ImGui::IsItemHovered() && ImGui::IsMouseReleased(0))
 			if(ImGui::IsItemClicked(0))
 			{
 				_previewFilePath = dir;
@@ -320,7 +319,7 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 		auto asset_Helper = _assetHelper->GetTextureAsset(filePath.string());
 		if (std::get<0>(asset_Helper))
 			image = std::get<1>(asset_Helper);
-		ImGui::Image((void*)(intptr_t)image->GetOpenGLHandle(), ImVec2(256,256));
+		ImGui::Image((void*)(intptr_t)image->GetOpenGLHandle(), ImVec2(_framebufferWidth,_framebufferHeight));
 
 		ImGui::Text("Type: IMAGE");
 
@@ -336,8 +335,6 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 		//We can also define a subwindow to display a resizable framebuffer in future
 		//auto targetSize = ImGui::GetContentRegionAvail();
 
-		_framebufferWidth = 256;
-		_framebufferHeight = 256;
 		//Create the texture of fixed size (No need for checks since we know that framebuffer will be of sufficient size)
 		_renderTexture.Create(_framebufferWidth, _framebufferHeight);
 
@@ -451,8 +448,9 @@ std::string ProjectWindow::FormatFileSize(uintmax_t size, int precision)
 ProjectWindow::ProjectWindow(Scene* scene, AssetHelper* assetHelper, SceneEditor* sceneEditor):
 	_scene(scene), _assetHelper(assetHelper), _sceneEditor(sceneEditor)
 {
-	_framebufferWidth = 1;
-	_framebufferHeight = 1;
-	if (!_renderTexture.Create(_framebufferWidth, _framebufferHeight))
-		return;
+	_framebufferWidth = 256;
+	_framebufferHeight = 256;
+	_childWindowCount = 1;
+	_isPreviewEnabled = false;
+	_renderer = new Renderer;
 }
