@@ -201,4 +201,21 @@ namespace PlatinumEngine
 		}
 		return {isAssetSelected, audioSample};
 	}
+
+	std::tuple<bool, std::string> AssetHelper::GetAudioAsset(std::string filePath)
+	{
+		bool isAssetSelected = true;
+		static ImGuiTextFilter filter;
+		Asset asset;
+		std::string sample = "";
+		for(auto audioAssetID : _assetDatabase->GetAudioAssetIDs())
+		{
+			if (_assetDatabase->TryGetAsset(audioAssetID.id, asset))
+			{
+				if(asset.path.compare(std::filesystem::path(filePath))==0)
+					sample = (*_assetDatabase)[audioAssetID];
+			}
+		}
+		return {isAssetSelected, sample};
+	}
 }

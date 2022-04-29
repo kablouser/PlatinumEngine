@@ -1,40 +1,44 @@
 #include "ComponentComposition/AudioComponent.h"
+#include "Logger/Logger.h"
 
 namespace PlatinumEngine
 {
-	AudioComponent::AudioComponent(std::string sample, AudioType audioType, bool loop)
+	AudioComponent::AudioComponent(std::string sample, AudioType type, bool loop)
 	{
-		//SDL Initialization to be done here?
-		//if(SDL_Init(SDL_INIT_AUDIO)<0) printf("SDL could not initialize! SDL Error: %s\n",SDL_GetError());
-		//if(Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,1024)<0) printf("Failed to open audio! Mix Error: %s\n",Mix_GetError());
-
 		_sample = sample;
-		_audioType = audioType;
-		_isLooping = loop;
+		audioType = type;
+		isLooping = loop;
+		_isPaused = false;
+		_isPlaying = false;
 		fileName = std::filesystem::path(_sample).filename().string();
 
-		if(_audioType==AudioType::clip)
+		if(audioType==AudioType::clip)
 			_sound = Mix_LoadWAV(_sample.c_str());
 		else
 			_music = Mix_LoadMUS(_sample.c_str());
 	}
 	AudioComponent::~AudioComponent()
 	{
-		//Should Quit be called here?
-		//Mix_Quit();
-		//SDL_Quit();
-		if(_audioType==AudioType::clip)
+		if(audioType==AudioType::clip)
 		    Mix_FreeChunk(_sound);
 		else
 		    Mix_FreeMusic(_music);
 	}
 
-	void AudioComponent::LoadSample(std::string sample, AudioType audioType)
+	void AudioComponent::LoadSample(std::string sample, AudioType type)
 	{
 		_sample = sample;
-		_audioType = audioType;
+		audioType = type;
 		fileName = std::filesystem::path(_sample).filename().string();
-		if(_audioType==AudioType::clip)
+		if(audioType==AudioType::clip)
+			_sound = Mix_LoadWAV(_sample.c_str());
+		else
+			_music = Mix_LoadMUS(_sample.c_str());
+	}
+
+	void AudioComponent::ReloadSample()
+	{
+		if(audioType==AudioType::clip)
 			_sound = Mix_LoadWAV(_sample.c_str());
 		else
 			_music = Mix_LoadMUS(_sample.c_str());
@@ -42,42 +46,69 @@ namespace PlatinumEngine
 
 	void AudioComponent::Play()
 	{
-		_channel = -1;
-		if(_audioType==AudioType::clip)
+		if(!isPlaying(AudioType::clip,_channel))
 		{
-			if(_isLooping)
-				_channel = Mix_PlayChannel(-1, _sound, -1);
-			else
-				_channel = Mix_PlayChannel(-1, _sound, 0);
+			_isPlaying = false;
+			_isPaused = false;
 		}
-		else
+		if(_isPaused)
 		{
-			if(_isLooping)
-				_channel = Mix_PlayMusic( _music, -1);
+			Resume();
+			return;
+		}
+		if(!_isPlaying)
+		{
+			_channel = -2;
+			_isPlaying = true;
+			_isPaused = false;
+			if (audioType == AudioType::clip)
+			{
+				if (isLooping)
+					_channel = Mix_PlayChannel(-1, _sound, -1);
+				else
+					_channel = Mix_PlayChannel(-1, _sound, 0);
+			}
 			else
-				_channel = Mix_PlayMusic( _music, 0);
+			{
+				if (isLooping)
+					_channel = Mix_PlayMusic(_music, -1);
+				else
+					_channel = Mix_PlayMusic(_music, 0);
+			}
 		}
 	}
 
 	void AudioComponent::Pause()
 	{
-		if(_audioType==AudioType::clip)
-			Mix_Pause(_channel);
-		else
-			Mix_PauseMusic();
+		if(_isPlaying)
+		{
+			_isPlaying = false;
+			_isPaused = true;
+			if (audioType == AudioType::clip)
+				Mix_Pause(_channel);
+			else
+				Mix_PauseMusic();
+		}
 	}
 
 	void AudioComponent::Resume()
 	{
-		if(_audioType==AudioType::clip)
-			Mix_Resume(_channel);
-		else
-			Mix_ResumeMusic();
+		if(_isPaused)
+		{
+			_isPlaying = true;
+			_isPaused = false;
+			if (audioType == AudioType::clip)
+				Mix_Resume(_channel);
+			else
+				Mix_ResumeMusic();
+		}
 	}
 
 	void AudioComponent::Stop()
 	{
-		if(_audioType==AudioType::clip)
+		_isPlaying = false;
+		_isPaused = false;
+		if(audioType==AudioType::clip)
 			Mix_HaltChannel(_channel);
 		else
 			Mix_HaltMusic();
@@ -85,14 +116,35 @@ namespace PlatinumEngine
 
 	void AudioComponent::SetVolume(int volume)
 	{
-		if(_audioType==AudioType::clip)
-			Mix_Volume(_channel, volume);
+		if(audioType==AudioType::clip)
+			Mix_VolumeChunk(_sound, volume);
 		else
 			Mix_VolumeMusic(volume);
 	}
 
-	void AudioComponent::SetLoop(bool loop)
+	int AudioComponent::GetVolume()
 	{
-		_isLooping = loop;
+		if(audioType==AudioType::clip)
+			return Mix_VolumeChunk(_sound, -1);
+		else
+			return Mix_VolumeMusic(-1);
+	}
+
+	bool AudioComponent::isPlaying(AudioType type, int channel)
+	{
+		if(type==AudioType::clip && Mix_Playing(channel) > 0)
+			return true;
+		else if(type==AudioType::music && Mix_PlayingMusic() > 0)
+			return true;
+		return false;
+	}
+
+	bool AudioComponent::isPaused(AudioType type, int channel)
+	{
+		if(type==AudioType::clip && Mix_Paused(channel) > 0)
+			return true;
+		else if(type==AudioType::music && Mix_PausedMusic() > 0)
+			return true;
+		return false;
 	}
 }

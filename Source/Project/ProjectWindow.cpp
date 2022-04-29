@@ -6,6 +6,7 @@
 #include "ComponentComposition/GameObject.h"
 #include "ComponentComposition/TransformComponent.h"
 #include "ComponentComposition/RenderComponent.h"
+#include "SDL_mixer.h"
 
 using namespace PlatinumEngine;
 
@@ -214,16 +215,14 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 				{
 					if (ImGui::Selectable("Add Mesh"))
 					{
-						if (dir.extension() == ".obj")
-						{
-							GameObject* go = _scene->AddGameObject(dir.stem().string());
-							_scene->AddComponent<TransformComponent>(go);
-							_scene->AddComponent<RenderComponent>(go);
-							auto asset_Helper = _assetHelper->GetMeshAsset(dir.string());
-							if (std::get<0>(asset_Helper))
-								go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
-						}
+						GameObject* go = _scene->AddGameObject(dir.stem().string());
+						_scene->AddComponent<TransformComponent>(go);
+						_scene->AddComponent<RenderComponent>(go);
+						auto asset_Helper = _assetHelper->GetMeshAsset(dir.string());
+						if (std::get<0>(asset_Helper))
+							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
 					}
+					ImGui::Separator();
 				}
 				if(dir.extension()==".png")
 				{
@@ -245,6 +244,39 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 							if (std::get<0>(asset_Helper))
 								go->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
 						}
+						ImGui::Separator();
+					}
+				}
+				if(dir.extension()==".wav")
+				{
+					GameObject* go = _sceneEditor->GetSelectedGameobject();
+					if(go != nullptr)
+					{
+						if (ImGui::Selectable("Add Clip"))
+						{
+							auto asset_Helper = _assetHelper->GetAudioAsset(dir.string());
+							if (std::get<0>(asset_Helper))
+							{
+								if(go->GetComponent<AudioComponent>() == nullptr)
+								{
+									_scene->AddComponent<AudioComponent>(go);
+								}
+								go->GetComponent<AudioComponent>()->LoadSample(dir.string(), AudioComponent::AudioType::clip);
+							}
+						}
+						if (ImGui::Selectable("Add Music"))
+						{
+							auto asset_Helper = _assetHelper->GetAudioAsset(dir.string());
+							if (std::get<0>(asset_Helper))
+							{
+								if(go->GetComponent<AudioComponent>() == nullptr)
+								{
+									_scene->AddComponent<AudioComponent>(go);
+								}
+								go->GetComponent<AudioComponent>()->LoadSample(dir.string(),AudioComponent::AudioType::music);
+							}
+						}
+						ImGui::Separator();
 					}
 				}
 
@@ -402,9 +434,21 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 	//Preview the audio
 	else if(filePath.extension()==".wav")
 	{
-		//Just simple play/pause/stop button to preview
-
-		//We should consider any kind of audio to be of type music?
+		//Just consider that audio files are of type clip (.wav files)
+		//Just simple play/stop button to preview
+		if(ImGui::Button("Play"))
+		{
+			Mix_Chunk* sample = Mix_LoadWAV(filePath.string().c_str());
+			if(Mix_Playing(-1)>0)
+				Mix_HaltChannel(-1);
+			int channel = Mix_PlayChannel(-1, sample, 0);
+		}
+		ImGui::SameLine();
+		if(ImGui::Button("Stop"))
+		{
+			if(Mix_Playing(-1)>0)
+				Mix_HaltChannel(-1);
+		}
 
 		ImGui::Text("Type: AUDIO");
 	}

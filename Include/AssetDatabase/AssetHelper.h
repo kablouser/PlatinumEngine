@@ -33,6 +33,8 @@ namespace PlatinumEngine
 		 
 		 std::tuple<bool, std::string> ShowAudioGuiWindow();
 
+		std::tuple<bool, std::string> GetAudioAsset(std::string filePath);
+
 	private:
 		AssetDatabase* _assetDatabase;
 	};

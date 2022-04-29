@@ -48,6 +48,8 @@ namespace PlatinumEngine
 		float _itemWidthMeshRenderComponent = 160.f;
 		float _textWidthTransformComponent = 90.f;
 		float _textWidthCameraComponent = 135.0f;
+		float _textWidthAudioComponent = 90.0f;
+		float _itemWidthAudioComponent = 160.f;
 		std::vector<std::string> _temp = {"Perspective", "Orthographic"};
 		std::vector<std::string> _clearMode = {"None", "SkyBox", "BackgroundColour"};
 	};

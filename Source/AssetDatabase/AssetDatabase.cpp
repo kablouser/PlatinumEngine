@@ -331,17 +331,13 @@ namespace PlatinumEngine
 					allocateTexture->fileName = filePath.filename().string();
 					return allocateTexture;
 				},
-				
-				[&](const std::string& filePath) -> void*
-				{
-					//Audio* allocateAudio = new Audio;
-					//*allocateAudio = Loaders::LoadAudio(filePath);
-					//_loadedAudioAssets.push_back(allocateAudio);
-					//return allocateAudio;
 
+				[&](const std::filesystem::path& filePath) -> void*
+				{
 					//Audio Component handles loading so we just need the path
-					_loadedAudioAssets.push_back(filePath);
-					return (void*)filePath.c_str();
+					std::string sample = filePath.string();
+					_loadedAudioAssets.push_back(sample);
+					return (void*)sample.c_str();
 				},
 		};
 

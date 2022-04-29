@@ -14,28 +14,31 @@ namespace PlatinumEngine
 	public:
 		enum class AudioType{clip,music};
 		std::string fileName;
+		bool isLooping;
+		AudioType audioType;
 
 	private:
 		Mix_Music* _music;
 		Mix_Chunk* _sound;
 		std::string _sample;
-		bool _isLooping;
-		AudioType _audioType;
 		int _channel;
+		bool _isPlaying, _isPaused;
 
 	public:
 		/**
 		 * Initializes an audio component with a given sample and audio type and also specify if it should loop or not
 		 * @param sample the audio sample to be played (preferably .wav)
-		 * @param audioType whether the audio is short (sound effect) or long (music)
+		 * @param type whether the audio is wave type(clip) or music (typically .mp3)
 		 * @param loop whether the audio should loop when it is played (infinite looping)
 		 */
-		AudioComponent(std::string sample = "", AudioType audioType = AudioType::clip, bool loop = false);
+		AudioComponent(std::string sample = "", AudioType type = AudioType::clip, bool loop = false);
 		~AudioComponent();
 
 		//Loads a sample
-		void LoadSample(std::string sample, AudioType audioType = AudioType::clip);
-		// Plays the sample
+		void LoadSample(std::string sample, AudioType type = AudioType::clip);
+		//Reloads a sample (incase we change the audiotype)
+		void ReloadSample();
+		// Plays the sample (Also resumes paused sample)
 		void Play();
 		// Pauses currently played sample
 		void Pause();
@@ -43,11 +46,17 @@ namespace PlatinumEngine
 		void Resume();
 		// Stops the sample from being played
 		void Stop();
-
 		// Sets volume (Range from 0-128)
 		void SetVolume(int volume);
-		// Sets whether sample will be looped
-		void SetLoop(bool loop);
+		// Get the current volume
+		int GetVolume();
+
+		//STATIC FUNCTIONS
+
+		// Returns whether audio is playing or not (Can also specify a channel for audio clips otherwise it checks for all channels [value: -1])
+		static bool isPlaying(AudioType type=AudioType::clip, int channel=-1);
+		// Returns whether audio is paused or not (Can also specify a channel for audio clips otherwise it checks for all channels [value: -1])
+		static bool isPaused(AudioType type=AudioType::clip, int channel=-1);
 
 	};
 }

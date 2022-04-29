@@ -18,7 +18,6 @@
 #define SDL_MAIN_HANDLED
 #include "SDL.h"
 #include "SDL_mixer.h"
-#include "ComponentComposition/AudioComponent.h"
 
 static void GlfwErrorCallback(int error, const char* description)
 {
