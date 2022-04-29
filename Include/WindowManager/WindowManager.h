@@ -24,7 +24,8 @@ namespace PlatinumEngine
 					  Logger *logger,
 					  InspectorWindow *inspector,
 					  Profiler *profiler,
-					  ProjectWindow *projectWindow
+					  ProjectWindow *projectWindow,
+					  Scene *scene
 					  );
 
 		///-----------------------------------
@@ -70,32 +71,12 @@ namespace PlatinumEngine
 		bool _showWindowLight                = false;
 		bool _showWindowLogger				 = false;
 		bool _showWindowProfiler			 = false;
-		///-----------------------------------------------------------------------
-		///bools in main menu GameObject list
-		///-----------------------------------------------------------------------
-		bool _showGameObjectEmpty            = false;
-		bool _showGameObjectEmptyChild       = false;
-		bool _showGameObjectEmptyParent      = false;
-		bool _showGameObjectCube      		 = false;
-		bool _showGameObjectSphere  		 = false;
-		bool _showGameObjectPlane   		 = false;
-		bool _showGameObjectCapsule   		 = false;
-		bool _showGameObjectParticleEffect   = false;
-		bool _showGameObjectCamera           = false;
-		bool _showGameObjectLight            = false;
 
 		///-----------------------------------------------------------------------
 		///bools in main menu file list
 		///-----------------------------------------------------------------------
 	    bool _showFileLoad          		 = false;
 	    bool _showFileSave                   = false;
-
-        ///-----------------------------------------------------------------------
-		///bools in main menu that controls the play/pause/step function of GameWindow
-		///-----------------------------------------------------------------------
-		bool _pause							 = true;
-		bool _step							 = false;
-
 
 	private:
 		///-----------------------------------------------------------------------
@@ -108,5 +89,6 @@ namespace PlatinumEngine
 		InspectorWindow *_inspector;
 		Profiler *_profiler;
 		ProjectWindow *_projectWindow;
+		Scene *_scene;
 	};
 }

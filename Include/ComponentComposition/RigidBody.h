@@ -15,7 +15,6 @@ namespace PlatinumEngine
 {
 	class RigidBody: public Component
 	{
-		friend class RigidBody;
 	public:
 		//Constructor
 		RigidBody();
@@ -25,11 +24,10 @@ namespace PlatinumEngine
 		Maths::Vec3 GetBulletPosition(); // Get the Bullet RigidBody Translation Vector
 
 	public:
-		bool kinematic; //kinematic
+		bool  kinematic; //kinematic
 		float mass; // mass
-		float damping; // damping
-		float angularDamping; // angularDamping
 
+		PhysicalMaterial material;
 	private:
 		// Set the rigidBody when it starts
 		void OnStart(Scene& scene) override;
@@ -37,6 +35,7 @@ namespace PlatinumEngine
 		// Clean up all bullet pointers
 		void OnEnd(Scene& scene) override;
 	private:
+
 		Maths::Vec3 _inertia;
 		Maths::Vec3 _linearVelocity;
 		Maths::Vec3 _angularVelocity;

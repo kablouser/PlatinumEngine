@@ -55,7 +55,7 @@ namespace PlatinumEngine
 		 *
 		 * @param Time: DeltaTime
 		 */
-		void Update(double Time);
+		//void Update(double Time);
 
 		/**
 		 * Function to detect which object shown in scene editor is selected

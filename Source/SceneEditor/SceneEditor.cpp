@@ -432,35 +432,6 @@ namespace PlatinumEngine{
 				// enable depth test for the later rendering
 				glDepthMask(true);
 			}
-			// ------------- Render Game Objects ------------- //
-			// Start rendering (bind a shader)
-			_renderer->Begin();
-
-			// Render rendering information to renderer
-			_renderer->SetModelMatrix();
-
-			// check if the view matrix is passed to shader
-
-			//if(!_camera.CheckIfViewMatrixUsed())
-			{
-				_renderer->SetViewMatrix(_camera.viewMatrix4);
-				_camera.MarkViewMatrixAsUsed();
-			}
-			//if(!_camera.CheckIfProjectionMatrixUsed())
-			{
-				_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
-				_camera.MarkProjectionMatrixAsUsed();
-			}
-      
-			_renderer->SetLightProperties();
-
-			// Render game objects
-			_scene->Render(*_renderer);
-
-			// End rendering (unbind a shader)
-			_renderer->End();
-
-
 			// -------------------- Render GRID ------------------ //
 			if(_enableGrid)
 			{
@@ -538,12 +509,6 @@ namespace PlatinumEngine{
 			_camera.UpdateCameraQuaternion();
 		}
 
-	}
-
-	void SceneEditor::Update(double deltaTime)
-	{
-		_scene->Update(deltaTime);
-		_physics->Update(deltaTime);
 	}
 
 	///--------------------------------------------

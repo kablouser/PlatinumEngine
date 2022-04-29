@@ -12,9 +12,7 @@ namespace PlatinumEngine
 	RigidBody::RigidBody():
 						mass(1.f),
 						kinematic(false),
-						_inertia(Maths::Vec3(0.f, 0.f, 0.f)),
-						damping(0.f),
-						angularDamping(0.f)
+						_inertia(Maths::Vec3(0.f, 0.f, 0.f))
 	{
 
 	}
@@ -56,13 +54,22 @@ namespace PlatinumEngine
 				GetComponent<BoxCollider>()->GetShape()->calculateLocalInertia(mass, temp);
 				btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, _motionState,
 						GetComponent<BoxCollider>()->GetShape(), temp);
+				constructionInfo.m_restitution = material.bounciness;
+				constructionInfo.m_friction = material.friction;
+				constructionInfo.m_linearDamping = material.damping;
+				constructionInfo.m_angularDamping = material.angularDamping;
 				_rigidBody = new btRigidBody(constructionInfo);
+
 			}
 			else if (GetComponent<SphereCollider>() != nullptr)
 			{
 				GetComponent<SphereCollider>()->GetShape()->calculateLocalInertia(mass, temp);
 				btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, _motionState,
 						GetComponent<SphereCollider>()->GetShape(), temp);
+				constructionInfo.m_restitution = material.bounciness;
+				constructionInfo.m_friction = material.friction;
+				constructionInfo.m_linearDamping = material.damping;
+				constructionInfo.m_angularDamping = material.angularDamping;
 				_rigidBody = new btRigidBody(constructionInfo);
 			}
 			else if (GetComponent<CapsuleCollider>() != nullptr)
@@ -70,12 +77,16 @@ namespace PlatinumEngine
 				GetComponent<CapsuleCollider>()->GetShape()->calculateLocalInertia(mass, temp);
 				btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, _motionState,
 						GetComponent<CapsuleCollider>()->GetShape(), temp);
+				constructionInfo.m_restitution = material.bounciness;
+				constructionInfo.m_friction = material.friction;
+				constructionInfo.m_linearDamping = material.damping;
+				constructionInfo.m_angularDamping = material.angularDamping;
 				_rigidBody = new btRigidBody(constructionInfo);
 			}
 		}
+
 		//Add the rigidBody to the physics world
 		scene.physics.AddBulletBody(_rigidBody);
-		_rigidBody->setDamping(damping, angularDamping);
 	}
 
 	void RigidBody::OnEnd(Scene& scene)

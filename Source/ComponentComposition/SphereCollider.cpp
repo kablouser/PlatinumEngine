@@ -6,7 +6,7 @@
 
 namespace PlatinumEngine
 {
-	SphereCollider::SphereCollider():radius(0.5f), center(Maths::Vec3(0.f, 0.f, 0.f))
+	SphereCollider::SphereCollider():radius(1.f), center(Maths::Vec3(0.f, 0.f, 0.f))
 	{
 	}
 

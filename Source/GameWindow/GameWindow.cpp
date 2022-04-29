@@ -61,7 +61,6 @@ namespace PlatinumEngine
 
 	void GameWindow::Play()
 	{
-		_scene->Start();
 		_time->update(isPaused);
 		Update(_time->GetDelta());
 	}

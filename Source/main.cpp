@@ -91,7 +91,7 @@ int main(int, char**)
 		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper, &sceneEditor, &physics);
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer, &time, &physics);
 		PlatinumEngine::ProjectWindow projectWindow;
-		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler, &projectWindow);
+		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler, &projectWindow, &scene);
 
 		physics.Initialize();
 

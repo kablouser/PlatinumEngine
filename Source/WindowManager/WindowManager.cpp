@@ -3,6 +3,8 @@
 //
 
 #include <WindowManager/WindowManager.h>
+#include <Physics/Physics.h>
+
 #include <imgui.h>
 #include <iostream>
 #include <ImGuiFileDialog.h>
@@ -15,7 +17,8 @@ namespace PlatinumEngine
 								Logger *logger,
 								InspectorWindow *inspector,
 								Profiler *profiler,
-								ProjectWindow *projectWindow
+								ProjectWindow *projectWindow,
+								Scene *scene
 								):
 								_gameWindow(gameWindow),
 								_sceneEditor(sceneEditor),
@@ -23,7 +26,8 @@ namespace PlatinumEngine
 								_logger(logger),
 								_inspector(inspector),
 								_profiler(profiler),
-								_projectWindow(projectWindow)
+								_projectWindow(projectWindow),
+								_scene(scene)
 	{
 	}
 
@@ -100,11 +104,18 @@ namespace PlatinumEngine
 
 			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 130.f);
 
+
 			///------------------------------------------------------------------
 			/// This section is for main menu bar to control the game view play/pause/step
 			///------------------------------------------------------------------
+			if(ImGui::Button(ICON_FA_RECYCLE "##Reset"))
+			{
+				_scene->End();
+			}
+
 			if (ImGui::Button(ICON_FA_PLAY "##Play"))
 			{
+					_scene->Start();
 					_gameWindow->isPaused = false;
 					enablePauseButton = false;
 			}
@@ -114,6 +125,7 @@ namespace PlatinumEngine
 			if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
 			{
 				_gameWindow->Pause();
+				_scene->End();
 			}
 
 			if (ImGui::Button(ICON_FA_FORWARD_STEP "##Step"))

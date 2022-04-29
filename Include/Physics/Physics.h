@@ -17,6 +17,29 @@
 
 namespace PlatinumEngine
 {
+	struct PhysicalMaterial
+	{
+	public:
+		//between 0 and 1
+		float friction;
+		float bounciness;
+		float rollingFriction;
+		float spinningFriction;
+		float damping;
+		float angularDamping;
+
+		PhysicalMaterial(): friction(0.f),
+							bounciness(1.f),
+							rollingFriction(0.f),
+							spinningFriction(0.f),
+							damping(0.f),
+							angularDamping(0.f)
+		{
+
+		};
+		~PhysicalMaterial() {};
+	};
+
 	class Physics
 	{
 	public:
