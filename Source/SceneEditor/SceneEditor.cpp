@@ -16,6 +16,7 @@ namespace PlatinumEngine{
 
 	// ___CONSTRUCTOR___
 
+
 	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer, Time* time, Physics* physics):
 			_ifCameraSettingWindowOpen(false),
 			_camera(), _fov(60), _near(0.1), _far(10000),
@@ -53,6 +54,8 @@ namespace PlatinumEngine{
 			_enableGrid(false),
 			_enableSkyBox(true),
 			_xGrid(false), _yGrid(true), _zGrid(false)
+
+			_assetHelper(assetHelper)
 	{
 
 		// Setup skybox texture
@@ -286,13 +289,36 @@ namespace PlatinumEngine{
 
 			if(ImGui::BeginChild("##renderingWindow",ImVec2(targetSize.x, targetSize.y), false,ImGuiWindowFlags_NoMove))
 			{
-
 				//------------------
 				// Render Data
 				//------------------
 				Render(targetSize, isProjectionUpdated, _currentGizmoMode, _currentGizmoOperation);
 			}
 			ImGui::EndChild();
+			if(ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
+				{
+					char* payloadPointer = (char*)payload->Data;
+					int size = payload->DataSize;
+					std::string filePath = "";
+					for(int i=0;i<size;i++)
+						filePath+=*(payloadPointer+i);
+					std::filesystem::path payloadPath = std::filesystem::path(filePath);
+					if(payloadPath.extension()==".obj")
+					{
+						GameObject* go = _scene->AddGameObject(payloadPath.stem().string());
+						_scene->AddComponent<TransformComponent>(go);
+						_scene->AddComponent<RenderComponent>(go);
+						//Now we set the mesh
+						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
+						if (std::get<0>(asset_Helper))
+							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+						_selectedGameobject = go;
+					}
+				}
+				ImGui::EndDragDropTarget();
+			}
 		}
 
 
@@ -463,6 +489,11 @@ namespace PlatinumEngine{
 			// Start rendering (bind a shader)
 			_renderer->Begin();
 
+			// Bind skybox for objects to sample from, use an unused texture
+			glActiveTexture(GL_TEXTURE7);
+			_skyboxTexture.BindCubeMap();
+			glActiveTexture(GL_TEXTURE0);
+
 			// Update rendering information to renderer
 			_renderer->SetModelMatrix();
 
@@ -481,6 +512,7 @@ namespace PlatinumEngine{
 			}
       
 			_renderer->SetLightProperties();
+			_renderer->SetCameraPos(_camera.GetCameraPosition());
 
 			// Render game objects
 			_scene->Render(*_renderer);

@@ -61,19 +61,23 @@ namespace PlatinumEngine
 			ImGui::Text("Remove Object");
 			if (ImGui::IsItemClicked())
 			{
-				if (gameObject == _sceneEditor->GetSelectedGameobject())
+				auto selectedObject = _sceneEditor->GetSelectedGameobject();
+				if (gameObject == selectedObject)
 					_sceneEditor->DeleteSelectedGameObject();
 				else
 				{
 					// For a safe delete, we need to check if the selected game object is a child of the selected
 					// object to delete
-					auto parent = _sceneEditor->GetSelectedGameobject()->GetParent();
-					while (parent)
+					if (selectedObject)
 					{
-						// Manually set nullptr as we know we will remove directly later
-						if (parent == gameObject)
-							_sceneEditor->SetSelectedGameobject(nullptr);
-						parent = parent->GetParent();
+						auto parent = _sceneEditor->GetSelectedGameobject()->GetParent();
+						while (parent)
+						{
+							// Manually set nullptr as we know we will remove directly later
+							if (parent == gameObject)
+								_sceneEditor->SetSelectedGameobject(nullptr);
+							parent = parent->GetParent();
+						}
 					}
 
 					scene.RemoveGameObject(*gameObject);
@@ -153,12 +157,6 @@ namespace PlatinumEngine
 						}
 					}
 				}
-			}
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MeshPathPayload"))
-			{
-				char* payloadPointer = (char*)payload->Data;
-				int size = payload->DataSize;
-				std::cout<<"SIZE: "<<size<<std::endl;
 			}
 
 			// End DragDropTarget
@@ -248,10 +246,14 @@ namespace PlatinumEngine
 					std::filesystem::path payloadPath = std::filesystem::path(filePath);
 					if(payloadPath.extension()==".obj")
 					{
-						std::string name = payloadPath.stem().string();
-						GameObject* go = scene.AddGameObject(name);
-						scene.AddComponent<Transform>(go);
-						scene.AddComponent<MeshRender>(go);
+						GameObject* go = scene.AddGameObject(payloadPath.stem().string());
+						scene.AddComponent<TransformComponent>(go);
+						scene.AddComponent<RenderComponent>(go);
+						//Now we set the mesh
+						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
+						if (std::get<0>(asset_Helper))
+							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+						_sceneEditor->SetSelectedGameobject(go);
 					}
 				}
 				// End DragDropTarget
@@ -263,7 +265,7 @@ namespace PlatinumEngine
 	}
 
 	// ---CONSTRUCTOR
-	HierarchyWindow::HierarchyWindow(SceneEditor* sceneEditor):_sceneEditor(sceneEditor),
+	HierarchyWindow::HierarchyWindow(SceneEditor* sceneEditor, AssetHelper* assetHelper):_sceneEditor(sceneEditor),_assetHelper(assetHelper),
 		_modeForDraggingBehavior(_orderMode)
 	{}
 }

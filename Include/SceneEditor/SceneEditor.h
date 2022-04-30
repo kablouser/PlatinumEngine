@@ -21,8 +21,15 @@
 #include <InputManager/InputManager.h>
 #include <IconsFontAwesome6.h>
 #include <ImGuizmo.h>
+
+//Physics related
 #include <Helpers/Time.h>
 #include <Physics/Physics.h>
+
+
+//Asset Helper
+#include "AssetDatabase/AssetHelper.h"
+
 
 namespace PlatinumEngine
 {
@@ -156,7 +163,6 @@ namespace PlatinumEngine
 		 */
 		void CreateGridShaderInput();
 
-
 	private:
 
 		// ___PARAMETERS___
@@ -191,6 +197,7 @@ namespace PlatinumEngine
 		Renderer* _renderer;
 		Time* _time;
 		Physics* _physics;
+		AssetHelper* _assetHelper;
 
 		// Values for Camera
 		EditorCamera _camera;

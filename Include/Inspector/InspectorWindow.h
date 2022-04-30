@@ -5,9 +5,11 @@
 #pragma once
 
 #include "WindowManager/Filedialog.h"
+
 #include <ComponentComposition/Component.h>
 #include <ComponentComposition/MeshRender.h>
 #include <ComponentComposition/Transform.h>
+#include <ComponentComposition/Camera.h>
 #include <ComponentComposition/GameObject.h>
 #include <ComponentComposition/RigidBody.h>
 #include <ComponentComposition/BoxCollider.h>
@@ -39,12 +41,14 @@ namespace PlatinumEngine
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);
 
+    void cameraComponentHelper(char* cameraType[]);
+    
+		std::filesystem::path GetPayloadPath(const ImGuiPayload* payload);
 	private:
 		AssetHelper* _assetHelper;
 		SceneEditor* _sceneEditor;
-		Physics* _physics;
+    Physics* _physics;
 
-		std::string _meshFileName;
 		bool _isAddComponentWindowOpen = false;
 
 		// Have to keep track of if object enabled ourselves as isEnabled is a private member of game object

@@ -105,6 +105,8 @@ namespace PlatinumEngine
 
 		void SetLightProperties();
 
+		void SetCameraPos(const Maths::Vec3 &pos);
+
 		// a window for renderer to test
 		void ShowGUIWindow(bool* outIsOpen);
 
@@ -154,6 +156,7 @@ namespace PlatinumEngine
 		ShaderProgram _skyBoxShader;
 		ShaderProgram _gridShader;
 		ShaderProgram _phongShader;
+		ShaderProgram _reflectRefractShader;
 
 		// ShaderInput _meshShaderInput, _lightShaderInput;
 

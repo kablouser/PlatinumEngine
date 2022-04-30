@@ -5,6 +5,9 @@
 #include <Inspector/InspectorWindow.h>
 #include <ComponentComposition/Camera.h>
 
+#include <ImGuizmo.h>
+
+
 using namespace PlatinumEngine;
 
 InspectorWindow::InspectorWindow(AssetHelper* assetHelper, SceneEditor* sceneEditor, Physics* physics) :
@@ -120,17 +123,15 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			//Accept any regular file (but it will check if it is mesh or not)
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
 			{
-				char* payloadPointer = (char*)payload->Data;
-				int size = payload->DataSize;
-				std::string filePath = "";
-				for(int i=0;i<size;i++)
-					filePath+=*(payloadPointer+i);
-				std::filesystem::path payloadPath = std::filesystem::path(filePath);
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
 				if(payloadPath.extension()==".obj")
 				{
-					std::cout<<"NAME: "<<payloadPath.filename().string()<<"\n";
 					//Maybe we SetMesh on obj
 					//obj->GetComponent<MeshRender>()->SetMesh(mesh);
+					//Set The mesh that we dragged to the RenderComponent
+					auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
+					if (std::get<0>(asset_Helper))
+						obj->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
 				}
 			}
 			// End DragDropTarget
@@ -166,9 +167,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::Text("%s", "Material Properties");
 		ImGui::Separator();
 
-		ImGui::Text("Shininess");
-
-		ImGui::SameLine(_textWidth);
+		ImGui::Text("Specular Exponent");
+		ImGui::SameLine();
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		ImGui::SliderFloat("##shininess",&(obj->GetComponent<MeshRender>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
@@ -184,6 +184,26 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		// store the current material name into mesh buffer, so that we can display it in the input text box
 
 		ImGui::InputText("##Material Name", textureBuffer, sizeof(textureBuffer), ImGuiInputTextFlags_ReadOnly);
+		if (ImGui::BeginDragDropTarget())
+		{
+			//Accept any regular file (but it will check if it is texture or not)
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
+			{
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
+				if(payloadPath.extension()==".png")
+				{
+					//Set The texture that we dragged to the RenderComponent
+					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
+					if (std::get<0>(asset_Helper))
+					{
+						obj->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
+						obj->GetComponent<RenderComponent>()->material.useTexture = true;
+					}
+				}
+			}
+			// End DragDropTarget
+			ImGui::EndDragDropTarget();
+		}
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 		if(ImGui::Button("Select##Texture"))
@@ -205,6 +225,23 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::SameLine(_textWidth);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		ImGui::InputText("##Normal Map Name", normalTextureBuffer, sizeof(normalTextureBuffer), ImGuiInputTextFlags_ReadOnly);
+		if (ImGui::BeginDragDropTarget())
+		{
+			//Accept any regular file (but it will check if it is texture or not) [Same things as before]
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
+			{
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
+				if(payloadPath.extension()==".png")
+				{
+					//Set The texture that we dragged to the RenderComponent
+					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
+					if (std::get<0>(asset_Helper))
+						obj->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
+				}
+			}
+			// End DragDropTarget
+			ImGui::EndDragDropTarget();
+		}
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 		if(ImGui::Button("Select##NormalTexture"))
@@ -217,7 +254,23 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 				obj->GetComponent<MeshRender>()->SetNormalMap(std::get<1>(asset_Helper));
 		}
 		ImGui::SameLine();
-		ImGui::Checkbox("##UseNormalTexture", &(obj->GetComponent<MeshRender>()->material.useNormalTexture));
+
+		ImGui::Checkbox("##UseNormalTexture", &(obj->GetComponent<RenderComponent>()->material.useNormalTexture));
+
+		ImGui::Text("Special Properties");
+		ImGui::Separator();
+		ImGui::Text("Reflection");
+		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::Checkbox("##UseRelfectionShader", &(obj->GetComponent<RenderComponent>()->material.useReflectionShader));
+		ImGui::Text("Refraction");
+		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::Checkbox("##UseRefracctionShader", &(obj->GetComponent<RenderComponent>()->material.useRefractionShader));
+		ImGui::Text("Refraction Index");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
+		// Setting max to 4 as you start to get unpleasing results past that
+		ImGui::SliderFloat("##refractionIndex",&(obj->GetComponent<RenderComponent>()->material.refractionIndex),1.0f, 4.f, "%.3f", ImGuiSliderFlags_None);
+		ImGui::PopItemWidth();
 	}
 }
 
@@ -695,4 +748,14 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 		}
 		ImGui::EndChild();
 	}
+}
+
+std::filesystem::path InspectorWindow::GetPayloadPath(const ImGuiPayload* payload)
+{
+	char* payloadPointer = (char*)payload->Data;
+	int size = payload->DataSize;
+	std::string filePath = "";
+	for(int i=0;i<size;i++)
+		filePath+=*(payloadPointer+i);
+	return std::filesystem::path(filePath);
 }

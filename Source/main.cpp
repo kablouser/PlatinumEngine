@@ -85,12 +85,13 @@ int main(int, char**)
 		PlatinumEngine::Logger logger;
 		PlatinumEngine::InputManager inputManager;
 		PlatinumEngine::Renderer rasterRenderer;
+
 		PlatinumEngine::Scene scene(physics);
 		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer, &time, &physics);
-		PlatinumEngine::HierarchyWindow hierarchyWindow(&sceneEditor);
+    PlatinumEngine::HierarchyWindow hierarchyWindow(&sceneEditor, &assetHelper);
 		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper, &sceneEditor, &physics);
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer, &time, &physics);
-		PlatinumEngine::ProjectWindow projectWindow;
+		PlatinumEngine::ProjectWindow projectWindow(&scene, &assetHelper, &sceneEditor);
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler, &projectWindow, &scene);
 
 		physics.Initialize();
