@@ -7,14 +7,27 @@
 
 namespace PlatinumEngine
 {
+	void RenderComponent::CreateTypeInfo(TypeDatabase& database)
+	{
+		/*
+		Material material;
+		SavedReference<Mesh> _mesh;
+		ShaderInput _shaderInput;
+		 */
+		database.BeginTypeInfo<RenderComponent>()
+		        .WithField<Material>("material", PLATINUM_OFFSETOF(RenderComponent, material))
+				.WithField<SavedReference<Mesh>>("_mesh", PLATINUM_OFFSETOF(RenderComponent, _mesh));
+	}
+
 	RenderComponent::RenderComponent()
 	{
-		SetMesh(nullptr);
-		SetMaterial(nullptr);
 	}
 
 	void RenderComponent::OnRender(Scene& scene, Renderer& renderer)
 	{
+		if (!_mesh)
+			return;
+
 		SavedReference<TransformComponent> transform = GetComponent<TransformComponent>();
 		if (transform)
 			renderer.SetModelMatrix(transform.pointer->GetLocalToWorldMatrix());
@@ -25,29 +38,25 @@ namespace PlatinumEngine
 		_shaderInput.Draw();
 	}
 
-	void RenderComponent::SetMaterial(Texture* texture)
+	void RenderComponent::SetMesh(SavedReference<Mesh> mesh)
 	{
-		material.diffuseTexture = texture;
+		_mesh = std::move(mesh);
+		_shaderInput.Clear();
+		if (_mesh)
+			_shaderInput.Set(_mesh.pointer->vertices, _mesh.pointer->indices);
 	}
 
-	void RenderComponent::SetNormalMap(Texture* texture)
+	void RenderComponent::SetMaterial(SavedReference<Texture> texture)
 	{
-		material.normalTexture = texture;
+		material.diffuseTexture = std::move(texture);
 	}
 
-	void RenderComponent::SetMesh(Mesh* mesh)
+	void RenderComponent::SetNormalMap(SavedReference<Texture> texture)
 	{
-		_mesh = mesh;
-		if(mesh != nullptr)
-		{
-			_shaderInput.Clear();
-			_shaderInput.Set(mesh->vertices, mesh->indices);
-		}
-		else
-			_shaderInput.Clear();
+		material.normalTexture = std::move(texture);
 	}
 
-	Mesh* RenderComponent::GetMesh()
+	SavedReference<Mesh>& RenderComponent::GetMesh()
 	{
 		return _mesh;
 	}

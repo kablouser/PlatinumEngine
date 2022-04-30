@@ -17,6 +17,20 @@ namespace PlatinumEngine
 		GL_CHECK(glDeleteTextures(1,&_textureHandle));
 	}
 
+	void Texture::Create(GLsizei width, GLsizei height)
+	{
+		if(_textureHandle == 0)
+			GL_CHECK(glGenTextures(1, &_textureHandle));
+
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, _textureHandle));
+		GL_CHECK(glTexImage2D(
+				GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
+				GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
+	}
+
 	void Texture::Create(const PixelData& pixelData)
 	{
 		if(_textureHandle == 0)

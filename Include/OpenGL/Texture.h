@@ -20,6 +20,9 @@ namespace PlatinumEngine
 
 		~Texture();
 
+		// Create no data, just dimensions
+		void Create(GLsizei width, GLsizei height);
+		// Create using some colour data
 		void Create(const PixelData& pixelData);
 
 		void CreateCubeMap(std::vector<std::string> faces);

@@ -194,7 +194,7 @@ namespace PlatinumEngine
 		{
 			_phongShader.SetUniform("diffuseMap", (int)0);
 			glActiveTexture(GL_TEXTURE0);
-			material.diffuseTexture->Bind();
+			material.diffuseTexture.pointer->Bind();
 		}
 
 		_phongShader.SetUniform("useNormalTexture", material.useNormalTexture);
@@ -202,7 +202,7 @@ namespace PlatinumEngine
 		{
 			_phongShader.SetUniform("normalMap", (int)1);
 			glActiveTexture(GL_TEXTURE1);
-			material.normalTexture->Bind();
+			material.normalTexture.pointer->Bind();
 		}
 
 		// Other uniforms

@@ -11,6 +11,7 @@
 #include <ComponentComposition/GameObject.h>
 #include <OpenGL/Mesh.h>
 #include <SceneEditor/SceneEditor.h>
+#include <AssetDatabase/AssetHelper.h>
 
 #include <IconsFontAwesome6.h>
 namespace PlatinumEngine
@@ -20,7 +21,6 @@ namespace PlatinumEngine
 	public:
 		InspectorWindow(AssetHelper* assetHelper, SceneEditor* sceneEditor);
 		void ShowGUIWindow(bool* isOpen, Scene& scene);
-		void SetActiveGameObject(SavedReference<GameObject>& gameObject);
 	private:
 		// TODO: Add specific component guis as components are created
 		void ShowMeshRenderComponent(Scene& scene);
@@ -30,16 +30,10 @@ namespace PlatinumEngine
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);
 
-		void cameraComponentHelper(char* cameraType[]);
 	private:
 		AssetHelper* _assetHelper;
-		SavedReference<GameObject> _activeGameObject;
 		SceneEditor* _sceneEditor;
-		std::string _meshFileName;
 		bool _isAddComponentWindowOpen = false;
-
-		// Have to keep track of if object enabled ourselves as isEnabled is a private member of game object
-		bool _isObjectEnabled;
 
 		//ImGui helper parameters
 		float _textWidthMeshRenderComponent = 90.f;

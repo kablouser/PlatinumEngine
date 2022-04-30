@@ -313,7 +313,7 @@ namespace PlatinumEngine
 		// Get Stored Type Name
 		//-----------------------------------------------------------------------
 
-		const char* GetStoredTypeName(const std::type_index& typeIndex);
+		std::string GetStoredTypeName(const std::type_index& typeIndex);
 
 		//-----------------------------------------------------------------------
 		// Output Type Info

@@ -17,7 +17,8 @@ namespace PlatinumEngine
 								Profiler *profiler,
 								ProjectWindow *projectWindow,
 								IDSystem& idSystem,
-								TypeDatabase& typeDatabase
+								TypeDatabase& typeDatabase,
+								AssetDatabase& assetDatabase
 								):
 								_gameWindow(gameWindow),
 								_sceneEditor(sceneEditor),
@@ -27,7 +28,8 @@ namespace PlatinumEngine
 								_profiler(profiler),
 								_projectWindow(projectWindow),
 								_idSystem(idSystem),
-								_typeDatabase(typeDatabase)
+								_typeDatabase(typeDatabase),
+								_assetDatabase(assetDatabase)
 	{
 	}
 
@@ -99,6 +101,13 @@ namespace PlatinumEngine
 			{
 				ShowMenuWindow(scene);
 				ImGui::EndMenu();
+			}
+			///---------------------------------------------------------------
+			/// Asset Database control
+			///---------------------------------------------------------------
+			if (ImGui::Button("Reload Asset Database"))
+			{
+				_assetDatabase.Update(_idSystem);
 			}
 
 			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 130.f);

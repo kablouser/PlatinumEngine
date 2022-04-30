@@ -84,7 +84,7 @@ int main(int, char**)
 		PlatinumEngine::TypeDatabase typeDatabase;
 		PlatinumEngine::IDSystem idSystem;
 		PlatinumEngine::AssetDatabase assetDatabase;
-		PlatinumEngine::AssetHelper assetHelper(&assetDatabase);
+		PlatinumEngine::AssetHelper assetHelper(&assetDatabase, idSystem);
 		PlatinumEngine::Logger logger;
 		PlatinumEngine::InputManager inputManager;
 		PlatinumEngine::Renderer rasterRenderer;
@@ -95,12 +95,21 @@ int main(int, char**)
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
 		PlatinumEngine::ProjectWindow projectWindow;
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger,
-				&inspectorWindow, &profiler, &projectWindow, idSystem, typeDatabase);
+				&inspectorWindow, &profiler, &projectWindow, idSystem, typeDatabase, assetDatabase);
+
+		// create assets
+		assetDatabase.Update(idSystem);
 
 		// create some default game object
-		scene.AddComponent<PlatinumEngine::RenderComponent>(
-				scene.AddGameObject("Default GameObject")).pointer->
-				SetMesh(assetDatabase.GetLoadedMeshAsset(assetDatabase.GetMeshAssetIDs()[0]));
+		{
+			auto meshAssets = assetDatabase.GetAssets<PlatinumEngine::Mesh>();
+			if (0 < meshAssets.size())
+			{
+				scene.AddComponent<PlatinumEngine::RenderComponent>(
+						scene.AddGameObject("Default GameObject")).pointer->
+						SetMesh(meshAssets[0].GetSavedReference(idSystem));
+			}
+		}
 
 		// Main loop
 		while (!glfwWindowShouldClose(window))

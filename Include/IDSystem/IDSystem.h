@@ -2,14 +2,22 @@
 
 #include <vector>
 #include <map>
+#include <set>
 #include <random>
 #include <typeindex>
 #include <memory> // std::shared_ptr
 
+// todo REmove
+#include <Logger/Logger.h>
+
 namespace PlatinumEngine
 {
+
 	template<typename T>
 	class SavedReference;
+
+	// 1 global variable visible to everyone
+	extern std::set<void*> AllSavedReferences;
 
 	// Track IDs for all types
 	class IDSystem
@@ -21,6 +29,7 @@ namespace PlatinumEngine
 
 		// serialization of the managed memory
 
+		// Ignores unknown types and Asset types. They are not streamed.
 		static void StreamOut(std::ostream& outputStream, void* typeInstance);
 
 		static void StreamIn(std::istream& inputStream, void* typeInstance);
@@ -79,6 +88,14 @@ namespace PlatinumEngine
 		void Overwrite(const std::type_index& typeIndex, ID id, std::shared_ptr<void>& pointer);
 
 		//--------------------------------------------------------------------------------------------------------------
+		// For updating references
+		//--------------------------------------------------------------------------------------------------------------
+
+		// Updates all saved references to the current pointers using their ids
+		// Should be called after Remove/RemoveInternal from this IDSystem. Or changing existing entries with Overwrite.
+		void UpdateSavedReferences();
+
+		//--------------------------------------------------------------------------------------------------------------
 		// Disgusting internal controls
 		//--------------------------------------------------------------------------------------------------------------
 
@@ -92,13 +109,13 @@ namespace PlatinumEngine
 
 		// Add with desired id
 		bool AddInternal(
-				std::type_index&& typeIndex,
+				const std::type_index&& typeIndex,
 				ID id,
 				const std::shared_ptr<void>& pointer);
 
 		// Add with new random id
 		ID AddInternal(
-				std::type_index&& typeIndex,
+				const std::type_index&& typeIndex,
 				const std::shared_ptr<void>& pointer);
 
 		bool RemoveInternal(
@@ -111,14 +128,17 @@ namespace PlatinumEngine
 		 */
 		ID GenerateID(std::map<ID, std::shared_ptr<void>>& idMap);
 
+		friend class Scene; // todo remove
 	private:
 		typedef std::map<ID, std::shared_ptr<void>> IDMap;
-		std::map<std::type_index, IDMap> managedMemory;
+		std::map<std::type_index, IDMap> _managedMemory;
 
 		// random number generator
 		std::mt19937 _generator;
 		std::uniform_int_distribution<ID> _anyNumber;
 	};
+
+	std::string Interop(std::type_index ti);// todo remove
 
 	/**
 	 * A reference that can be saved automatically.
@@ -133,19 +153,54 @@ namespace PlatinumEngine
 		// 0 indicates nullptr
 		IDSystem::ID id;
 		std::shared_ptr<T> pointer;
+		const std::type_index typeIndex;
 
-		SavedReference() : id(0)
+		~SavedReference()
 		{
+			AllSavedReferences.erase(this);
+		}
+
+		SavedReference() : id(0), typeIndex(typeid(T))
+		{
+			AllSavedReferences.insert(this);
 		}
 
 		SavedReference(IDSystem::ID inID, std::shared_ptr<T> inPointer) :
-				id(inID), pointer(inPointer)
+				id(inID), pointer(inPointer), typeIndex(typeid(T))
 		{
+			AllSavedReferences.insert(this);
 		}
 
-		void OnIDSystemUpdate(const IDSystem& idSystem)
+		SavedReference(const SavedReference<T>& copyFrom) :
+			id(copyFrom.id), pointer(copyFrom.pointer), typeIndex(typeid(T))
 		{
-			pointer = idSystem.GetSavedReference<T>(id);
+			AllSavedReferences.insert(this);
+		}
+
+		SavedReference(SavedReference<T>&& moveFrom) noexcept :
+			id(moveFrom.id), pointer(std::move(moveFrom.pointer)), typeIndex(typeid(T))
+		{
+			moveFrom.id = 0;
+			AllSavedReferences.insert(this);
+		};
+
+		SavedReference<T>& operator=(const SavedReference<T>& copyFrom)
+		{
+			if (this == &copyFrom)
+				return *this;
+			id = copyFrom.id;
+			pointer = copyFrom.pointer;
+			return *this;
+		}
+
+		SavedReference<T>& operator=(SavedReference<T>&& moveFrom) noexcept
+  		{
+			if (this == &moveFrom)
+				return *this;
+			id = moveFrom.id;
+			moveFrom.id = 0;
+			pointer = std::move(moveFrom.pointer);
+			return *this;
 		}
 
 		// is this a nullptr?
@@ -160,6 +215,36 @@ namespace PlatinumEngine
 			return id == other.id;
 		}
 
+		// Update pointer to the current pointer represented by the id
+		void UpdatePointer(IDSystem& idSystem)
+		{
+			void* before = pointer.get();
+
+			auto[outID, currentPointer] = idSystem.GetSavedReferenceInternal(id, std::type_index(typeIndex));
+			if (outID == 0)
+				// typeIndex is incorrect, this is fine. The SavedReferences inside idSystem all have incorrect type indices.
+				return;
+
+			pointer = std::move(currentPointer);
+
+			void* after = pointer.get();
+			if (before != after)
+			{
+				if (!before && after)
+				{
+					PLATINUM_INFO_STREAM << "Created " << Interop(typeIndex) << " " << after;
+				}
+				else if (before && !after)
+				{
+					PLATINUM_INFO_STREAM << "Deleted " << Interop(typeIndex) << " " << before;
+				}
+				else
+				{
+					PLATINUM_INFO_STREAM << "Edited " << Interop(typeIndex) << " from " << before << " to " << after;
+				}
+			}
+		}
+
 		// Dynamic casting to reference of another type
 		template<typename U>
 		explicit operator SavedReference<U>() const
@@ -172,7 +257,7 @@ namespace PlatinumEngine
 		}
 
 		// NO TYPE CHECKING, VERY DANGEROUS
-		// Dynamic casting to reference of another type
+		// Static casting to reference of another type
 		template<typename U>
 		SavedReference<U> UnsafeCast() const
 		{
@@ -188,6 +273,7 @@ namespace PlatinumEngine
 				savedReference.id,
 				// performs dynamic cast if T is polymorphic
 				// otherwise its just type_index of T
-				std::type_index(typeid(savedReference.pointer.get())));
+				// NOTE: remember to reference get(). we want type of the pointing to data
+				std::type_index(typeid(*savedReference.pointer.get())));
 	}
 }

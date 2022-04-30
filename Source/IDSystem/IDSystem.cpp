@@ -1,11 +1,18 @@
 #include <IDSystem/IDSystem.h>
 #include <TypeDatabase/TypeDatabase.h>
 #include <Logger/Logger.h>
+#include <Loaders/LoaderCommon.h>
 #include <iostream>
 #include <cassert> // for assert()
 
+// todo remove
+#include <TypeDatabase/TypeDatabase.h>
+
 namespace PlatinumEngine
 {
+	// Instance of the global variable
+	std::set<void*> AllSavedReferences;
+
 	void IDSystem::StreamOut(std::ostream& outputStream, void* typeInstance)
 	{
 		assert(TypeDatabase::Instance && "Stream function only legal after type database is constructed");
@@ -20,13 +27,19 @@ namespace PlatinumEngine
 		// get names for all ID maps
 		typedef std::tuple<std::type_index, IDMap*, std::string> NamedIDMap;
 		std::vector<NamedIDMap> namedIDMaps;
-		for (auto& typeEntry: idSystem->managedMemory)
+		for (auto& typeEntry: idSystem->_managedMemory)
 		{
+			if (Loaders::IsAsset(typeEntry.first))
+				continue; // asset types are ignored. Reason being you shouldn't change assets from the engine.
+
+			std::string typeName = TypeDatabase::Instance->GetStoredTypeName(typeEntry.first);
+			if (typeName == "?")
+				continue; // unknown type, no point in streaming it
+
 			namedIDMaps.emplace_back(
 					typeEntry.first,
 					&typeEntry.second,
-					TypeDatabase::Instance->GetStoredTypeName(typeEntry.first)
-			);
+					typeName);
 		}
 
 		// sort with name
@@ -89,9 +102,9 @@ namespace PlatinumEngine
 			}
 
 			auto startPosition = inputStream.tellg();
-			if (!(inputStream >> stringToken))
+			if (!(inputStream >> stringToken) || stringToken == "?")
 			{
-				// bad format
+				// bad format or unknown type
 				std::getline(inputStream, stringToken); // skip line
 				continue;
 			}
@@ -133,7 +146,7 @@ namespace PlatinumEngine
 							typeInfo->typeIndex,
 							TypeDatabase::SerializeSection::collectionElement);
 
-					if (idSystem->AddInternal(typeInfo->typeIndex, id, temp))
+					if (idSystem->AddInternal(std::type_index(typeInfo->typeIndex), id, temp))
 					{
 						// good
 					}
@@ -186,7 +199,15 @@ namespace PlatinumEngine
 
 	void IDSystem::Overwrite(const std::type_index& typeIndex, ID id, std::shared_ptr<void>& pointer)
 	{
-		managedMemory[typeIndex][id] = pointer;
+		_managedMemory[typeIndex][id] = pointer;
+	}
+
+	void IDSystem::UpdateSavedReferences()
+	{
+		// while UpdatePointer, SavedReferences could be added/removed
+		std::set<void*> allSavedReferencesCopy = AllSavedReferences;
+		for (void* savedReference : allSavedReferencesCopy)
+			reinterpret_cast<SavedReference<void>*>(savedReference)->UpdatePointer(*this);
 	}
 
 	std::pair<IDSystem::ID, std::shared_ptr<void>> IDSystem::GetSavedReferenceInternal(
@@ -197,19 +218,19 @@ namespace PlatinumEngine
 			// 0 is reserved for nullptr
 			return {}; // nullptr
 
-		auto managedMemoryIterator = managedMemory.find(typeIndex);
-		if (managedMemoryIterator == managedMemory.end())
+		auto managedMemoryIterator = _managedMemory.find(typeIndex);
+		if (managedMemoryIterator == _managedMemory.end())
 			// no entries for type
 			return {}; // nullptr
 
-		auto idMap = managedMemoryIterator->second;
+		auto& idMap = managedMemoryIterator->second;
 		auto idMapIterator = idMap.find(id);
 		if (idMapIterator == idMap.end())
 			// id doesn't exist for type
 			return {}; // nullptr
 
 		// only return shared_ptr if type matches
-		return {id, idMapIterator->second};
+		return { id, idMapIterator->second };
 	}
 
 	std::pair<IDSystem::ID, std::shared_ptr<void>> IDSystem::GetSavedReferenceInternal(
@@ -219,14 +240,14 @@ namespace PlatinumEngine
 		if (rawPointer == nullptr)
 			return {}; // nullptr
 
-		auto managedMemoryIterator = managedMemory.find(typeIndex);
-		if (managedMemoryIterator == managedMemory.end())
+		auto managedMemoryIterator = _managedMemory.find(typeIndex);
+		if (managedMemoryIterator == _managedMemory.end())
 			// no entries for type
 			return {}; // nullptr
 
-		auto idMap = managedMemoryIterator->second;
+		auto& idMap = managedMemoryIterator->second;
 		// very slow part
-		for (auto& idEntry : idMap)
+		for (auto& idEntry: idMap)
 		{
 			if (idEntry.second.get() == rawPointer)
 				return idEntry;
@@ -236,20 +257,20 @@ namespace PlatinumEngine
 	}
 
 	bool IDSystem::AddInternal(
-			std::type_index&& typeIndex,
+			const std::type_index&& typeIndex,
 			IDSystem::ID id,
 			const std::shared_ptr<void>& pointer)
 	{
-		auto& idMap = managedMemory[typeIndex];
+		auto& idMap = _managedMemory[typeIndex];
 		auto[_, success] =idMap.insert({ id, pointer });
 		return success;
 	}
 
 	IDSystem::ID IDSystem::AddInternal(
-			std::type_index&& typeIndex,
+			const std::type_index&& typeIndex,
 			const std::shared_ptr<void>& pointer)
 	{
-		auto& idMap = managedMemory[typeIndex];
+		auto& idMap = _managedMemory[typeIndex];
 		ID newID = GenerateID(idMap);
 		// checks the newID was added, and is unique in map
 		assert(idMap.insert({ newID, pointer }).second);
@@ -260,12 +281,12 @@ namespace PlatinumEngine
 			IDSystem::ID id,
 			std::type_index&& typeIndex)
 	{
-		auto managedMemoryIterator = managedMemory.find(typeIndex);
-		if (managedMemoryIterator == managedMemory.end())
+		auto managedMemoryIterator = _managedMemory.find(typeIndex);
+		if (managedMemoryIterator == _managedMemory.end())
 			// no entries for type
 			return false;
 
-		auto idMap = managedMemoryIterator->second;
+		auto& idMap = managedMemoryIterator->second;
 		// erase returns number of elements removed
 		return idMap.erase(id) == 1;
 	}
@@ -279,5 +300,10 @@ namespace PlatinumEngine
 		} while (idMap.find(result) != idMap.end());
 
 		return result;
+	}
+
+	std::string Interop(std::type_index ti)
+	{
+		return TypeDatabase::Instance->GetStoredTypeName(ti);
 	}
 }

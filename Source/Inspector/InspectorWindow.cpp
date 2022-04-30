@@ -16,7 +16,7 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 {
 	if(ImGui::Begin(ICON_FA_CIRCLE_INFO " Inspector Window", isOpen))
 	{
-		auto obj = _sceneEditor->GetSelectedGameobject();
+		auto& obj = _sceneEditor->GetSelectedGameobject();
 		if (obj)
 		{
 			ImGui::Text("Name: ");
@@ -74,17 +74,16 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 {
 	ImGui::Separator();
-	char meshBuffer[64];
-	char textureBuffer[64];
+	std::string meshBuffer, textureBuffer, normalTextureBuffer;
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_VECTOR_SQUARE "  Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap);
-	char normalTextureBuffer[64];
-	auto obj = _sceneEditor->GetSelectedGameobject();
+	SavedReference<GameObject>& obj = _sceneEditor->GetSelectedGameobject();
+	SavedReference<RenderComponent> renderComponent = obj.pointer->GetComponent<RenderComponent>();
 
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveRenderComponent")) {
 		// remove component
-		scene.RemoveComponent(obj.pointer->GetComponent<RenderComponent>());
+		scene.RemoveComponent(renderComponent);
 		return;
 	}
 	if (isHeaderOpen)
@@ -96,13 +95,11 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 
 		// store the current mesh name into mesh buffer, so that we can display it in the input text box
-		if(obj.pointer->GetComponent<RenderComponent>().pointer->GetMesh())
-			strcpy(meshBuffer,  obj.pointer->GetComponent<RenderComponent>().pointer->GetMesh()->fileName.c_str());
-		else
-			memset(meshBuffer, 0, 64 * sizeof(char));
+		if(renderComponent.pointer->GetMesh())
+			meshBuffer = renderComponent.pointer->GetMesh().pointer->fileName;
 
 		// show text box (read only)--------Choose Mesh
-		ImGui::InputText("##Mesh Name",meshBuffer,sizeof(meshBuffer), ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputText("##Mesh Name",&meshBuffer[0],meshBuffer.size(), ImGuiInputTextFlags_ReadOnly);
 		//Enables DragDrop for TextBox
 		if (ImGui::BeginDragDropTarget())
 		{
@@ -134,22 +131,16 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		}
 
 		{
-			auto asset_Helper = _assetHelper->ShowMeshGuiWindow();
-			if (std::get<0>(asset_Helper))
-			{
-				obj.pointer->GetComponent<RenderComponent>().pointer->SetMesh(std::get<1>(asset_Helper));
-			}
+			auto[isClicked, assetReference] = _assetHelper->PickAssetGUIWindow<Mesh>("Select Mesh");
+			if (isClicked)
+				renderComponent.pointer->SetMesh(assetReference);
 		}
 
-		if(obj.pointer->GetComponent<RenderComponent>().pointer->material.diffuseTexture != nullptr)
-			strcpy(textureBuffer,  obj.pointer->GetComponent<RenderComponent>().pointer->material.diffuseTexture->fileName.c_str());
-		else
-			memset(textureBuffer, 0, 64 * sizeof(char));
+		if(renderComponent.pointer->material.diffuseTexture)
+			textureBuffer = renderComponent.pointer->material.diffuseTexture.pointer->fileName;
 
-		if(obj.pointer->GetComponent<RenderComponent>().pointer->material.normalTexture != nullptr)
-			strcpy(normalTextureBuffer,  obj.pointer->GetComponent<RenderComponent>().pointer->material.normalTexture->fileName.c_str());
-		else
-			memset(normalTextureBuffer, 0, 64 * sizeof(char));
+		if(renderComponent.pointer->material.normalTexture)
+			normalTextureBuffer = renderComponent.pointer->material.normalTexture.pointer->fileName;
 
 		//Show text box (read only)----------Choose Material
 		ImGui::Text("%s", "Material Properties");
@@ -159,12 +150,12 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 
 		ImGui::SameLine(_textWidthMeshRenderComponent);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
-		ImGui::SliderFloat("##shininess",&(obj.pointer->GetComponent<RenderComponent>().pointer->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
+		ImGui::SliderFloat("##shininess",&(renderComponent.pointer->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 
 		ImGui::Text("Blinn-Phong");
 		ImGui::SameLine();
-		ImGui::Checkbox("##Blinn-Phong", &(obj.pointer->GetComponent<RenderComponent>().pointer->material.useBlinnPhong));
+		ImGui::Checkbox("##Blinn-Phong", &(renderComponent.pointer->material.useBlinnPhong));
 
 		ImGui::Text("Texture");
 		ImGui::SameLine(_textWidthMeshRenderComponent);
@@ -172,7 +163,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 
 		// store the current material name into mesh buffer, so that we can display it in the input text box
 
-		ImGui::InputText("##Material Name", textureBuffer, sizeof(textureBuffer), ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputText("##Material Name", &textureBuffer[0], textureBuffer.size(), ImGuiInputTextFlags_ReadOnly);
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 		if(ImGui::Button("Select##Texture"))
@@ -180,20 +171,20 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			ImGui::OpenPopup("Select Texture");
 		}
 		{
-			auto asset_Helper = _assetHelper->ShowTextureGuiWindow();
-			if (std::get<0>(asset_Helper))
+			auto[isClicked, assetReference] = _assetHelper->PickAssetGUIWindow<Texture>("Select Texture");
+			if (isClicked)
 			{
-				obj.pointer->GetComponent<RenderComponent>().pointer->SetMaterial(std::get<1>(asset_Helper));
-				obj.pointer->GetComponent<RenderComponent>().pointer->material.useTexture = true;
+				renderComponent.pointer->SetMaterial(assetReference);
+				renderComponent.pointer->material.useTexture = true;
 			}
 		}
 		ImGui::SameLine();
-		ImGui::Checkbox("##UseTexture", &(obj.pointer->GetComponent<RenderComponent>().pointer->material.useTexture));
+		ImGui::Checkbox("##UseTexture", &(renderComponent.pointer->material.useTexture));
 
 		ImGui::Text("%s", "Normal Map");
 		ImGui::SameLine(_textWidthMeshRenderComponent);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
-		ImGui::InputText("##Normal Map Name", normalTextureBuffer, sizeof(normalTextureBuffer), ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputText("##Normal Map Name", &normalTextureBuffer[0], normalTextureBuffer.size(), ImGuiInputTextFlags_ReadOnly);
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 		if(ImGui::Button("Select##NormalTexture"))
@@ -201,18 +192,18 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			ImGui::OpenPopup("Select Normal Texture");
 		}
 		{
-			auto asset_Helper = _assetHelper->ShowNormalTextureGuiWindow();
-			if (std::get<0>(asset_Helper))
-				obj.pointer->GetComponent<RenderComponent>().pointer->SetNormalMap(std::get<1>(asset_Helper));
+			auto[isClicked, assetReference] = _assetHelper->PickAssetGUIWindow<Texture>("Select Normal Texture");
+			if (isClicked)
+				renderComponent.pointer->SetNormalMap(assetReference);
 		}
 		ImGui::SameLine();
-		ImGui::Checkbox("##UseNormalTexture", &(obj.pointer->GetComponent<RenderComponent>().pointer->material.useNormalTexture));
+		ImGui::Checkbox("##UseNormalTexture", &(renderComponent.pointer->material.useNormalTexture));
 	}
 }
 
 void InspectorWindow::ShowTransformComponent(Scene& scene)
 {
-	auto obj = _sceneEditor->GetSelectedGameobject();
+	auto& obj = _sceneEditor->GetSelectedGameobject();
 
 	// If this gui is being shown, assumption that object has transform component
 	ImGui::Separator();
@@ -272,7 +263,7 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 {
 	char cameraType[64];
 	char clearMode[64];
-	auto obj = _sceneEditor->GetSelectedGameobject();
+	auto& obj = _sceneEditor->GetSelectedGameobject();
 
 	// If this gui is being shown, assumption that object has transform component
 	ImGui::Separator();
@@ -419,7 +410,7 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 {
 	if (ImGui::BeginChild("ComponentSelector"))
 	{
-		auto obj = _sceneEditor->GetSelectedGameobject();
+		auto& obj = _sceneEditor->GetSelectedGameobject();
 
 		const char* components[] = {
 				"Mesh Render Component",

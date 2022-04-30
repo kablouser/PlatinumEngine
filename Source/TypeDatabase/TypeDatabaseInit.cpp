@@ -2,6 +2,7 @@
 #include <IDSystem/IDSystem.h>
 #include <SceneManager/Scene.h>
 #include <ComponentComposition/GameObject.h>
+#include <ComponentComposition/RenderComponent.h>
 
 void PlatinumEngine::TypeDatabase::Init()
 {
@@ -14,6 +15,7 @@ void PlatinumEngine::TypeDatabase::Init()
 
 	Scene::CreateTypeInfo(*this);
 	GameObject::CreateTypeInfo(*this);
+	RenderComponent::CreateTypeInfo(*this);
 
 	// this checks all fields/things are defined properly
 	FinalCheck();

@@ -234,14 +234,13 @@ namespace PlatinumEngine
 	// Get Stored Type Name
 	//-----------------------------------------------------------------------
 
-	const char* TypeDatabase::GetStoredTypeName(const std::type_index& typeIndex)
+	std::string TypeDatabase::GetStoredTypeName(const std::type_index& typeIndex)
 	{
-		static char unknownName[] = "?";
 		auto[success, typeInfo] = GetTypeInfo(typeIndex);
 		if (success)
-			return typeInfo->typeName.c_str();
+			return typeInfo->typeName;
 		else
-			return unknownName;
+			return "?";
 	}
 
 	//-----------------------------------------------------------------------

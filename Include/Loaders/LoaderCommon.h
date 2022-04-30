@@ -18,13 +18,8 @@ namespace PlatinumEngine
 {
 	namespace Loaders
 	{
-		static const std::map<std::string, std::type_index> EXTENSION_TO_TYPE{
-				{ ".obj", std::type_index(typeid(Mesh)) },
-				// .fbx?
-
-				{ ".png", std::type_index(typeid(Texture)) },
-				// .jpg? .jpeg?
-		};
+		// 1 global variable visible to everyone
+		extern const std::map<std::string, std::type_index> EXTENSION_TO_TYPE;
 
 		/**
 		 * Checks if path with its extension is allowed for loading
@@ -32,5 +27,12 @@ namespace PlatinumEngine
 		 * @return : True if extensions ok, false is bad
 		 */
 		bool ExtensionAllowed(const std::filesystem::path& path);
+
+		/**
+		 * Checks if a given type index is an asset that can be loaded in.
+		 * @param typeIndex type is check
+		 * @return true if type is an asset, false otherwise
+		 */
+		bool IsAsset(const std::type_index& typeIndex);
 	}
 }

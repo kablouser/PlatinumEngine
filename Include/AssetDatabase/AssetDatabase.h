@@ -29,12 +29,6 @@ namespace PlatinumEngine
 	template<typename T>
 	struct AssetWithType
 	{
-		explicit AssetWithType(Asset& inAsset) : asset(inAsset)
-		{
-			assert(inAsset.GetTypeIndex() == std::type_index(typeid(T)) &&
-					"You should never mix types!");
-		}
-
 		Asset asset;
 
 		/**
@@ -108,7 +102,7 @@ namespace PlatinumEngine
 		 * @param withPath match with equivalent path
 		 * @return {true, something} if path is in database, otherwise {false, nullptr}
 		 */
-		std::pair<bool,const Asset*> GetAsset(std::filesystem::path withPath);
+		std::pair<bool, const Asset*> GetAsset(std::filesystem::path withPath);
 
 		/**
 		 * nodiscard means compiler creates warning if you don't use this function's return value
@@ -151,12 +145,6 @@ namespace PlatinumEngine
 		 */
 		void Update(IDSystem& idSystem);
 
-		/**
-		 * Loaded assets are deleted. Then loads existent assets in database.
-		 * TODO only load assets that are in-use, otherwise leave them alone
-		 */
-		void ReloadAssets(IDSystem& idSystem);
-
 		//--------------------------------------------------------------------------------------------------------------
 		// Get Loaded Asset functions
 		//--------------------------------------------------------------------------------------------------------------
@@ -170,8 +158,8 @@ namespace PlatinumEngine
 			else
 			{
 				std::vector<AssetWithType<T>> results(findAssetIndices->second.size());
-				for (size_t assetIndex : findAssetIndices->second)
-					results.push_back({_assets.at(assetIndex)});
+				for (size_t i = 0; i < findAssetIndices->second.size(); ++i)
+					results[i] = { _assets.at(findAssetIndices->second[i]) };
 				return results;
 			}
 		}
@@ -189,10 +177,14 @@ namespace PlatinumEngine
 		// Internal
 		//--------------------------------------------------------------------------------------------------------------
 
-		/**
-		 * Clears _assetIndicesByType and rebuilds its structure
-		 */
+		// Clears _assetIndicesByType and rebuilds its structure
 		void RebuildStoredMap();
+
+		// Creates all current assets into the idSystem. Existing IDs' are overwritten.
+		void CreateAssets(IDSystem& idSystem);
+
+		// Removes all current assets from the fromIDSystem
+		void RemoveAssets(IDSystem& fromIDSystem);
 
 		/**
 		 * Updates the database with list of current existing paths
@@ -201,6 +193,7 @@ namespace PlatinumEngine
 		 */
 		void UpdateWithCurrentPaths(
 				const std::vector<std::filesystem::path>& currentExistingPaths,
+				IDSystem& idSystem,
 				bool debugMessages = true);
 	};
 }

@@ -13,6 +13,7 @@
 #include <Profiler/Profiler.h>
 #include <Logger/Logger.h>
 #include <TypeDatabase/TypeDatabase.h>
+#include <AssetDatabase/AssetDatabase.h>
 
 namespace PlatinumEngine
 {
@@ -27,7 +28,8 @@ namespace PlatinumEngine
 					  Profiler *profiler,
 					  ProjectWindow *projectWindow,
 					  IDSystem& idSystem,
-					  TypeDatabase& typeDatabase
+					  TypeDatabase& typeDatabase,
+					  AssetDatabase& assetDatabase
 					  );
 
 		///-----------------------------------
@@ -113,6 +115,7 @@ namespace PlatinumEngine
 		ProjectWindow *_projectWindow;
 		IDSystem& _idSystem;
 		TypeDatabase& _typeDatabase;
+		AssetDatabase& _assetDatabase;
 
 	};
 }

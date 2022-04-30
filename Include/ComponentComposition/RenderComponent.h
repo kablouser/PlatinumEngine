@@ -7,34 +7,32 @@
 #include "Component.h"
 #include "Renderer/Renderer.h"
 #include "Loaders/MeshLoader.h"
-#include <AssetDatabase/AssetHelper.h>
+#include <IDSystem/IDSystem.h>
 #include "OpenGL/Material.h"
 namespace PlatinumEngine
 {
 	class RenderComponent: public Component
 	{
 	public:
+		static void CreateTypeInfo(TypeDatabase& database);
+
 		RenderComponent();
-
 		// update mesh from mesh loader
-		void SetMesh(Mesh* mesh);
+		void SetMesh(SavedReference<Mesh> mesh);
+		void SetMaterial(SavedReference<Texture> texture);
 
-		void SetMaterial(Texture* texture);
-		void SetNormalMap(Texture* texture);
+		void SetNormalMap(SavedReference<Texture> texture);
 
 		// return mesh
-		Mesh* GetMesh();
+		SavedReference<Mesh>& GetMesh();
 
 		// override the OnRender() of the Component
 		void OnRender(Scene& scene, Renderer& renderer) override;
 
-	public:
 		Material material;
 
 	private:
-		Mesh* _mesh;
-
-
+		SavedReference<Mesh> _mesh;
 		ShaderInput _shaderInput;
 	};
 }

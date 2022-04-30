@@ -5,6 +5,7 @@
 #include "GameWindow/GameWindow.h"
 #include <ComponentComposition/RenderComponent.h>
 #include <ComponentComposition/CameraComponent.h>
+#include <IconsFontAwesome6.h>
 namespace PlatinumEngine
 {
 	PlatinumEngine::GameWindow::GameWindow()

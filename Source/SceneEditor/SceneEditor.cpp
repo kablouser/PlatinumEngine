@@ -607,10 +607,13 @@ namespace PlatinumEngine{
 			renderComponent)
 		{
 			// fetch mesh
-			Mesh* mesh = renderComponent.pointer->GetMesh();
+			SavedReference<Mesh>& meshReference = renderComponent.pointer->GetMesh();
+			Mesh* mesh = nullptr;
+			if (meshReference)
+				mesh = meshReference.pointer.get();
 
 			// Make sure there is mesh
-			if(mesh != nullptr)
+			if(mesh)
 			{
 				// loop all the vertices
 				for (int count = 0; count < mesh->indices.size(); count += 3)
@@ -891,10 +894,13 @@ namespace PlatinumEngine{
 			renderComponent)
 		{
 			// fetch mesh
-			Mesh* mesh = renderComponent.pointer->GetMesh();
+			SavedReference<Mesh>& meshReference = renderComponent.pointer->GetMesh();
+			Mesh* mesh = nullptr;
+			if (meshReference)
+				mesh = meshReference.pointer.get();
 
 			// Make sure there is mesh
-			if (mesh != nullptr)
+			if (mesh)
 			{
 				// loop all the vertices
 				for (int count = 0; count < mesh->indices.size(); count += 3)

@@ -5,14 +5,7 @@
 
 namespace PlatinumEngine
 {
-	Material::Material():shininessFactor(1.0f),
-						 diffuseTexture(nullptr),
-						 normalTexture(nullptr),
-						 specularTexture(nullptr)
+	Material::Material() : shininessFactor(1.0f)
 	{
-
 	}
-
-	Material::~Material() { }
-
 }

@@ -240,6 +240,11 @@ namespace PlatinumEngine
 
 	void AssetDatabase::Update(IDSystem& idSystem)
 	{
+		// Remove current assets from ID System
+		// Not strictly necessary to make things work
+		// But nice to let user know when stuff if no longer in the AssetDatabase
+		RemoveAssets(idSystem);
+
 		if (filesystem::exists(_assetDatabasePath))
 		{
 			std::ifstream inputFile(_assetDatabasePath);
@@ -254,7 +259,7 @@ namespace PlatinumEngine
 			for (filesystem::recursive_directory_iterator i(_assetsFolderPath), end; i != end; ++i)
 				if (!is_directory(i->path()))
 					currentExistingPaths.push_back(i->path());
-			UpdateWithCurrentPaths(currentExistingPaths);
+			UpdateWithCurrentPaths(currentExistingPaths, idSystem);
 		}
 
 		{
@@ -265,13 +270,17 @@ namespace PlatinumEngine
 				PLATINUM_ERROR_STREAM << "AssetDatabase cannot be opened: " << _assetDatabasePath;
 		}
 
-		ReloadAssets(idSystem);
+		// Add new assets to id system
+		CreateAssets(idSystem);
+		// SavedReferences will have old pointers, update them all to the new loaded data
+		idSystem.UpdateSavedReferences();
+		// finally, rebuild map structure
+		RebuildStoredMap();
 	}
 
-	void AssetDatabase::ReloadAssets(IDSystem& idSystem)
+	void AssetDatabase::CreateAssets(IDSystem& idSystem)
 	{
-		// TODO not finished
-		
+		// TODO only load assets that are in-use, otherwise leave them alone
 		for (Asset& asset: _assets)
 		{
 			if (!asset.doesExist)
@@ -285,22 +294,23 @@ namespace PlatinumEngine
 				continue;
 			}
 
-			std::shared_ptr<void> pointer;
+			shared_ptr<void> pointer;
 			if (findExtension->second == typeid(Mesh))
 			{
 				auto[success, meshPointer]= Loaders::LoadMesh(asset.path);
 				if (!success)
 					continue;
-				pointer = std::move(meshPointer);
+				pointer = move(meshPointer);
 			}
 			else if (findExtension->second == typeid(Texture))
 			{
 				PixelData pixelData;
 				if (!pixelData.Create(asset.path.string()))
 					continue;
-				std::shared_ptr<Texture> texturePointer = std::make_shared<Texture>();
+				shared_ptr<Texture> texturePointer = make_shared<Texture>();
+				texturePointer->fileName = asset.path.filename().string();
 				texturePointer->Create(pixelData);
-				pointer = std::move(texturePointer);
+				pointer = move(texturePointer);
 			}
 			else
 			{
@@ -328,8 +338,23 @@ namespace PlatinumEngine
 		}
 	}
 
+	void AssetDatabase::RemoveAssets(IDSystem& fromIDSystem)
+	{
+		for (Asset& asset: _assets)
+		{
+			bool isRemoved = fromIDSystem.RemoveInternal(asset.id, asset.GetTypeIndex());
+			if (!isRemoved)
+				PLATINUM_WARNING_STREAM << "Asset was expected to be in ID System. Something has gone wrong. "
+										<< asset.path;
+		}
+
+		_assets.clear();
+		_assetIndicesByType.clear();
+	}
+
 	void AssetDatabase::UpdateWithCurrentPaths(
 			const std::vector<filesystem::path>& currentExistingPaths,
+			IDSystem& idSystem,
 			bool debugMessages)
 	{
 		// build map from paths to database index, 1-to-1
@@ -363,7 +388,7 @@ namespace PlatinumEngine
 			if (!filesystem::exists(path))
 				// programmer made mistake with the input
 				continue;
-			if (!PlatinumEngine::ExtensionAllowed(PlatinumEngine::GetExtension(path.string())))
+			if (!PlatinumEngine::Loaders::ExtensionAllowed(path))
 				// not "allowed"
 				continue;
 			if (path == assetDatabasePath)
@@ -406,14 +431,18 @@ namespace PlatinumEngine
 					// add new asset
 					// looks like Vulkan ...
 					Asset asset{
-							GenerateAssetID(),
+							0, // id = 0 means nullptr, temporary. We set id below vvv
 							hash,
 							true,
 							path
 					};
 
+					// Reserve an ID for this asset in the id system
+					std::shared_ptr<void> dummy; // doesn't have any data, quite dangerous to do this
+					idSystem.AddInternal(asset.GetTypeIndex(),dummy);
+					// we will overwrite this dummy pointer with proper loaded data later in CreateAssets()
+
 					_assets.push_back(asset);
-					assert(_assetIDsMap.insert({ asset.id, _assets.size() - 1 }).second);
 					assert(pathsMap.insert({ path, _assets.size() - 1 }).second);
 					hashesMap.insert({ asset.hash, _assets.size() - 1 });
 				}

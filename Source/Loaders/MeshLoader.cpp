@@ -69,6 +69,7 @@ namespace PlatinumEngine
 
 			// Loop all meshes and add data
 			std::shared_ptr<Mesh> returnMesh = std::make_shared<Mesh>();
+			returnMesh->fileName = filePath.filename().string();
 			// Keep track of offset for multiple meshes
 			unsigned int offset = 0;
 			for (unsigned int i = 0; i < scene->mNumMeshes; ++i)

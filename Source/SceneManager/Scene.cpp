@@ -41,19 +41,24 @@ namespace PlatinumEngine
 	{
 		for (auto& gameObject: _gameObjects)
 		{
-			idSystem.RemoveInternal(
+			if (!idSystem.RemoveInternal(
 					gameObject.id,
 					std::type_index(
 							typeid(gameObject.pointer.get())) // this only works because gameObject is polymorphic
-			);
+			))
+				PLATINUM_WARNING("ID System missing gameobject");
 		}
 		for (auto& component: _components)
 		{
-			idSystem.RemoveInternal(
+			if (!idSystem.RemoveInternal(
 					component.id,
 					std::type_index(typeid(component.pointer.get())) // this only works because component is polymorphic
-			);
+			))
+				PLATINUM_WARNING("ID System missing component");
 		}
+
+		// removal changes pointers in the id system
+		idSystem.UpdateSavedReferences();
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
@@ -89,6 +94,7 @@ namespace PlatinumEngine
 			BroadcastOnDisable(gameObject);
 			BroadcastOnEnd(gameObject);
 		}
+
 		RemoveGameObjectRecurse(gameObject);
 
 		// you only need to clean up the top-most parent. Because everything underneath is deleted anyway.
@@ -97,6 +103,9 @@ namespace PlatinumEngine
 			parent.pointer->RemoveChild(gameObject);
 		else
 			RemoveRootGameObject(gameObject);
+
+		// removal changes pointers in the id system
+		idSystem.UpdateSavedReferences();
 	}
 
 	size_t Scene::GetGameObjectsCount() const
@@ -175,7 +184,10 @@ namespace PlatinumEngine
 		}
 
 		// practically, delete
-		idSystem.Remove(component);
+		if (!idSystem.Remove(component))
+			PLATINUM_ERROR("ID System missing component");
+		// removal changes pointers in the id system
+		idSystem.UpdateSavedReferences();
 	}
 
 	size_t Scene::GetComponentsCount() const
@@ -376,13 +388,18 @@ namespace PlatinumEngine
 		{
 			if (!VectorHelpers::RemoveFirst(_components, component))
 				PLATINUM_ERROR("Hierarchy is invalid: _components is missing an element");
-			idSystem.Remove(component);
+
+			if (!idSystem.Remove(component))
+				// Component should be in the id system, if not then component wasn't being tracked and this is very bad
+				PLATINUM_ERROR("ID System missing component");
 		}
 
 		if (!VectorHelpers::RemoveFirst(_gameObjects, gameObject))
 			PLATINUM_ERROR("Hierarchy is invalid: _gameObjects is missing an element");
 
-		idSystem.Remove(gameObject);
+		if (!idSystem.Remove(gameObject))
+			// GameObject should be in the id system, if not then GameObject wasn't being tracked and this is very bad
+			PLATINUM_ERROR("ID System missing GameObject");
 	}
 
 	void Scene::RemoveRootGameObject(SavedReference<GameObject>& rootGameObject)
