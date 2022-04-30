@@ -107,18 +107,11 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			//Accept any regular file (but it will check if it is mesh or not)
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
 			{
-				char* payloadPointer = (char*)payload->Data;
-				int size = payload->DataSize;
-				std::string filePath = "";
-				for(int i=0;i<size;i++)
-					filePath+=*(payloadPointer+i);
-				std::filesystem::path payloadPath = std::filesystem::path(filePath);
-
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
 				if(payloadPath.extension()==".obj")
 				{
 					//Set The mesh that we dragged to the RenderComponent
 					auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
-					std::string f = (std::get<1>(asset_Helper)->fileName);
 					if (std::get<0>(asset_Helper))
 						obj->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
 				}
@@ -179,18 +172,11 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			//Accept any regular file (but it will check if it is texture or not)
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
 			{
-				char* payloadPointer = (char*)payload->Data;
-				int size = payload->DataSize;
-				std::string filePath = "";
-				for(int i=0;i<size;i++)
-					filePath+=*(payloadPointer+i);
-				std::filesystem::path payloadPath = std::filesystem::path(filePath);
-
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
 				if(payloadPath.extension()==".png")
 				{
 					//Set The texture that we dragged to the RenderComponent
 					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
-					std::string f = (std::get<1>(asset_Helper)->fileName);
 					if (std::get<0>(asset_Helper))
 					{
 						obj->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
@@ -227,22 +213,13 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			//Accept any regular file (but it will check if it is texture or not) [Same things as before]
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
 			{
-				char* payloadPointer = (char*)payload->Data;
-				int size = payload->DataSize;
-				std::string filePath = "";
-				for(int i=0;i<size;i++)
-					filePath+=*(payloadPointer+i);
-				std::filesystem::path payloadPath = std::filesystem::path(filePath);
-
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
 				if(payloadPath.extension()==".png")
 				{
 					//Set The texture that we dragged to the RenderComponent
 					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
-					std::string f = (std::get<1>(asset_Helper)->fileName);
 					if (std::get<0>(asset_Helper))
-					{
 						obj->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
-					}
 				}
 			}
 			// End DragDropTarget
@@ -532,4 +509,14 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 		}
 		ImGui::EndChild();
 	}
+}
+
+std::filesystem::path InspectorWindow::GetPayloadPath(const ImGuiPayload* payload)
+{
+	char* payloadPointer = (char*)payload->Data;
+	int size = payload->DataSize;
+	std::string filePath = "";
+	for(int i=0;i<size;i++)
+		filePath+=*(payloadPointer+i);
+	return std::filesystem::path(filePath);
 }

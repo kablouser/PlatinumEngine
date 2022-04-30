@@ -154,12 +154,6 @@ namespace PlatinumEngine
 					}
 				}
 			}
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MeshPathPayload"))
-			{
-				char* payloadPointer = (char*)payload->Data;
-				int size = payload->DataSize;
-				std::cout<<"SIZE: "<<size<<std::endl;
-			}
 
 			// End DragDropTarget
 			ImGui::EndDragDropTarget();
@@ -248,14 +242,14 @@ namespace PlatinumEngine
 					std::filesystem::path payloadPath = std::filesystem::path(filePath);
 					if(payloadPath.extension()==".obj")
 					{
-						std::string name = payloadPath.stem().string();
-						GameObject* go = scene.AddGameObject(name);
+						GameObject* go = scene.AddGameObject(payloadPath.stem().string());
 						scene.AddComponent<TransformComponent>(go);
 						scene.AddComponent<RenderComponent>(go);
 						//Now we set the mesh
 						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
 						if (std::get<0>(asset_Helper))
 							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+						_sceneEditor->SetSelectedGameobject(go);
 					}
 				}
 				// End DragDropTarget

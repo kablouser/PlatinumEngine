@@ -9,6 +9,9 @@
 
 using namespace PlatinumEngine;
 
+ProjectWindow::ProjectWindow(Scene* scene, AssetHelper* assetHelper, SceneEditor* sceneEditor): _scene(scene), _assetHelper(assetHelper), _sceneEditor(sceneEditor)
+{}
+
 void ProjectWindow::ShowGUIWindow(bool* isOpen)
 {
 	if (ImGui::Begin(ICON_FA_FOLDER " Project Window"))
@@ -179,6 +182,3 @@ void ProjectWindow::DragDropMoveRegularFile(std::filesystem::path dir, const ImG
 		std::filesystem::rename(payloadPath.string(), dir.string()+"\\"+payloadPath.filename().string());
 	}
 }
-
-ProjectWindow::ProjectWindow(Scene* scene, AssetHelper* assetHelper, SceneEditor* sceneEditor): _scene(scene), _assetHelper(assetHelper), _sceneEditor(sceneEditor)
-{}

@@ -31,11 +31,12 @@ namespace PlatinumEngine
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);
 
+		std::filesystem::path GetPayloadPath(const ImGuiPayload* payload);
+
 		void cameraComponentHelper(char* cameraType[]);
 	private:
 		AssetHelper* _assetHelper;
 		SceneEditor* _sceneEditor;
-		std::string _meshFileName;
 		bool _isAddComponentWindowOpen = false;
 
 		// Have to keep track of if object enabled ourselves as isEnabled is a private member of game object

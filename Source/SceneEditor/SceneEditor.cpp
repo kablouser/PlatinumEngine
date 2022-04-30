@@ -303,14 +303,14 @@ namespace PlatinumEngine{
 					std::filesystem::path payloadPath = std::filesystem::path(filePath);
 					if(payloadPath.extension()==".obj")
 					{
-						std::string name = payloadPath.stem().string();
-						GameObject* go = _scene->AddGameObject(name);
+						GameObject* go = _scene->AddGameObject(payloadPath.stem().string());
 						_scene->AddComponent<TransformComponent>(go);
 						_scene->AddComponent<RenderComponent>(go);
 						//Now we set the mesh
 						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
 						if (std::get<0>(asset_Helper))
 							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+						_selectedGameobject = go;
 					}
 				}
 				ImGui::EndDragDropTarget();
