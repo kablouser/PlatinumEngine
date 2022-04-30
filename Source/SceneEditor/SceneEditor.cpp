@@ -458,6 +458,25 @@ namespace PlatinumEngine{
 				// enable depth test for the later rendering
 				glDepthMask(true);
 			}
+
+			// ------------- Render Game Objects ------------- //
+			// Start rendering (bind a shader)
+			_renderer->AnimationBegin();
+
+			// Update rendering information to renderer
+			_renderer->SetModelMatrixAnimation();
+
+			// check if the view matrix is passed to shader
+			_renderer->SetViewMatrixAnimation(_camera.viewMatrix4);
+			_renderer->SetProjectionMatrixAnimation(_camera.projectionMatrix4);
+			_renderer->SetLightPropertiesAnimation();
+
+			// Render game objects
+			_scene->Render(*_renderer);
+
+			// End rendering (unbind a shader)
+			_renderer->AnimationEnd();
+
 			// -------------------- Render GRID ------------------ //
 			if(_enableGrid)
 			{
@@ -640,6 +659,7 @@ namespace PlatinumEngine{
 			// Make sure there is mesh
 			if(mesh != nullptr)
 			{
+
 				// loop all the vertices
 				for (int count = 0; count < mesh->indices.size(); count += 3)
 				{
@@ -649,42 +669,41 @@ namespace PlatinumEngine{
 
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
-					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject->GetComponent<Transform>();
-							transformComponent != nullptr)
+					if(mesh->animation.isAnimationOn)
 					{
-						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
-						Maths::Vec4 temporaryMatrix;
+						vertex0 = mesh->animation.animationVertex[mesh->indices[count + 0]].position;
+						vertex1 = mesh->animation.animationVertex[mesh->indices[count + 1]].position;
+						vertex2 = mesh->animation.animationVertex[mesh->indices[count + 2]].position;
 
-						// get the world coordinate of vertex 0
-						temporaryMatrix = modelMatrix *
-										  Maths::Vec4(mesh->vertices[mesh->indices[count + 0]].position.x,
-												  mesh->vertices[mesh->indices[count + 0]].position.y,
-												  mesh->vertices[mesh->indices[count + 0]].position.z, 1.0f);
-						temporaryMatrix = temporaryMatrix / temporaryMatrix.w;
-						vertex0 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
-
-						// get the world coordinate of vertex 1
-						temporaryMatrix = modelMatrix *
-										  Maths::Vec4(mesh->vertices[mesh->indices[count + 1]].position.x,
-												  mesh->vertices[mesh->indices[count + 1]].position.y,
-												  mesh->vertices[mesh->indices[count + 1]].position.z, 1.0f);
-						temporaryMatrix = temporaryMatrix / temporaryMatrix.w;
-						vertex1 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
-
-						// get the world coordinate of vertex 2
-						temporaryMatrix = modelMatrix *
-										  Maths::Vec4(mesh->vertices[mesh->indices[count + 2]].position.x,
-												  mesh->vertices[mesh->indices[count + 2]].position.y,
-												  mesh->vertices[mesh->indices[count + 2]].position.z, 1.0f);
-						temporaryMatrix = temporaryMatrix / temporaryMatrix.w;
-						vertex2 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
 					}
 					else
 					{
 						vertex0 = mesh->vertices[mesh->indices[count + 0]].position;
 						vertex1 = mesh->vertices[mesh->indices[count + 1]].position;
 						vertex2 = mesh->vertices[mesh->indices[count + 2]].position;
+					}
+
+					// check if the game object has transformation components
+					if (auto transformComponent = currentCheckingGameobject->GetComponent<TransformComponent>();
+							transformComponent != nullptr)
+					{
+						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
+						Maths::Vec4 temporaryVertex;
+
+						// get the world coordinate of vertex 0
+						temporaryVertex = modelMatrix * Maths::Vec4(vertex0.x,vertex0.y,vertex0.z, 1.0f);
+						temporaryVertex = temporaryVertex / temporaryVertex.w;
+						vertex0 = PlatinumEngine::Maths::Vec3(temporaryVertex.x, temporaryVertex.y, temporaryVertex.z);
+
+						// get the world coordinate of vertex 1
+						temporaryVertex = modelMatrix * Maths::Vec4(vertex1.x,vertex1.y,vertex1.z, 1.0f);
+						temporaryVertex = temporaryVertex / temporaryVertex.w;
+						vertex1 = PlatinumEngine::Maths::Vec3(temporaryVertex.x, temporaryVertex.y, temporaryVertex.z);
+
+						// get the world coordinate of vertex 2
+						temporaryVertex = modelMatrix * Maths::Vec4(vertex2.x,vertex2.y,vertex2.z, 1.0f);
+						temporaryVertex = temporaryVertex / temporaryVertex.w;
+						vertex2 = PlatinumEngine::Maths::Vec3(temporaryVertex.x, temporaryVertex.y, temporaryVertex.z);
 					}
 
 					//----------------------------------//

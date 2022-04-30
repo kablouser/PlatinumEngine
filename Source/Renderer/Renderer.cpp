@@ -48,6 +48,12 @@ const std::string PARTICLE_VERTEX_SHADER =
 ;
 const std::string PARTICLE_FRAGMENT_SHADER =
 #include <Shaders/Unlit/ParticleShader.frag>
+
+const std::string ANIMATION_VERTEX_SHADER =
+#include <Shaders/Unlit/AnimationShader.vert>
+;
+const std::string ANIMATION_FRAGMENT_SHADER =
+#include <Shaders/Unlit/AnimationShader.frag>
 ;
 
 namespace PlatinumEngine
@@ -116,6 +122,12 @@ namespace PlatinumEngine
 			PLATINUM_ERROR("Cannot generate the particle shader.");
 			return;
 		}
+		if(!_animationShader.Compile(ANIMATION_VERTEX_SHADER, ANIMATION_FRAGMENT_SHADER))
+		{
+			PLATINUM_ERROR("Cannot generate the animation shader.");
+			return;
+		}
+
 
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
@@ -155,6 +167,8 @@ namespace PlatinumEngine
 		_phongShader.Bind();
 	}
 
+
+
 	void Renderer::End()
 	{
 //		glDisable(GL_DEPTH_TEST);
@@ -165,23 +179,28 @@ namespace PlatinumEngine
 		_phongShader.Unbind();
 	}
 
+
+	void Renderer::AnimationEnd()
+	{
+
+		_animationShader.Unbind();
+	}
+
+	void Renderer::AnimationBegin()
+	{
+
+		_animationShader.Bind();
+	}
+
+
 	void Renderer::BeginSkyBoxShader()
 	{
-//		_framebuffer.Bind();
-
-//		glEnable(GL_DEPTH_TEST);
-//		GL_CHECK(glViewport(0, 0, _framebufferWidth, _framebufferHeight));
-//		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-//		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 		_skyBoxShader.Bind();
 	}
 
 	void Renderer::EndSkyBoxShader()
 	{
-//		glDisable(GL_DEPTH_TEST);
-//		_framebuffer.Unbind();
-//		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-//		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
+
 		_skyBoxShader.Unbind();
 	}
 
@@ -274,6 +293,7 @@ namespace PlatinumEngine
 
 	void Renderer::LoadMaterial(const Material& material)
 	{
+
 		if (material.useReflectionShader)
 		{
 			_reflectRefractShader.Bind();
@@ -293,6 +313,8 @@ namespace PlatinumEngine
 
 		_phongShader.Bind();
 		_phongShader.SetUniform("useTexture", material.useTexture);
+
+		// bind diffuse map
 		if (material.diffuseTexture)
 		{
 			_phongShader.SetUniform("diffuseMap", (int)0);
@@ -348,6 +370,34 @@ namespace PlatinumEngine
 		_particleShader.SetUniform("projection", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("projection", mat);
+	}
+
+	// update model matrix in shader
+	void Renderer::SetModelMatrixAnimation(Maths::Mat4 mat)
+	{
+		//mat.SetRotationMatrix(Maths::Vec3(0.5f * (float)glfwGetTime() * 50.0f / 180.0f * 3.14f, 1.0f, 0.0f));
+		_animationShader.SetUniform("model", mat);
+	}
+
+	// update view matrix in shader
+	void Renderer::SetViewMatrixAnimation(Maths::Mat4 mat)
+	{
+		//glm::mat4 view = GetViewMatrix();
+		_animationShader.SetUniform("view", mat);
+	}
+
+	// update perspective matrix in shader
+	void Renderer::SetProjectionMatrixAnimation(Maths::Mat4 mat)
+	{
+		_animationShader.SetUniform("projection", mat);
+	}
+
+	void Renderer::SetFinalTransformAnimation(unsigned int transformMatrixIndex, Maths::Mat4 mat)
+	{
+		if(transformMatrixIndex <300)
+			_animationShader.SetUniform("tracks["+std::to_string(transformMatrixIndex)+"]", mat);
+		else
+			PLATINUM_WARNING("Size of transformation matrices for animation exceeds 300.");
 	}
 
 	// update view matrix in shader
@@ -456,5 +506,24 @@ namespace PlatinumEngine
 		_reflectRefractShader.SetUniform("cameraPos", pos);
 		_particleShader.Bind();
 		_particleShader.SetUniform("cameraPos", pos);
+	}
+
+	void Renderer::SetLightPropertiesAnimation()
+	{
+		pointLight.lightPos = Maths::Vec3(0.9f * (float)std::cos(glfwGetTime()),0.9f * (float)std::sin(glfwGetTime()),0.9f);
+		// set basic properties
+		_animationShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
+
+		_animationShader.SetUniform("pointLight.position", pointLight.lightPos);
+		_animationShader.SetUniform("pointLight.ambient", pointLight.ambientStrength);
+		_animationShader.SetUniform("pointLight.diffuse", pointLight.diffuseStrength);
+		_animationShader.SetUniform("pointLight.specular", pointLight.specularStrength);
+
+		_animationShader.SetUniform("pointLight.constant", pointLight.constant);
+		_animationShader.SetUniform("pointLight.linear", pointLight.linear);
+		_animationShader.SetUniform("pointLight.quadratic", pointLight.quadratic);
+		_animationShader.SetUniform("viewPosition", Maths::Vec3(0.0, 0.0, 10.0));
+
+		_animationShader.SetUniform("isPointLight", true);
 	}
 }

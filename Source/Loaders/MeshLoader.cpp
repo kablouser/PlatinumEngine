@@ -49,13 +49,13 @@ namespace PlatinumEngine
 			}
 		}
 
-		Mesh LoadMesh(const std::string &filePath, const bool JoinVertices, const bool CalcTangents)
+
+		void LoadMesh(const std::string &filePath, Mesh& returnMesh, const bool JoinVertices, const bool CalcTangents)
 		{
 			// First check if the file is okay
 			if (!ExtensionAllowed(GetExtension(filePath)))
 			{
 				PLATINUM_ERROR({"Extension for file \"" + filePath + "\" not allowed"});
-				return {};
 			}
 
 			// Load file
@@ -71,52 +71,58 @@ namespace PlatinumEngine
 			}
 
 			// Crate scene from file
-			ozz::io::File file(filePath.c_str(), "rb");
-			if (!file.opened())
-			{
-				PLATINUM_WARNING("OZZ IO cannot open this file.");
-			}
-			ozz::io::IArchive archive(&file);
-
-			if (!archive.TestTag<ozz::animation::Skeleton>())
-			{
-				PLATINUM_WARNING(std::string("Archive for ") + filePath +std::string(" doesn't contain the expected object type."));
-			}
-
 			const aiScene *scene = import.ReadFile(filePath, flags);
 			if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 			{
 				PLATINUM_ERROR(import.GetErrorString());
-				return {};
 			}
 
-			// Loop all meshes and add data
-			Mesh returnMesh;
+			// Store node bone
+			returnMesh.animation.rawSkeleton.roots.resize(1);
+			AddNodeData(scene->mRootNode,  &returnMesh.animation.rawSkeleton.roots[0]);
+			// Turn data into runtime format
+			returnMesh.animation.BuildSkeletonRuntimeData();
+
 			// Keep track of offset for multiple meshes
 			unsigned int offset = 0;
+			// Loop all meshes and add data
+
+
 			for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 			{
 				unsigned int tempOffset = offset;
-				AddMeshData(returnMesh, scene->mMeshes[i], offset);
-				AddBoneData(returnMesh, scene->mMeshes[i], tempOffset);
+
+				if(scene->mNumAnimations>0)
+				{
+					AddAnimationMeshData(returnMesh, scene->mMeshes[i], offset);
+					AddBoneData(returnMesh, scene->mMeshes[i], scene->mAnimations[0], tempOffset);
+				}
+				else
+				{
+					AddMeshData(returnMesh, scene->mMeshes[i], offset);
+				}
 			}
 
-
-
-			// Get all nodes
-			AddNodeData(returnMesh, scene->mRootNode);
+			if(scene->mNumAnimations > 0)
+			{
+				returnMesh.animation.isAnimationOn = true;
+			}
+			else
+			{
+				returnMesh.animation.isAnimationOn = false;
+			}
 
 			// Loop all animations
 			for(unsigned int i = 0; i < scene->mNumAnimations; ++i)
+			{
 				AddAnimationData(returnMesh, scene->mAnimations[i]);
-
-			return returnMesh;
+				break;
+			}
 		}
 
 		void AddMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset)
 		{
 			// Store offset
-			outMesh.offset.push_back(offset);
 
 			// Keep track of the highest index of this mesh
 			unsigned int highestIndex = 0;
@@ -182,20 +188,72 @@ namespace PlatinumEngine
 			offset += highestIndex + 1;
 		}
 
-		void AddBoneData(Mesh &outMesh, aiMesh* inMesh, unsigned int offset)
+
+		void AddAnimationMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset)
+		{
+			// Store offset
+			//outMesh.offset.push_back(offset);
+
+			// Keep track of the highest index of this mesh
+			unsigned int highestIndex = 0;
+
+			// Loop vertices
+			for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+			{
+				// Create a vertex which stores position, normal and texture coordinates
+				AnimationVertex vertex{};
+				vertex.position.x = mesh->mVertices[i].x;
+				vertex.position.y = mesh->mVertices[i].y;
+				vertex.position.z = mesh->mVertices[i].z;
+				vertex.normal.x = mesh->mNormals[i].x;
+				vertex.normal.y = mesh->mNormals[i].y;
+				vertex.normal.z = mesh->mNormals[i].z;
+				if (mesh->mTextureCoords[0])
+				{
+					vertex.textureCoords.x = mesh->mTextureCoords[0][i].x;
+					vertex.textureCoords.y = mesh->mTextureCoords[0][i].y;
+				}
+				else
+				{
+					vertex.textureCoords.x = 0.0f;
+					vertex.textureCoords.y = 0.0f;
+				}
+
+				outMesh.animation.animationVertex.emplace_back(vertex);
+			}
+
+			// Loop indices of the faces of the mesh
+			for(unsigned int i = 0; i < mesh->mNumFaces; i++)
+			{
+				aiFace face = mesh->mFaces[i];
+				for(unsigned int j = 0; j < face.mNumIndices; j++)
+				{
+					outMesh.indices.push_back(offset + face.mIndices[j]);
+
+					// Check for new highest
+					if (face.mIndices[j] > highestIndex)
+						highestIndex = face.mIndices[j];
+				}
+			}
+
+			// Update offset for next mesh, we add 1 as indices in next mesh will start at 0
+			offset += highestIndex + 1;
+		}
+
+
+		void AddBoneData(Mesh &outMesh, aiMesh* inMesh, aiAnimation* inAnimation, unsigned int offset)
 		{
 			// Bond variables
 			Bone bone;
 			aiBone* inBone;
-			unsigned int boneID = 0, numOfBones = 0;
-			unsigned int offSetForBoneID = outMesh.boneMapping.size();
-			outMesh.verticesBones.resize(outMesh.vertices.size());
-			if(outMesh.verticesBones.empty())
+			unsigned int boneID = outMesh.animation.bones.size();
+
+			if(outMesh.animation.animationVertex.empty())
 			{
-				PLATINUM_WARNING("There is no vertex attached to the bone.");
+				PLATINUM_WARNING("There is no vertex.");
 			}
 
-			for(unsigned int k =0 ;k < inMesh->mNumBones; k++)
+			for(unsigned int k =0 ;k < inMesh->mNumBones; ++k)
 			{
 				inBone = inMesh->mBones[k];
 
@@ -203,90 +261,190 @@ namespace PlatinumEngine
 				bone.boneName = inBone->mName.C_Str();
 
 				// Update bone mapping
-				if (outMesh.boneMapping.find(bone.boneName) == outMesh.boneMapping.end())
+				if (outMesh.animation.boneMapping.find(bone.boneName) == outMesh.animation.boneMapping.end())
 				{
-					// Update bone id
-					boneID = numOfBones;
-					bone.boneID = boneID;
+					// Update bone map
+					outMesh.animation.boneMapping[bone.boneName] = boneID;
+
+					// Update ids
+					boneID++;
+					FindChanelID(bone.boneName, outMesh.animation.skeleton.get(), bone.trackID);
 
 					// Matrix
 					bone.SetTranformMatrixByaiMatrix(inBone->mOffsetMatrix);
-
-					// Update bone map
-					outMesh.boneMapping[bone.boneName] = bone;
+					outMesh.animation.bones.push_back(bone);
 				}
 				else
 				{
-					boneID = outMesh.boneMapping[bone.boneName].boneID - offSetForBoneID;
+					bone.trackID = outMesh.animation.bones[outMesh.animation.boneMapping[bone.boneName]].trackID;
 				}
 
 				// Update VertexBone info
 				for(unsigned int i = 0; i < inBone->mNumWeights; ++i)
 				{
-					if(outMesh.verticesBones.size() > inBone->mWeights->mVertexId + offset)
-						outMesh.verticesBones[inBone->mWeights->mVertexId + offset].AddBone(boneID,inBone->mWeights->mWeight);
+					if(outMesh.animation.animationVertex.size() > inBone->mWeights[i].mVertexId + offset)
+						outMesh.animation.animationVertex[inBone->mWeights[i].mVertexId + offset].AddTrack(bone.trackID,inBone->mWeights[i].mWeight);
 					else
 						PLATINUM_WARNING("Vertex number doesn't match the vertex id in bones info read by Assimp.");
 				}
 			}
 		}
 
-		void AddNodeData( Mesh &outMesh, aiNode *rootNode)
+		void AddNodeData(aiNode* inNode, ozz::animation::offline::RawSkeleton::Joint* currentJoint)
 		{
-			if(rootNode == nullptr)
+			if(inNode == nullptr)
 			{
 				return;
 			}
 
-			// create list to record read nodes
-			std::vector<aiNode*> readNodes = { rootNode };
 
-			// add new bone node into the list
-			outMesh.nodes.emplace_back(BoneNode(readNodes[0]->mName.C_Str()));
-			outMesh.nodes[0].parent = nullptr;
-			outMesh.nodes[0].SetTranformMatrixByaiMatrix(readNodes[0]->mTransformation);
+			currentJoint->name = inNode->mName.C_Str();
 
-			for(unsigned int j = 0; j < readNodes.size(); ++j)
+			// update children info
+			aiVector3t<float> scaling;
+			aiQuaterniont<float> rotation;
+			aiVector3t<float> position;
+
+
+			inNode->mTransformation.Decompose(scaling, rotation, position);
+			currentJoint->transform.scale.x = scaling.x;
+			currentJoint->transform.scale.y = scaling.y;
+			currentJoint->transform.scale.z = scaling.z;
+
+			currentJoint->transform.rotation.x = rotation.x;
+			currentJoint->transform.rotation.y = rotation.y;
+			currentJoint->transform.rotation.z = rotation.z;
+			currentJoint->transform.rotation.w = rotation.w;
+
+			currentJoint->transform.translation.x = position.x;
+			currentJoint->transform.translation.y = position.y;
+			currentJoint->transform.translation.z = position.z;
+
+			// resize space for children
+			currentJoint->children.resize(inNode->mNumChildren);
+
+			// loop all children
+			for (unsigned int i = 0; i < inNode->mNumChildren; ++i)
 			{
-				// add nodes into read list
-				for (unsigned int i = 0; i < readNodes[j]->mNumChildren; ++i)
-				{
-					// add the child into read list
-					readNodes.emplace_back(readNodes[j]->mChildren[i]);
-					// add the child into the bone node list in mesh object
-					outMesh.nodes.emplace_back(BoneNode(readNodes[j]->mChildren[i]->mName.C_Str()));
-					// set parent
-					outMesh.nodes.back().parent = &outMesh.nodes[j];
-					// set transformation matrix
-					outMesh.nodes.back().SetTranformMatrixByaiMatrix(readNodes[j]->mChildren[i]->mTransformation);
-					// set mesh id
-					for(unsigned int k =0; k < readNodes[j]->mChildren[i]->mNumMeshes; ++k)
-						outMesh.nodes.back().meshIDs.emplace_back(readNodes[j]->mChildren[i]->mMeshes[k]);
-				}
-
-				// set children
-				for (unsigned int i = 0; i < readNodes[j]->mNumChildren; i++)
-				{
-					&outMesh.nodes[j].children.emplace_back(&outMesh.nodes[j + i + 1]);
-				}
+				// add the child into read list
+				AddNodeData(inNode->mChildren[i], &currentJoint->children[i]);
 			}
 		}
 
 		void AddAnimationData(Mesh &outMesh, aiAnimation* inAnimation)
 		{
-			Animation animation;
+			// Number of nodes
+			unsigned int numberOfJoints = 0;
+
+			if(outMesh.animation.skeleton == nullptr)
+			{
+				return;
+			}
+
+			numberOfJoints = outMesh.animation.skeleton->num_joints();
 
 			// Basic info
-			animation.animationName = inAnimation->mName.C_Str();
-			animation.duration = inAnimation->mDuration;
-			animation.tickPerSecond = inAnimation->mTicksPerSecond;
+			outMesh.animation.rawAnimation.name = inAnimation->mName.C_Str();
+			outMesh.animation.rawAnimation.duration = (float)inAnimation->mDuration;
+			outMesh.animation.rawAnimation.tracks.resize(numberOfJoints);
 
 			// Channels
-			for(unsigned int i =0; i<inAnimation->mNumChannels; ++i)
-				animation.AddChannelByaiNodeAnim(inAnimation->mChannels[i]);
+			for(unsigned int i=0; i<numberOfJoints; ++i)
+			{
 
-			outMesh.animations.emplace_back(animation);
+				// get ID of channel which contains the same joint name
+				unsigned int channelID;
+				if(!FindChanelID(outMesh.animation.skeleton->joint_names()[i], inAnimation,channelID))
+				{
+					// if it cannot find the channel with the same name
+
+					continue;
+				}
+
+				// translation
+				for(int j=0; j < inAnimation->mChannels[channelID]->mNumPositionKeys; ++j)
+				{
+					ozz::animation::offline::RawAnimation::TranslationKey key = {
+							(float)inAnimation->mChannels[channelID]->mPositionKeys[j].mTime,
+							ozz::math::Float3(
+									inAnimation->mChannels[channelID]->mPositionKeys[j].mValue.x,
+									inAnimation->mChannels[channelID]->mPositionKeys[j].mValue.y,
+									inAnimation->mChannels[channelID]->mPositionKeys[j].mValue.z)};
+
+					outMesh.animation.rawAnimation.tracks[i].translations.push_back(key);
+				}
+
+				// rotation
+				for(int j=0; j < inAnimation->mChannels[channelID]->mNumRotationKeys; ++j)
+				{
+
+					ozz::animation::offline::RawAnimation::RotationKey key = {
+							(float)inAnimation->mChannels[channelID]->mRotationKeys[j].mTime,
+							ozz::math::Quaternion(
+									inAnimation->mChannels[channelID]->mRotationKeys[j].mValue.x,
+									inAnimation->mChannels[channelID]->mRotationKeys[j].mValue.y,
+									inAnimation->mChannels[channelID]->mRotationKeys[j].mValue.z,
+									inAnimation->mChannels[channelID]->mRotationKeys[j].mValue.w)};
+
+					outMesh.animation.rawAnimation.tracks[i].rotations.push_back(key);
+				}
+
+				// scale
+				for(int j=0; j < inAnimation->mChannels[channelID]->mNumScalingKeys; ++j)
+				{
+
+					ozz::animation::offline::RawAnimation::ScaleKey key = {
+							(float)inAnimation->mChannels[channelID]->mScalingKeys[j].mTime,
+							ozz::math::Float3(
+									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.x,
+									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.y,
+									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.z)};
+
+					outMesh.animation.rawAnimation.tracks[i].scales.push_back(key);
+				}
+			}
+
+			// turn data into runtime format
+			outMesh.animation.BuildAnimationRuntimeData();
 		}
+
+		bool FindChanelID(const std::string& inBoneName, aiAnimation* inAnimation, unsigned int& trackID)
+		{
+			// if the number bigger than the biggest index, it has no channel
+			trackID = 0;
+
+			for(unsigned int i =0 ; i < inAnimation->mNumChannels; i++)
+			{
+				if(strcmp(inBoneName.c_str() , inAnimation->mChannels[i]->mNodeName.C_Str())==0)
+				{
+					trackID = i;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		bool FindChanelID(const std::string& inBoneName, ozz::animation::Skeleton* inSkeleton, unsigned int& trackID)
+		{
+			// if the number bigger than the biggest index, it has no channel
+			trackID = 0;
+
+			if(inSkeleton == nullptr)
+				return false;
+
+			for(unsigned int i =0 ; i < inSkeleton->num_joints(); i++)
+			{
+				if(strcmp(inBoneName.c_str() , inSkeleton->joint_names()[i])==0)
+				{
+					trackID = i;
+					return true;
+				}
+			}
+			PLATINUM_WARNING("The bone name `"+ inBoneName +"` in FBX file doesn't match any track name.");
+			return false;
+		}
+
 	}
 }
 

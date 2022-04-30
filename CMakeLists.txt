@@ -95,11 +95,10 @@ FetchContent_MakeAvailable(bullet3)
 #-----------------------------
 # ozz
 set(ozz_build_fbx OFF)
-set(ozz_build_gltf OFF)
 set(ozz_build_samples OFF)
 set(ozz_build_howtos ON)
 set(ozz_build_tests OFF)
-set(ozz_build_tools OFF)
+set(ozz_build_tools ON)
 set(ozz_build_postfix OFF)
 FetchContent_Declare(ozz GIT_REPOSITORY https://github.com/guillaumeblanc/ozz-animation.git GIT_TAG 0.14.0)
 FetchContent_MakeAvailable(ozz)
@@ -244,6 +243,7 @@ set(PROJECT_LIBRARIES
 	"SDL2_mixer;"
 
 	"ozz_animation;"
+	"ozz_animation_offline;"
   )
 
 # different targets

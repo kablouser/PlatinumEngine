@@ -76,6 +76,12 @@ namespace PlatinumEngine
 		// unbind framebuffer
 		void End();
 
+		// initialize framebuffer
+		void AnimationBegin();
+
+		// unbind framebuffer
+		void AnimationEnd();
+
 		// initialize skybox shader
 		void BeginSkyBoxShader();
 
@@ -115,6 +121,19 @@ namespace PlatinumEngine
 		void SetLightProperties();
 
 		void SetCameraPos(const Maths::Vec3 &pos);
+
+		// update model matrix in shader
+		void SetModelMatrixAnimation(Maths::Mat4 mat = Maths::Mat4(1.0));
+
+		// update view matrix in shader
+		void SetViewMatrixAnimation(Maths::Mat4 mat = Maths::Mat4(1.0));
+
+		// update projection matrix in shader
+		void SetProjectionMatrixAnimation(Maths::Mat4 mat = Maths::Mat4(1.0));
+
+		void SetLightPropertiesAnimation();
+
+		void SetFinalTransformAnimation(unsigned int transformMatrixIndex, Maths::Mat4 mat = Maths::Mat4(1.0));
 
 		// a window for renderer to test
 		void ShowGUIWindow(bool* outIsOpen);
@@ -171,6 +190,7 @@ namespace PlatinumEngine
 		ShaderProgram _phongShader;
 		ShaderProgram _reflectRefractShader;
 		ShaderProgram _particleShader;
+		ShaderProgram _animationShader;
 
 		// ShaderInput _meshShaderInput, _lightShaderInput;
 

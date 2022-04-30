@@ -12,7 +12,8 @@
 #include <OpenGL/GLCheck.h>
 #include <assimp/scene.h>
 #include <Animation/BoneNode.h>
-#include <Animation/Animation.h>
+#include <Animation/AnimationManager.h>
+
 
 namespace PlatinumEngine {
 	/**
@@ -28,15 +29,7 @@ namespace PlatinumEngine {
 		std::string fileName;
 
 		// For animation
-		std::vector<Animation> animations;
-		std::vector<BoneNode> nodes;
-		std::vector<VertexBone> verticesBones;
-
-		// Maps
-		std::map<std::string, Bone> boneMapping;
-
-		// Record offset
-		std::vector<unsigned int> offset;
+		Animation animation;
 
 		Mesh();
 		Mesh(std::vector<Vertex> newVertices, std::vector<unsigned int> newIndices);

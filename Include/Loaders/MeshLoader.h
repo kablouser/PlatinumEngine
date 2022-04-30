@@ -17,6 +17,7 @@
 #include <assimp/postprocess.h>
 #include <ozz/base/io/stream.h>
 #include <ozz/animation/runtime/skeleton.h>
+#include <ozz/animation/runtime/animation.h>
 #include <ozz/base/io/archive.h>
 #include <glm/glm.hpp>
 
@@ -50,7 +51,7 @@ namespace PlatinumEngine
 		 * @param JoinVertices : Will join vertices so the mesh contains unique vertices only, default true
 		 * @return : Mesh data structure
 		 */
-		Mesh LoadMesh(const std::string &filePath, bool JoinVertices=true, bool CalcTangents=true);
+		void LoadMesh(const std::string &filePath, Mesh& mesh, bool JoinVertices=true, bool CalcTangents=true);
 
 		/**
 		 * Add new mesh data to an existing mesh
@@ -60,11 +61,17 @@ namespace PlatinumEngine
 		 */
 		void AddMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset);
 
-		void AddBoneData(Mesh &outMesh, aiMesh *mesh, unsigned int offset);
+		void AddAnimationMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset);
 
-		void AddNodeData(Mesh &outMesh, aiNode* rootNode);
+		void AddBoneData(Mesh &outMesh, aiMesh *mesh, aiAnimation* inAnimation, unsigned int offset);
+
+		void AddNodeData(aiNode* inNode, ozz::animation::offline::RawSkeleton::Joint* currentJoint);
 
 		void AddAnimationData(Mesh &outMesh, aiAnimation* inAnimation);
+
+		bool FindChanelID(const std::string& boneName, aiAnimation* animation, unsigned int& trackID);
+
+		bool FindChanelID(const std::string& boneName, ozz::animation::Skeleton* skeleton, unsigned int& trackID);
 	}
 }
 

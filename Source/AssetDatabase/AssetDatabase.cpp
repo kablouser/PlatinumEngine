@@ -316,7 +316,7 @@ namespace PlatinumEngine
 				[&](const std::filesystem::path& filePath) -> void*
 				{
 					Mesh* allocateMesh = new Mesh;
-					*allocateMesh = Loaders::LoadMesh(filePath.string());
+					Loaders::LoadMesh(filePath.string(), *allocateMesh);
 					_loadedMeshAssets.push_back(allocateMesh);
 					allocateMesh->fileName = filePath.filename().string();
 					return allocateMesh;
