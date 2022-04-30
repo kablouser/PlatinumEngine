@@ -17,7 +17,7 @@ namespace PlatinumEngine
 
 		~Texture();
 
-		void Create(GLsizei width, GLsizei height, const void* pixelData = nullptr, int nrComponents = 3);
+		void Create(GLsizei _width, GLsizei _height, const void* pixelData = nullptr, int nrComponents = 3);
 
 		void CreateCubeMap(std::vector<std::string> faces);
 
@@ -30,6 +30,7 @@ namespace PlatinumEngine
 		void UnbindCubeMap() const;
 
 		std::string fileName;
+		float width, height;
 	private:
 
 		GLuint _textureHandle;

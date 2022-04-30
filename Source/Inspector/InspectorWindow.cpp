@@ -446,6 +446,8 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 		return;
 	}
 
+	// TODO: Some of the sliders are wacky and need either resizing or changing to direct input
+
 	if (isHeaderOpen)
 	{
 		auto component = obj->GetComponent<ParticleEffect>();
@@ -477,6 +479,7 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 			ImGui::SliderFloat("##SpawnIntervalParticles", &(component->particleEmitter->spawnInterval),0.016f, 5, "%.3f", ImGuiSliderFlags_None);
 			ImGui::PopItemWidth();
 
+			// TODO: Don't say acting force, Maybe have acceleration and calculate it properly in emitter?
 			ImGui::Text("Acting Force: ");
 			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
 
@@ -626,6 +629,8 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 
 		if (ImGui::CollapsingHeader("Shader Settings"))
 		{
+			// TODO: Scale shading stuff
+
 			auto ColourPickerFlags =
 					ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_AlphaBar;
 
@@ -711,8 +716,8 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 			ImGui::PopItemWidth();
 
 			char textureBuffer[64];
-			if(component->texture != nullptr)
-				strcpy(textureBuffer,  component->texture->fileName.c_str());
+			if(component->particleEmitter->texture != nullptr)
+				strcpy(textureBuffer,  component->particleEmitter->texture->fileName.c_str());
 			else
 				memset(textureBuffer, 0, 64 * sizeof(char));
 			ImGui::Text("%s", "Texture:");
@@ -728,10 +733,20 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 			{
 				auto asset_Helper = _assetHelper->ShowGeneralTextureGuiWindow("Select Particle Effect Texture");
 				if (std::get<0>(asset_Helper))
-					component->texture = std::get<1>(asset_Helper);
+					component->particleEmitter->texture = std::get<1>(asset_Helper);
 			}
 			ImGui::SameLine();
 			ImGui::Checkbox("##UseParticleEffectTexture", &(component->useTexture));
+
+			ImGui::Text("Number of Rows: ");
+			ImGui::SameLine();
+			ImGui::InputInt("##NumberOfRowsInTexture", &(component->particleEmitter->numRowsInTexture));
+			ImGui::Text("Number of Columns: ");
+			ImGui::SameLine();
+			ImGui::InputInt("##NumberOfColsInTexture", &(component->particleEmitter->numColsInTexture));
+
+			// TODO: Index by and max val
+//			ImGui::Text("Index By: ");
 
 //			// Red Bezier
 //			ImVec2 array[4] = {ImVec2(0, component->particleEmitter->startColour[0]),

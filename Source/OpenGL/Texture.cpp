@@ -17,8 +17,10 @@ namespace PlatinumEngine
 		GL_CHECK(glDeleteTextures(1,&_textureHandle));
 	}
 
-	void Texture::Create(GLsizei width, GLsizei height, const void* pixelData, int nrComponents)
+	void Texture::Create(GLsizei _width, GLsizei _height, const void* pixelData, int nrComponents)
 	{
+		width = _width;
+		height = _height;
 		if(_textureHandle == 0)
 			GL_CHECK(glGenTextures(1, &_textureHandle));
 

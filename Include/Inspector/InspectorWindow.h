@@ -33,11 +33,6 @@ namespace PlatinumEngine
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);
 
-		// Helper used by particle effect
-		void ShowVec3WithRandom(Maths::Vec3 &vec, bool &randX, float &minX, float &maxX,
-								bool &randY, float &minY, float &maxY,
-								bool &randZ, float &minZ, float &maxZ);
-
 		void cameraComponentHelper(char* cameraType[]);
 	private:
 		AssetHelper* _assetHelper;
