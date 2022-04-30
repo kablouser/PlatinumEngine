@@ -18,6 +18,8 @@
 #include <SceneManager/Scene.h>
 #include <SceneEditor/SceneEditor.h>
 #include <Logger/Logger.h>
+#include "AssetDatabase/AssetHelper.h"
+
 
 namespace PlatinumEngine
 {
@@ -34,7 +36,7 @@ namespace PlatinumEngine
 		void ShowGUIWindow(bool* isOpen, Scene& scene);
 
 		// ---> CONSTRUCTOR
-		HierarchyWindow(SceneEditor* sceneEditor);
+		HierarchyWindow(SceneEditor* sceneEditor, AssetHelper* assetHelper);
 
 		// ---> PARAMETER
 
@@ -54,5 +56,6 @@ namespace PlatinumEngine
 		// ---> PARAMETER
 		ModeForDraggingBehavior _modeForDraggingBehavior;
 		SceneEditor* _sceneEditor;
+		AssetHelper* _assetHelper;
 	};
 }

@@ -3,7 +3,6 @@
 //
 
 #include <Inspector/InspectorWindow.h>
-#include <ComponentComposition/CameraComponent.h>
 #include <ImGuizmo.h>
 
 using namespace PlatinumEngine;
@@ -108,17 +107,13 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			//Accept any regular file (but it will check if it is mesh or not)
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
 			{
-				char* payloadPointer = (char*)payload->Data;
-				int size = payload->DataSize;
-				std::string filePath = "";
-				for(int i=0;i<size;i++)
-					filePath+=*(payloadPointer+i);
-				std::filesystem::path payloadPath = std::filesystem::path(filePath);
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
 				if(payloadPath.extension()==".obj")
 				{
-					std::cout<<"NAME: "<<payloadPath.filename().string()<<"\n";
-					//Maybe we SetMesh on _activeGameObject
-					//_activeGameObject->GetComponent<RenderComponent>()->SetMesh(mesh);
+					//Set The mesh that we dragged to the RenderComponent
+					auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
+					if (std::get<0>(asset_Helper))
+						obj->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
 				}
 			}
 			// End DragDropTarget
@@ -172,6 +167,26 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		// store the current material name into mesh buffer, so that we can display it in the input text box
 
 		ImGui::InputText("##Material Name", textureBuffer, sizeof(textureBuffer), ImGuiInputTextFlags_ReadOnly);
+		if (ImGui::BeginDragDropTarget())
+		{
+			//Accept any regular file (but it will check if it is texture or not)
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
+			{
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
+				if(payloadPath.extension()==".png")
+				{
+					//Set The texture that we dragged to the RenderComponent
+					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
+					if (std::get<0>(asset_Helper))
+					{
+						obj->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
+						obj->GetComponent<RenderComponent>()->material.useTexture = true;
+					}
+				}
+			}
+			// End DragDropTarget
+			ImGui::EndDragDropTarget();
+		}
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 		if(ImGui::Button("Select##Texture"))
@@ -193,6 +208,23 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::SameLine(_textWidthMeshRenderComponent);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		ImGui::InputText("##Normal Map Name", normalTextureBuffer, sizeof(normalTextureBuffer), ImGuiInputTextFlags_ReadOnly);
+		if (ImGui::BeginDragDropTarget())
+		{
+			//Accept any regular file (but it will check if it is texture or not) [Same things as before]
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
+			{
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
+				if(payloadPath.extension()==".png")
+				{
+					//Set The texture that we dragged to the RenderComponent
+					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
+					if (std::get<0>(asset_Helper))
+						obj->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
+				}
+			}
+			// End DragDropTarget
+			ImGui::EndDragDropTarget();
+		}
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 		if(ImGui::Button("Select##NormalTexture"))
@@ -492,4 +524,14 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 		}
 		ImGui::EndChild();
 	}
+}
+
+std::filesystem::path InspectorWindow::GetPayloadPath(const ImGuiPayload* payload)
+{
+	char* payloadPointer = (char*)payload->Data;
+	int size = payload->DataSize;
+	std::string filePath = "";
+	for(int i=0;i<size;i++)
+		filePath+=*(payloadPointer+i);
+	return std::filesystem::path(filePath);
 }

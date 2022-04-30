@@ -23,7 +23,12 @@ namespace PlatinumEngine
 		 */
 		 std::tuple<bool, Mesh*> ShowMeshGuiWindow();
 
+		 std::tuple<bool, Mesh*> GetMeshAsset(std::string filePath);
+
 		 std::tuple<bool, Texture*> ShowTextureGuiWindow();
+
+		 std::tuple<bool, Texture*> GetTextureAsset(std::string filePath);
+
 		 std::tuple<bool, Texture*> ShowNormalTextureGuiWindow();
 	private:
 		AssetDatabase* _assetDatabase;

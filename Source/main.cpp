@@ -84,11 +84,13 @@ int main(int, char**)
 		PlatinumEngine::InputManager inputManager;
 		PlatinumEngine::Renderer rasterRenderer;
 		PlatinumEngine::Scene scene;
-		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer);
-		PlatinumEngine::HierarchyWindow hierarchyWindow(&sceneEditor);
+		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer, &assetHelper);
+
+		PlatinumEngine::HierarchyWindow hierarchyWindow(&sceneEditor, &assetHelper);
 		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper, &sceneEditor);
+
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
-		PlatinumEngine::ProjectWindow projectWindow;
+		PlatinumEngine::ProjectWindow projectWindow(&scene, &assetHelper, &sceneEditor);
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler, &projectWindow);
 
 		// Main loop
