@@ -20,20 +20,25 @@ namespace PlatinumEngine
 		RigidBody();
 
 		btTransform GetWorldTransform(); // Get the WorldTransform matrix
-		Maths::Vec3 GetBulletRotation(); // Get the Bullet RigidBody Rotation Vector
+		Maths::Quaternion GetBulletRotation(); // Get the Bullet RigidBody Rotation Vector
 		Maths::Vec3 GetBulletPosition(); // Get the Bullet RigidBody Translation Vector
+
+		void SetBulletRotation(Maths::Quaternion rotation);
+		void SetBulletPosition(Maths::Vec3 position);
 
 	public:
 		bool  kinematic; //kinematic
 		float mass; // mass
 
 		PhysicalMaterial material;
-	private:
+	public:
 		// Set the rigidBody when it starts
 		void OnStart(Scene& scene) override;
 
 		// Clean up all bullet pointers
 		void OnEnd(Scene& scene) override;
+
+		void OnUpdate(Scene& scene, double deltaTime) override;
 	private:
 
 		Maths::Vec3 _inertia;
@@ -43,6 +48,5 @@ namespace PlatinumEngine
 		//pointer of bullet objects
 		btRigidBody* _rigidBody;
 		btDefaultMotionState* _motionState;
-
 	};
 }

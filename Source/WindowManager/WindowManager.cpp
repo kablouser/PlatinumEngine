@@ -110,12 +110,15 @@ namespace PlatinumEngine
 			///------------------------------------------------------------------
 			if(ImGui::Button(ICON_FA_RECYCLE "##Reset"))
 			{
-				_scene->End();
+				if(_scene->IsStarted())
+					_scene->End();
 			}
 
 			if (ImGui::Button(ICON_FA_PLAY "##Play"))
 			{
+				if(!_scene->IsStarted())
 					_scene->Start();
+
 					_gameWindow->isPaused = false;
 					enablePauseButton = false;
 			}

@@ -54,11 +54,11 @@ namespace PlatinumEngine
 		float GetGravity();
 
 		//helper function helps to convert vectors, quaternions and scalars from bullet to us or us to bullet
-		static btQuaternion convertEulerToQuaternion(const btVector3& vector);
-		static Maths::Quaternion convertVQuaternionBack(const btQuaternion& quaternion);
-		static btQuaternion convertQuaternion(const Maths::Quaternion& quaternion);
-		static Maths::Vec3 convertVectorBack(const btVector3& vector);
-		static btVector3  convertVector(Maths::Vec3 vector);
+		static btQuaternion ConvertEulerToQuaternion(const btVector3& vector);
+		static Maths::Quaternion ConvertQuaternionBack(const btQuaternion& quaternion);
+		static btQuaternion ConvertQuaternion(const Maths::Quaternion& quaternion);
+		static Maths::Vec3 ConvertVectorBack(const btVector3& vector);
+		static btVector3  ConvertVector(Maths::Vec3 vector);
 
 
 		//Add rigidbody enabled gameobject to the list of updated objects

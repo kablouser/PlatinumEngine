@@ -64,6 +64,7 @@ namespace PlatinumEngine
 		isPaused = false;
 		Update(_time->GetDelta());
 	}
+
 	void PlatinumEngine::GameWindow::Update(double deltaTime)
 	{
 		// check if there is any mouse input
@@ -82,7 +83,6 @@ namespace PlatinumEngine
 		if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
 			_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
 		{}
-
 		_scene->Update(deltaTime);
 		_physics->Update(deltaTime);
 	}

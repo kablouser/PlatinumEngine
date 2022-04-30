@@ -14,7 +14,7 @@ namespace PlatinumEngine
 
 	void BoxCollider::OnStart(Scene& scene)
 	{
-		_boxShape = new btBoxShape(Physics::convertVector(size));
+		_boxShape = new btBoxShape(Physics::ConvertVector(size));
 	}
 
 	void BoxCollider::OnEnd(Scene& scene)

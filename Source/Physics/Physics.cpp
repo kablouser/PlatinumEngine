@@ -52,7 +52,7 @@ namespace PlatinumEngine
 	{
 		_gravity = gravity;
 
-		_bulletWorld->setGravity(convertVector(Maths::Vec3(0, -gravity, 0)));
+		_bulletWorld->setGravity(ConvertVector(Maths::Vec3(0, -gravity, 0)));
 	}
 
 	//Get gravity
@@ -64,33 +64,26 @@ namespace PlatinumEngine
 	//Render the bulletWorld
 	void Physics::Update(double time)
 	{
-		PLATINUM_INFO("Render");
 		_bulletWorld->stepSimulation((btScalar)time, 10);
 
-		//All physics rigidbodys need there updated position to refelect what bullet decides
+		//All physics rigidBody need there updated position to reflect what bullet decides
 		for (auto & _physicsObject : _physicsObjects)
 		{
-			//The actual position is a combination of the rigidbodys position and the transform position
+			//The actual position is a combination of the rigidBody position and the transform position
 			_physicsObject->GetComponent<Transform>()->localPosition = _physicsObject->GetComponent<RigidBody>()->GetBulletPosition();
-			_physicsObject->GetComponent<Transform>()->localRotation = Maths::Quaternion(_physicsObject->GetComponent<RigidBody>()->GetBulletRotation().x,
-																							  _physicsObject->GetComponent<RigidBody>()->GetBulletRotation().y,
-																							  _physicsObject->GetComponent<RigidBody>()->GetBulletRotation().z);
+			_physicsObject->GetComponent<Transform>()->localRotation = _physicsObject->GetComponent<RigidBody>()->GetBulletRotation();
 		}
 	}
 
 	void Physics::AddRigidBody(GameObject* gameObject)
 	{
-
-		if(gameObject->GetComponent<RigidBody>() != nullptr &&
-				(gameObject->GetComponent<BoxCollider>() !=nullptr ||
-				gameObject->GetComponent<CapsuleCollider>() !=nullptr ||
-				gameObject->GetComponent<SphereCollider>() !=nullptr))
+		if(gameObject->GetComponent<RigidBody>() != nullptr)
 		{
 			_physicsObjects.emplace_back(gameObject);
 		}
 		else
 		{
-			PLATINUM_WARNING("Object does not have a collider or rigidBody - ignored.");
+			PLATINUM_WARNING("You need a rigidBody first.");
 		}
 
 	}
@@ -106,25 +99,25 @@ namespace PlatinumEngine
 	}
 
 	//convertor from the bt Math to our Math things
-	btVector3 Physics::convertVector(Maths::Vec3 vector)
+	btVector3 Physics::ConvertVector(Maths::Vec3 vector)
 	{
 		return btVector3(vector.x, vector.y, vector.z);
 	}
-	Maths::Vec3 Physics::convertVectorBack(const btVector3& vector)
+	Maths::Vec3 Physics::ConvertVectorBack(const btVector3& vector)
 	{
 		return {vector.getX(), vector.getY(), vector.getZ()};
 	}
 
-	btQuaternion Physics::convertEulerToQuaternion(const btVector3& vector)
+	btQuaternion Physics::ConvertEulerToQuaternion(const btVector3& vector)
 	{
 		return btQuaternion(vector.getX(), vector.getY(), vector.getZ());
 	}
-	Maths::Quaternion Physics::convertVQuaternionBack(const btQuaternion& quaternion)
+	Maths::Quaternion Physics::ConvertQuaternionBack(const btQuaternion& quaternion)
 	{
 		return {quaternion.getW(), quaternion.getX(), quaternion.getY(), quaternion.getZ()};
 	}
 
-	btQuaternion Physics::convertQuaternion(const Maths::Quaternion& quaternion)
+	btQuaternion Physics::ConvertQuaternion(const Maths::Quaternion& quaternion)
 	{
 		return btQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
 	}
