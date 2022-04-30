@@ -68,6 +68,25 @@ namespace PlatinumEngine
 
 		}
 
+		Vec3 Mat4::MultiplyVec3(Vec3 homogeneousVector, float w)
+		{
+			float vectorArray[] = {homogeneousVector.x, homogeneousVector.y, homogeneousVector.z,w};
+
+			glm::mat4x4 leftMatrix = glm::make_mat4(this->matrix);
+			glm::vec4 rightVector = glm::make_vec4(vectorArray);
+			glm::vec4 result = leftMatrix * rightVector;
+
+			Vec4 resultVec4;
+
+			resultVec4.x = result.x;
+			resultVec4.y = result.y;
+			resultVec4.z = result.z;
+			resultVec4.w = result.w;
+
+			return { resultVec4.x / resultVec4.w, resultVec4.y / resultVec4.w,resultVec4.z / resultVec4.w };
+
+		}
+
 		Mat4 Mat4::operator+(Mat4 otherMatrix)
 		{
 

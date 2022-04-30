@@ -7,6 +7,7 @@
 
 namespace PlatinumEngine
 {
+
 	MeshRender::MeshRender()
 	{
 		SetMesh(nullptr);
@@ -15,27 +16,33 @@ namespace PlatinumEngine
 
 	void MeshRender::OnRender(Scene& scene, Renderer& renderer)
 	{
+
 		Transform* transform = GetComponent<Transform>();
+
 		if (transform)
 			renderer.SetModelMatrix(transform->GetLocalToWorldMatrix());
 		else
 			renderer.SetModelMatrix();
 
+
+		// set animation matrix
 		if(_mesh!= nullptr)
 		{
-			if (_mesh->animation.isAnimationOn)
+			renderer.SetAnimationStatus(isAnimationDisplay);
+
+			if (_mesh->animation.isAnimationExist)
 			{
 				_mesh->animation.UpdateWorldTransformMatrix();
 				_mesh->animation.UpdateAnimationTime();
 
 				for (unsigned int i = 0; i < _mesh->animation.worldTransform.size(); ++i)
 				{
-					renderer.SetFinalTransformAnimation(i, _mesh->animation.worldTransform[i]);
+					renderer.SetAnimationTransform(i, _mesh->animation.worldTransform[i]);
 				}
 			}
-
 		}
-		
+
+		// load texture
 		renderer.LoadTexture(material);
 		_shaderInput.Draw();
 	}
@@ -55,7 +62,7 @@ namespace PlatinumEngine
 		_mesh = mesh;
 		if(mesh != nullptr)
 		{
-			if(_mesh->animation.isAnimationOn)
+			if(_mesh->animation.isAnimationExist)
 			{
 				_shaderInput.Clear();
 				_shaderInput.Set(_mesh->animation.animationVertex, _mesh->indices);

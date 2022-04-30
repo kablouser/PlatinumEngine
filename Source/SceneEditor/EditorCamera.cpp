@@ -86,9 +86,9 @@ namespace PlatinumEngine
 
 		// update translation value
 		if (wheelDelta < 0)
-			_translationValue += GetForwardDirection() * -_translationSpeed * 5.f;//* deltaClock.getElapsedTime().asSeconds();
+			_translationValue += GetForwardDirection() * -_translationSpeed * 10.f;//* deltaClock.getElapsedTime().asSeconds();
 		else if(wheelDelta > 0)
-			_translationValue += GetForwardDirection() * _translationSpeed * 5.f;//* deltaClock.getElapsedTime().asSeconds();
+			_translationValue += GetForwardDirection() * _translationSpeed * 10.f;//* deltaClock.getElapsedTime().asSeconds();
 
 		// update view matrix
 		UpdateViewMatrix();
@@ -112,10 +112,10 @@ namespace PlatinumEngine
 		}
 
 		// move along forward direction
-		_translationValue += forwardDirectionValue * GetForwardDirection() * _translationSpeed * 5.f;
+		_translationValue += forwardDirectionValue * GetForwardDirection() * _translationSpeed * 15.f;
 		// * deltaClock.getElapsedTime().asSeconds();
 
-		_translationValue += rightDirectionValue * GetRightDirection() * _translationSpeed * 5.f;
+		_translationValue += rightDirectionValue * GetRightDirection() * _translationSpeed * 15.f;
 		// * deltaClock.getElapsedTime().asSeconds();
 
 		// update view matrix

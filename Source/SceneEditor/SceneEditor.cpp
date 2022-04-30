@@ -461,21 +461,21 @@ namespace PlatinumEngine{
 
 			// ------------- Render Game Objects ------------- //
 			// Start rendering (bind a shader)
-			_renderer->AnimationBegin();
+			_renderer->Begin();
 
 			// Update rendering information to renderer
-			_renderer->SetModelMatrixAnimation();
+			_renderer->SetModelMatrix();
 
 			// check if the view matrix is passed to shader
-			_renderer->SetViewMatrixAnimation(_camera.viewMatrix4);
-			_renderer->SetProjectionMatrixAnimation(_camera.projectionMatrix4);
-			_renderer->SetLightPropertiesAnimation();
+			_renderer->SetViewMatrix(_camera.viewMatrix4);
+			_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
+			_renderer->SetLightProperties();
 
 			// Render game objects
 			_scene->Render(*_renderer);
 
 			// End rendering (unbind a shader)
-			_renderer->AnimationEnd();
+			_renderer->End();
 
 			// -------------------- Render GRID ------------------ //
 			if(_enableGrid)
@@ -669,7 +669,7 @@ namespace PlatinumEngine{
 
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
-					if(mesh->animation.isAnimationOn)
+					if(mesh->animation.isAnimationExist)
 					{
 						vertex0 = mesh->animation.animationVertex[mesh->indices[count + 0]].position;
 						vertex1 = mesh->animation.animationVertex[mesh->indices[count + 1]].position;
@@ -731,7 +731,7 @@ namespace PlatinumEngine{
 					if (lengthU == 0 || lengthN == 0 || lengthW == 0)
 					{
 						//PLATINUM_ERROR("You are clicking on an object with invalid triangle primitive.");
-						break;
+						continue;
 					}
 
 					// if the length of the three axes are not 0, normalize them
@@ -763,7 +763,7 @@ namespace PlatinumEngine{
 					}
 					else
 					{
-						break;
+						continue;
 					}
 
 					// calculate the cross point by adding vector with the right ratio to the camera position (which is the start point of the Ray)

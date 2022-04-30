@@ -30,6 +30,7 @@ namespace PlatinumEngine
 
 	public:
 		Material material;
+		bool isAnimationDisplay;
 
 	private:
 		Mesh* _mesh;

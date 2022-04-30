@@ -77,47 +77,64 @@ namespace PlatinumEngine
 				PLATINUM_ERROR(import.GetErrorString());
 			}
 
-			// Store node bone
-			returnMesh.animation.rawSkeleton.roots.resize(1);
-			AddNodeData(scene->mRootNode,  &returnMesh.animation.rawSkeleton.roots[0]);
-			// Turn data into runtime format
-			returnMesh.animation.BuildSkeletonRuntimeData();
-
 			// Keep track of offset for multiple meshes
 			unsigned int offset = 0;
-			// Loop all meshes and add data
 
-
-			for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
+			if(scene->mNumAnimations > 0)
 			{
-				unsigned int tempOffset = offset;
+				// if number of animations is bigger than 0, mark animation as "existed"
+				returnMesh.animation.isAnimationExist = true;
 
-				if(scene->mNumAnimations>0)
+				//------------------------------
+				// SKELETON
+				//------------------------------
+
+				// Store the raw skeleton hierarchy
+				returnMesh.animation.rawSkeleton.roots.resize(1);
+				AddNodeData(scene->mRootNode,  &returnMesh.animation.rawSkeleton.roots[0]);
+				// Turn skeleton hierarchy structure into runtime format
+				returnMesh.animation.BuildSkeletonRuntimeData();
+
+				//------------------------------
+				// Bone For Every Vertex
+				//------------------------------
+
+				// update mesh and bone data for every vertex
+				for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 				{
+					unsigned int tempOffset = offset;
+					// load vertices data in current mesh
 					AddAnimationMeshData(returnMesh, scene->mMeshes[i], offset);
+					// load bone data for vertices in current mesh
 					AddBoneData(returnMesh, scene->mMeshes[i], scene->mAnimations[0], tempOffset);
 				}
-				else
+
+				//--------------------------------
+				// ANIMATION (channel data)
+				//--------------------------------
+
+				// Loop all animations
+				for(unsigned int i = 0; i < scene->mNumAnimations; ++i)
+				{
+					// Load animation data (contain the channel data)
+					AddAnimationData(returnMesh, scene->mAnimations[i]);
+					break; // can only read one animation from one fbx file for now
+				}
+
+			}
+			else
+			{
+
+				// if number of animations is bigger than 0, mark animation as "existed"
+				returnMesh.animation.isAnimationExist = false;
+
+				// load all vertices in all meshes
+				for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 				{
 					AddMeshData(returnMesh, scene->mMeshes[i], offset);
 				}
 			}
 
-			if(scene->mNumAnimations > 0)
-			{
-				returnMesh.animation.isAnimationOn = true;
-			}
-			else
-			{
-				returnMesh.animation.isAnimationOn = false;
-			}
-
-			// Loop all animations
-			for(unsigned int i = 0; i < scene->mNumAnimations; ++i)
-			{
-				AddAnimationData(returnMesh, scene->mAnimations[i]);
-				break;
-			}
 		}
 
 		void AddMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset)
@@ -296,7 +313,6 @@ namespace PlatinumEngine
 			{
 				return;
 			}
-
 
 			currentJoint->name = inNode->mName.C_Str();
 

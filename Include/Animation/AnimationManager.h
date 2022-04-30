@@ -34,12 +34,11 @@ namespace PlatinumEngine
 	public:
 		// {  PARAMETER  }
 		// Flag
-		bool isAnimationOn = false;
+		bool isAnimationExist = false;
 
 		float animationTime = 0.f;
 		// Storing connection between vertices and bones/nodes
 		std::vector<AnimationVertex> animationVertex;
-		//std::vector<VertexBone> verticesBones;
 		std::vector<Bone> bones;
 		// Mapping bones' name and id
 		std::map<std::string, unsigned int> boneMapping;
@@ -133,11 +132,6 @@ namespace PlatinumEngine
 			context.Resize(skeleton->num_joints());
 			localTransformOZZ.resize(skeleton->num_joints());
 			worldTransformOZZ.resize(skeleton->num_joints());
-
-			for(auto n: skeleton->joint_names())
-				std::cout<<n<<std::endl;
-
-			std::cout<<"--------------------"<<std::endl;
 		}
 
 		void ConvertMatrix()

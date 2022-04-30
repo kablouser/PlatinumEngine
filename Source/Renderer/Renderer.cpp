@@ -128,7 +128,6 @@ namespace PlatinumEngine
 			return;
 		}
 
-
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
 		if (!_framebuffer.Create(_framebufferWidth, _framebufferHeight))
@@ -178,20 +177,6 @@ namespace PlatinumEngine
 //		_unlitShader.Unbind();
 		_phongShader.Unbind();
 	}
-
-
-	void Renderer::AnimationEnd()
-	{
-
-		_animationShader.Unbind();
-	}
-
-	void Renderer::AnimationBegin()
-	{
-
-		_animationShader.Bind();
-	}
-
 
 	void Renderer::BeginSkyBoxShader()
 	{
@@ -372,7 +357,7 @@ namespace PlatinumEngine
 		_phongShader.SetUniform("projection", mat);
 	}
 
-	// update model matrix in shader
+	/*// update model matrix in shader
 	void Renderer::SetModelMatrixAnimation(Maths::Mat4 mat)
 	{
 		//mat.SetRotationMatrix(Maths::Vec3(0.5f * (float)glfwGetTime() * 50.0f / 180.0f * 3.14f, 1.0f, 0.0f));
@@ -390,14 +375,19 @@ namespace PlatinumEngine
 	void Renderer::SetProjectionMatrixAnimation(Maths::Mat4 mat)
 	{
 		_animationShader.SetUniform("projection", mat);
-	}
+	}*/
 
-	void Renderer::SetFinalTransformAnimation(unsigned int transformMatrixIndex, Maths::Mat4 mat)
+	void Renderer::SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat)
 	{
 		if(transformMatrixIndex <300)
-			_animationShader.SetUniform("tracks["+std::to_string(transformMatrixIndex)+"]", mat);
+			_unlitShader.SetUniform("tracks["+std::to_string(transformMatrixIndex)+"]", mat);
 		else
 			PLATINUM_WARNING("Size of transformation matrices for animation exceeds 300.");
+	}
+
+	void Renderer::SetAnimationStatus(bool isAnimationOn)
+	{
+		_unlitShader.SetUniform("isAnimationDisplay", isAnimationOn);
 	}
 
 	// update view matrix in shader

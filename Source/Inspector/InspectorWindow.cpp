@@ -278,6 +278,25 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		// Setting max to 4 as you start to get unpleasing results past that
 		ImGui::SliderFloat("##refractionIndex",&(obj->GetComponent<MeshRender>()->material.refractionIndex),1.0f, 4.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
+
+		// Animation
+
+		// check if the component has a mesh
+		if(Mesh* componentMesh = _activeGameObject->GetComponent<RenderComponent>()->GetMesh(); componentMesh!= nullptr)
+		{
+			// check if the mesh has an animation
+			if(componentMesh->animation.isAnimationExist)
+			{
+				// store reference of the boolean
+				bool& isAnimationDisplay = _activeGameObject->GetComponent<RenderComponent>()->isAnimationDisplay;
+
+				// create check box for choosing to display animation or not
+				if (ImGui::RadioButton("Display Animation", isAnimationDisplay))
+				{
+					isAnimationDisplay = !isAnimationDisplay;
+				}
+			}
+		}
 	}
 }
 

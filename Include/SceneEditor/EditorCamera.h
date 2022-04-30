@@ -149,7 +149,7 @@ namespace PlatinumEngine
 		Maths::Vec3 _translationValue;
 
 		// device input data
-		float _translationSpeed = 0.05;
+		float _translationSpeed = 0.1;
 		float _rotationSpeed = 0.002;
 
 	};
