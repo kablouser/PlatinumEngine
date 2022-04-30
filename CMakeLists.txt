@@ -197,10 +197,10 @@ set(PROJECT_LIBRARIES
 	"assimp;"
 	"libglew_static;"
 	# Bullet3D libs
-	"LinearMath;"
+	"BulletDynamics;"
 	"Bullet3Common;"
 	"BulletCollision;"
-	"BulletDynamics;"
+	"LinearMath;"
 	#"BulletInverseDynamics;"
 	#"BulletSoftBody;" #shouldnt be necessary
   )
