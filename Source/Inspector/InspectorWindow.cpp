@@ -131,7 +131,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 					//Set The mesh that we dragged to the RenderComponent
 					auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
 					if (std::get<0>(asset_Helper))
-						obj->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+						obj->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
 				}
 			}
 			// End DragDropTarget
@@ -196,8 +196,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
 					if (std::get<0>(asset_Helper))
 					{
-						obj->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
-						obj->GetComponent<RenderComponent>()->material.useTexture = true;
+						obj->GetComponent<MeshRender>()->SetMaterial(std::get<1>(asset_Helper));
+						obj->GetComponent<MeshRender>()->material.useTexture = true;
 					}
 				}
 			}
@@ -236,7 +236,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 					//Set The texture that we dragged to the RenderComponent
 					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
 					if (std::get<0>(asset_Helper))
-						obj->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
+						obj->GetComponent<MeshRender>()->SetNormalMap(std::get<1>(asset_Helper));
 				}
 			}
 			// End DragDropTarget
@@ -255,21 +255,21 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		}
 		ImGui::SameLine();
 
-		ImGui::Checkbox("##UseNormalTexture", &(obj->GetComponent<RenderComponent>()->material.useNormalTexture));
+		ImGui::Checkbox("##UseNormalTexture", &(obj->GetComponent<MeshRender>()->material.useNormalTexture));
 
 		ImGui::Text("Special Properties");
 		ImGui::Separator();
 		ImGui::Text("Reflection");
-		ImGui::SameLine(_textWidthMeshRenderComponent);
-		ImGui::Checkbox("##UseRelfectionShader", &(obj->GetComponent<RenderComponent>()->material.useReflectionShader));
+		ImGui::SameLine(_textWidth);
+		ImGui::Checkbox("##UseRelfectionShader", &(obj->GetComponent<MeshRender>()->material.useReflectionShader));
 		ImGui::Text("Refraction");
-		ImGui::SameLine(_textWidthMeshRenderComponent);
-		ImGui::Checkbox("##UseRefracctionShader", &(obj->GetComponent<RenderComponent>()->material.useRefractionShader));
+		ImGui::SameLine(_textWidth);
+		ImGui::Checkbox("##UseRefracctionShader", &(obj->GetComponent<MeshRender>()->material.useRefractionShader));
 		ImGui::Text("Refraction Index");
 		ImGui::SameLine();
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		// Setting max to 4 as you start to get unpleasing results past that
-		ImGui::SliderFloat("##refractionIndex",&(obj->GetComponent<RenderComponent>()->material.refractionIndex),1.0f, 4.f, "%.3f", ImGuiSliderFlags_None);
+		ImGui::SliderFloat("##refractionIndex",&(obj->GetComponent<MeshRender>()->material.refractionIndex),1.0f, 4.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 	}
 }

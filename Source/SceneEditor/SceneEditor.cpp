@@ -17,7 +17,7 @@ namespace PlatinumEngine{
 	// ___CONSTRUCTOR___
 
 
-	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer, Time* time, Physics* physics):
+	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer,AssetHelper* assetHelper, Time* time, Physics* physics):
 			_ifCameraSettingWindowOpen(false),
 			_camera(), _fov(60), _near(0.1), _far(10000),
 
@@ -51,9 +51,9 @@ namespace PlatinumEngine{
 			_skyBoxShaderInput(),
 			_transparency(1.0),
 
-			_enableGrid(false),
+			_enableGrid(true),
 			_enableSkyBox(true),
-			_xGrid(false), _yGrid(true), _zGrid(false)
+			_xGrid(false), _yGrid(true), _zGrid(false),
 
 			_assetHelper(assetHelper)
 	{
@@ -308,12 +308,12 @@ namespace PlatinumEngine{
 					if(payloadPath.extension()==".obj")
 					{
 						GameObject* go = _scene->AddGameObject(payloadPath.stem().string());
-						_scene->AddComponent<TransformComponent>(go);
-						_scene->AddComponent<RenderComponent>(go);
+						_scene->AddComponent<Transform>(go);
+						_scene->AddComponent<MeshRender>(go);
 						//Now we set the mesh
 						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
 						if (std::get<0>(asset_Helper))
-							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+							go->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
 						_selectedGameobject = go;
 					}
 				}

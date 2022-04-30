@@ -247,12 +247,12 @@ namespace PlatinumEngine
 					if(payloadPath.extension()==".obj")
 					{
 						GameObject* go = scene.AddGameObject(payloadPath.stem().string());
-						scene.AddComponent<TransformComponent>(go);
-						scene.AddComponent<RenderComponent>(go);
+						scene.AddComponent<Transform>(go);
+						scene.AddComponent<MeshRender>(go);
 						//Now we set the mesh
 						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
 						if (std::get<0>(asset_Helper))
-							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+							go->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
 						_sceneEditor->SetSelectedGameobject(go);
 					}
 				}

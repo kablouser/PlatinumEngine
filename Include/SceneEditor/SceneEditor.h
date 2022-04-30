@@ -37,7 +37,7 @@ namespace PlatinumEngine
 	{
 	public:
 		// ___CONSTRUCTOR___
-		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer, Time* time, Physics* physics);
+		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer,AssetHelper* assetHelper, Time* time, Physics* physics);
 
 
 		// ___FUNCTION___
