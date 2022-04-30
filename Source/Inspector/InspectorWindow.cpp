@@ -668,8 +668,15 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			}
 			else if (strcmp(selectedComponent, "RigidBody Component") == 0)
 			{
-				scene.AddComponent<RigidBody>(obj);
-				_physics->AddRigidBody(obj);
+				if(obj && (obj->GetComponent<BoxCollider>() ||
+				        				 obj->GetComponent<SphereCollider>() ||
+				               			 obj->GetComponent<CapsuleCollider>()))
+				{
+					scene.AddComponent<RigidBody>(obj);
+					_physics->AddRigidBody(obj);
+				}
+				else
+					PLATINUM_WARNING("Please Add Collider First");
 			}
 			else if (strcmp(selectedComponent, "BoxCollider Component") == 0)
 			{
