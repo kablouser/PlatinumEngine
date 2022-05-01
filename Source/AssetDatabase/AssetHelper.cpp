@@ -48,6 +48,45 @@ namespace PlatinumEngine
 		return {isAssetSelected, mesh};
 	}
 
+
+	std::tuple<bool, std::string> AssetHelper::ShowAudioGuiWindow()
+  {
+    bool isAssetSelected = false;
+		static ImGuiTextFilter filter;
+		Asset asset;
+    
+    std::string audioSample;
+		if(ImGui::BeginPopupModal("Select Sample", nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			//filter.Draw(ICON_FA_MAGNIFYING_GLASS);
+			ImGui::Separator();
+			if(ImGui::Selectable("None"))
+			{
+				audioSample = "";
+				isAssetSelected= true;
+			}
+			for(auto audioAssetID : _assetDatabase->GetAudioAssetIDs())
+			{
+				if(_assetDatabase->TryGetAsset(audioAssetID.id, asset))
+        {
+					if (filter.PassFilter(asset.path.string().c_str()))
+					{
+						if (ImGui::Selectable(asset.path.string().c_str()))
+						{
+              audioSample = (*_assetDatabase)[audioAssetID];
+              isAssetSelected = true;
+						}
+					}
+				}
+				else
+				{
+					PLATINUM_ERROR("NO SUCH ASSET FOUND IN ASSET DATABASE!");
+				}
+			}
+			ImGui::EndPopup();
+		}
+    return {isAssetSelected, audioSample};
+  }
 	//TODO: Maybe a more efficient procedure to utilise TryGetAsset using filePath
 	std::tuple<bool, Mesh*> AssetHelper::GetMeshAsset(std::string filePath)
 	{
@@ -139,6 +178,45 @@ namespace PlatinumEngine
 		Texture* texture;
 
 		if(ImGui::BeginPopupModal("Select Normal Texture", nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			filter.Draw(ICON_FA_MAGNIFYING_GLASS);
+			ImGui::Separator();
+			if(ImGui::Selectable("None"))
+			{
+				texture = nullptr;
+				isAssetSelected= true;
+			}
+			for(auto textureAssetID : _assetDatabase->GetTextureAssetIDs())
+			{
+				if(_assetDatabase->TryGetAsset(textureAssetID.id, asset))
+				{
+					if (filter.PassFilter(asset.path.string().c_str()))
+					{
+						if (ImGui::Selectable(asset.path.string().c_str()))
+						{
+							texture= (*_assetDatabase)[textureAssetID];
+							isAssetSelected = true;
+						}
+					}
+				}
+				else
+				{
+					PLATINUM_ERROR("NO SUCH ASSET FOUND IN ASSET DATABASE!");
+				}
+			}
+			ImGui::EndPopup();
+		}
+		return {isAssetSelected, texture};
+	}
+
+	std::tuple<bool, Texture*> AssetHelper::ShowGeneralTextureGuiWindow(const char *popUpName)
+	{
+		bool isAssetSelected = false;
+		static ImGuiTextFilter filter;
+		Asset asset;
+		Texture* texture;
+
+		if(ImGui::BeginPopupModal(popUpName, nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			filter.Draw(ICON_FA_MAGNIFYING_GLASS);
 			ImGui::Separator();

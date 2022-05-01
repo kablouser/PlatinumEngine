@@ -7,6 +7,7 @@
 #include "WindowManager/Filedialog.h"
 
 #include <ComponentComposition/Component.h>
+
 #include <ComponentComposition/MeshRender.h>
 #include <ComponentComposition/Transform.h>
 #include <ComponentComposition/Camera.h>
@@ -15,6 +16,11 @@
 #include <ComponentComposition/BoxCollider.h>
 #include <ComponentComposition/CapsuleCollider.h>
 #include <ComponentComposition/SphereCollider.h>
+#include <ComponentComposition/AudioComponent.h>
+#include <ComponentComposition/ParticleEffect.h>
+
+#include <ParticleEffects/ParticleEmitter.h>
+
 
 #include <SceneManager/SceneManager.h>
 #include <OpenGL/Mesh.h>
@@ -37,6 +43,8 @@ namespace PlatinumEngine
 		void ShowBoxColliderComponent(Scene& scene);
 		void ShowSphereColliderComponent(Scene& scene);
 		void ShowCapsuleColliderComponent(Scene& scene);
+		void ShowParticleEffectComponent(Scene &scene);
+		void ShowAudioComponent(Scene& scene);
 
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);
@@ -57,6 +65,13 @@ namespace PlatinumEngine
 		//ImGui helper parameters
 		float _textWidth = 140.f;
 		float _itemWidthMeshRenderComponent = 160.f;
+
+		float _textWidthTransformComponent = 90.f;
+		float _textWidthCameraComponent = 135.0f;
+		float _textWidthParticleEffectComponent = 135.0f;
+		float _textWidthParticleEffectComponentSmall = 100.0f;
+		float _itemWidthParticleEffectComponent = 180.0f;
+
 		std::vector<std::string> _temp = {"Perspective", "Orthographic"};
 		std::vector<std::string> _clearMode = {"None", "SkyBox", "BackgroundColour"};
 	};

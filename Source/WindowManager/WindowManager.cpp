@@ -49,7 +49,6 @@ namespace PlatinumEngine
 		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector, scene);
 		if (_showWindowProject) 		ShowWindowProject(&_showWindowProject);
 		if (_showWindowAnimation) 		ShowWindowAnimation(&_showWindowAnimation);
-		if (_showWindowAudio) 			ShowWindowAudio(&_showWindowAudio);
 		if (_showWindowLight) 			ShowWindowLight(&_showWindowLight);
 		if (_showWindowLogger)   		ShowWindowLogger(&_showWindowLogger);
 		if(_showWindowProfiler) 		ShowWindowProfiler(&_showWindowProfiler);
@@ -187,11 +186,30 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	void WindowManager::ShowMenuGameObject(Scene &scene)
 	{
-		if (ImGui::MenuItem(ICON_FA_CIRCLE_NODES " Create Empty"))
+		if (ImGui::MenuItem("Create Empty"))
 		{
 			scene.AddGameObject();
 		}
-
+		if (ImGui::BeginMenu("Create Game Object"))
+		{
+			if (ImGui::MenuItem(ICON_FA_CAMERA " Camera"))
+			{
+				auto obj = scene.AddGameObject("Camera");
+				scene.AddComponent<CameraComponent>(obj);
+				scene.AddComponent<TransformComponent>(obj);
+				_sceneEditor->SetSelectedGameobject(obj);
+			}
+			if (ImGui::MenuItem("Light"))
+			{}
+			if (ImGui::MenuItem(ICON_FA_FIRE " Particle Effect"))
+			{
+				auto obj = scene.AddGameObject("Particle Effect");
+				scene.AddComponent<ParticleEffect>(obj);
+				scene.AddComponent<TransformComponent>(obj);
+				_sceneEditor->SetSelectedGameobject(obj);
+			}
+			ImGui::EndMenu();
+		}
 		if (ImGui::BeginMenu("3D Object"))
 		{
 			if (ImGui::MenuItem("Cube"))
@@ -204,16 +222,6 @@ namespace PlatinumEngine
 			{}
 			ImGui::EndMenu();
 		}
-		if (ImGui::BeginMenu("Effect"))
-		{
-			if (ImGui::MenuItem("Particle System"))
-			{}
-			ImGui::EndMenu();
-		}
-		if (ImGui::MenuItem("Camera"))
-		{}
-		if (ImGui::MenuItem("Light"))
-		{}
 	}
 
 	///--------------------------------------------------------------------------
@@ -251,8 +259,6 @@ namespace PlatinumEngine
 		ImGui::Separator();
 
 		if (ImGui::MenuItem("Animation", "", &_showWindowAnimation))
-		{}
-		if (ImGui::MenuItem("Audio", "", &_showWindowAudio))
 		{}
 		if (ImGui::MenuItem(ICON_FA_GAMEPAD " Game", "", &_showWindowGame))
 		{
@@ -326,12 +332,6 @@ namespace PlatinumEngine
 	{
 		//TODO:
 		_inspector->ShowGUIWindow(outIsOpen, scene);
-	}
-
-	//Please implement Audio Window below
-	void WindowManager::ShowWindowAudio(bool* outIsOpen)
-	{
-		//TODO:
 	}
 
 	//Please implement Hierarchy Window below
