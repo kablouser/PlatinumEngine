@@ -21,4 +21,10 @@ namespace PlatinumEngine
 	{
 		return _animations;
 	}
+
+	void AnimationComponent::RemoveAnimation(unsigned int index)
+	{
+		if(index < _animations.size())
+			_animations.erase(_animations.begin() + index);
+	}
 }

@@ -96,10 +96,8 @@ namespace PlatinumEngine
 	{
 	public:
 		// {  PARAMETER  }
-		std::string animationName;
 
 		// Flag
-		bool isAnimationExist = false;
 		float animationTime = 0.f;
 
 		// OZZ data

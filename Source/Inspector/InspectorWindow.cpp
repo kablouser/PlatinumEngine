@@ -1046,7 +1046,7 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 	}
 	if (isHeaderOpen)
 	{
-		// Animation
+
 		// store pointer of renderComponent
 		AnimationComponent* animationComponent = _activeGameObject->GetComponent<AnimationComponent>();
 
@@ -1055,17 +1055,6 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 			animationComponent->isAnimationDisplay = !animationComponent->isAnimationDisplay;
 		}
 
-		std::vector<Animation*> animations = animationComponent->GetAnimation();
-		for(unsigned int i=0; i < animations.size(); ++i)
-		{
-			// create check box for choosing to display animation or not
-			if (ImGui::RadioButton(
-					std::to_string(i).append(". " + animations[i]->rawAnimation.name).c_str(),
-					animationComponent->selectedAnimationIndex == i))
-			{
-				animationComponent->selectedAnimationIndex = i;
-			}
-		}
 
 		if(ImGui::Button("Select Animation From Mesh"))
 		{
@@ -1081,6 +1070,30 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 				}
 			}
 		}
+
+		std::vector<Animation*> animations = animationComponent->GetAnimation();
+
+		for(unsigned int i=0; i < animations.size(); ++i)
+		{
+			// create check box
+			if (ImGui::RadioButton(
+					std::to_string(i).append(". " + animations[i]->rawAnimation.name).c_str(),
+					animationComponent->selectedAnimationIndex == i))
+			{
+				// set the animation presented by this check box to be the current selected animation
+				animationComponent->selectedAnimationIndex = i;
+			}
+			ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+
+			// create remove button
+			if (ImGui::Button(("X##RemoveAnimation" + std::to_string(i)).c_str()))
+			{
+				// remove animation
+				animationComponent->RemoveAnimation(i);
+			}
+
+		}
+
 	}
 }
 
