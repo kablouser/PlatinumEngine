@@ -3,6 +3,8 @@
 //
 
 #include <WindowManager/WindowManager.h>
+#include <Physics/Physics.h>
+
 #include <imgui.h>
 #include <iostream>
 #include <ImGuiFileDialog.h>
@@ -15,7 +17,8 @@ namespace PlatinumEngine
 								Logger *logger,
 								InspectorWindow *inspector,
 								Profiler *profiler,
-								ProjectWindow *projectWindow
+								ProjectWindow *projectWindow,
+								Scene *scene
 								):
 								_gameWindow(gameWindow),
 								_sceneEditor(sceneEditor),
@@ -23,12 +26,14 @@ namespace PlatinumEngine
 								_logger(logger),
 								_inspector(inspector),
 								_profiler(profiler),
-								_projectWindow(projectWindow)
+								_projectWindow(projectWindow),
+								_scene(scene)
 	{
 	}
 
 	/// this is a bool parameter used for disable or enable the pause and step button
 	static bool enablePauseButton = true;
+	static bool enableStepButton = false;
 	///--------------------------------------------------------------------------
 	/// this function will create a basic window when you open the Platinum Engine
 	///--------------------------------------------------------------------------
@@ -98,36 +103,37 @@ namespace PlatinumEngine
 
 			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 130.f);
 
+
 			///------------------------------------------------------------------
 			/// This section is for main menu bar to control the game view play/pause/step
 			///------------------------------------------------------------------
+			if(ImGui::Button(ICON_FA_RECYCLE "##Reset"))
+			{
+				if(_scene->IsStarted())
+					_scene->End();
+			}
+
 			if (ImGui::Button(ICON_FA_PLAY "##Play"))
 			{
-				_gameWindow->_onUpdate = !_gameWindow->_onUpdate;
-				if(_gameWindow->_onUpdate)
-				{
-					enablePauseButton = !enablePauseButton;
-				}
-				else if(!_gameWindow->_onUpdate)
-				{
-					enablePauseButton = true;
-				}
+				if(!_scene->IsStarted())
+					_scene->Start();
+
+					_gameWindow->isPaused = false;
+					enablePauseButton = false;
 			}
 
   			// activate or inactive pause and step button
 			ImGui::BeginDisabled(enablePauseButton);
 			if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
 			{
-				_pause = !_pause;
-				_gameWindow->Pause(_pause);
+				_gameWindow->Pause();
 			}
 
 			if (ImGui::Button(ICON_FA_FORWARD_STEP "##Step"))
 			{
-				if(!_pause)
-					_pause = true;
 				_gameWindow->Step();
 			}
+
 			ImGui::EndDisabled();
 
 			ImGui::EndMainMenuBar();

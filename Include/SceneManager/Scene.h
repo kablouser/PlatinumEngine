@@ -9,6 +9,7 @@
 #include <algorithm>
 
 #include <ComponentComposition/GameObject.h>
+#include <Physics/Physics.h>
 
 namespace PlatinumEngine
 {
@@ -26,8 +27,7 @@ namespace PlatinumEngine
 		//--------------------------------------------------------------------------------------------------------------
 		// Constructors/destructors
 		//--------------------------------------------------------------------------------------------------------------
-
-		Scene();
+		Scene(Physics& physics);
 
 		~Scene();
 
@@ -40,6 +40,11 @@ namespace PlatinumEngine
 		Scene(Scene&&) noexcept = delete;
 
 		Scene& operator=(Scene&&) noexcept = delete;
+
+		//--------------------------------------------------------------------------------------------------------------
+		// physics
+		//--------------------------------------------------------------------------------------------------------------
+		Physics& physics;
 
 		//--------------------------------------------------------------------------------------------------------------
 		// _gameObjects controls
@@ -115,7 +120,7 @@ namespace PlatinumEngine
 		/**
 		 * Please call when you want to update all components in the scene.
 		 * Respects hierarchy order and objects that are "enabled in hierarchy".
-		 * @param deltaTime time since last Update call
+		 * @param deltaTime time since last Render call
 		 */
 		void Update(double deltaTime);
 

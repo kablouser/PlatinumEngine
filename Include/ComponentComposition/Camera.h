@@ -5,11 +5,11 @@
 #include "ComponentComposition/Component.h"
 #include "ComponentComposition/Color.h"
 #include "ComponentComposition/GameObject.h"
-#include "ComponentComposition/TransformComponent.h"
+#include "ComponentComposition/Transform.h"
 
 namespace PlatinumEngine
 {
-	class CameraComponent: public Component
+	class Camera: public Component
 	{
 	public:
 
@@ -24,7 +24,7 @@ namespace PlatinumEngine
 		float farClippingPlane;
 		float orthographicSize;
 
-		CameraComponent();
+		Camera();
 
 		Maths::Vec3 ViewportToWorldPoint(
 				const Maths::Vec3& viewportCoordinate,
@@ -40,7 +40,10 @@ namespace PlatinumEngine
 		Maths::Mat4 GetViewMatrix();
 		//Also known as View Matrix
 		Maths::Mat4 GetWorldToCameraMatrix();
+		Maths::Mat4 GetViewMatrixRotationOnly();
 		//Also known as Inverse View Matrix
 		Maths::Mat4 GetCameraToWorldMatrix();
+		//Get the rotation matrix from biew matrix
+
 	};
 }

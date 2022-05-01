@@ -8,21 +8,25 @@
 // Platinum library
 #include "ComponentComposition/Objects.h"
 #include <SceneEditor/SceneEditor.h>
-#include <ComponentComposition/TransformComponent.h>
-#include <ComponentComposition/RenderComponent.h>
+#include <ComponentComposition/Transform.h>
+#include <ComponentComposition/MeshRender.h>
 
 
 namespace PlatinumEngine{
 
 	// ___CONSTRUCTOR___
 
-	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer, AssetHelper* assetHelper):
+
+	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer,AssetHelper* assetHelper, Time* time, Physics* physics):
 			_ifCameraSettingWindowOpen(false),
 			_camera(), _fov(60), _near(0.1), _far(10000),
 
 			_inputManager(inputManager),
 			_scene(scene),
 			_renderer(renderer),
+			_time(time),
+			_physics(physics),
+
 			_renderTexture(),
 
 			_selectedGameobject(nullptr),
@@ -47,8 +51,8 @@ namespace PlatinumEngine{
 			_skyBoxShaderInput(),
 			_transparency(1.0),
 
-			_enableGrid(false),
-			_enableSkyBox(false),
+			_enableGrid(true),
+			_enableSkyBox(true),
 			_xGrid(false), _yGrid(true), _zGrid(false),
 
 			_assetHelper(assetHelper)
@@ -286,9 +290,9 @@ namespace PlatinumEngine{
 			if(ImGui::BeginChild("##renderingWindow",ImVec2(targetSize.x, targetSize.y), false,ImGuiWindowFlags_NoMove))
 			{
 				//------------------
-				// Update Data
+				// Render Data
 				//------------------
-				Update(targetSize, isProjectionUpdated, _currentGizmoMode, _currentGizmoOperation);
+				Render(targetSize, isProjectionUpdated, _currentGizmoMode, _currentGizmoOperation);
 			}
 			ImGui::EndChild();
 			if(ImGui::BeginDragDropTarget())
@@ -304,12 +308,12 @@ namespace PlatinumEngine{
 					if(payloadPath.extension()==".obj")
 					{
 						GameObject* go = _scene->AddGameObject(payloadPath.stem().string());
-						_scene->AddComponent<TransformComponent>(go);
-						_scene->AddComponent<RenderComponent>(go);
+						_scene->AddComponent<Transform>(go);
+						_scene->AddComponent<MeshRender>(go);
 						//Now we set the mesh
 						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
 						if (std::get<0>(asset_Helper))
-							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+							go->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
 						_selectedGameobject = go;
 					}
 				}
@@ -324,7 +328,7 @@ namespace PlatinumEngine{
 
 
 
-	void SceneEditor::Update(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
+	void SceneEditor::Render(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
 	{
 
 		//--------------------------------
@@ -375,7 +379,7 @@ namespace PlatinumEngine{
 
 
 		//---------------------------
-		// Update projection matrix
+		// Render projection matrix
 		//---------------------------
 
 		// check camera type
@@ -454,7 +458,6 @@ namespace PlatinumEngine{
 				// enable depth test for the later rendering
 				glDepthMask(true);
 			}
-
 			// -------------------- Render GRID ------------------ //
 			if(_enableGrid)
 			{
@@ -629,7 +632,7 @@ namespace PlatinumEngine{
 		//------------------//
 
 		// check if the game object has mesh component
-		if( auto renderComponent = currentCheckingGameobject->GetComponent<RenderComponent>(); renderComponent!= nullptr)
+		if( auto renderComponent = currentCheckingGameobject->GetComponent<MeshRender>(); renderComponent != nullptr)
 		{
 			// fetch mesh
 			Mesh* mesh = renderComponent->GetMesh();
@@ -647,7 +650,7 @@ namespace PlatinumEngine{
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
 					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject->GetComponent<TransformComponent>();
+					if (auto transformComponent = currentCheckingGameobject->GetComponent<Transform>();
 							transformComponent != nullptr)
 					{
 						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
@@ -904,7 +907,7 @@ namespace PlatinumEngine{
 		//------------------//
 
 		// check if the game object has mesh component
-		if( auto renderComponent = currentCheckingGameobject->GetComponent<RenderComponent>(); renderComponent!= nullptr)
+		if( auto renderComponent = currentCheckingGameobject->GetComponent<MeshRender>(); renderComponent != nullptr)
 		{
 			// fetch mesh
 			Mesh* mesh = renderComponent->GetMesh();
@@ -923,7 +926,7 @@ namespace PlatinumEngine{
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
 					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject->GetComponent<TransformComponent>();
+					if (auto transformComponent = currentCheckingGameobject->GetComponent<Transform>();
 							transformComponent != nullptr)
 					{
 						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
@@ -1044,9 +1047,9 @@ namespace PlatinumEngine{
 
 		if(onGizmo)
 		{
-			if (_selectedGameobject != nullptr && _selectedGameobject->GetComponent<TransformComponent>() != nullptr)
+			if (_selectedGameobject != nullptr && _selectedGameobject->GetComponent<Transform>() != nullptr)
 			{
-				auto transform = _selectedGameobject->GetComponent<TransformComponent>();
+				auto transform = _selectedGameobject->GetComponent<Transform>();
 				Maths::Mat4 transform_matrix = transform->GetLocalToWorldMatrix();
 
 				ImGuizmo::Manipulate(
@@ -1063,6 +1066,10 @@ namespace PlatinumEngine{
 
 	}
 
+
+	///--------------------------------------------
+	/// SkyBox
+	///--------------------------------------------
 	void SceneEditor::CreateSkyBoxShaderInput()
 	{
 
