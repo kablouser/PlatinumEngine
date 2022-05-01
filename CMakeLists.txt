@@ -118,6 +118,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
 	"${CMAKE_BINARY_DIR}/_deps/imguizmo-src/ImGuizmo.cpp;"
 	
+	"Source/Animation/Animation.cpp;"
+	
 	"Source/AssetDatabase/AssetDatabase.cpp;"
 	"Source/AssetDatabase/AssetHelper.cpp;"
 	

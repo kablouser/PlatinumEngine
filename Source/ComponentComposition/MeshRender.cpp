@@ -40,7 +40,7 @@ namespace PlatinumEngine
 			if (!animationList.empty())
 			{
 				animationList[animation->selectedAnimationIndex]->UpdateWorldTransformMatrix(_mesh->skeleton, _mesh->bones);
-				animationList[animation->selectedAnimationIndex]->UpdateAnimationTime();
+				animationList[animation->selectedAnimationIndex]->PlayAnimationTimer();
 
 				// pass transform matrices to
 				for (unsigned int i = 0; i < animationList[animation->selectedAnimationIndex]->worldTransform.size(); ++i)

@@ -18,6 +18,6 @@ Mesh::Mesh(std::vector<Vertex> newVertices, std::vector<unsigned int> newIndices
 }
 Mesh::~Mesh()
 {
-	for(auto a: animations)
-		delete a;
+	for(auto animation: animations)
+		delete animation;
 }
