@@ -5,11 +5,14 @@
 #pragma once
 
 #include "WindowManager/Filedialog.h"
+
 #include <ComponentComposition/Component.h>
 #include <ComponentComposition/RenderComponent.h>
 #include <ComponentComposition/TransformComponent.h>
 #include <ComponentComposition/CameraComponent.h>
+#include <ComponentComposition/AudioComponent.h>
 #include <ComponentComposition/GameObject.h>
+
 #include <SceneManager/SceneManager.h>
 #include <OpenGL/Mesh.h>
 #include <SceneEditor/SceneEditor.h>
@@ -27,6 +30,7 @@ namespace PlatinumEngine
 		void ShowMeshRenderComponent(Scene& scene);
 		void ShowTransformComponent(Scene& scene);
 		void ShowCameraComponent(Scene& scene);
+		void ShowAudioComponent(Scene& scene);
 
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);

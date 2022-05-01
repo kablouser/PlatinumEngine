@@ -67,6 +67,19 @@ set(USE_GLU "Use GLU" ON)
 FetchContent_Declare(glew GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git GIT_TAG glew-cmake-2.2.0)
 FetchContent_MakeAvailable(glew)
 #-----------------------------
+# SDL
+set(SDL_SHARED OFF)
+set(SDL_STATIC ON)
+FetchContent_Declare(sdl GIT_REPOSITORY https://github.com/libsdl-org/SDL.git GIT_TAG 2.0.22-RC1)
+FetchContent_MakeAvailable(sdl)
+set(SDL2_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/sdl-src/include")
+#-----------------------------
+# SDL2 Mixer
+FetchContent_Declare(sdl2mixer GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git GIT_TAG release-2.0.4)
+FetchContent_MakeAvailable(sdl2mixer)
+add_subdirectory("SDL2Mixer CMake")
+set(SDL2_MIXER_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/sdl2mixer-src")
+#-----------------------------
 # imguizmo
 FetchContent_Declare(imguizmo GIT_REPOSITORY https://github.com/CedricGuillemet/ImGuizmo.git GIT_TAG origin/master)
 FetchContent_MakeAvailable(imguizmo)
@@ -92,6 +105,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/AssetDatabase/AssetDatabase.cpp;"
 	"Source/AssetDatabase/AssetHelper.cpp;"
 	
+	"Source/ComponentComposition/AudioComponent.cpp;"
 	"Source/ComponentComposition/CameraComponent.cpp;"
 	"Source/ComponentComposition/Color.cpp;"
 	"Source/ComponentComposition/Component.cpp;"
@@ -145,10 +159,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
 
-
-target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts" "${FETCHCONTENT_BASE_DIR}/imguizmo-src" "${FETCHCONTENT_BASE_DIR}/stb-src")
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts" "${FETCHCONTENT_BASE_DIR}/imguizmo-src" "${FETCHCONTENT_BASE_DIR}/stb-src" ${SDL2_INCLUDE_DIR} ${SDL2_MIXER_INCLUDE_DIR})
 #-----------------------------
-
 
 #-----------------------------
 # IMPORTANT SECTION! Unit testing
@@ -166,7 +178,6 @@ add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
 
-
 #-----------------------------
 # Linking libraries
 #-----------------------------
@@ -180,7 +191,11 @@ set(PROJECT_LIBRARIES
 	"glm;"
 	"assimp;"
 	"libglew_static;"
+	"SDL2main;"
+	"SDL2-static;"
+	"SDL2_mixer;"
   )
+
 # different targets
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_LIBRARIES})
 target_link_libraries(tests PRIVATE ${PROJECT_LIBRARIES} Catch2::Catch2WithMain)
