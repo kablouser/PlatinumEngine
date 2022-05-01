@@ -26,8 +26,17 @@ static void GlfwErrorCallback(int error, const char* description)
 
 int main(int, char**)
 {
-	if(SDL_Init(SDL_INIT_AUDIO)<0) printf("SDL could not initialize! SDL Error: %s\n",SDL_GetError());
-	if(Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,1024)<0) printf("Failed to open audio! Mix Error: %s\n",Mix_GetError());
+	// Initialise the audio device
+	if(SDL_Init(SDL_INIT_AUDIO)<0)
+	{
+		std::string err = SDL_GetError();
+		PLATINUM_ERROR("SDL could not initialize! SDL Error: " + err);
+	}
+	if(Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,1024)<0)
+	{
+		std::string err = Mix_GetError();
+		PLATINUM_ERROR("Failed to open audio! Mix Error: " + err);
+	}
 
 	// Setup window
 	glfwSetErrorCallback(GlfwErrorCallback);
@@ -172,6 +181,7 @@ int main(int, char**)
 	glfwDestroyWindow(window);
 	glfwTerminate();
 
+	// Close Audio
 	Mix_Quit();
 	SDL_Quit();
 

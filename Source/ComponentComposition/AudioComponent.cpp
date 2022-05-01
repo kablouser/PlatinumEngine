@@ -1,21 +1,15 @@
 #include "ComponentComposition/AudioComponent.h"
-#include "Logger/Logger.h"
 
 namespace PlatinumEngine
 {
-	AudioComponent::AudioComponent(std::string sample, AudioType type, bool loop)
+	AudioComponent::AudioComponent(std::string sample, AudioType type, bool loop):
+		_sample(sample), audioType(type), isLooping(loop)
 	{
-		_sample = sample;
-		audioType = type;
-		isLooping = loop;
 		_isPaused = false;
 		_isPlaying = false;
+		_channel = -2;
 		fileName = std::filesystem::path(_sample).filename().string();
-
-		if(audioType==AudioType::clip)
-			_sound = Mix_LoadWAV(_sample.c_str());
-		else
-			_music = Mix_LoadMUS(_sample.c_str());
+		ReloadSample();
 	}
 	AudioComponent::~AudioComponent()
 	{
@@ -30,23 +24,41 @@ namespace PlatinumEngine
 		_sample = sample;
 		audioType = type;
 		fileName = std::filesystem::path(_sample).filename().string();
-		if(audioType==AudioType::clip)
-			_sound = Mix_LoadWAV(_sample.c_str());
-		else
-			_music = Mix_LoadMUS(_sample.c_str());
+		ReloadSample();
 	}
 
 	void AudioComponent::ReloadSample()
 	{
+		if(_sample=="")
+		{
+			PLATINUM_WARNING("Audio sample missing");
+			return;
+		}
 		if(audioType==AudioType::clip)
+		{
 			_sound = Mix_LoadWAV(_sample.c_str());
+			if(_sound==nullptr)
+			{
+				std::string err = Mix_GetError();
+				PLATINUM_ERROR("Chunk load error: " + err);
+			}
+		}
 		else
+		{
 			_music = Mix_LoadMUS(_sample.c_str());
+			if(_music==nullptr)
+			{
+				std::string err = Mix_GetError();
+				PLATINUM_ERROR("Music load error: " + err);
+			}
+		}
 	}
 
 	void AudioComponent::Play()
 	{
-		if(!isPlaying(AudioType::clip,_channel))
+		if(!IsSampleExist())
+			return;
+		if(!IsPlaying(AudioType::clip,_channel))
 		{
 			_isPlaying = false;
 			_isPaused = false;
@@ -80,6 +92,8 @@ namespace PlatinumEngine
 
 	void AudioComponent::Pause()
 	{
+		if(!IsSampleExist())
+			return;
 		if(_isPlaying)
 		{
 			_isPlaying = false;
@@ -93,6 +107,8 @@ namespace PlatinumEngine
 
 	void AudioComponent::Resume()
 	{
+		if(!IsSampleExist())
+			return;
 		if(_isPaused)
 		{
 			_isPlaying = true;
@@ -106,6 +122,8 @@ namespace PlatinumEngine
 
 	void AudioComponent::Stop()
 	{
+		if(!IsSampleExist())
+			return;
 		_isPlaying = false;
 		_isPaused = false;
 		if(audioType==AudioType::clip)
@@ -116,21 +134,31 @@ namespace PlatinumEngine
 
 	void AudioComponent::SetVolume(int volume)
 	{
-		if(audioType==AudioType::clip)
+		if(_sound!= nullptr && audioType==AudioType::clip)
 			Mix_VolumeChunk(_sound, volume);
-		else
+		else if(_music!= nullptr && audioType==AudioType::music)
 			Mix_VolumeMusic(volume);
 	}
 
 	int AudioComponent::GetVolume()
 	{
-		if(audioType==AudioType::clip)
+		if(_sound!= nullptr && audioType==AudioType::clip)
 			return Mix_VolumeChunk(_sound, -1);
-		else
+		else if(_music!= nullptr && audioType==AudioType::music)
 			return Mix_VolumeMusic(-1);
+		return MIX_MAX_VOLUME;
 	}
 
-	bool AudioComponent::isPlaying(AudioType type, int channel)
+	bool AudioComponent::IsSampleExist()
+	{
+		if(_sound != nullptr)
+			return true;
+		if(_music != nullptr)
+			return true;
+		return false;
+	}
+
+	bool AudioComponent::IsPlaying(AudioType type, int channel)
 	{
 		if(type==AudioType::clip && Mix_Playing(channel) > 0)
 			return true;
@@ -139,7 +167,7 @@ namespace PlatinumEngine
 		return false;
 	}
 
-	bool AudioComponent::isPaused(AudioType type, int channel)
+	bool AudioComponent::IsPaused(AudioType type, int channel)
 	{
 		if(type==AudioType::clip && Mix_Paused(channel) > 0)
 			return true;

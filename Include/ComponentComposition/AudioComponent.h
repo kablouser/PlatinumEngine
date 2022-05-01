@@ -1,8 +1,7 @@
 #pragma once
 
-#define SDL_MAIN_HANDLED
-
 #include "ComponentComposition/Component.h"
+#include "Logger/Logger.h"
 #include "SDL.h"
 #include "SDL_mixer.h"
 #include <filesystem>
@@ -50,13 +49,15 @@ namespace PlatinumEngine
 		void SetVolume(int volume);
 		// Get the current volume
 		int GetVolume();
+		// Returns whether a sample has been loaded or not
+		bool IsSampleExist();
 
 		//STATIC FUNCTIONS
 
 		// Returns whether audio is playing or not (Can also specify a channel for audio clips otherwise it checks for all channels [value: -1])
-		static bool isPlaying(AudioType type=AudioType::clip, int channel=-1);
+		static bool IsPlaying(AudioType type=AudioType::clip, int channel=-1);
 		// Returns whether audio is paused or not (Can also specify a channel for audio clips otherwise it checks for all channels [value: -1])
-		static bool isPaused(AudioType type=AudioType::clip, int channel=-1);
+		static bool IsPaused(AudioType type=AudioType::clip, int channel=-1);
 
 	};
 }

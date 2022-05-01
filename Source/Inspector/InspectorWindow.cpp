@@ -538,13 +538,13 @@ void InspectorWindow::ShowAudioComponent(Scene& scene)
 
 		if(ImGui::Checkbox("Looping",&ac->isLooping))
 		{
-			if(ac->isPlaying())
+			if(ac->IsPlaying())
 				ac->Stop();
 		}
 		ImGui::SameLine();
 		if(ImGui::Button(ac->audioType == AudioComponent::AudioType::clip?"Clip":"Music"))
 		{
-			if(ac->isPlaying())
+			if(ac->IsPlaying())
 				ac->Stop();
 			if(ac->audioType == AudioComponent::AudioType::clip)
 				ac->audioType = AudioComponent::AudioType::music;

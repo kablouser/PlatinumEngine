@@ -231,6 +231,7 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 						auto asset_Helper = _assetHelper->GetMeshAsset(dir.string());
 						if (std::get<0>(asset_Helper))
 							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+						_sceneEditor->SetSelectedGameobject(go);
 					}
 					ImGui::Separator();
 				}
