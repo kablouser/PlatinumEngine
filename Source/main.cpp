@@ -95,10 +95,10 @@ int main(int, char**)
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
 		PlatinumEngine::ProjectWindow projectWindow;
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger,
-				&inspectorWindow, &profiler, &projectWindow, idSystem, typeDatabase, assetDatabase);
+				&inspectorWindow, &profiler, &projectWindow, idSystem, typeDatabase, assetDatabase, scene);
 
 		// create assets
-		assetDatabase.Update(idSystem);
+		assetDatabase.Update(idSystem, scene);
 
 		// create some default game object
 		{

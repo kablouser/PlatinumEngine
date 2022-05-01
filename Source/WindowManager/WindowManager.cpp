@@ -18,7 +18,8 @@ namespace PlatinumEngine
 								ProjectWindow *projectWindow,
 								IDSystem& idSystem,
 								TypeDatabase& typeDatabase,
-								AssetDatabase& assetDatabase
+								AssetDatabase& assetDatabase,
+								Scene& scene
 								):
 								_gameWindow(gameWindow),
 								_sceneEditor(sceneEditor),
@@ -29,7 +30,8 @@ namespace PlatinumEngine
 								_projectWindow(projectWindow),
 								_idSystem(idSystem),
 								_typeDatabase(typeDatabase),
-								_assetDatabase(assetDatabase)
+								_assetDatabase(assetDatabase),
+								_scene(scene)
 	{
 	}
 
@@ -54,8 +56,8 @@ namespace PlatinumEngine
 		if (_showWindowLight) 			ShowWindowLight(&_showWindowLight);
 		if (_showWindowLogger)   		ShowWindowLogger(&_showWindowLogger);
 		if(_showWindowProfiler) 		ShowWindowProfiler(&_showWindowProfiler);
-		if (_showFileLoad) 				LoadFile(scene);
-		if (_showFileSave) 				SaveFile(scene);
+		if (_showFileLoad) 				LoadFile(scene, &_showFileLoad);
+		if (_showFileSave) 				SaveFile(scene, &_showFileSave);
 
 		///-------------------------------------------------------------------
 		/// set up the main menu bar
@@ -107,7 +109,7 @@ namespace PlatinumEngine
 			///---------------------------------------------------------------
 			if (ImGui::Button("Reload Asset Database"))
 			{
-				_assetDatabase.Update(_idSystem);
+				_assetDatabase.Update(_idSystem, _scene);
 			}
 
 			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 130.f);
@@ -151,23 +153,52 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	/// This section is for main menu bar "file" part file dialog showing
 	///--------------------------------------------------------------------------
-	void WindowManager::LoadFile(Scene& scene)
+	void WindowManager::LoadFile(Scene& scene, bool* outIsOpen)
 	{
-		// TODO change to deserialize
-		_typeDatabase.Serialize(std::cout, &scene);
-		_showFileLoad = false;
-		std::string x;
-		x = PlatinumEngine::FileDialog::LoadFile();
-		std::cout << x << std::endl;
+		auto [success, path] = PlatinumEngine::FileDialog::OpenDialog(
+				outIsOpen,
+				"LoadFile",
+				"Load File",
+				".scene",
+				"Assets",
+				"");
+		if (success)
+		{
+			std::ifstream loadFile(path);
+			if (loadFile.is_open())
+			{
+				// first delete existing scene data
+				_idSystem.Clear();
+				scene.Clear();
+				// then deserialize
+				_typeDatabase.Deserialize(loadFile, &_idSystem);
+				_typeDatabase.Deserialize(loadFile, &scene);
+				scene.AfterLoad();
+			}
+			else
+				PLATINUM_ERROR_STREAM << "Could not open scene file: " << path;
+		}
 	}
-	void WindowManager::SaveFile(Scene& scene)
+	void WindowManager::SaveFile(Scene& scene, bool* outIsOpen)
 	{
-		_typeDatabase.Serialize(std::cout, &_idSystem);
-		_typeDatabase.Serialize(std::cout, &scene);
-		_showFileSave = false;
-		std::string x;
-		x = PlatinumEngine::FileDialog::SaveFile();
-		std::cout << x << std::endl;
+		auto [success, path] = PlatinumEngine::FileDialog::OpenDialog(
+				outIsOpen,
+				"SaveFile",
+				"Save File",
+				".scene",
+				"Assets",
+				"Scene");
+		if (success)
+		{
+			std::ofstream saveFile(path);
+			if (saveFile.is_open())
+			{
+				_typeDatabase.Serialize(saveFile, &_idSystem);
+				_typeDatabase.Serialize(saveFile, &scene);
+			}
+			else
+				PLATINUM_ERROR_STREAM << "Could not open scene file: " << path;
+		}
 	}
 
 	///--------------------------------------------------------------------------
@@ -179,11 +210,9 @@ namespace PlatinumEngine
 
 		if (ImGui::MenuItem("Load", "", &_showFileLoad))
 		{
-			ImGuiFileDialog::Instance()->OpenDialog("LoadFileKey","Load File",".*",".");
 		}
 		if (ImGui::MenuItem("Save", "Ctrl+S", &_showFileSave))
 		{
-			ImGuiFileDialog::Instance()->OpenDialog("SaveFileKey","Save File",".*",".");
 		}
 
 		ImGui::Separator();

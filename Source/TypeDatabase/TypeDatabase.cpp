@@ -95,6 +95,10 @@ namespace PlatinumEngine
 	{
 		auto string = (std::string*)typeInstance;
 		string->clear();
+
+		// remove leading white-space
+		inputStream >> std::ws;
+
 		char currentCharacter,nextCharacter;
 		if (!inputStream.get(currentCharacter) || !inputStream.get(nextCharacter))
 			return; // bad format, must have at least 2 quotes ""

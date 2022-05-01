@@ -15,7 +15,7 @@ namespace PlatinumEngine
 		std::vector<SavedReference<GameObject>> _children;
 		std::vector<SavedReference<Component>> _components;
 		 */
-		typeDatabase.BeginTypeInfoWithoutAllocator<GameObject>()
+		typeDatabase.BeginTypeInfo<GameObject>()
 				.WithField<std::string>("name", PLATINUM_OFFSETOF(GameObject, name))
 				.WithField<SavedReference<GameObject>>("_parent", PLATINUM_OFFSETOF(GameObject, _parent))
 				.WithField<bool>("_isEnabled", PLATINUM_OFFSETOF(GameObject, _isEnabled))

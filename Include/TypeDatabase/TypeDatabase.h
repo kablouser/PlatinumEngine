@@ -18,6 +18,7 @@
 #include <Helpers/VectorHelpers.h>
 #include <TypeDatabase/VectorCollection.h>
 #include <IDSystem/IDSystem.h>
+#include <Logger/Logger.h>
 
 namespace PlatinumEngine
 {
@@ -256,12 +257,74 @@ namespace PlatinumEngine
 				typeInfo.streamOut =
 						[](std::ostream& outputStream, void* typeInstance) -> void
 						{
-							outputStream << ((T*)typeInstance)->id;
+							T* savedReference = static_cast<T*>(typeInstance);
+
+							if (savedReference->typeIndex == std::type_index(typeid(T)))
+								outputStream << savedReference->id;
+							else
+								outputStream << '{' << savedReference->id << ", " <<
+											 TypeDatabase::Instance->GetStoredTypeName(savedReference->typeIndex)
+											 << '}';
 						};
 				typeInfo.streamIn =
 						[](std::istream& inputStream, void* typeInstance) -> void
 						{
-							inputStream >> ((T*)typeInstance)->id;
+							T* savedReference = static_cast<T*>(typeInstance);
+
+							inputStream >> std::ws; // remove leading whitespace
+							if (inputStream.peek() == '{')
+							{
+								// has type name
+								inputStream.get();
+								inputStream >> savedReference->id;
+								inputStream.get();
+								inputStream >> std::ws; // extract ", "
+								std::string typeNameToken;
+								if (std::getline(inputStream, typeNameToken, '}'))
+								{
+									auto[success, readTypeInfo] = TypeDatabase::Instance->GetTypeInfo(typeNameToken);
+									if (success)
+									{
+										savedReference->typeIndex = readTypeInfo->typeIndex;
+										return;
+									}
+									PLATINUM_WARNING_STREAM << "Failed to stream in SavedReference. Unknown type name "
+															<< typeNameToken;
+								}
+								else
+									// failed
+									PLATINUM_WARNING_STREAM
+											<< "Failed to stream in SavedReference. Couldn't extract type name";
+								savedReference->typeIndex = typeid(void);
+							}
+							else
+							{
+								inputStream >> savedReference->id;
+								savedReference->typeIndex = typeid(T);
+							}
+						};
+			}
+			return true;
+		}
+
+		// magical template for PlatinumEngine::SavedReference<T> types
+		template<typename T, std::enable_if_t<std::is_enum_v<T>, int> = 0>
+		bool CreateIfAutomatic(int)
+		{
+			// if type info NOT in database
+			if (!GetTypeInfo<T>().first)
+			{
+				TypeInfoFactory factory = BeginTypeInfo<T>();
+				TypeInfo& typeInfo = factory.GetTypeInfo();
+				typeInfo.streamOut =
+						[](std::ostream& outputStream, void* typeInstance) -> void
+						{
+							outputStream << *static_cast<std::underlying_type_t<T>*>(typeInstance);
+						};
+				typeInfo.streamIn =
+						[](std::istream& inputStream, void* typeInstance) -> void
+						{
+							inputStream >> *static_cast<std::underlying_type_t<T>*>(typeInstance);
 						};
 			}
 			return true;

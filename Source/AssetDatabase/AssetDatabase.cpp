@@ -238,7 +238,7 @@ namespace PlatinumEngine
 		RebuildStoredMap();
 	}
 
-	void AssetDatabase::Update(IDSystem& idSystem)
+	void AssetDatabase::Update(IDSystem& idSystem, Scene& scene)
 	{
 		// Remove current assets from ID System
 		// Not strictly necessary to make things work
@@ -273,7 +273,7 @@ namespace PlatinumEngine
 		// Add new assets to id system
 		CreateAssets(idSystem);
 		// SavedReferences will have old pointers, update them all to the new loaded data
-		idSystem.UpdateSavedReferences();
+		scene.OnIDSystemUpdate();
 		// finally, rebuild map structure
 		RebuildStoredMap();
 	}
@@ -319,7 +319,7 @@ namespace PlatinumEngine
 				continue;
 			}
 
-			idSystem.Overwrite(findExtension->second, asset.id, pointer);
+			idSystem.Overwrite(asset.id, pointer, findExtension->second);
 		}
 	}
 
@@ -342,6 +342,9 @@ namespace PlatinumEngine
 	{
 		for (Asset& asset: _assets)
 		{
+			if (!asset.doesExist)
+				continue;
+
 			bool isRemoved = fromIDSystem.RemoveInternal(asset.id, asset.GetTypeIndex());
 			if (!isRemoved)
 				PLATINUM_WARNING_STREAM << "Asset was expected to be in ID System. Something has gone wrong. "
@@ -439,7 +442,7 @@ namespace PlatinumEngine
 
 					// Reserve an ID for this asset in the id system
 					std::shared_ptr<void> dummy; // doesn't have any data, quite dangerous to do this
-					idSystem.AddInternal(asset.GetTypeIndex(),dummy);
+					idSystem.AddInternal(dummy, asset.GetTypeIndex());
 					// we will overwrite this dummy pointer with proper loaded data later in CreateAssets()
 
 					_assets.push_back(asset);

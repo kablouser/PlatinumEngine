@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include <TypeDatabase/TypeDatabase.h>
+#include <SceneManager/Scene.h>
 
 namespace PlatinumEngine
 {
@@ -143,7 +144,7 @@ namespace PlatinumEngine
 		 * 3. write to database file
 		 * 4. ReloadAssets()
 		 */
-		void Update(IDSystem& idSystem);
+		void Update(IDSystem& idSystem, Scene& scene);
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Get Loaded Asset functions

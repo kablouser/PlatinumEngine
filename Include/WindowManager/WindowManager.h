@@ -29,7 +29,8 @@ namespace PlatinumEngine
 					  ProjectWindow *projectWindow,
 					  IDSystem& idSystem,
 					  TypeDatabase& typeDatabase,
-					  AssetDatabase& assetDatabase
+					  AssetDatabase& assetDatabase,
+					  Scene& scene
 					  );
 
 		///-----------------------------------
@@ -44,8 +45,8 @@ namespace PlatinumEngine
 		void SetUpMainMenu(Scene &scene);
 
         //file section
-        void LoadFile(Scene& scene);
-		void SaveFile(Scene& scene);
+        void LoadFile(Scene& scene, bool* outIsOpen);
+		void SaveFile(Scene& scene, bool* outIsOpen);
 
         //shortcuts for main menu bars
 		///-----------------------------------
@@ -116,6 +117,7 @@ namespace PlatinumEngine
 		IDSystem& _idSystem;
 		TypeDatabase& _typeDatabase;
 		AssetDatabase& _assetDatabase;
+		Scene& _scene;
 
 	};
 }

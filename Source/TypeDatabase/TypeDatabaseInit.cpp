@@ -17,6 +17,9 @@ void PlatinumEngine::TypeDatabase::Init()
 	GameObject::CreateTypeInfo(*this);
 	RenderComponent::CreateTypeInfo(*this);
 
+	BeginTypeInfo<Mesh>();
+	BeginTypeInfo<Texture>();
+
 	// this checks all fields/things are defined properly
 	FinalCheck();
 }

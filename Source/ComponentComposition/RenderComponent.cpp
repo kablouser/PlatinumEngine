@@ -1,7 +1,7 @@
 //
 // Created by Jinyuan and Shawn on 26/03/2022.
 //
-#include "ComponentComposition/RenderComponent.h"
+#include <ComponentComposition/RenderComponent.h>
 #include <Renderer/Renderer.h>
 #include <ComponentComposition/TransformComponent.h>
 
@@ -36,6 +36,13 @@ namespace PlatinumEngine
 
 		renderer.LoadMaterial(material);
 		_shaderInput.Draw();
+	}
+
+	void RenderComponent::OnIDSystemUpdate(Scene& scene)
+	{
+		_shaderInput.Clear();
+		if (_mesh)
+			_shaderInput.Set(_mesh.pointer->vertices, _mesh.pointer->indices);
 	}
 
 	void RenderComponent::SetMesh(SavedReference<Mesh> mesh)

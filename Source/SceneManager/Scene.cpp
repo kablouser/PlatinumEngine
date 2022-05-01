@@ -24,9 +24,12 @@ namespace PlatinumEngine
 		 */
 		typeDatabase.BeginTypeInfoWithoutAllocator<Scene>()
 				.WithField<bool>("_isStarted", PLATINUM_OFFSETOF(Scene, _isStarted))
-				.WithField<std::vector<SavedReference<GameObject>>>("_gameObjects", PLATINUM_OFFSETOF(Scene, _gameObjects))
-				.WithField<std::vector<SavedReference<GameObject>>>("_rootGameObjects", PLATINUM_OFFSETOF(Scene, _rootGameObjects))
-				.WithField<std::vector<SavedReference<GameObject>>>("_components", PLATINUM_OFFSETOF(Scene, _components));
+				.WithField<std::vector<SavedReference<GameObject>>>("_gameObjects",
+						PLATINUM_OFFSETOF(Scene, _gameObjects))
+				.WithField<std::vector<SavedReference<GameObject>>>("_rootGameObjects",
+						PLATINUM_OFFSETOF(Scene, _rootGameObjects))
+				.WithField<std::vector<SavedReference<GameObject>>>("_components",
+						PLATINUM_OFFSETOF(Scene, _components));
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
@@ -37,28 +40,44 @@ namespace PlatinumEngine
 	{
 	}
 
-	Scene::~Scene()
+	void Scene::Clear()
 	{
+		// id system is cleared separately
+		_gameObjects.clear();
+		_rootGameObjects.clear();
+		_components.clear();
+	}
+
+	void Scene::AfterLoad()
+	{
+		idSystem.UpdateSavedReferences();
+
+		// after loading, references between objects may be invalidated, correct them
+		// relink gameobject->child pointers and gameobject->component
 		for (auto& gameObject: _gameObjects)
 		{
-			if (!idSystem.RemoveInternal(
-					gameObject.id,
-					std::type_index(
-							typeid(gameObject.pointer.get())) // this only works because gameObject is polymorphic
-			))
-				PLATINUM_WARNING("ID System missing gameobject");
-		}
-		for (auto& component: _components)
-		{
-			if (!idSystem.RemoveInternal(
-					component.id,
-					std::type_index(typeid(component.pointer.get())) // this only works because component is polymorphic
-			))
-				PLATINUM_WARNING("ID System missing component");
+			if (!gameObject)
+				continue;
+
+			for (auto& child : gameObject.pointer->_children)
+			{
+				if (!child)
+					continue;
+				child.pointer->_parent = gameObject;
+			}
+
+			for (auto& component: gameObject.pointer->_components)
+			{
+				if (!component)
+					continue;
+				component.pointer->_gameObject = gameObject;
+			}
 		}
 
-		// removal changes pointers in the id system
-		idSystem.UpdateSavedReferences();
+		OnIDSystemUpdate();
+
+		for (auto& rootGameObject : _rootGameObjects)
+			UpdateIsEnabledInHierarchy(rootGameObject);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
@@ -105,7 +124,7 @@ namespace PlatinumEngine
 			RemoveRootGameObject(gameObject);
 
 		// removal changes pointers in the id system
-		idSystem.UpdateSavedReferences();
+		OnIDSystemUpdate();
 	}
 
 	size_t Scene::GetGameObjectsCount() const
@@ -187,7 +206,7 @@ namespace PlatinumEngine
 		if (!idSystem.Remove(component))
 			PLATINUM_ERROR("ID System missing component");
 		// removal changes pointers in the id system
-		idSystem.UpdateSavedReferences();
+		OnIDSystemUpdate();
 	}
 
 	size_t Scene::GetComponentsCount() const
@@ -250,6 +269,12 @@ namespace PlatinumEngine
 	{
 		for (auto& gameObject: _rootGameObjects)
 			BroadcastOnRender(gameObject, renderer);
+	}
+
+	void Scene::OnIDSystemUpdate()
+	{
+		for (auto& gameObject: _rootGameObjects)
+			BroadcastOnIDSystemUpdate(gameObject);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
@@ -345,6 +370,18 @@ namespace PlatinumEngine
 			// recurse
 			// UpdateIsEnabledInHierarchy could further call UpdateIsEnabledInHierarchy
 			child.pointer->UpdateIsEnabledInHierarchy(*this, child);
+	}
+
+	void Scene::BroadcastOnIDSystemUpdate(SavedReference<GameObject>& gameObject)
+	{
+		if (!gameObject)
+			return;
+
+		for (auto& component: gameObject.pointer->_components)
+			component.pointer->OnIDSystemUpdate(*this);
+
+		for (auto& child: gameObject.pointer->_children)
+			BroadcastOnIDSystemUpdate(child);
 	}
 
 	void Scene::AddComponentInternal(

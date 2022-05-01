@@ -36,8 +36,6 @@ namespace PlatinumEngine
 
 		explicit Scene(IDSystem& idSystem);
 
-		~Scene();
-
 		// Delete all these operators. Messes up data.
 
 		Scene(const Scene& copy) = delete;
@@ -47,6 +45,12 @@ namespace PlatinumEngine
 		Scene(Scene&&) noexcept = delete;
 
 		Scene& operator=(Scene&&) noexcept = delete;
+
+		// Clear all data stored on this scene
+		void Clear();
+
+		// Please call this after this object has just been deserialized
+		void AfterLoad();
 
 		//--------------------------------------------------------------------------------------------------------------
 		// _gameObjects controls
@@ -181,6 +185,11 @@ namespace PlatinumEngine
 		 */
 		void Render(Renderer& renderer);
 
+		/**
+		 * Call after IDSystem has been deleted from
+		 */
+		void OnIDSystemUpdate();
+
 	private:
 
 		bool _isStarted;
@@ -232,6 +241,8 @@ namespace PlatinumEngine
 		 * regardless of enabled/disabled.
 		 */
 		void UpdateIsEnabledInHierarchy(SavedReference<GameObject>& gameObject);
+
+		void BroadcastOnIDSystemUpdate(SavedReference<GameObject>& gameObject);
 
 		void AddComponentInternal(
 				SavedReference<Component> component,

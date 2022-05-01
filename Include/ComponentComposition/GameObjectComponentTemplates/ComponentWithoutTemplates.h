@@ -113,6 +113,11 @@ namespace PlatinumEngine
 		 */
 		virtual void OnRender(Scene& scene, Renderer& renderer);
 
+		/**
+		 * Event triggered when SavedReference's pointers are updated.
+		 */
+		virtual void OnIDSystemUpdate(Scene& scene);
+
 		//--------------------------------------------------------------------------------------------------------------
 		// Convenience functions - forward declare only
 		//--------------------------------------------------------------------------------------------------------------

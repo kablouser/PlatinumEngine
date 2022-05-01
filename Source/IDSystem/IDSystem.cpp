@@ -5,9 +5,6 @@
 #include <iostream>
 #include <cassert> // for assert()
 
-// todo remove
-#include <TypeDatabase/TypeDatabase.h>
-
 namespace PlatinumEngine
 {
 	// Instance of the global variable
@@ -27,14 +24,11 @@ namespace PlatinumEngine
 		// get names for all ID maps
 		typedef std::tuple<std::type_index, IDMap*, std::string> NamedIDMap;
 		std::vector<NamedIDMap> namedIDMaps;
-		for (auto& typeEntry: idSystem->_managedMemory)
+		for (auto& typeEntry: idSystem->_typeIndexToIDMap)
 		{
-			if (Loaders::IsAsset(typeEntry.first))
-				continue; // asset types are ignored. Reason being you shouldn't change assets from the engine.
-
-			std::string typeName = TypeDatabase::Instance->GetStoredTypeName(typeEntry.first);
-			if (typeName == "?")
-				continue; // unknown type, no point in streaming it
+			std::string typeName;
+			if (!IsStreamable(typeEntry.first, &typeName))
+				continue;
 
 			namedIDMaps.emplace_back(
 					typeEntry.first,
@@ -146,7 +140,7 @@ namespace PlatinumEngine
 							typeInfo->typeIndex,
 							TypeDatabase::SerializeSection::collectionElement);
 
-					if (idSystem->AddInternal(std::type_index(typeInfo->typeIndex), id, temp))
+					if (idSystem->AddInternal(id, temp, typeInfo->typeIndex))
 					{
 						// good
 					}
@@ -191,107 +185,122 @@ namespace PlatinumEngine
 		}
 	}
 
+	bool IDSystem::IsStreamable(std::type_index typeIndex, std::string* outTypeName)
+	{
+		// asset types are not streamable. Reason being you shouldn't change assets from the engine
+		if (Loaders::IsAsset(typeIndex))
+			return false;
+
+		// unknown types should not be streamed, no point in streaming it
+		if (outTypeName == nullptr)
+			return TypeDatabase::Instance->GetStoredTypeName(typeIndex) != "?";
+		else
+		{
+			*outTypeName = TypeDatabase::Instance->GetStoredTypeName(typeIndex);
+			return *outTypeName != "?";
+		}
+	}
+
 	IDSystem::IDSystem() :
 			_generator(std::random_device()()),
 			_anyNumber(std::numeric_limits<ID>::min(), std::numeric_limits<ID>::max())
 	{
 	}
 
-	void IDSystem::Overwrite(const std::type_index& typeIndex, ID id, std::shared_ptr<void>& pointer)
+	void IDSystem::Clear()
 	{
-		_managedMemory[typeIndex][id] = pointer;
+		for (auto& keyValuePair : _typeIndexToIDMap)
+		{
+			if (!IsStreamable(keyValuePair.first))
+				continue;
+
+			keyValuePair.second.clear();
+		}
+	}
+
+	void IDSystem::Overwrite(ID id, std::shared_ptr<void>& pointer, std::type_index typeIndex)
+	{
+		_typeIndexToIDMap[typeIndex][id] = pointer;
 	}
 
 	void IDSystem::UpdateSavedReferences()
 	{
 		// while UpdatePointer, SavedReferences could be added/removed
 		std::set<void*> allSavedReferencesCopy = AllSavedReferences;
-		for (void* savedReference : allSavedReferencesCopy)
+		for (void* savedReference: allSavedReferencesCopy)
 			reinterpret_cast<SavedReference<void>*>(savedReference)->UpdatePointer(*this);
 	}
 
-	std::pair<IDSystem::ID, std::shared_ptr<void>> IDSystem::GetSavedReferenceInternal(
-			std::size_t id,
-			std::type_index&& typeIndex)
+	std::shared_ptr<void> IDSystem::GetSavedReferenceInternal(ID id, std::type_index typeIndex)
 	{
 		if (id == 0)
 			// 0 is reserved for nullptr
 			return {}; // nullptr
 
-		auto managedMemoryIterator = _managedMemory.find(typeIndex);
-		if (managedMemoryIterator == _managedMemory.end())
-			// no entries for type
+		auto typeIndexToIDMapIterator = _typeIndexToIDMap.find(typeIndex);
+		if (typeIndexToIDMapIterator == _typeIndexToIDMap.end())
+			// not found
 			return {}; // nullptr
 
-		auto& idMap = managedMemoryIterator->second;
+		IDMap& idMap = typeIndexToIDMapIterator->second;
 		auto idMapIterator = idMap.find(id);
 		if (idMapIterator == idMap.end())
-			// id doesn't exist for type
+			// not found
 			return {}; // nullptr
 
-		// only return shared_ptr if type matches
-		return { id, idMapIterator->second };
+		// found
+		return idMapIterator->second; // return a copy
 	}
 
-	std::pair<IDSystem::ID, std::shared_ptr<void>> IDSystem::GetSavedReferenceInternal(
-			void* rawPointer,
-			std::type_index&& typeIndex)
+	SavedReference<void> IDSystem::GetSavedReferenceInternal(void* rawPointer, std::type_index typeIndex)
 	{
 		if (rawPointer == nullptr)
 			return {}; // nullptr
 
-		auto managedMemoryIterator = _managedMemory.find(typeIndex);
-		if (managedMemoryIterator == _managedMemory.end())
-			// no entries for type
+		auto typeIndexToIDMapIterator = _typeIndexToIDMap.find(typeIndex);
+		if (typeIndexToIDMapIterator == _typeIndexToIDMap.end())
+			// not found
 			return {}; // nullptr
 
-		auto& idMap = managedMemoryIterator->second;
+		IDMap& idMap = typeIndexToIDMapIterator->second;
 		// very slow part
 		for (auto& idEntry: idMap)
 		{
 			if (idEntry.second.get() == rawPointer)
-				return idEntry;
+				return { idEntry.first, idEntry.second, typeIndex }; // return a copy
 		}
-		// id doesn't exist for type
+
+		// not found
 		return {}; // nullptr
 	}
 
-	bool IDSystem::AddInternal(
-			const std::type_index&& typeIndex,
-			IDSystem::ID id,
-			const std::shared_ptr<void>& pointer)
+	bool IDSystem::AddInternal(IDSystem::ID id, const std::shared_ptr<void>& pointer, std::type_index typeIndex)
 	{
-		auto& idMap = _managedMemory[typeIndex];
-		auto[_, success] =idMap.insert({ id, pointer });
+		auto[_, success] =_typeIndexToIDMap[typeIndex].insert({ id, pointer });
 		return success;
 	}
 
-	IDSystem::ID IDSystem::AddInternal(
-			const std::type_index&& typeIndex,
-			const std::shared_ptr<void>& pointer)
+	IDSystem::ID IDSystem::AddInternal(const std::shared_ptr<void>& pointer, std::type_index typeIndex)
 	{
-		auto& idMap = _managedMemory[typeIndex];
+		IDMap& idMap = _typeIndexToIDMap[typeIndex];
 		ID newID = GenerateID(idMap);
-		// checks the newID was added, and is unique in map
-		assert(idMap.insert({ newID, pointer }).second);
+		assert(idMap.insert({ newID, pointer }).second); // checks the newID was added
 		return newID;
 	}
 
-	bool IDSystem::RemoveInternal(
-			IDSystem::ID id,
-			std::type_index&& typeIndex)
+	bool IDSystem::RemoveInternal(IDSystem::ID id, std::type_index typeIndex)
 	{
-		auto managedMemoryIterator = _managedMemory.find(typeIndex);
-		if (managedMemoryIterator == _managedMemory.end())
-			// no entries for type
-			return false;
+		auto typeIndexToIDMapIterator = _typeIndexToIDMap.find(typeIndex);
+		if (typeIndexToIDMapIterator == _typeIndexToIDMap.end())
+			// not found
+			return false; // nullptr
 
-		auto& idMap = managedMemoryIterator->second;
+		IDMap& idMap = typeIndexToIDMapIterator->second;
 		// erase returns number of elements removed
-		return idMap.erase(id) == 1;
+		return idMap.erase(id) == 1; // should be 1 when removed
 	}
 
-	IDSystem::ID IDSystem::GenerateID(std::map<ID, std::shared_ptr<void>>& idMap)
+	IDSystem::ID IDSystem::GenerateID(IDMap& idMap)
 	{
 		ID result;
 		do
@@ -300,10 +309,5 @@ namespace PlatinumEngine
 		} while (idMap.find(result) != idMap.end());
 
 		return result;
-	}
-
-	std::string Interop(std::type_index ti)
-	{
-		return TypeDatabase::Instance->GetStoredTypeName(ti);
 	}
 }

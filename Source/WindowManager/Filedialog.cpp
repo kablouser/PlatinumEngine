@@ -2,40 +2,48 @@
 // Created by shawn on 2022/3/7.
 //
 
-#include "WindowManager/Filedialog.h"
+#include <WindowManager/Filedialog.h>
+#include <Logger/Logger.h>
 
-namespace PlatinumEngine
+namespace PlatinumEngine::FileDialog
 {
-	const ImVec2 FileDialog::MIN_SIZE = ImVec2((float)540, (float)480);
-	const ImVec2 FileDialog::MAX_SIZE = ImVec2((float)1080, (float)960);
-	std::string FileDialog::SaveFile()
-	{
-		std::string filePath;
+	constexpr ImVec2 MIN_SIZE = ImVec2((float)540, (float)480);
+	constexpr ImVec2 MAX_SIZE = ImVec2((float)1080, (float)960);
 
-		if(ImGuiFileDialog::Instance()->Display("SaveFileKey", ImGuiWindowFlags_NoCollapse, MIN_SIZE, MAX_SIZE))
+	std::pair<bool, std::string> OpenDialog(
+			bool* outIsOpen,
+			const std::string& keyName,
+			const std::string& title,
+			const char* filters,
+			const std::string& path,
+			const std::string& fileName,
+			const int& countSelectionMax,
+			ImGuiFileDialogFlags flags)
+	{
+		ImGuiFileDialog::Instance()->OpenDialog(
+				keyName,
+				title,
+				filters,
+				path,
+				fileName,
+				countSelectionMax,
+				nullptr,
+				flags);
+
+		std::pair<bool, std::string> output;
+
+		if (ImGuiFileDialog::Instance()->Display(keyName, ImGuiWindowFlags_NoCollapse, MIN_SIZE, MAX_SIZE))
 		{
-			if(ImGuiFileDialog::Instance()->IsOk())
+			*outIsOpen = false;
+
+			if (ImGuiFileDialog::Instance()->IsOk())
 			{
-				filePath = ImGuiFileDialog ::Instance()->GetCurrentPath();
+				output = { true, ImGuiFileDialog::Instance()->GetFilePathName() };
 			}
 
 			ImGuiFileDialog::Instance()->Close();
 		}
-		return filePath;
-	}
 
-	std::string FileDialog::LoadFile()
-	{
-		std::string filePathName;
-
-		if(ImGuiFileDialog::Instance()->Display("LoadFileKey", ImGuiWindowFlags_NoCollapse, MIN_SIZE, MAX_SIZE))
-		{
-			if(ImGuiFileDialog::Instance()->IsOk())
-			{
-				filePathName = ImGuiFileDialog ::Instance()->GetFilePathName();
-			}
-			ImGuiFileDialog::Instance()->Close();
-		}
-		return filePathName;
+		return output;
 	}
 }

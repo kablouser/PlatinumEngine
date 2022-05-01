@@ -29,6 +29,8 @@ namespace PlatinumEngine
 		// override the OnRender() of the Component
 		void OnRender(Scene& scene, Renderer& renderer) override;
 
+		void OnIDSystemUpdate(Scene& scene) override;
+
 		Material material;
 
 	private:
