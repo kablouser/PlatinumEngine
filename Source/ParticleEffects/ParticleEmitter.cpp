@@ -3,6 +3,7 @@
 //
 
 #include <ParticleEffects/ParticleEmitter.h>
+#include <algorithm>
 
 namespace PlatinumEngine
 {

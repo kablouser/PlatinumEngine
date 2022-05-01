@@ -8,6 +8,7 @@
 #include <random>
 #include <ParticleEffects/Particle.h>
 #include <OpenGL/Texture.h>
+#include <memory>
 
 namespace PlatinumEngine
 {
