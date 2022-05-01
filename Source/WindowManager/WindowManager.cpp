@@ -44,7 +44,6 @@ namespace PlatinumEngine
 		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector, scene);
 		if (_showWindowProject) 		ShowWindowProject(&_showWindowProject);
 		if (_showWindowAnimation) 		ShowWindowAnimation(&_showWindowAnimation);
-		if (_showWindowAudio) 			ShowWindowAudio(&_showWindowAudio);
 		if (_showWindowLight) 			ShowWindowLight(&_showWindowLight);
 		if (_showWindowLogger)   		ShowWindowLogger(&_showWindowLogger);
 		if(_showWindowProfiler) 		ShowWindowProfiler(&_showWindowProfiler);
@@ -246,8 +245,6 @@ namespace PlatinumEngine
 
 		if (ImGui::MenuItem("Animation", "", &_showWindowAnimation))
 		{}
-		if (ImGui::MenuItem("Audio", "", &_showWindowAudio))
-		{}
 		if (ImGui::MenuItem(ICON_FA_GAMEPAD " Game", "", &_showWindowGame))
 		{
 			ShowWindowGame(&_showWindowGame);
@@ -320,12 +317,6 @@ namespace PlatinumEngine
 	{
 		//TODO:
 		_inspector->ShowGUIWindow(outIsOpen, scene);
-	}
-
-	//Please implement Audio Window below
-	void WindowManager::ShowWindowAudio(bool* outIsOpen)
-	{
-		//TODO:
 	}
 
 	//Please implement Hierarchy Window below
