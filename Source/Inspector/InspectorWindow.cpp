@@ -40,10 +40,10 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 			if (obj->GetComponent<TransformComponent>() != nullptr)
 				ShowTransformComponent(scene);
 
-		  if (_activeGameObject->GetComponent<CameraComponent>())
+		  if (obj->GetComponent<CameraComponent>())
 			  ShowCameraComponent(scene);
 
-		  if (_activeGameObject->GetComponent<AudioComponent>())
+		  if (obj->GetComponent<AudioComponent>())
 			  ShowAudioComponent(scene);
       
 		  	ImGui::Separator();
@@ -465,6 +465,7 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 
 void InspectorWindow::ShowAudioComponent(Scene& scene)
 {
+	auto obj = _sceneEditor->GetSelectedGameobject();
 	ImGui::Separator();
 	char sampleBuffer[64];
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_TABLE_CELLS "  Audio", ImGuiTreeNodeFlags_AllowItemOverlap);
@@ -472,7 +473,7 @@ void InspectorWindow::ShowAudioComponent(Scene& scene)
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveRenderComponent")) {
 		// remove component
-		scene.RemoveComponent(*_activeGameObject->GetComponent<AudioComponent>());
+		scene.RemoveComponent(*obj->GetComponent<AudioComponent>());
 		return;
 	}
 	if (isHeaderOpen)
@@ -482,8 +483,8 @@ void InspectorWindow::ShowAudioComponent(Scene& scene)
 		ImGui::PushItemWidth(130.0f);
 
 		// store the current mesh name into mesh buffer, so that we can display it in the input text box
-		if(_activeGameObject->GetComponent<AudioComponent>() != nullptr)
-			strcpy(sampleBuffer,  _activeGameObject->GetComponent<AudioComponent>()->fileName.c_str());
+		if(obj->GetComponent<AudioComponent>() != nullptr)
+			strcpy(sampleBuffer,  obj->GetComponent<AudioComponent>()->fileName.c_str());
 		else
 			memset(sampleBuffer, 0, 64 * sizeof(char));
 
@@ -499,13 +500,13 @@ void InspectorWindow::ShowAudioComponent(Scene& scene)
 
 		if(ImGui::Button("Play"))
 		{
-			_activeGameObject->GetComponent<AudioComponent>()->Play();
+			obj->GetComponent<AudioComponent>()->Play();
 		}
 
 		auto asset_Helper = _assetHelper->ShowAudioGuiWindow();
 		if(std::get<0>(asset_Helper))
 		{
-			_activeGameObject->GetComponent<AudioComponent>()->LoadSample(std::get<1>(asset_Helper));
+			obj->GetComponent<AudioComponent>()->LoadSample(std::get<1>(asset_Helper));
 		}
 	}
 }
@@ -573,7 +574,7 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			}
 			else if (strcmp(selectedComponent, "Audio Component") == 0)
 			{
-				scene.AddComponent<AudioComponent>(_activeGameObject);
+				scene.AddComponent<AudioComponent>(obj);
 			}
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;

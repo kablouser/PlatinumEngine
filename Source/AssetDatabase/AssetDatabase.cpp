@@ -310,9 +310,10 @@ namespace PlatinumEngine
 	void AssetDatabase::ReloadAssets()
 	{
 		// each entry corresponds to the loader in the ALLOWED_EXTENSIONS
-		std::vector<std::function<void*(const std::filesystem::path &filePath)>> loaders{
+		std::vector<std::function<void*(const std::filesystem::path &filePath)>> loaders
+		{
 				// remember to add the allocated data to its individual list
-        [&](const std::filesystem::path& filePath) -> void*
+				[&](const std::filesystem::path& filePath) -> void*
 				{
 					Mesh* allocateMesh = new Mesh;
 					*allocateMesh = Loaders::LoadMesh(filePath.string());
@@ -320,8 +321,8 @@ namespace PlatinumEngine
 					allocateMesh->fileName = filePath.filename().string();
 					return allocateMesh;
 				},
-        //Audio 
-				[&](const std::string& filePath) -> void*
+        		//Audio
+				[&](const std::filesystem::path& filePath) -> void*
 				{
 					//Audio* allocateAudio = new Audio;
 					//*allocateAudio = Loaders::LoadAudio(filePath);
@@ -329,9 +330,10 @@ namespace PlatinumEngine
 					//return allocateAudio;
 
 					//Audio Component handles loading so we just need the path
-					_loadedAudioAssets.push_back(filePath);
+					_loadedAudioAssets.push_back(filePath.string());
 					return (void*)filePath.c_str();
-        //Texture
+				},
+        		//Texture
 				[&](const std::filesystem::path& filePath) -> void*
 				{
 					PixelData pixelData;
