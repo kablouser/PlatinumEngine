@@ -2,66 +2,47 @@
 
 namespace PlatinumEngine
 {
-	AudioComponent::AudioComponent(std::string sample, AudioType type, bool loop):
-		_sample(sample), audioType(type), isLooping(loop)
+	AudioComponent::AudioComponent(std::string sample, bool loop):
+		_sample(sample), isLooping(loop)
 	{
 		_isPaused = false;
 		_isPlaying = false;
-		_channel = -2;
-		fileName = std::filesystem::path(_sample).filename().string();
-		ReloadSample();
+		_panning = 127;
+		if(!AllocateChannel())
+			PLATINUM_WARNING("Could not allocate a channel");
+		LoadSample(_sample);
 	}
+
 	AudioComponent::~AudioComponent()
 	{
-		if(audioType==AudioType::clip)
-		    Mix_FreeChunk(_sound);
-		else
-		    Mix_FreeMusic(_music);
+		_allocatedChannel[_channel] = false;
+		Mix_FreeChunk(_sound);
 	}
 
-	void AudioComponent::LoadSample(std::string sample, AudioType type)
+	void AudioComponent::LoadSample(std::string sample)
 	{
 		_sample = sample;
-		audioType = type;
 		fileName = std::filesystem::path(_sample).filename().string();
-		ReloadSample();
-	}
-
-	void AudioComponent::ReloadSample()
-	{
 		if(_sample=="")
 		{
 			PLATINUM_WARNING("Audio sample missing");
 			return;
 		}
-		if(audioType==AudioType::clip)
+		_sound = Mix_LoadWAV(_sample.c_str());
+		if(_sound==nullptr)
 		{
-			_sound = Mix_LoadWAV(_sample.c_str());
-			if(_sound==nullptr)
-			{
-				std::string err = Mix_GetError();
-				PLATINUM_ERROR("Chunk load error: " + err);
-			}
-		}
-		else
-		{
-			_music = Mix_LoadMUS(_sample.c_str());
-			if(_music==nullptr)
-			{
-				std::string err = Mix_GetError();
-				PLATINUM_ERROR("Music load error: " + err);
-			}
+			std::string err = Mix_GetError();
+			PLATINUM_ERROR("Chunk load error: " + err);
 		}
 	}
 
 	void AudioComponent::Play()
 	{
-		if(!IsSampleExist())
+		if(_sound == nullptr)
 			return;
-		if(!IsPlaying(AudioType::clip,_channel))
+		if(!IsPlaying(_channel))
 		{
-			_isPlaying = false;
-			_isPaused = false;
+			Stop();
 		}
 		if(_isPaused)
 		{
@@ -70,109 +51,117 @@ namespace PlatinumEngine
 		}
 		if(!_isPlaying)
 		{
-			_channel = -2;
 			_isPlaying = true;
 			_isPaused = false;
-			if (audioType == AudioType::clip)
-			{
-				if (isLooping)
-					_channel = Mix_PlayChannel(-1, _sound, -1);
-				else
-					_channel = Mix_PlayChannel(-1, _sound, 0);
-			}
+			if (isLooping)
+				Mix_PlayChannel(_channel, _sound, -1);
 			else
-			{
-				if (isLooping)
-					_channel = Mix_PlayMusic(_music, -1);
-				else
-					_channel = Mix_PlayMusic(_music, 0);
-			}
+				Mix_PlayChannel(_channel, _sound, 0);
 		}
 	}
 
 	void AudioComponent::Pause()
 	{
-		if(!IsSampleExist())
+		if(_sound == nullptr)
 			return;
 		if(_isPlaying)
 		{
 			_isPlaying = false;
 			_isPaused = true;
-			if (audioType == AudioType::clip)
-				Mix_Pause(_channel);
-			else
-				Mix_PauseMusic();
+			Mix_Pause(_channel);
 		}
 	}
 
 	void AudioComponent::Resume()
 	{
-		if(!IsSampleExist())
+		if(_sound == nullptr)
 			return;
 		if(_isPaused)
 		{
 			_isPlaying = true;
 			_isPaused = false;
-			if (audioType == AudioType::clip)
-				Mix_Resume(_channel);
-			else
-				Mix_ResumeMusic();
+			Mix_Resume(_channel);
 		}
 	}
 
 	void AudioComponent::Stop()
 	{
-		if(!IsSampleExist())
+		if(_sound == nullptr)
 			return;
+		Mix_HaltChannel(_channel);
 		_isPlaying = false;
 		_isPaused = false;
-		if(audioType==AudioType::clip)
-			Mix_HaltChannel(_channel);
-		else
-			Mix_HaltMusic();
 	}
 
 	void AudioComponent::SetVolume(int volume)
 	{
-		if(_sound!= nullptr && audioType==AudioType::clip)
+		if(_sound!= nullptr)
 			Mix_VolumeChunk(_sound, volume);
-		else if(_music!= nullptr && audioType==AudioType::music)
-			Mix_VolumeMusic(volume);
 	}
 
 	int AudioComponent::GetVolume()
 	{
-		if(_sound!= nullptr && audioType==AudioType::clip)
+		if(_sound!= nullptr)
 			return Mix_VolumeChunk(_sound, -1);
-		else if(_music!= nullptr && audioType==AudioType::music)
-			return Mix_VolumeMusic(-1);
 		return MIX_MAX_VOLUME;
+	}
+
+	void AudioComponent::SetPanning(int panValueRight)
+	{
+		if(_channel>=0)
+		{
+			_panning = panValueRight;
+			Mix_SetPanning(_channel, 254-_panning, _panning);
+		}
+	}
+
+	int AudioComponent::GetPanning()
+	{
+		return _panning;
+	}
+
+	int AudioComponent::GetChannel()
+	{
+		return _channel;
 	}
 
 	bool AudioComponent::IsSampleExist()
 	{
 		if(_sound != nullptr)
 			return true;
-		if(_music != nullptr)
+		return false;
+	}
+
+	bool AudioComponent::IsPlaying(int channel)
+	{
+		if(Mix_Playing(channel) > 0)
 			return true;
 		return false;
 	}
 
-	bool AudioComponent::IsPlaying(AudioType type, int channel)
+	bool AudioComponent::IsPaused(int channel)
 	{
-		if(type==AudioType::clip && Mix_Playing(channel) > 0)
-			return true;
-		else if(type==AudioType::music && Mix_PlayingMusic() > 0)
+		if(Mix_Paused(channel) > 0)
 			return true;
 		return false;
 	}
 
-	bool AudioComponent::IsPaused(AudioType type, int channel)
+	bool AudioComponent::AllocateChannel()
 	{
-		if(type==AudioType::clip && Mix_Paused(channel) > 0)
-			return true;
-		else if(type==AudioType::music && Mix_PausedMusic() > 0)
-			return true;
+		if(_allocatedChannel.size()<Mix_AllocateChannels(-1))
+			_allocatedChannel.resize(Mix_AllocateChannels(-1));
+		for(int i=0;i<_allocatedChannel.size();i++)
+		{
+			if(!_allocatedChannel[i])
+			{
+				_channel = i;
+				_allocatedChannel[i] = true;
+				return true;
+			}
+		}
+		_channel = -2;
 		return false;
 	}
+
+	std::vector<bool> AudioComponent::_allocatedChannel = std::vector<bool>(Mix_AllocateChannels(-1));
 }

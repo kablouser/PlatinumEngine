@@ -263,7 +263,7 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 					GameObject* go = _sceneEditor->GetSelectedGameobject();
 					if(go != nullptr)
 					{
-						if (ImGui::Selectable("Add Clip"))
+						if (ImGui::Selectable("Add Audio"))
 						{
 							auto asset_Helper = _assetHelper->GetAudioAsset(dir.string());
 							if (std::get<0>(asset_Helper))
@@ -272,19 +272,7 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 								{
 									_scene->AddComponent<AudioComponent>(go);
 								}
-								go->GetComponent<AudioComponent>()->LoadSample(dir.string(), AudioComponent::AudioType::clip);
-							}
-						}
-						if (ImGui::Selectable("Add Music"))
-						{
-							auto asset_Helper = _assetHelper->GetAudioAsset(dir.string());
-							if (std::get<0>(asset_Helper))
-							{
-								if(go->GetComponent<AudioComponent>() == nullptr)
-								{
-									_scene->AddComponent<AudioComponent>(go);
-								}
-								go->GetComponent<AudioComponent>()->LoadSample(dir.string(),AudioComponent::AudioType::music);
+								go->GetComponent<AudioComponent>()->LoadSample(dir.string());
 							}
 						}
 						ImGui::Separator();
@@ -415,14 +403,15 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 		PlatinumEngine::Maths::Mat4 rotation, translation;
 		Maths::Mat4 viewMatrix4(1.f);
 		rotation.SetRotationMatrix(Maths::Quaternion::Inverse(Maths::Quaternion::identity));
-		translation.SetTranslationMatrix(Maths::Vec3(0.f, 0.f, 1.f));
-		viewMatrix4 = rotation*translation;
+		translation.SetTranslationMatrix(Maths::Vec3(0,0,-1));
+		//viewMatrix4 = rotation*translation;
 
 		//Setup renderer's settings
-		_renderer->SetModelMatrix();
+		_renderer->SetModelMatrix(translation);
 		_renderer->SetViewMatrix(viewMatrix4);
 		_renderer->SetProjectionMatrix();
 		_renderer->SetLightProperties();
+		//_renderer->SetCameraPos(Maths::Vec3::forward * 10.f);
 
 		// End rendering (unbind a shader)
 		_renderer->End();
@@ -450,9 +439,17 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 		if(ImGui::Button("Play"))
 		{
 			Mix_Chunk* sample = Mix_LoadWAV(filePath.string().c_str());
-			if(Mix_Playing(-1)>0)
-				Mix_HaltChannel(-1);
-			int channel = Mix_PlayChannel(-1, sample, 0);
+			if(sample==nullptr)
+			{
+				std::string err = Mix_GetError();
+				PLATINUM_ERROR("Sample load error: " + err);
+			}
+			else
+			{
+				if(Mix_Playing(-1)>0)
+					Mix_HaltChannel(-1);
+				int channel = Mix_PlayChannel(-1, sample, 0);
+			}
 		}
 		ImGui::SameLine();
 		if(ImGui::Button("Stop"))

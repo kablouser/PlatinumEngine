@@ -495,12 +495,7 @@ void InspectorWindow::ShowAudioComponent(Scene& scene)
 			//Accept any regular file (but it will check if it is texture or not)
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
 			{
-				char* payloadPointer = (char*)payload->Data;
-				int size = payload->DataSize;
-				std::string filePath = "";
-				for(int i=0;i<size;i++)
-					filePath+=*(payloadPointer+i);
-				std::filesystem::path payloadPath = std::filesystem::path(filePath);
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
 
 				if(payloadPath.extension()==".wav")
 				{
@@ -541,21 +536,18 @@ void InspectorWindow::ShowAudioComponent(Scene& scene)
 			if(ac->IsPlaying())
 				ac->Stop();
 		}
-		ImGui::SameLine();
-		if(ImGui::Button(ac->audioType == AudioComponent::AudioType::clip?"Clip":"Music"))
-		{
-			if(ac->IsPlaying())
-				ac->Stop();
-			if(ac->audioType == AudioComponent::AudioType::clip)
-				ac->audioType = AudioComponent::AudioType::music;
-			else
-				ac->audioType = AudioComponent::AudioType::clip;
-			ac->ReloadSample();
-		}
 
 		int volume = ac->GetVolume();
 		ImGui::SliderInt("Volume", &volume, 0, 128);
 		ac->SetVolume(volume);
+
+		int panning = ac->GetPanning();
+		std::string panningLabel = (panning==127)?"C":((panning>127)?"R: "+std::to_string(panning-127):"L: "+std::to_string(127-panning));
+		ImGui::SliderInt("Panning", &panning, 0, 254, panningLabel.c_str());
+		ac->SetPanning(panning);
+
+		int channel = ac->GetChannel();
+		ImGui::Text("CHANNEL: %d",channel);
 
 		auto asset_Helper = _assetHelper->ShowAudioGuiWindow();
 		if(std::get<0>(asset_Helper))

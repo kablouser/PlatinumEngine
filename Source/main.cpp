@@ -16,6 +16,8 @@
 #include <OpenGL/GLCheck.h>
 
 #define SDL_MAIN_HANDLED
+#define CHANNELS 32
+
 #include "SDL.h"
 #include "SDL_mixer.h"
 
@@ -37,6 +39,8 @@ int main(int, char**)
 		std::string err = Mix_GetError();
 		PLATINUM_ERROR("Failed to open audio! Mix Error: " + err);
 	}
+	//Is also equivalent to the number of audio components we want to have
+	Mix_AllocateChannels(32);
 
 	// Setup window
 	glfwSetErrorCallback(GlfwErrorCallback);
