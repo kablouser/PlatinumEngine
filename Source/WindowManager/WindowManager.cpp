@@ -163,21 +163,7 @@ namespace PlatinumEngine
 				"Assets",
 				"");
 		if (success)
-		{
-			std::ifstream loadFile(path);
-			if (loadFile.is_open())
-			{
-				// first delete existing scene data
-				_idSystem.Clear();
-				scene.Clear();
-				// then deserialize
-				_typeDatabase.Deserialize(loadFile, &_idSystem);
-				_typeDatabase.Deserialize(loadFile, &scene);
-				scene.AfterLoad();
-			}
-			else
-				PLATINUM_ERROR_STREAM << "Could not open scene file: " << path;
-		}
+			scene.LoadFile(path);
 	}
 	void WindowManager::SaveFile(Scene& scene, bool* outIsOpen)
 	{
@@ -189,16 +175,7 @@ namespace PlatinumEngine
 				"Assets",
 				"Scene");
 		if (success)
-		{
-			std::ofstream saveFile(path);
-			if (saveFile.is_open())
-			{
-				_typeDatabase.Serialize(saveFile, &_idSystem);
-				_typeDatabase.Serialize(saveFile, &scene);
-			}
-			else
-				PLATINUM_ERROR_STREAM << "Could not open scene file: " << path;
-		}
+			scene.SaveFile(path);
 	}
 
 	///--------------------------------------------------------------------------

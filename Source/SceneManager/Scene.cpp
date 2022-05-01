@@ -7,6 +7,7 @@
 #include <ComponentComposition/Component.h>
 #include <Helpers/VectorHelpers.h>
 #include <Logger/Logger.h>
+#include <fstream>
 
 namespace PlatinumEngine
 {
@@ -38,6 +39,49 @@ namespace PlatinumEngine
 
 	Scene::Scene(IDSystem& inIDSystem) : _isStarted(false), idSystem(inIDSystem)
 	{
+	}
+
+	void Scene::LoadFile(std::string filePath)
+	{
+		TypeDatabase* typeDatabase = TypeDatabase::Instance;
+		if (!typeDatabase)
+		{
+			PLATINUM_ERROR("No TypeDatabase");
+			return;
+		}
+
+		std::ifstream loadFile(filePath);
+		if (loadFile.is_open())
+		{
+			// first delete existing scene data
+			idSystem.Clear();
+			Clear();
+			// then deserialize
+			typeDatabase->Deserialize(loadFile, &idSystem);
+			typeDatabase->Deserialize(loadFile, this);
+			AfterLoad();
+		}
+		else
+			PLATINUM_ERROR_STREAM << "Could not open scene file: " << filePath;
+	}
+
+	void Scene::SaveFile(std::string filePath)
+	{
+		TypeDatabase* typeDatabase = TypeDatabase::Instance;
+		if (!typeDatabase)
+		{
+			PLATINUM_ERROR("No TypeDatabase");
+			return;
+		}
+
+		std::ofstream saveFile(filePath);
+		if (saveFile.is_open())
+		{
+			typeDatabase->Serialize(saveFile, &idSystem);
+			typeDatabase->Serialize(saveFile, this);
+		}
+		else
+			PLATINUM_ERROR_STREAM << "Could not open scene file: " << filePath;
 	}
 
 	void Scene::Clear()

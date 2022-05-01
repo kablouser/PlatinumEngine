@@ -4,6 +4,7 @@
 #pragma once
 #include <OpenGL/Texture.h>
 #include <IDSystem/IDSystem.h>
+#include <TypeDatabase/TypeDatabase.h>
 namespace PlatinumEngine
 {
 	class Material
@@ -13,12 +14,14 @@ namespace PlatinumEngine
 		SavedReference<Texture>			normalTexture;
 		SavedReference<Texture>			specularTexture;
 
-		float         	shininessFactor = 8.0f;
+		float         	shininessFactor;
 
 		// Flags
-		bool useBlinnPhong = false;
-		bool useTexture = false;
-		bool useNormalTexture = false;
+		bool useBlinnPhong;
+		bool useTexture;
+		bool useNormalTexture;
+
+		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 
 		Material();
 	};

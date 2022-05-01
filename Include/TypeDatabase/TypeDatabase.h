@@ -259,7 +259,7 @@ namespace PlatinumEngine
 						{
 							T* savedReference = static_cast<T*>(typeInstance);
 
-							if (savedReference->typeIndex == std::type_index(typeid(T)))
+							if (savedReference->typeIndex == std::type_index(typeid(typename T::Parameter)))
 								outputStream << savedReference->id;
 							else
 								outputStream << '{' << savedReference->id << ", " <<
@@ -300,7 +300,7 @@ namespace PlatinumEngine
 							else
 							{
 								inputStream >> savedReference->id;
-								savedReference->typeIndex = typeid(T);
+								savedReference->typeIndex = typeid(typename T::Parameter);
 							}
 						};
 			}

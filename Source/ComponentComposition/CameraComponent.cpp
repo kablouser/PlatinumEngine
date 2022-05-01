@@ -2,6 +2,28 @@
 
 namespace PlatinumEngine
 {
+	void CameraComponent::CreateTypeInfo(TypeDatabase& database)
+	{
+//		ProjectionType projectionType;
+//		ClearMode clearMode;
+//		Color backgroundColor;
+//		float fov;
+//		float nearClippingPlane;
+//		float farClippingPlane;
+//		float orthographicSize;
+		database.BeginTypeInfo<CameraComponent>()
+				.WithInherit<Component>()
+				// enum types are created automatically in the database
+				.WithField<ProjectionType>("projectionType", PLATINUM_OFFSETOF(CameraComponent, projectionType))
+				.WithField<ClearMode>("clearMode", PLATINUM_OFFSETOF(CameraComponent, clearMode))
+
+				.WithField<Color>("backgroundColor", PLATINUM_OFFSETOF(CameraComponent, backgroundColor))
+				.WithField<float>("fov", PLATINUM_OFFSETOF(CameraComponent, fov))
+				.WithField<float>("nearClippingPlane", PLATINUM_OFFSETOF(CameraComponent, nearClippingPlane))
+				.WithField<float>("farClippingPlane", PLATINUM_OFFSETOF(CameraComponent, farClippingPlane))
+				.WithField<float>("orthographicSize", PLATINUM_OFFSETOF(CameraComponent, orthographicSize));
+	}
+
 	CameraComponent::CameraComponent()
 	{
 		projectionType = ProjectionType::perspective;

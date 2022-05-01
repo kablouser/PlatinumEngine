@@ -46,6 +46,14 @@ namespace PlatinumEngine
 
 		Scene& operator=(Scene&&) noexcept = delete;
 
+		//--------------------------------------------------------------------------------------------------------------
+		// Load control
+		//--------------------------------------------------------------------------------------------------------------
+
+		void LoadFile(std::string filePath);
+
+		void SaveFile(std::string filePath);
+
 		// Clear all data stored on this scene
 		void Clear();
 

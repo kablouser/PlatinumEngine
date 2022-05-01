@@ -1,10 +1,24 @@
 #include <ComponentComposition/Component.h>
-#include <ComponentComposition/GameObject.h>
 #include <SceneManager/Scene.h>
 #include <Logger/Logger.h>
+#include "ComponentComposition/GameObjectComponentTemplates/ComponentWithoutTemplates.h"
+
 
 namespace PlatinumEngine
 {
+	void Component::CreateTypeInfo(TypeDatabase& typeDatabase)
+	{
+		/*
+		SavedReference<GameObject> _gameObject;
+		bool _isEnabled;
+		bool _isEnabledInHierarchy;
+		 */
+		typeDatabase.BeginTypeInfoWithoutAllocator<Component>()
+		        .WithField<SavedReference<GameObject>>("_gameObject", PLATINUM_OFFSETOF(Component, _gameObject))
+				.WithField<bool>("_isEnabled", PLATINUM_OFFSETOF(Component, _isEnabled))
+				.WithField<bool>("_isEnabledInHierarchy", PLATINUM_OFFSETOF(Component, _isEnabledInHierarchy));
+	}
+
 	//--------------------------------------------------------------------------------------------------------------
 	// Constructors/destructors
 	//--------------------------------------------------------------------------------------------------------------

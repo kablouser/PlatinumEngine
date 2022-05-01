@@ -14,6 +14,8 @@ namespace PlatinumEngine
 	{
 	public:
 
+		static void CreateTypeInfo(TypeDatabase& database);
+
 		// A LOT OF EFFORT, WHERE MOST CASES, YOU DON'T NEED THIS
 		//enum class RelativeTo{world, local};
 

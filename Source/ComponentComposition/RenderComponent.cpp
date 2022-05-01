@@ -15,6 +15,7 @@ namespace PlatinumEngine
 		ShaderInput _shaderInput;
 		 */
 		database.BeginTypeInfo<RenderComponent>()
+				.WithInherit<Component>()
 		        .WithField<Material>("material", PLATINUM_OFFSETOF(RenderComponent, material))
 				.WithField<SavedReference<Mesh>>("_mesh", PLATINUM_OFFSETOF(RenderComponent, _mesh));
 	}

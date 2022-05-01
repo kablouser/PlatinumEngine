@@ -116,6 +116,9 @@ namespace PlatinumEngine
 	{
 	public:
 
+		// This is the T parameter, useful for template magic
+		typedef T Parameter;
+
 		// 0 indicates nullptr
 		IDSystem::ID id;
 		std::shared_ptr<T> pointer;

@@ -1,7 +1,23 @@
 #include "ComponentComposition/TransformComponent.h"
-#include <ImGuizmo.h>
+
 namespace PlatinumEngine
 {
+	void TransformComponent::CreateTypeInfo(TypeDatabase& database)
+	{
+		/*
+		Maths::Vec3 localPosition;
+		Maths::Quaternion localRotation;
+		Maths::Mat4 transformationMatrix;
+		float localScale;
+		 */
+		database.BeginTypeInfo<TransformComponent>()
+		        .WithInherit<Component>()
+		        .WithField<Maths::Vec3>("localPosition", PLATINUM_OFFSETOF(TransformComponent, localPosition))
+				.WithField<Maths::Quaternion>("localRotation", PLATINUM_OFFSETOF(TransformComponent, localRotation))
+				.WithField<Maths::Mat4>("transformationMatrix", PLATINUM_OFFSETOF(TransformComponent, transformationMatrix))
+				.WithField<float>("localScale", PLATINUM_OFFSETOF(TransformComponent, localScale));
+	}
+
 	//Constructors
 
 	TransformComponent::TransformComponent()

@@ -100,16 +100,8 @@ int main(int, char**)
 		// create assets
 		assetDatabase.Update(idSystem, scene);
 
-		// create some default game object
-		{
-			auto meshAssets = assetDatabase.GetAssets<PlatinumEngine::Mesh>();
-			if (0 < meshAssets.size())
-			{
-				scene.AddComponent<PlatinumEngine::RenderComponent>(
-						scene.AddGameObject("Default GameObject")).pointer->
-						SetMesh(meshAssets[0].GetSavedReference(idSystem));
-			}
-		}
+		// load default scene
+		scene.LoadFile("Assets/Default.scene");
 
 		// Main loop
 		while (!glfwWindowShouldClose(window))
@@ -169,8 +161,6 @@ int main(int, char**)
 
 			glfwSwapBuffers(window);
 		}
-
-
 
 		// Cleanup ImGui
 		ImGui_ImplOpenGL3_Shutdown();
