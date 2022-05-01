@@ -102,7 +102,7 @@ namespace PlatinumEngine
 		 * */
 		void ResizeFrameBuffer(Framebuffer &framebuffer, ImVec2 targetSize);
 
-		// three temporary functions to update model, view, projection matrix before TransformComponent
+		// three temporary functions to update model, view, projection matrix before Transform
 		// update model matrix in shader
 		void SetModelMatrix(Maths::Mat4 mat = Maths::Mat4(1.0));
 

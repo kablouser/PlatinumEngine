@@ -13,8 +13,7 @@ namespace PlatinumEngine
 	//--------------------------------------------------------------------------------------------------------------
 	// Constructors/destructors
 	//--------------------------------------------------------------------------------------------------------------
-
-	Scene::Scene() : _isStarted(false)
+	Scene::Scene(Physics& physicsRef) : _isStarted(false), physics(physicsRef)
 	{
 	}
 
@@ -433,4 +432,5 @@ namespace PlatinumEngine
 		}
 		return nullptr;
 	}
+
 }

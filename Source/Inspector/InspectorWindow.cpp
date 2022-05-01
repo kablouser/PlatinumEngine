@@ -3,14 +3,17 @@
 //
 
 #include <Inspector/InspectorWindow.h>
+#include <ComponentComposition/Camera.h>
+
 #include <ImGuizmo.h>
 #include <Inspector/Bezier.h>
 
 
+
 using namespace PlatinumEngine;
 
-InspectorWindow::InspectorWindow(AssetHelper* assetHelper, SceneEditor* sceneEditor) :
-	_assetHelper(assetHelper), _sceneEditor(sceneEditor) {}
+InspectorWindow::InspectorWindow(AssetHelper* assetHelper, SceneEditor* sceneEditor, Physics* physics) :
+	_assetHelper(assetHelper), _sceneEditor(sceneEditor), _physics(physics) {}
 
 void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 {
@@ -35,20 +38,31 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 			}
 
 			// Now render each component gui
-			if (obj->GetComponent<RenderComponent>() != nullptr)
+			if (obj->GetComponent<MeshRender>() != nullptr)
 				ShowMeshRenderComponent(scene);
 
-			if (obj->GetComponent<TransformComponent>() != nullptr)
+			if (obj->GetComponent<Transform>() != nullptr)
 				ShowTransformComponent(scene);
 
+			if (obj->GetComponent<Camera>() != nullptr)
+			  	ShowCameraComponent(scene);
 
-		  	if (obj->GetComponent<CameraComponent>())
-				ShowCameraComponent(scene);
+			if(obj->GetComponent<RigidBody>() != nullptr)
+				ShowRigidBodyComponent(scene);
+
+			if(obj->GetComponent<BoxCollider>() != nullptr)
+				ShowBoxColliderComponent(scene);
+
+			if(obj->GetComponent<SphereCollider>() != nullptr)
+				ShowSphereColliderComponent(scene);
+
+			if(obj->GetComponent<CapsuleCollider>() != nullptr)
+				ShowCapsuleColliderComponent(scene);
 
 		  	if (obj->GetComponent<ParticleEffect>() != nullptr)
 				ShowParticleEffectComponent(scene);
 
-		  if (obj->GetComponent<AudioComponent>())
+		  if (obj->GetComponent<AudioComponent>() != nullptr)
 			  ShowAudioComponent(scene);
       
 		  	ImGui::Separator();
@@ -91,7 +105,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveRenderComponent")) {
 		// remove component
-		scene.RemoveComponent(*obj->GetComponent<RenderComponent>());
+		scene.RemoveComponent(*obj->GetComponent<MeshRender>());
 		return;
 	}
 	if (isHeaderOpen)
@@ -99,12 +113,12 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::Text("Mesh Properties");
 		ImGui::Separator();
 		ImGui::Text("File");
-		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::SameLine(_textWidth);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 
 		// store the current mesh name into mesh buffer, so that we can display it in the input text box
-		if(obj->GetComponent<RenderComponent>()->GetMesh() != nullptr)
-			strcpy(meshBuffer,  obj->GetComponent<RenderComponent>()->GetMesh()->fileName.c_str());
+		if(obj->GetComponent<MeshRender>()->GetMesh() != nullptr)
+			strcpy(meshBuffer,  obj->GetComponent<MeshRender>()->GetMesh()->fileName.c_str());
 		else
 			memset(meshBuffer, 0, 64 * sizeof(char));
 
@@ -119,10 +133,12 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 				std::filesystem::path payloadPath = GetPayloadPath(payload);
 				if(payloadPath.extension()==".obj")
 				{
+					//Maybe we SetMesh on obj
+					//obj->GetComponent<MeshRender>()->SetMesh(mesh);
 					//Set The mesh that we dragged to the RenderComponent
 					auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
 					if (std::get<0>(asset_Helper))
-						obj->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+						obj->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
 				}
 			}
 			// End DragDropTarget
@@ -131,7 +147,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 
-		if(ImGui::Button("Select Mesh"))
+		if(ImGui::Button("Select"))
 		{
 			ImGui::OpenPopup("Select Mesh");
 		}
@@ -140,17 +156,17 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			auto asset_Helper = _assetHelper->ShowMeshGuiWindow();
 			if (std::get<0>(asset_Helper))
 			{
-				obj->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+				obj->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
 			}
 		}
 
-		if(obj->GetComponent<RenderComponent>()->material.diffuseTexture != nullptr)
-			strcpy(textureBuffer,  obj->GetComponent<RenderComponent>()->material.diffuseTexture->fileName.c_str());
+		if(obj->GetComponent<MeshRender>()->material.diffuseTexture != nullptr)
+			strcpy(textureBuffer,  obj->GetComponent<MeshRender>()->material.diffuseTexture->fileName.c_str());
 		else
 			memset(textureBuffer, 0, 64 * sizeof(char));
 
-		if(obj->GetComponent<RenderComponent>()->material.normalTexture != nullptr)
-			strcpy(normalTextureBuffer,  obj->GetComponent<RenderComponent>()->material.normalTexture->fileName.c_str());
+		if(obj->GetComponent<MeshRender>()->material.normalTexture != nullptr)
+			strcpy(normalTextureBuffer,  obj->GetComponent<MeshRender>()->material.normalTexture->fileName.c_str());
 		else
 			memset(normalTextureBuffer, 0, 64 * sizeof(char));
 
@@ -159,18 +175,17 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::Separator();
 
 		ImGui::Text("Specular Exponent");
-
 		ImGui::SameLine();
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
-		ImGui::SliderFloat("##shininess",&(obj->GetComponent<RenderComponent>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
+		ImGui::SliderFloat("##shininess",&(obj->GetComponent<MeshRender>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 
 		ImGui::Text("Blinn-Phong");
-		ImGui::SameLine(_textWidthMeshRenderComponent);
-		ImGui::Checkbox("##Blinn-Phong", &(obj->GetComponent<RenderComponent>()->material.useBlinnPhong));
+		ImGui::SameLine(_textWidth);
+		ImGui::Checkbox("##Blinn-Phong", &(obj->GetComponent<MeshRender>()->material.useBlinnPhong));
 
 		ImGui::Text("Texture");
-		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::SameLine(_textWidth);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 
 		// store the current material name into mesh buffer, so that we can display it in the input text box
@@ -188,8 +203,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
 					if (std::get<0>(asset_Helper))
 					{
-						obj->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
-						obj->GetComponent<RenderComponent>()->material.useTexture = true;
+						obj->GetComponent<MeshRender>()->SetMaterial(std::get<1>(asset_Helper));
+						obj->GetComponent<MeshRender>()->material.useTexture = true;
 					}
 				}
 			}
@@ -206,15 +221,15 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			auto asset_Helper = _assetHelper->ShowTextureGuiWindow();
 			if (std::get<0>(asset_Helper))
 			{
-				obj->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
-				obj->GetComponent<RenderComponent>()->material.useTexture = true;
+				obj->GetComponent<MeshRender>()->SetMaterial(std::get<1>(asset_Helper));
+				obj->GetComponent<MeshRender>()->material.useTexture = true;
 			}
 		}
 		ImGui::SameLine();
-		ImGui::Checkbox("##UseTexture", &(obj->GetComponent<RenderComponent>()->material.useTexture));
+		ImGui::Checkbox("##UseTexture", &(obj->GetComponent<MeshRender>()->material.useTexture));
 
 		ImGui::Text("%s", "Normal Map");
-		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::SameLine(_textWidth);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		ImGui::InputText("##Normal Map Name", normalTextureBuffer, sizeof(normalTextureBuffer), ImGuiInputTextFlags_ReadOnly);
 		if (ImGui::BeginDragDropTarget())
@@ -228,7 +243,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 					//Set The texture that we dragged to the RenderComponent
 					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
 					if (std::get<0>(asset_Helper))
-						obj->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
+						obj->GetComponent<MeshRender>()->SetNormalMap(std::get<1>(asset_Helper));
 				}
 			}
 			// End DragDropTarget
@@ -243,24 +258,25 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		{
 			auto asset_Helper = _assetHelper->ShowNormalTextureGuiWindow();
 			if (std::get<0>(asset_Helper))
-				obj->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
+				obj->GetComponent<MeshRender>()->SetNormalMap(std::get<1>(asset_Helper));
 		}
 		ImGui::SameLine();
-		ImGui::Checkbox("##UseNormalTexture", &(obj->GetComponent<RenderComponent>()->material.useNormalTexture));
+
+		ImGui::Checkbox("##UseNormalTexture", &(obj->GetComponent<MeshRender>()->material.useNormalTexture));
 
 		ImGui::Text("Special Properties");
 		ImGui::Separator();
 		ImGui::Text("Reflection");
-		ImGui::SameLine(_textWidthMeshRenderComponent);
-		ImGui::Checkbox("##UseRelfectionShader", &(obj->GetComponent<RenderComponent>()->material.useReflectionShader));
+		ImGui::SameLine(_textWidth);
+		ImGui::Checkbox("##UseRelfectionShader", &(obj->GetComponent<MeshRender>()->material.useReflectionShader));
 		ImGui::Text("Refraction");
-		ImGui::SameLine(_textWidthMeshRenderComponent);
-		ImGui::Checkbox("##UseRefracctionShader", &(obj->GetComponent<RenderComponent>()->material.useRefractionShader));
+		ImGui::SameLine(_textWidth);
+		ImGui::Checkbox("##UseRefracctionShader", &(obj->GetComponent<MeshRender>()->material.useRefractionShader));
 		ImGui::Text("Refraction Index");
 		ImGui::SameLine();
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		// Setting max to 4 as you start to get unpleasing results past that
-		ImGui::SliderFloat("##refractionIndex",&(obj->GetComponent<RenderComponent>()->material.refractionIndex),1.0f, 4.f, "%.3f", ImGuiSliderFlags_None);
+		ImGui::SliderFloat("##refractionIndex",&(obj->GetComponent<MeshRender>()->material.refractionIndex),1.0f, 4.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 	}
 }
@@ -276,29 +292,29 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveTransformComponent")) {
 		// remove component
-		scene.RemoveComponent(*obj->GetComponent<TransformComponent>());
+		scene.RemoveComponent(*obj->GetComponent<Transform>());
 		return;
 	}
 	if (isHeaderOpen)
 	{
 		ImGui::PushItemWidth(50);
 		ImGui::Text(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT " Position: ");
-		ImGui::SameLine(_textWidthTransformComponent);
+		ImGui::SameLine(_textWidth - 16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Xpos", &obj->GetComponent<TransformComponent>()->localPosition[0], 0.001f);
+		ImGui::DragFloat("##Xpos", &obj->GetComponent<Transform>()->localPosition[0], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Ypos", &obj->GetComponent<TransformComponent>()->localPosition[1], 0.001f);
+		ImGui::DragFloat("##Ypos", &obj->GetComponent<Transform>()->localPosition[1], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Zpos", &obj->GetComponent<TransformComponent>()->localPosition[2], 0.001f);
+		ImGui::DragFloat("##Zpos", &obj->GetComponent<Transform>()->localPosition[2], 0.001f);
     
-    	Maths::Vec3 eulerRotation = obj->GetComponent<TransformComponent>()->localRotation.EulerAngles();
+    	Maths::Vec3 eulerRotation = obj->GetComponent<Transform>()->localRotation.EulerAngles();
 		ImGui::Text(ICON_FA_ROTATE " Rotation: ");
-		ImGui::SameLine(_textWidthTransformComponent);
+		ImGui::SameLine(_textWidth - 16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Xrot", &eulerRotation[0], 0.001f);
@@ -310,13 +326,13 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::Text("Z");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Zrpt", &eulerRotation[2], 0.001f);
-		obj->GetComponent<TransformComponent>()->localRotation = Maths::Quaternion::EulerToQuaternion(
+		obj->GetComponent<Transform>()->localRotation = Maths::Quaternion::EulerToQuaternion(
 				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2])); 
 
 		ImGui::Text(ICON_FA_MAXIMIZE " Scale: ");
 		// Scale is special case and needs some extra offset applied
-		ImGui::SameLine(_textWidthTransformComponent + 16.0f);
-		ImGui::InputFloat("##scale", &obj->GetComponent<TransformComponent>()->localScale);
+		ImGui::SameLine(_textWidth);
+		ImGui::InputFloat("##scale", &obj->GetComponent<Transform>()->localScale);
 		ImGui::PopItemWidth();
 	}
 
@@ -335,26 +351,26 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveCameraComponent")) {
 		// remove component
-		scene.RemoveComponent(*obj->GetComponent<CameraComponent>());
+		scene.RemoveComponent(*obj->GetComponent<Camera>());
 		return;
 	}
 	if (isHeaderOpen)
 	{
-		auto camera = obj->GetComponent<CameraComponent>();
+		auto camera = obj->GetComponent<Camera>();
 
 		{// the camera projection type
-			if (CameraComponent::ProjectionType::perspective == camera->projectionType)
+			if (Camera::ProjectionType::perspective == camera->projectionType)
 			{
 				std::strcpy(cameraType, _temp[0].c_str());
 			}
-			if (CameraComponent::ProjectionType::orthographic == camera->projectionType)
+			if (Camera::ProjectionType::orthographic == camera->projectionType)
 			{
 
 				std::strcpy(cameraType, _temp[1].c_str());
       }
 
 			ImGui::Text("Projection Type");
-			ImGui::SameLine(_textWidthCameraComponent);
+			ImGui::SameLine(_textWidth);
 			ImGui::SetNextItemWidth(_itemWidthMeshRenderComponent);
 			ImGui::InputText("##Projection Type", cameraType, sizeof(cameraType), ImGuiInputTextFlags_ReadOnly);
 			ImGui::SameLine();
@@ -362,12 +378,12 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 			{
 				if (ImGui::Selectable("Perspective"))
 				{
-					camera->projectionType = CameraComponent::ProjectionType::perspective;
+					camera->projectionType = Camera::ProjectionType::perspective;
 					//std::strcpy(cameraType, _temp[0].c_str());
 				}
 				if (ImGui::Selectable("Orthographic"))
 				{
-					camera->projectionType = CameraComponent::ProjectionType::orthographic;
+					camera->projectionType = Camera::ProjectionType::orthographic;
 					//std::strcpy(cameraType, _temp[1].c_str());
 				}
 				ImGui::EndPopup();
@@ -380,22 +396,22 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 		}
 
 		{// the camera clear mode
-			if (CameraComponent::ClearMode::backgroundColor == camera->clearMode)
+			if (Camera::ClearMode::backgroundColor == camera->clearMode)
 			{
 				std::strcpy(clearMode, _clearMode[2].c_str());
 			}
-			if (CameraComponent::ClearMode::skybox == camera->clearMode)
+			if (Camera::ClearMode::skybox == camera->clearMode)
 			{
 				std::strcpy(clearMode, _clearMode[1].c_str());
 			}
-			if (CameraComponent::ClearMode::none == camera->clearMode)
+			if (Camera::ClearMode::none == camera->clearMode)
 			{
 				std::strcpy(clearMode, _clearMode[0].c_str());
 			}
 
 
 			ImGui::Text("Clear Mode");
-			ImGui::SameLine(_textWidthCameraComponent);
+			ImGui::SameLine(_textWidth);
 			ImGui::SetNextItemWidth(_itemWidthMeshRenderComponent);
 			ImGui::InputText("##Clear Mode", clearMode, sizeof(clearMode), ImGuiInputTextFlags_ReadOnly);
 			ImGui::SameLine();
@@ -403,15 +419,15 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 			{
 				if (ImGui::Selectable("SkyBox"))
 				{
-					camera->clearMode = CameraComponent::ClearMode::skybox;
+					camera->clearMode = Camera::ClearMode::skybox;
 				}
 				if (ImGui::Selectable("None"))
 				{
-					camera->clearMode = CameraComponent::ClearMode::none;
+					camera->clearMode = Camera::ClearMode::none;
 				}
 				if (ImGui::Selectable("BackgroundColour"))
 				{
-					camera->clearMode = CameraComponent::ClearMode::backgroundColor;
+					camera->clearMode = Camera::ClearMode::backgroundColor;
 				}
 				ImGui::EndPopup();
 			}
@@ -451,23 +467,199 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 		float orthographicSize;
 
 		ImGui::Text("Field of View: ");
-		ImGui::SameLine(_textWidthCameraComponent);
+		ImGui::SameLine(_textWidth);
 		ImGui::InputFloat("##FOV", &camera->fov);
 
 		ImGui::Text("Near Clipping Plane: ");
-		ImGui::SameLine(_textWidthCameraComponent);
+		ImGui::SameLine(_textWidth);
 		ImGui::InputFloat("##NearClippingPlane", &camera->nearClippingPlane);
 
 		ImGui::Text("Far Clipping Plane: ");
-		ImGui::SameLine(_textWidthCameraComponent);
+		ImGui::SameLine(_textWidth);
 		ImGui::InputFloat("##FarClippingPlane", &camera->farClippingPlane);
 
 		ImGui::Text("Orthographic Size: ");
-		ImGui::SameLine(_textWidthCameraComponent);
+		ImGui::SameLine(_textWidth);
 		ImGui::InputFloat("##OrthographicSize", &camera->orthographicSize);
 	}
 }
 
+void InspectorWindow::ShowBoxColliderComponent(Scene& scene)
+{
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_BOX "  BoxCollider Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+	auto obj = _sceneEditor->GetSelectedGameobject();
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveBoxColliderComponent")) {
+		// remove component
+		scene.RemoveComponent(*obj->GetComponent<BoxCollider>());
+		return;
+	}
+
+	if(isHeaderOpen)
+	{
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Center: ");
+		ImGui::SameLine(_textWidth - 16.f);
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::DragFloat("##XcenBox", &obj->GetComponent<BoxCollider>()->center.x, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::DragFloat("##YcenBox", &obj->GetComponent<BoxCollider>()->center.y, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::DragFloat("##ZcenBox", &obj->GetComponent<BoxCollider>()->center.z, 0.001f);
+
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Size: ");
+		ImGui::SameLine(_textWidth - 16.f);
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Xsize", &obj->GetComponent<BoxCollider>()->size.x, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Ysize", &obj->GetComponent<BoxCollider>()->size.y, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Zsize", &obj->GetComponent<BoxCollider>()->size.z, 0.001f);
+	}
+}
+
+void InspectorWindow::ShowCapsuleColliderComponent(Scene& scene)
+{
+	char directionBuff[64];
+
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_CAPSULES "  CapsuleCollider Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+	auto obj = _sceneEditor->GetSelectedGameobject();
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveBoxColliderComponent")) {
+		// remove component
+		scene.RemoveComponent(*obj->GetComponent<CapsuleCollider>());
+		return;
+	}
+
+	if(isHeaderOpen)
+	{
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Center: ");
+		ImGui::SameLine(_textWidth - 16.f);
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::DragFloat("##XcenCap", &obj->GetComponent<CapsuleCollider>()->center.x, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::DragFloat("##YcenCap", &obj->GetComponent<CapsuleCollider>()->center.y, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::DragFloat("##ZcenCap", &obj->GetComponent<CapsuleCollider>()->center.z, 0.001f);
+
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Radius: ");
+		ImGui::SameLine(_textWidth);
+		ImGui::DragFloat("##RadiusCap", &obj->GetComponent<CapsuleCollider>()->radius, 0.001f);
+
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Height: ");
+		ImGui::SameLine(_textWidth);
+		ImGui::DragFloat("##Height", &obj->GetComponent<CapsuleCollider>()->height, 0.001f);
+	}
+}
+
+void InspectorWindow::ShowSphereColliderComponent(Scene& scene)
+{
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_CIRCLE "  SphereCollider Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+	auto obj = _sceneEditor->GetSelectedGameobject();
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveBoxColliderComponent")) {
+		// remove component
+		scene.RemoveComponent(*obj->GetComponent<SphereCollider>());
+		return;
+	}
+
+	if(isHeaderOpen)
+	{
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Center: ");
+		ImGui::SameLine(_textWidth - 16.f);
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Xcen", &obj->GetComponent<SphereCollider>()->center.x, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Ycen", &obj->GetComponent<SphereCollider>()->center.y, 0.001f);
+		ImGui::SameLine();
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Zcen", &obj->GetComponent<SphereCollider>()->center.z, 0.001f);
+
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Radius: ");
+		ImGui::SameLine(_textWidth);
+		ImGui::DragFloat("##RadiusSph", &obj->GetComponent<SphereCollider>()->radius, 0.001f);
+	}
+}
+
+void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
+{
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_USER "  RigidBody Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+	auto obj = _sceneEditor->GetSelectedGameobject();
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveRigidBodyComponent")) {
+		// remove component
+		scene.RemoveComponent(*obj->GetComponent<RigidBody>());
+		return;
+	}
+
+	if(isHeaderOpen)
+	{
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Mass: ");
+		ImGui::SameLine(_textWidth);
+		ImGui::DragFloat("##Mass", &obj->GetComponent<RigidBody>()->mass, 0.001f);
+
+
+		ImGui::PushItemWidth(50);
+		ImGui::Text("IsKinematic: ");
+		ImGui::SameLine(_textWidth);
+		ImGui::Checkbox("##kinematic", &obj->GetComponent<RigidBody>()->kinematic);
+
+
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Damping: ");
+		ImGui::SameLine(_textWidth);
+		ImGui::DragFloat("##Damping", &obj->GetComponent<RigidBody>()->material.damping, 0.001f);
+
+
+		ImGui::PushItemWidth(50);
+		ImGui::Text("AngularDamping: ");
+		ImGui::SameLine(_textWidth);
+		ImGui::DragFloat("##AngularDamping", &obj->GetComponent<RigidBody>()->material.angularDamping, 0.001f);
+
+		ImGui::Separator();
+		ImGui::Text("Physical Material");
+		ImGui::Separator();
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Friction: ");
+		ImGui::SameLine(_textWidth);
+		ImGui::DragFloat("##Friction", &obj->GetComponent<RigidBody>()->material.friction, 0.001f);
+
+		ImGui::PushItemWidth(50);
+		ImGui::Text("Bounciness: ");
+		ImGui::SameLine(_textWidth);
+		ImGui::SliderFloat("##Bounciness", &obj->GetComponent<RigidBody>()->material.bounciness, 0.f, 1.f, "%.2f");
+	}
+}
 
 void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 {
@@ -844,6 +1036,10 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 				"Mesh Render Component",
 				"Transform Component",
 				"Camera Component",
+				"RigidBody Component",
+				"BoxCollider Component",
+				"SphereCollider Component",
+				"CapsuleCollider Component"
 				"Particle Effect Component"
 				"Audio Component"
 		};
@@ -885,16 +1081,40 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			if (strcmp(selectedComponent, "Mesh Render Component") == 0)
 			{
 				// Add Render Component
-				scene.AddComponent<RenderComponent>(obj);
+				scene.AddComponent<MeshRender>(obj);
 			}
 			else if (strcmp(selectedComponent, "Transform Component") == 0)
 			{
 				// Add Transform Component
-				scene.AddComponent<TransformComponent>(obj);
+				scene.AddComponent<Transform>(obj);
 			}
 			else if (strcmp(selectedComponent, "Camera Component") == 0)
 			{
-				scene.AddComponent<CameraComponent>(obj);
+				scene.AddComponent<Camera>(obj);
+			}
+			else if (strcmp(selectedComponent, "RigidBody Component") == 0)
+			{
+				if(obj && (obj->GetComponent<BoxCollider>() ||
+				        				 obj->GetComponent<SphereCollider>() ||
+				               			 obj->GetComponent<CapsuleCollider>()))
+				{
+					scene.AddComponent<RigidBody>(obj);
+					_physics->AddRigidBody(obj);
+				}
+				else
+					PLATINUM_WARNING("Please Add Collider First");
+			}
+			else if (strcmp(selectedComponent, "BoxCollider Component") == 0)
+			{
+				scene.AddComponent<BoxCollider>(obj);
+			}
+			else if (strcmp(selectedComponent, "SphereCollider Component") == 0)
+			{
+				scene.AddComponent<SphereCollider>(obj);
+			}
+			else if (strcmp(selectedComponent, "CapsuleCollider Component") == 0)
+			{
+				scene.AddComponent<CapsuleCollider>(obj);
 			}
 			else if (strcmp(selectedComponent, "Particle Effect Component") == 0)
 			{

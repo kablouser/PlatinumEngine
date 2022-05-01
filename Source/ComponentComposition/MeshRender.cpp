@@ -1,21 +1,21 @@
 //
 // Created by Jinyuan and Shawn on 26/03/2022.
 //
-#include "ComponentComposition/RenderComponent.h"
+#include "ComponentComposition/MeshRender.h"
 #include <Renderer/Renderer.h>
-#include <ComponentComposition/TransformComponent.h>
+#include <ComponentComposition/Transform.h>
 
 namespace PlatinumEngine
 {
-	RenderComponent::RenderComponent()
+	MeshRender::MeshRender()
 	{
 		SetMesh(nullptr);
 		SetMaterial(nullptr);
 	}
 
-	void RenderComponent::OnRender(Scene& scene, Renderer& renderer)
+	void MeshRender::OnRender(Scene& scene, Renderer& renderer)
 	{
-		TransformComponent* transform = GetComponent<TransformComponent>();
+		Transform* transform = GetComponent<Transform>();
 		if (transform)
 			renderer.SetModelMatrix(transform->GetLocalToWorldMatrix());
 		else
@@ -25,17 +25,17 @@ namespace PlatinumEngine
 		_shaderInput.Draw();
 	}
 
-	void RenderComponent::SetMaterial(Texture* texture)
+	void MeshRender::SetMaterial(Texture* texture)
 	{
 		material.diffuseTexture = texture;
 	}
 
-	void RenderComponent::SetNormalMap(Texture* texture)
+	void MeshRender::SetNormalMap(Texture* texture)
 	{
 		material.normalTexture = texture;
 	}
 
-	void RenderComponent::SetMesh(Mesh* mesh)
+	void MeshRender::SetMesh(Mesh* mesh)
 	{
 		_mesh = mesh;
 		if(mesh != nullptr)
@@ -47,7 +47,7 @@ namespace PlatinumEngine
 			_shaderInput.Clear();
 	}
 
-	Mesh* RenderComponent::GetMesh()
+	Mesh* MeshRender::GetMesh()
 	{
 		return _mesh;
 	}
