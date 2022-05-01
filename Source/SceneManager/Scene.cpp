@@ -57,8 +57,8 @@ namespace PlatinumEngine
 			idSystem.Clear();
 			Clear();
 			// then deserialize
-			typeDatabase->Deserialize(loadFile, &idSystem);
-			typeDatabase->Deserialize(loadFile, this);
+			PLATINUM_INFO_STREAM << (int)typeDatabase->Deserialize(loadFile, &idSystem);
+			PLATINUM_INFO_STREAM << (int)typeDatabase->Deserialize(loadFile, this);
 			AfterLoad();
 		}
 		else
