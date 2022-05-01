@@ -4,10 +4,9 @@
 #include "ComponentComposition/MeshRender.h"
 #include <Renderer/Renderer.h>
 #include <ComponentComposition/Transform.h>
-
+#include <ComponentComposition/AnimationComponent.h>
 namespace PlatinumEngine
 {
-
 	MeshRender::MeshRender()
 	{
 		SetMesh(nullptr);
@@ -26,18 +25,27 @@ namespace PlatinumEngine
 
 
 		// set animation matrix
-		if(_mesh!= nullptr)
+		AnimationComponent* animation = GetComponent<AnimationComponent>();
+
+		if(animation!= nullptr && _mesh!= nullptr)
 		{
-			renderer.SetAnimationStatus(isAnimationDisplay);
 
-			if (!_animations.empty())
+			// send flag to uniform
+			renderer.SetAnimationStatus(animation->isAnimationDisplay);
+
+			// get animation list from animation component
+			std::vector<Animation*> animationList = animation->GetAnimation();
+
+			// calculate the transform matrices for a post at a specific animation time
+			if (!animationList.empty())
 			{
-				_animations[selectedAnimationIndex]->UpdateWorldTransformMatrix(_mesh->skeleton, _mesh->bones);
-				_animations[selectedAnimationIndex]->UpdateAnimationTime();
+				animationList[animation->selectedAnimationIndex]->UpdateWorldTransformMatrix(_mesh->skeleton, _mesh->bones);
+				animationList[animation->selectedAnimationIndex]->UpdateAnimationTime();
 
-				for (unsigned int i = 0; i < _animations[selectedAnimationIndex]->worldTransform.size(); ++i)
+				// pass transform matrices to
+				for (unsigned int i = 0; i < animationList[animation->selectedAnimationIndex]->worldTransform.size(); ++i)
 				{
-					renderer.SetAnimationTransform(i, _animations[selectedAnimationIndex]->worldTransform[i]);
+					renderer.SetAnimationTransform(i, animationList[animation->selectedAnimationIndex]->worldTransform[i]);
 				}
 			}
 		}
@@ -79,18 +87,10 @@ namespace PlatinumEngine
 		}
 	}
 
-	void RenderComponent::AddAnimation(Animation* animation)
-	{
-		_animations.push_back(animation);
-	}
 
 	Mesh* RenderComponent::GetMesh()
 	{
 		return _mesh;
 	}
 
-	std::vector<Animation*>& RenderComponent::GetAnimation()
-	{
-		return _animations;
-	}
 }

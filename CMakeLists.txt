@@ -121,9 +121,9 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/AssetDatabase/AssetDatabase.cpp;"
 	"Source/AssetDatabase/AssetHelper.cpp;"
 	
-
 	"Source/ComponentComposition/Camera.cpp;"
 	"Source/ComponentComposition/AudioComponent.cpp;"
+	"Source/ComponentComposition/AnimationComponent.cpp;"
 	"Source/ComponentComposition/Color.cpp;"
 	"Source/ComponentComposition/Component.cpp;"
 	"Source/ComponentComposition/GameObject.cpp;"
@@ -208,8 +208,7 @@ set(UNIT_TESTS
 	"Test/TestTemplate.cpp;"
 	"Test/Maths/VectorsTest.cpp;"
 	"Test/Maths/MatricesTest.cpp;"
-	"Test/SceneEditor/EditorCameraTest.cpp;"
-  	"Test/TestScene.cpp;")
+	"Test/SceneEditor/EditorCameraTest.cpp;")
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 
 target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
