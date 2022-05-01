@@ -51,7 +51,7 @@ namespace PlatinumEngine
 	//TODO: Maybe a more efficient procedure to utilise TryGetAsset using filePath
 	std::tuple<bool, Mesh*> AssetHelper::GetMeshAsset(std::string filePath)
 	{
-		bool isAssetSelected = true;
+		bool isAssetSelected = false;
 		static ImGuiTextFilter filter;
 		Asset asset;
 		Mesh* mesh = nullptr;
@@ -60,7 +60,10 @@ namespace PlatinumEngine
 			if (_assetDatabase->TryGetAsset(meshAssetID.id, asset))
 			{
 				if(asset.path.compare(std::filesystem::path(filePath))==0)
+				{
 					mesh = (*_assetDatabase)[meshAssetID];
+					isAssetSelected = true;
+				}
 			}
 		}
 		return {isAssetSelected, mesh};
@@ -109,7 +112,7 @@ namespace PlatinumEngine
 	//TODO: Maybe a more efficient procedure to utilise TryGetAsset using filePath
 	std::tuple<bool, Texture*> AssetHelper::GetTextureAsset(std::string filePath)
 	{
-		bool isAssetSelected = true;
+		bool isAssetSelected = false;
 		static ImGuiTextFilter filter;
 		Asset asset;
 		Texture* texture = nullptr;
@@ -118,7 +121,10 @@ namespace PlatinumEngine
 			if (_assetDatabase->TryGetAsset(textureAssetID.id, asset))
 			{
 				if(asset.path.compare(std::filesystem::path(filePath))==0)
+				{
+					isAssetSelected = true;
 					texture = (*_assetDatabase)[textureAssetID];
+				}
 			}
 		}
 		return {isAssetSelected, texture};

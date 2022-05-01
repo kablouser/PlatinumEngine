@@ -19,8 +19,8 @@ void main()
 {
     gl_Position = projection * view * model * vec4(inVertex, 1.0);
     vertexPos = vec3(gl_Position);
-    mat4 matrix = view * model;
-    vertexNormal = vec3(inverse(transpose((matrix))) * vec4(inNormal, 0.0));
+    mat4 viewmod = view * model;
+    vertexNormal = transpose(inverse(mat3(viewmod))) * inNormal;
     vertexTextureCoordinate = inTextureCoordinate;
 
     // For normal mapping calc TBN matrix

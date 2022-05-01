@@ -303,14 +303,14 @@ namespace PlatinumEngine{
 					std::filesystem::path payloadPath = std::filesystem::path(filePath);
 					if(payloadPath.extension()==".obj")
 					{
-						std::string name = payloadPath.stem().string();
-						GameObject* go = _scene->AddGameObject(name);
+						GameObject* go = _scene->AddGameObject(payloadPath.stem().string());
 						_scene->AddComponent<TransformComponent>(go);
 						_scene->AddComponent<RenderComponent>(go);
 						//Now we set the mesh
 						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
 						if (std::get<0>(asset_Helper))
 							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+						_selectedGameobject = go;
 					}
 				}
 				ImGui::EndDragDropTarget();
@@ -486,6 +486,11 @@ namespace PlatinumEngine{
 			// Start rendering (bind a shader)
 			_renderer->Begin();
 
+			// Bind skybox for objects to sample from, use an unused texture
+			glActiveTexture(GL_TEXTURE7);
+			_skyboxTexture.BindCubeMap();
+			glActiveTexture(GL_TEXTURE0);
+
 			// Update rendering information to renderer
 			_renderer->SetModelMatrix();
 
@@ -504,6 +509,7 @@ namespace PlatinumEngine{
 			}
       
 			_renderer->SetLightProperties();
+			_renderer->SetCameraPos(_camera.GetCameraPosition());
 
 			// Render game objects
 			_scene->Render(*_renderer);

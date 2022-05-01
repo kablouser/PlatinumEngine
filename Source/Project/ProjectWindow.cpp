@@ -10,6 +10,16 @@
 
 using namespace PlatinumEngine;
 
+ProjectWindow::ProjectWindow(Scene* scene, AssetHelper* assetHelper, SceneEditor* sceneEditor):
+	_scene(scene), _assetHelper(assetHelper), _sceneEditor(sceneEditor)
+{
+	_framebufferWidth = 256;
+	_framebufferHeight = 256;
+	_childWindowCount = 1;
+	_isPreviewEnabled = false;
+	_renderer = new Renderer;
+}
+
 void ProjectWindow::ShowGUIWindow(bool* isOpen)
 {
 	if (ImGui::Begin(ICON_FA_FOLDER " Project Window"))
@@ -487,14 +497,4 @@ std::string ProjectWindow::FormatFileSize(uintmax_t size, int precision)
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(precision) << dblByte;
 	return (stream.str()+" "+sizes[i]);
-}
-
-ProjectWindow::ProjectWindow(Scene* scene, AssetHelper* assetHelper, SceneEditor* sceneEditor):
-	_scene(scene), _assetHelper(assetHelper), _sceneEditor(sceneEditor)
-{
-	_framebufferWidth = 256;
-	_framebufferHeight = 256;
-	_childWindowCount = 1;
-	_isPreviewEnabled = false;
-	_renderer = new Renderer;
 }

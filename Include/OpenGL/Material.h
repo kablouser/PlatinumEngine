@@ -25,11 +25,14 @@ namespace PlatinumEngine
 		Texture*			specularTexture;
 
 		float         	shininessFactor = 8.0f;
+		float refractionIndex = 1.5f;
 
 		// Flags
 		bool useBlinnPhong = false;
 		bool useTexture = false;
 		bool useNormalTexture = false;
+		bool useReflectionShader = false;
+		bool useRefractionShader = false;
 
 		Material();
 		~Material();

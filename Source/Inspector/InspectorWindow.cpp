@@ -110,18 +110,11 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			//Accept any regular file (but it will check if it is mesh or not)
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
 			{
-				char* payloadPointer = (char*)payload->Data;
-				int size = payload->DataSize;
-				std::string filePath = "";
-				for(int i=0;i<size;i++)
-					filePath+=*(payloadPointer+i);
-				std::filesystem::path payloadPath = std::filesystem::path(filePath);
-
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
 				if(payloadPath.extension()==".obj")
 				{
 					//Set The mesh that we dragged to the RenderComponent
 					auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
-					std::string f = (std::get<1>(asset_Helper)->fileName);
 					if (std::get<0>(asset_Helper))
 						obj->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
 				}
@@ -159,15 +152,15 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::Text("%s", "Material Properties");
 		ImGui::Separator();
 
-		ImGui::Text("Shininess");
+		ImGui::Text("Specular Exponent");
 
-		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::SameLine();
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		ImGui::SliderFloat("##shininess",&(obj->GetComponent<RenderComponent>()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 
 		ImGui::Text("Blinn-Phong");
-		ImGui::SameLine();
+		ImGui::SameLine(_textWidthMeshRenderComponent);
 		ImGui::Checkbox("##Blinn-Phong", &(obj->GetComponent<RenderComponent>()->material.useBlinnPhong));
 
 		ImGui::Text("Texture");
@@ -182,18 +175,11 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			//Accept any regular file (but it will check if it is texture or not)
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
 			{
-				char* payloadPointer = (char*)payload->Data;
-				int size = payload->DataSize;
-				std::string filePath = "";
-				for(int i=0;i<size;i++)
-					filePath+=*(payloadPointer+i);
-				std::filesystem::path payloadPath = std::filesystem::path(filePath);
-
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
 				if(payloadPath.extension()==".png")
 				{
 					//Set The texture that we dragged to the RenderComponent
 					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
-					std::string f = (std::get<1>(asset_Helper)->fileName);
 					if (std::get<0>(asset_Helper))
 					{
 						obj->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
@@ -230,22 +216,13 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			//Accept any regular file (but it will check if it is texture or not) [Same things as before]
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
 			{
-				char* payloadPointer = (char*)payload->Data;
-				int size = payload->DataSize;
-				std::string filePath = "";
-				for(int i=0;i<size;i++)
-					filePath+=*(payloadPointer+i);
-				std::filesystem::path payloadPath = std::filesystem::path(filePath);
-
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
 				if(payloadPath.extension()==".png")
 				{
 					//Set The texture that we dragged to the RenderComponent
 					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
-					std::string f = (std::get<1>(asset_Helper)->fileName);
 					if (std::get<0>(asset_Helper))
-					{
 						obj->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
-					}
 				}
 			}
 			// End DragDropTarget
@@ -264,6 +241,21 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		}
 		ImGui::SameLine();
 		ImGui::Checkbox("##UseNormalTexture", &(obj->GetComponent<RenderComponent>()->material.useNormalTexture));
+
+		ImGui::Text("Special Properties");
+		ImGui::Separator();
+		ImGui::Text("Reflection");
+		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::Checkbox("##UseRelfectionShader", &(obj->GetComponent<RenderComponent>()->material.useReflectionShader));
+		ImGui::Text("Refraction");
+		ImGui::SameLine(_textWidthMeshRenderComponent);
+		ImGui::Checkbox("##UseRefracctionShader", &(obj->GetComponent<RenderComponent>()->material.useRefractionShader));
+		ImGui::Text("Refraction Index");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
+		// Setting max to 4 as you start to get unpleasing results past that
+		ImGui::SliderFloat("##refractionIndex",&(obj->GetComponent<RenderComponent>()->material.refractionIndex),1.0f, 4.f, "%.3f", ImGuiSliderFlags_None);
+		ImGui::PopItemWidth();
 	}
 }
 
@@ -643,4 +635,14 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 		}
 		ImGui::EndChild();
 	}
+}
+
+std::filesystem::path InspectorWindow::GetPayloadPath(const ImGuiPayload* payload)
+{
+	char* payloadPointer = (char*)payload->Data;
+	int size = payload->DataSize;
+	std::string filePath = "";
+	for(int i=0;i<size;i++)
+		filePath+=*(payloadPointer+i);
+	return std::filesystem::path(filePath);
 }

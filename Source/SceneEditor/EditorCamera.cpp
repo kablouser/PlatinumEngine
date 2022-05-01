@@ -235,4 +235,9 @@ namespace PlatinumEngine
 		matrix.SetRotationMatrix(_quaternion);
 		return matrix;
 	}
+
+	Maths::Vec3 EditorCamera::GetPos() const
+	{
+		return _translationValue;
+	}
 }

@@ -131,6 +131,8 @@ namespace PlatinumEngine
 		 */
 		Maths::Mat4 GetRotationOnlyViewMatrix();
 
+		Maths::Vec3 GetPos() const;
+
 		// ___CONSTRUCTOR___
 		EditorCamera();
 
@@ -145,8 +147,6 @@ namespace PlatinumEngine
 		// transformation
 		Maths::Quaternion _quaternion;
 		Maths::Vec3 _translationValue;
-
-
 
 		// device input data
 		float _translationSpeed = 0.05;
