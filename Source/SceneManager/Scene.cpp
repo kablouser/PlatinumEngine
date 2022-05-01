@@ -50,15 +50,21 @@ namespace PlatinumEngine
 			return;
 		}
 
-		std::ifstream loadFile(filePath);
+		std::ifstream loadFile(filePath, std::ios::binary); // Windows needs binary to use seekg()
 		if (loadFile.is_open())
 		{
 			// first delete existing scene data
 			idSystem.Clear();
 			Clear();
 			// then deserialize
-			PLATINUM_INFO_STREAM << (int)typeDatabase->Deserialize(loadFile, &idSystem);
-			PLATINUM_INFO_STREAM << (int)typeDatabase->Deserialize(loadFile, this);
+			TypeDatabase::DeserializeReturnCode code = typeDatabase->Deserialize(loadFile, &idSystem);
+			if (code != TypeDatabase::DeserializeReturnCode::success)
+				PLATINUM_WARNING_STREAM << "Loading ID System has return code " << (int)code;
+
+			code = typeDatabase->Deserialize(loadFile, this);
+			if (code != TypeDatabase::DeserializeReturnCode::success)
+				PLATINUM_WARNING_STREAM << "Loading ID System has return code " << (int)code;
+			
 			AfterLoad();
 		}
 		else

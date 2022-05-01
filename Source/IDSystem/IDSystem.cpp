@@ -91,6 +91,7 @@ namespace PlatinumEngine
 				  inputStream >> stringToken && stringToken == ","))
 			{
 				// bad format
+				PLATINUM_WARNING("Parsing bad format in ID System");
 				std::getline(inputStream, stringToken); // skip line
 				continue;
 			}
@@ -134,11 +135,13 @@ namespace PlatinumEngine
 				if (typeInfo->allocate)
 				{
 					auto temp = typeInfo->allocate();
-					TypeDatabase::Instance->DeserializeInternal(
+					TypeDatabase::DeserializeReturnCode code = TypeDatabase::Instance->DeserializeInternal(
 							inputStream,
 							temp.get(),
 							typeInfo->typeIndex,
 							TypeDatabase::SerializeSection::collectionElement);
+					if (code != TypeDatabase::DeserializeReturnCode::success)
+						PLATINUM_WARNING_STREAM << "IDSystem stream in has deserialization code " << (int)code;
 
 					if (idSystem->AddInternal(id, temp, typeInfo->typeIndex))
 					{
@@ -165,6 +168,7 @@ namespace PlatinumEngine
 				if (!(inputStream >> stringToken))
 				{
 					// bad format
+					PLATINUM_WARNING("Parsing bad format in ID System");
 					std::getline(inputStream, stringToken); // skip line
 					continue;
 				}
@@ -179,6 +183,7 @@ namespace PlatinumEngine
 			if (!(inputStream >> stringToken && stringToken == "},"))
 			{
 				// bad format
+				PLATINUM_WARNING("Parsing bad format in ID System");
 				std::getline(inputStream, stringToken); // skip line
 				continue;
 			}

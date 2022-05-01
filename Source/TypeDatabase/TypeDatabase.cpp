@@ -582,11 +582,14 @@ namespace PlatinumEngine
 				istream.seekg(startPosition + std::streamoff(equalIndex + 1)); // after the equals
 
 				// recurse
-				DeserializeInternal(
+				DeserializeReturnCode code = DeserializeInternal(
 						istream,
 						fieldInfo->AccessField(typeInstance),
 						fieldInfo->typeIndex,
 						SerializeSection::field);
+				if (code != DeserializeReturnCode::success)
+					PLATINUM_WARNING_STREAM << "Deserialization recurse has return code " << (int)code;
+
 				// probably semicolon next
 				std::getline(istream, stringToken); // skip line
 			}
