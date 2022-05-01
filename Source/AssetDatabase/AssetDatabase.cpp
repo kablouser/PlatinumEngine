@@ -339,7 +339,7 @@ namespace PlatinumEngine
 					PixelData pixelData;
 					Texture* allocateTexture = new Texture;
 					pixelData.Create(filePath.string());
-					allocateTexture->Create(pixelData.width, pixelData.height, (const void*)pixelData.pixelData);
+					allocateTexture->Create(pixelData.width, pixelData.height, (const void*)pixelData.pixelData, pixelData.nrComponents);
 					_loadedTextureAssets.emplace_back(allocateTexture);
 					allocateTexture->fileName = filePath.filename().string();
 					return allocateTexture;

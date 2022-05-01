@@ -3,6 +3,8 @@
 //
 
 #pragma once
+
+#include <ComponentComposition/CameraComponent.h>
 #include <WindowManager/Filedialog.h>
 #include <SceneManager/Scene.h>
 #include <GameWindow/GameWindow.h>

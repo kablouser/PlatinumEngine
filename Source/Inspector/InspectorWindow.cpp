@@ -4,6 +4,7 @@
 
 #include <Inspector/InspectorWindow.h>
 #include <ImGuizmo.h>
+#include <Inspector/Bezier.h>
 
 
 using namespace PlatinumEngine;
@@ -40,8 +41,12 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 			if (obj->GetComponent<TransformComponent>() != nullptr)
 				ShowTransformComponent(scene);
 
-		  if (obj->GetComponent<CameraComponent>())
-			  ShowCameraComponent(scene);
+
+		  	if (obj->GetComponent<CameraComponent>())
+				ShowCameraComponent(scene);
+
+		  	if (obj->GetComponent<ParticleEffect>() != nullptr)
+				ShowParticleEffectComponent(scene);
 
 		  if (obj->GetComponent<AudioComponent>())
 			  ShowAudioComponent(scene);
@@ -463,6 +468,324 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 	}
 }
 
+
+void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
+{
+	auto obj = _sceneEditor->GetSelectedGameobject();
+
+	// If this gui is being shown, assumption that object has component
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_FIRE "  Particle Effect Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+	// TODO: Icon button maybe?
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveParticleEffectComponent")) {
+		// remove component
+		scene.RemoveComponent(*obj->GetComponent<ParticleEffect>());
+		return;
+	}
+
+	// TODO: Some of the sliders are wacky and need either resizing or changing to direct input
+
+	if (isHeaderOpen)
+	{
+		auto component = obj->GetComponent<ParticleEffect>();
+
+		if (ImGui::CollapsingHeader("Emitter Settings"))
+		{
+			ImGui::Text("Maximum Particles: ");
+			ImGui::SameLine(_textWidthParticleEffectComponent);
+			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+			ImGui::SliderInt("##MaximumNumberOfParticles",&(component->particleEmitter->numberOfParticles),0.f, 5000, "%d", ImGuiSliderFlags_None);
+			ImGui::PopItemWidth();
+
+			ImGui::Text("Particle Lifetime: ");
+			ImGui::SameLine(_textWidthParticleEffectComponent);
+			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+
+			ImGui::SliderFloat("##RespawnLifetime: ", &(component->particleEmitter->respawnLifetime), 0.f, 10, "%.3f", ImGuiSliderFlags_None);
+			ImGui::PopItemWidth();
+
+			ImGui::Text("New Particles: ");
+			ImGui::SameLine(_textWidthParticleEffectComponent);
+			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+			ImGui::SliderInt("##NumberOfNewParticles",&(component->particleEmitter->numberOfNewParticles),0.f, 100, "%d", ImGuiSliderFlags_None);
+			ImGui::PopItemWidth();
+
+			ImGui::Text("Spawn Interval: ");
+			ImGui::SameLine(_textWidthParticleEffectComponent);
+			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+			ImGui::SliderFloat("##SpawnIntervalParticles", &(component->particleEmitter->spawnInterval),0.016f, 5, "%.3f", ImGuiSliderFlags_None);
+			ImGui::PopItemWidth();
+
+			// TODO: Don't say acting force, Maybe have acceleration and calculate it properly in emitter?
+			ImGui::Text("Acting Force: ");
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
+
+			ImGui::PushItemWidth(50);
+			ImGui::Text("X");
+			ImGui::SameLine();
+			ImGui::InputFloat("##ActingForceX", &(component->particleEmitter->actingForce[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Y");
+			ImGui::SameLine();
+			ImGui::InputFloat("##ActingForceY", &(component->particleEmitter->actingForce[1]));
+			ImGui::SameLine();
+
+			ImGui::Text("Z");
+			ImGui::SameLine();
+			ImGui::InputFloat("##ActingForceZ", &(component->particleEmitter->actingForce[2]));
+		}
+
+		if (ImGui::CollapsingHeader("Position Settings"))
+		{
+			ImGui::Text("Initial Position: ");
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
+
+			ImGui::PushItemWidth(50);
+			ImGui::Text("X");
+			ImGui::SameLine();
+			ImGui::InputFloat("##PositionX", &(component->particleEmitter->initPosition[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Y");
+			ImGui::SameLine();
+			ImGui::InputFloat("##PositionY", &(component->particleEmitter->initPosition[1]));
+			ImGui::SameLine();
+
+			ImGui::Text("Z");
+			ImGui::SameLine();
+			ImGui::InputFloat("##PositionZ", &(component->particleEmitter->initPosition[2]));
+
+			ImGui::Text("Random X");
+			ImGui::SameLine();
+			ImGui::Checkbox("##RandomPositionX", &(component->particleEmitter->useRandomInitPositionX));
+			ImGui::SameLine();
+
+			ImGui::Text("Min");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MinRandomPositionX", &(component->particleEmitter->minMaxPositionX[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Max");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MaxRandomPositionX", &(component->particleEmitter->minMaxPositionX[1]));
+
+			ImGui::Text("Random Y");
+			ImGui::SameLine();
+			ImGui::Checkbox("##RandomPositionY", &(component->particleEmitter->useRandomInitPositionY));
+			ImGui::SameLine();
+
+			ImGui::Text("Min");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MinRandomPositionY", &(component->particleEmitter->minMaxPositionY[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Max");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MaxRandomPositionY", &(component->particleEmitter->minMaxPositionY[1]));
+
+			ImGui::Text("Random Z");
+			ImGui::SameLine();
+			ImGui::Checkbox("##RandomPositionZ", &(component->particleEmitter->useRandomInitPositionZ));
+			ImGui::SameLine();
+
+			ImGui::Text("Min");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MinRandomPositionZ", &(component->particleEmitter->minMaxPositionZ[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Max");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MaxRandomPositionZ", &(component->particleEmitter->minMaxPositionZ[1]));
+			ImGui::PopItemWidth();
+		}
+
+		if (ImGui::CollapsingHeader("Velocity Settings"))
+		{
+			ImGui::Text("Initial Velocity: ");
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
+
+			ImGui::PushItemWidth(50);
+			ImGui::Text("X");
+			ImGui::SameLine();
+			ImGui::InputFloat("##VelocityX", &(component->particleEmitter->initVelocity[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Y");
+			ImGui::SameLine();
+			ImGui::InputFloat("##VelocityY", &(component->particleEmitter->initVelocity[1]));
+			ImGui::SameLine();
+
+			ImGui::Text("Z");
+			ImGui::SameLine();
+			ImGui::InputFloat("##VelocityZ", &(component->particleEmitter->initVelocity[2]));
+
+			ImGui::Text("Random X");
+			ImGui::SameLine();
+			ImGui::Checkbox("##RandomVelocityX", &(component->particleEmitter->useRandomInitVelocityX));
+			ImGui::SameLine();
+
+			ImGui::Text("Min");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MinRandomVelocityX", &(component->particleEmitter->minMaxVelocityX[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Max");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MaxRandomVelocityX", &(component->particleEmitter->minMaxVelocityX[1]));
+
+			ImGui::Text("Random Y");
+			ImGui::SameLine();
+			ImGui::Checkbox("##RandomVelocityY", &(component->particleEmitter->useRandomInitVelocityY));
+			ImGui::SameLine();
+
+			ImGui::Text("Min");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MinRandomVelocityY", &(component->particleEmitter->minMaxVelocityY[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Max");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MaxRandomVelocityY", &(component->particleEmitter->minMaxVelocityY[1]));
+
+			ImGui::Text("Random Z");
+			ImGui::SameLine();
+			ImGui::Checkbox("##RandomVelocityZ", &(component->particleEmitter->useRandomInitVelocityZ));
+			ImGui::SameLine();
+
+			ImGui::Text("Min");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MinRandomVelocityZ", &(component->particleEmitter->minMaxVelocityZ[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Max");
+			ImGui::SameLine();
+			ImGui::InputFloat("##MaxRandomVelocityZ", &(component->particleEmitter->minMaxVelocityZ[1]));
+			ImGui::PopItemWidth();
+		}
+
+		if (ImGui::CollapsingHeader("Shader Settings"))
+		{
+			// TODO: Scale shading stuff
+
+			auto ColourPickerFlags =
+					ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_AlphaBar;
+
+			ImGui::Text("Start Colour: ");
+			ImGui::SameLine();
+			ImVec4 startColour((component->startColour[0]),
+					(component->startColour[1]),
+					(component->startColour[2]),
+					(component->startColour[3]));
+			ImGui::PushItemWidth(20);
+			if (ImGui::ColorButton("##ButtonStartColour", startColour))
+			{
+				ImGui::OpenPopup("##PickStartColour");
+			}
+			ImGui::PopItemWidth();
+			if (ImGui::BeginPopup("##PickStartColour"))
+			{
+				ImGui::PushItemWidth(180.0f);
+				ImGui::ColorPicker4("##StartColour", (float*)&(component->startColour),
+						ColourPickerFlags);
+				ImGui::PopItemWidth();
+				ImGui::EndPopup();
+			}
+
+			ImGui::SameLine();
+			ImGui::Text("End Colour: ");
+			ImGui::SameLine();
+			ImVec4 endColour((component->endColour[0]),
+					(component->endColour[1]),
+					(component->endColour[2]),
+					(component->endColour[3]));
+			ImGui::PushItemWidth(20);
+			if (ImGui::ColorButton("##ButtonEndColour", endColour))
+			{
+				ImGui::OpenPopup("##PickEndColour");
+			}
+			ImGui::PopItemWidth();
+			if (ImGui::BeginPopup("##PickEndColour"))
+			{
+				ImGui::PushItemWidth(180.0f);
+				ImGui::ColorPicker4("##EndColour", (float*)&(component->endColour), ColourPickerFlags);
+				ImGui::PopItemWidth();
+				ImGui::EndPopup();
+			}
+
+			// Possible options to shade by
+			const std::string items[] = {"Life", "Position", "Size", "Speed"};
+			ImGui::Text("Shade by: ");
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall-30);
+			ImGui::PushItemWidth(80);
+			if (ImGui::BeginCombo("##ShadeByCombo", component->shadeBy.c_str()))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+				{
+					bool is_selected = (component->shadeBy == items[n]);
+					if (ImGui::Selectable(items[n].c_str(), is_selected))
+						component->shadeBy = items[n];
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::SameLine();
+			ImGui::Text("Min");
+			float maxVal = 100.0f;
+			if (component->shadeBy == "Life")
+			{
+				maxVal = component->particleEmitter->respawnLifetime;
+				if (component->maxShadeValue > maxVal)
+					component->maxShadeValue = maxVal;
+				if (component->minShadeValue > maxVal)
+					component->minShadeValue = maxVal;
+			}
+			ImGui::SameLine();
+			ImGui::PushItemWidth(50);
+			ImGui::SliderFloat("##MinShadeValue", &component->minShadeValue, 0.f, maxVal, "%.3f", ImGuiSliderFlags_None);
+			ImGui::PopItemWidth();
+			ImGui::SameLine();
+			ImGui::Text("Max");
+			ImGui::SameLine();
+			ImGui::PushItemWidth(50);
+			ImGui::SliderFloat("##MaxShadeValue", &component->maxShadeValue, 0.f, maxVal, "%.3f", ImGuiSliderFlags_None);
+			ImGui::PopItemWidth();
+
+			char textureBuffer[64];
+			if(component->particleEmitter->texture != nullptr)
+				strcpy(textureBuffer,  component->particleEmitter->texture->fileName.c_str());
+			else
+				memset(textureBuffer, 0, 64 * sizeof(char));
+			ImGui::Text("%s", "Texture:");
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall-30);
+			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+			ImGui::InputText("##ParticleEffectTexture", textureBuffer, sizeof(textureBuffer), ImGuiInputTextFlags_ReadOnly);
+			ImGui::PopItemWidth();
+			ImGui::SameLine();
+			if(ImGui::Button("Select##ParticleEffectTexture"))
+			{
+				ImGui::OpenPopup("Select Particle Effect Texture");
+			}
+			{
+				auto asset_Helper = _assetHelper->ShowGeneralTextureGuiWindow("Select Particle Effect Texture");
+				if (std::get<0>(asset_Helper))
+					component->particleEmitter->texture = std::get<1>(asset_Helper);
+			}
+			ImGui::SameLine();
+			ImGui::Checkbox("##UseParticleEffectTexture", &(component->useTexture));
+
+			ImGui::Text("Number of Rows: ");
+			ImGui::SameLine();
+			ImGui::InputInt("##NumberOfRowsInTexture", &(component->particleEmitter->numRowsInTexture));
+			ImGui::Text("Number of Columns: ");
+			ImGui::SameLine();
+			ImGui::InputInt("##NumberOfColsInTexture", &(component->particleEmitter->numColsInTexture));
+		}
+	}
+}
+
 void InspectorWindow::ShowAudioComponent(Scene& scene)
 {
 	auto obj = _sceneEditor->GetSelectedGameobject();
@@ -521,6 +844,7 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 				"Mesh Render Component",
 				"Transform Component",
 				"Camera Component",
+				"Particle Effect Component"
 				"Audio Component"
 		};
 		static const char* selectedComponent = nullptr;
@@ -572,6 +896,11 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			{
 				scene.AddComponent<CameraComponent>(obj);
 			}
+			else if (strcmp(selectedComponent, "Particle Effect Component") == 0)
+			{
+				// Add Particle Effect Component
+				scene.AddComponent<ParticleEffect>(obj);
+      }
 			else if (strcmp(selectedComponent, "Audio Component") == 0)
 			{
 				scene.AddComponent<AudioComponent>(obj);

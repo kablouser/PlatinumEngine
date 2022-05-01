@@ -43,6 +43,12 @@ const std::string REFLECT_REFRACT_VERTEX_SHADER =
 const std::string REFLECT_REFRACT_FRAGMENT_SHADER =
 #include <Shaders/Unlit/ReflectionRefraction.frag>
 ;
+const std::string PARTICLE_VERTEX_SHADER =
+#include <Shaders/Unlit/ParticleShader.vert>
+;
+const std::string PARTICLE_FRAGMENT_SHADER =
+#include <Shaders/Unlit/ParticleShader.frag>
+;
 
 namespace PlatinumEngine
 {
@@ -104,6 +110,12 @@ namespace PlatinumEngine
 			PLATINUM_ERROR("Cannot generate the reflect/refract shader.");
 			return;
 		}
+		
+		if (!_particleShader.Compile(PARTICLE_VERTEX_SHADER, PARTICLE_FRAGMENT_SHADER))
+		{
+			PLATINUM_ERROR("Cannot generate the particle shader.");
+			return;
+		}
 
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
@@ -120,6 +132,8 @@ namespace PlatinumEngine
 		pointLight.specularStrength = Maths::Vec3(1.0f, 1.0f, 1.0f);
 		// check for uncaught errors
 //		GL_CHECK();
+
+		particleRenderer.Init();
 
 		_isInitGood = true;
 	}
@@ -181,6 +195,66 @@ namespace PlatinumEngine
 		_gridShader.Unbind();
 	}
 
+	void Renderer::BeginParticleShader()
+	{
+		_particleShader.Bind();
+	}
+
+	void Renderer::EndParticleShader()
+	{
+		_particleShader.Unbind();
+	}
+
+	void Renderer::SetTextureParticleShader(Texture* texture, bool useTexture, int numCols, int numRows)
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform("useTexture", useTexture);
+		if (texture)
+		{
+			_particleShader.SetUniform("sampleTexture", (int)0);
+			glActiveTexture(GL_TEXTURE0);
+			texture->Bind();
+
+			_particleShader.SetUniform("textureWidth", texture->width);
+			_particleShader.SetUniform("textureHeight", texture->height);
+			_particleShader.SetUniform("spriteWidth", texture->width / (float) numCols);
+			_particleShader.SetUniform("spriteHeight", texture->height / (float) numRows);
+			_particleShader.SetUniform("textureRatio", texture->height / texture->width);
+		}
+	}
+
+	void Renderer::SetShadeByParticleShader(const std::string &shadeBy)
+	{
+		_particleShader.Bind();
+
+		// Set all shade by to false
+		_particleShader.SetUniform("useShadeByLife", false);
+		_particleShader.SetUniform("useShadeByPosition", false);
+		_particleShader.SetUniform("useShadeBySpeed", false);
+		_particleShader.SetUniform("useShadeBySize", false);
+
+		// It must be one of these options,
+		if (shadeBy == "Life")
+			_particleShader.SetUniform("useShadeByLife", true);
+		else if (shadeBy == "Position")
+			_particleShader.SetUniform("useShadeByPosition", true);
+		else if (shadeBy == "Speed")
+			_particleShader.SetUniform("useShadeBySpeed", true);
+		else if (shadeBy == "Size")
+			_particleShader.SetUniform("useShadeBySize", true);
+	}
+
+	void Renderer::SetVec4ParticleShader(const char* name, Maths::Vec4 vec)
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform(name, vec);
+	}
+
+	void Renderer::SetFloatParticleShader(const char* name, float val)
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform(name, val);
+	}
 
 	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
 	{
@@ -248,6 +322,8 @@ namespace PlatinumEngine
 	{
 		_reflectRefractShader.Bind();
 		_reflectRefractShader.SetUniform("model", mat);
+		_particleShader.Bind();
+		_particleShader.SetUniform("model", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("model", mat);
 	}
@@ -257,6 +333,8 @@ namespace PlatinumEngine
 	{
 		_reflectRefractShader.Bind();
 		_reflectRefractShader.SetUniform("view", mat);
+		_particleShader.Bind();
+		_particleShader.SetUniform("view", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("view", mat);
 	}
@@ -266,6 +344,8 @@ namespace PlatinumEngine
 	{
 		_reflectRefractShader.Bind();
 		_reflectRefractShader.SetUniform("projection", mat);
+		_particleShader.Bind();
+		_particleShader.SetUniform("projection", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("projection", mat);
 	}
@@ -371,7 +451,10 @@ namespace PlatinumEngine
 
 	void Renderer::SetCameraPos(const Maths::Vec3 &pos)
 	{
+		cameraPos = pos;
 		_reflectRefractShader.Bind();
 		_reflectRefractShader.SetUniform("cameraPos", pos);
+		_particleShader.Bind();
+		_particleShader.SetUniform("cameraPos", pos);
 	}
 }

@@ -156,7 +156,7 @@ int main(int, char**)
 			}
 			// don't include swap buffers function in the frame for profiling
 			// swap buffers waits for vsync
-	
+
 			glfwSwapBuffers(window);
 		}
 

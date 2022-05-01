@@ -114,6 +114,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/ComponentComposition/RenderComponent.cpp;"
 	"Source/ComponentComposition/TransformComponent.cpp;"
 #	"Source/ComponentComposition/LightComponent.cpp;"
+	"Source/ComponentComposition/ParticleEffect.cpp;"
 	
 	"Source/GameWindow/GameWindow.cpp;"
 	
@@ -139,6 +140,9 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/ShaderProgram.cpp;"
 	"Source/OpenGL/Texture.cpp;"
 	"Source/OpenGL/Material.cpp;"
+	
+	"Source/ParticleEffects/ParticleEmitter.cpp"
+	"Source/ParticleEffects/ParticleRenderer.cpp;"
 	
 	"Source/Profiler/Profiler.cpp;"
 	

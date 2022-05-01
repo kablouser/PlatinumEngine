@@ -12,6 +12,9 @@
 #include <ComponentComposition/CameraComponent.h>
 #include <ComponentComposition/AudioComponent.h>
 #include <ComponentComposition/GameObject.h>
+#include <ComponentComposition/ParticleEffect.h>
+
+#include <ParticleEffects/ParticleEmitter.h>
 
 #include <SceneManager/SceneManager.h>
 #include <OpenGL/Mesh.h>
@@ -30,7 +33,9 @@ namespace PlatinumEngine
 		void ShowMeshRenderComponent(Scene& scene);
 		void ShowTransformComponent(Scene& scene);
 		void ShowCameraComponent(Scene& scene);
+		void ShowParticleEffectComponent(Scene &scene);
 		void ShowAudioComponent(Scene& scene);
+
 
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);
@@ -51,6 +56,9 @@ namespace PlatinumEngine
 		float _itemWidthMeshRenderComponent = 160.f;
 		float _textWidthTransformComponent = 90.f;
 		float _textWidthCameraComponent = 135.0f;
+		float _textWidthParticleEffectComponent = 135.0f;
+		float _textWidthParticleEffectComponentSmall = 100.0f;
+		float _itemWidthParticleEffectComponent = 180.0f;
 		std::vector<std::string> _temp = {"Perspective", "Orthographic"};
 		std::vector<std::string> _clearMode = {"None", "SkyBox", "BackgroundColour"};
 	};
