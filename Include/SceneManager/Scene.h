@@ -126,6 +126,12 @@ namespace PlatinumEngine
 		 */
 		void Render(Renderer& renderer);
 
+		/**
+		 * Please call before you want to render the scene.
+		 * Respects hierarchy order and objects that are "enabled in hierarchy".
+		 * @param renderer target location for rendering
+		 */
+		void LoadLights(Renderer& renderer);
 	private:
 
 		bool _isStarted;

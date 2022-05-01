@@ -7,6 +7,8 @@
 #include <ComponentComposition/Component.h>
 #include <Helpers/VectorHelpers.h>
 #include <Logger/Logger.h>
+#include <ComponentComposition/LightComponent.h>
+#include <ComponentComposition/TransformComponent.h>
 
 namespace PlatinumEngine
 {
@@ -222,6 +224,21 @@ namespace PlatinumEngine
 			BroadcastOnRender(*gameObject, renderer);
 		}
 	}
+
+	void Scene::LoadLights(Renderer& renderer)
+	{
+		std::vector<GameObject*> lights;
+		for (auto gameObject: _rootGameObjects)
+		{
+			auto lightComponent = gameObject->GetComponent<LightComponent>();
+			if(lightComponent)
+			{
+				lights.push_back(gameObject);
+			}
+		}
+		renderer.SetupLights(lights);
+	}
+
 
 	//--------------------------------------------------------------------------------------------------------------
 	// External controls

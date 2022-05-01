@@ -7,9 +7,8 @@
 #include <GL/glew.h>
 // printing errors
 #include <Logger/Logger.h>
-
-// test
-#include "ComponentComposition/RenderComponent.h"
+#include <ComponentComposition/LightComponent.h>
+#include <ComponentComposition/TransformComponent.h>
 
 // shaders
 // DON'T FORMAT THESE LINES, OTHERWISE IT BREAKS
@@ -42,6 +41,12 @@ const std::string REFLECT_REFRACT_VERTEX_SHADER =
 ;
 const std::string REFLECT_REFRACT_FRAGMENT_SHADER =
 #include <Shaders/Unlit/ReflectionRefraction.frag>
+;
+const std::string LIGHT_VERTEX_SHADER =
+#include <Shaders/Unlit/LightShader.vert>
+;
+const std::string LIGHT_FRAGMENT_SHADER =
+#include <Shaders/Unlit/LightShader.frag>
 ;
 
 namespace PlatinumEngine
@@ -105,19 +110,17 @@ namespace PlatinumEngine
 			return;
 		}
 
+		if (!_lightShader.Compile(LIGHT_VERTEX_SHADER, LIGHT_FRAGMENT_SHADER))
+		{
+			PLATINUM_ERROR("Cannot generate the reflect/refract shader.");
+			return;
+		}
+
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
 		if (!_framebuffer.Create(_framebufferWidth, _framebufferHeight))
 			return;
 
-		// initialize light
-		pointLight.constant = 1.0f;
-		pointLight.linear = 0.09f;
-		pointLight.quadratic = 0.032f;
-
-		pointLight.ambientStrength = Maths::Vec3(0.2f, 0.2f, 0.2f);
-		pointLight.diffuseStrength = Maths::Vec3(0.5f, 0.5f, 0.5f);
-		pointLight.specularStrength = Maths::Vec3(1.0f, 1.0f, 1.0f);
 		// check for uncaught errors
 //		GL_CHECK();
 
@@ -259,6 +262,8 @@ namespace PlatinumEngine
 		_reflectRefractShader.SetUniform("view", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("view", mat);
+		_lightShader.Bind();
+		_lightShader.SetUniform("view", mat);
 	}
 
 	// update perspective matrix in shader
@@ -268,6 +273,8 @@ namespace PlatinumEngine
 		_reflectRefractShader.SetUniform("projection", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("projection", mat);
+		_lightShader.Bind();
+		_lightShader.SetUniform("projection", mat);
 	}
 
 	// update view matrix in shader
@@ -315,63 +322,67 @@ namespace PlatinumEngine
 		_gridShader.SetUniform("GridAxis", gridAxis);
 	}
 
-	// if you want to test a mesh use
-	// void Renderer::ShowGUIWindow(bool* outIsOpen, const Mesh &mesh)
-	// then comment CubeTest(), cancel comment on LoadMesh(const Mesh &mesh)
-	void Renderer::ShowGUIWindow(bool* outIsOpen)
+	void Renderer::SetupLights(std::vector<GameObject*> &lights)
 	{
-		if(ImGui::Begin("Raster Renderer", outIsOpen) &&
-		   // when init is bad, don't render anything
-		   _isInitGood)
+		_phongShader.Bind();
+		int num_directed_lights, num_point_lights;
+		num_directed_lights = num_point_lights = 0;
+		bool isDirLight = false, isPointLight = false;
+		for(auto light:lights)
 		{
-			// check ImGui's window size, can't render when area=0
-			ImVec2 targetSize = ImGui::GetContentRegionAvail();
-			if(1.0f < targetSize.x && 1.0f < targetSize.y)
+			auto lightComponent = light->GetComponent<LightComponent>();
+			if(lightComponent)
 			{
-				// resize framebuffer if necessary
-				if (_framebufferWidth != (int)targetSize.x || _framebufferHeight != (int)targetSize.y)
+				LightComponent::LightType type = lightComponent->type;
+				auto transform = light->GetComponent<TransformComponent>();
+				if(transform)
 				{
-					ResizeFrameBuffer(_framebuffer, targetSize);
+					if (type == LightComponent::LightType::Directional)
+					{
+						isDirLight = true;
+						auto lightDir = transform->GetLocalToWorldMatrix() * Maths::Vec4(0.f, 1.f, 0.f, 0.f);
+						_phongShader.SetUniform("ambientLight", lightComponent->ambientLight);
+						_phongShader.SetUniform("isDirLight", isDirLight);
+						_phongShader.SetUniform("dirLights[" + std::to_string(num_directed_lights) + "].direction",
+								Maths::Vec3(lightDir.x, lightDir.y, lightDir.z));
+						_phongShader.SetUniform("dirLights[" + std::to_string(num_directed_lights) + "].baseLight",
+								(lightComponent->intensity * lightComponent->spectrum).to_vec());
+						num_directed_lights++;
+					}
+					else if (type == LightComponent::LightType::Point)
+					{
+						isPointLight = true;
+						_phongShader.SetUniform("ambientLight", lightComponent->ambientLight);
+						_phongShader.SetUniform("isPointLight", isPointLight);
+						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].position",
+								transform->localPosition);
+						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].baseLight",
+								(lightComponent->intensity * lightComponent->spectrum).to_vec());
+						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].constant",
+								lightComponent->constant);
+						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].linear",
+								lightComponent->linear);
+						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].quadratic",
+								lightComponent->quadratic);
+						num_point_lights++;
+					}
 				}
-
-				Begin();
-				Mesh mesh(vertices, indices);
-//				RenderComponent renderComponent(mesh);
-				LoadMesh(mesh);
-				End();
-
-				ImGui::Image(_framebuffer.GetColorTexture().GetImGuiHandle(), targetSize);
-
 			}
 		}
-
-		ImGui::End();
 	}
-	//--------------------------------------------------------------------------------------------------------------
-	// Private functions implementation.
-	//--------------------------------------------------------------------------------------------------------------
-	void Renderer::SetLightProperties()
-	{
-		// Normal shader light properties
-		auto lightPos = Maths::Vec3(5.0f, 5.0f, -5.0f);
-		auto isPointLight = true;
-		auto lightAmbient = Maths::Vec3(0.2f, 0.2f, 0.2f);
-		auto lightDiffuse = Maths::Vec3(0.5f, 0.5f, 0.5f);
-		auto lightSpecular = Maths::Vec3(1.0f, 1.0f, 1.0f);
 
-		// Phong shader light properties
-		_phongShader.Bind();
-		_phongShader.SetUniform("lightPos", lightPos);
-		_phongShader.SetUniform("isPointLight", isPointLight);
-		_phongShader.SetUniform("lightAmbient", lightAmbient);
-		_phongShader.SetUniform("lightDiffuse", lightDiffuse);
-		_phongShader.SetUniform("lightSpecular", lightSpecular);
-		_phongShader.SetUniform("viewPos", Maths::Vec3(0.0, 0.0, 0.0));
+	void Renderer::DrawLight(Maths::Mat4 matrix)
+	{
+		_lightShader.Bind();
+		_lightShader.SetUniform("model", matrix);
 	}
 
 	void Renderer::SetCameraPos(const Maths::Vec3 &pos)
 	{
 		_reflectRefractShader.Bind();
 		_reflectRefractShader.SetUniform("cameraPos", pos);
+
+		_phongShader.Bind();
+		_phongShader.SetUniform("viewPos", pos);
 	}
 }

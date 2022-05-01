@@ -507,10 +507,9 @@ namespace PlatinumEngine{
 				_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
 				_camera.MarkProjectionMatrixAsUsed();
 			}
-      
-			_renderer->SetLightProperties();
-			_renderer->SetCameraPos(_camera.GetCameraPosition());
 
+			_renderer->SetCameraPos(_camera.GetCameraPosition());
+			_scene->LoadLights(*_renderer);
 			// Render game objects
 			_scene->Render(*_renderer);
 

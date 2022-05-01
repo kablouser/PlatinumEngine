@@ -5,6 +5,15 @@
 #include "ComponentComposition/Objects.h"
 namespace PlatinumEngine
 {
+
+	Mesh ArrowMesh(float rbase, float rtip, float height)
+	{
+		MeshData base = Cone(rbase, rbase, 0.75f * height, 10, true);
+		MeshData tip = Cone(rtip, 0.001f, 0.25f * height, 10, true);
+		for(auto& v : tip.vertices) v.position.y += 0.7f;
+		return Merge(std::move(base), std::move(tip));
+	}
+
 	Mesh CubeMesh(float xSize, float ySize, float zSize)
 	{
 		MeshData cubeData = Cube(xSize, ySize, zSize);
@@ -64,7 +73,7 @@ namespace PlatinumEngine
 	MeshData Cone(float bradius, float tradius, float height, int sides, bool caps)
 	{
 		const size_t n_sides = sides, n_cap = n_sides + 1;
-		const float _2pi = PI * 2.0f;
+		const float _2pi = PI_F * 2.0f;
 
 		std::vector<Maths::Vec3> vertices(n_cap + n_cap + n_sides * 2 + 2);
 		size_t vert = 0;
@@ -199,7 +208,7 @@ namespace PlatinumEngine
 		int nbLat = 16;
 
 		std::vector<Maths::Vec3> vertices((nbLong + 1) * nbLat + 2);
-		float _pi = PI;
+		float _pi = PI_F;
 		float _2pi = _pi * 2.0f;
 
 		vertices[0] = Maths::Vec3{0.0f, radius, 0.0f};
@@ -386,5 +395,13 @@ namespace PlatinumEngine
 		}
 
 		return {std::move(verts), std::move(elems)};
+	}
+
+	Mesh Merge(MeshData&& l, MeshData&& r)
+	{
+		for(auto& i : r.indices) i += (GLuint)l.vertices.size();
+		l.vertices.insert(l.vertices.end(), r.vertices.begin(), r.vertices.end());
+		l.indices.insert(l.indices.end(), r.indices.begin(), r.indices.end());
+		return Mesh(std::move(l.vertices), std::move(l.indices));
 	}
 }

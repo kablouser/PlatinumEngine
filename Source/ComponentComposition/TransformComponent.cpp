@@ -1,4 +1,5 @@
 #include "ComponentComposition/TransformComponent.h"
+#include "ComponentComposition/GameObject.h"
 #include <ImGuizmo.h>
 namespace PlatinumEngine
 {

@@ -5,7 +5,6 @@
 #include <vector>
 #include <typeinfo>
 #include <algorithm>
-#include "ComponentComposition/Component.h"
 
 namespace PlatinumEngine
 {

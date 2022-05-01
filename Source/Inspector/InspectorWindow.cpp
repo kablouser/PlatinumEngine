@@ -40,7 +40,12 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 				ShowTransformComponent(scene);
 
 		  	if (obj->GetComponent<CameraComponent>())
-				  ShowCameraComponent(scene);
+			    ShowCameraComponent(scene);
+
+			if (obj->GetComponent<LightComponent>() != nullptr)
+			{
+				ShowLightComponent(scene);
+			}
 
 		  	ImGui::Separator();
 		  	if (_isAddComponentWindowOpen)
@@ -468,7 +473,8 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 		const char* components[] = {
 				"Mesh Render Component",
 				"Transform Component",
-				"Camera Component"
+				"Camera Component",
+				"Light Component"
 		};
 		static const char* selectedComponent = nullptr;
 		static char componentSelectorBuffer[128];
@@ -519,10 +525,40 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			{
 				scene.AddComponent<CameraComponent>(obj);
 			}
+			else if (strcmp(selectedComponent, "Light Component") == 0)
+			{
+				scene.AddComponent<LightComponent>(obj);
+			}
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;
 		}
 		ImGui::EndChild();
+	}
+}
+
+void InspectorWindow::ShowLightComponent(Scene& scene)
+{
+	auto obj = _sceneEditor->GetSelectedGameobject();
+
+	// If this gui is being shown, assumption that object has light component
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_ARROWS_TURN_TO_DOTS "  Light Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveLightComponent")) {
+		// remove component
+		scene.RemoveComponent(*obj->GetComponent<LightComponent>());
+		return;
+	}
+	if (isHeaderOpen)
+	{
+		auto light = obj->GetComponent<LightComponent>();
+		if(ImGui::Combo("Type", (int*)&light->type, light->LightTypeNames, (int)LightComponent::LightType::count))
+		{}
+
+		ImGui::ColorEdit3("Spectrum", light->spectrum.data);
+		ImGui::DragFloat("Intensity", &light->intensity, 0.1f, 0.0f,
+				std::numeric_limits<float>::max(), "%.2f");
 	}
 }
 

@@ -99,7 +99,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/ComponentComposition/GameObject.cpp;"
 	"Source/ComponentComposition/RenderComponent.cpp;"
 	"Source/ComponentComposition/TransformComponent.cpp;"
-#	"Source/ComponentComposition/LightComponent.cpp;"
+	"Source/ComponentComposition/LightComponent.cpp;"
+	"Source/ComponentComposition/Objects.cpp;"
 	
 	"Source/GameWindow/GameWindow.cpp;"
 	
