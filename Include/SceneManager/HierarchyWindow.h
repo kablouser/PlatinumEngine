@@ -6,16 +6,21 @@
 // C++ standard library
 #include <string>
 #include <vector>
+#include <algorithm>
 
 // ImGui library
+
 #include <imgui.h>
+// Icon library
 
 // Platinum Engine library
 #include <ComponentComposition/GameObject.h>
 #include <SceneManager/Scene.h>
+#include <SceneEditor/SceneEditor.h>
 #include <Logger/Logger.h>
-#include <algorithm>
-#include <IconsKenney.h>
+#include "AssetDatabase/AssetHelper.h"
+
+
 namespace PlatinumEngine
 {
 	class HierarchyWindow
@@ -31,11 +36,9 @@ namespace PlatinumEngine
 		void ShowGUIWindow(bool* isOpen, Scene& scene);
 
 		// ---> CONSTRUCTOR
-		HierarchyWindow();
+		HierarchyWindow(SceneEditor* sceneEditor, AssetHelper* assetHelper);
 
 		// ---> PARAMETER
-		GameObject* selectedGameObject;
-
 
 	private:
 		// ---> ENUM
@@ -50,14 +53,9 @@ namespace PlatinumEngine
 		 */
 		void DisplayTreeNote(GameObject* gameObject, Scene& scene, ModeForDraggingBehavior modeForDraggingBehavior);
 
-
 		// ---> PARAMETER
-		ModeForDraggingBehavior modeForDraggingBehavior;
-
+		ModeForDraggingBehavior _modeForDraggingBehavior;
+		SceneEditor* _sceneEditor;
+		AssetHelper* _assetHelper;
 	};
-
 }
-
-
-
-

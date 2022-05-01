@@ -4,9 +4,10 @@
 #pragma once
 
 #include <OpenGL/Mesh.h>
+#include <OpenGL/Texture.h>
 #include <AssetDatabase/AssetDatabase.h>
 #include <imgui.h>
-#include <IconsKenney.h>
+#include <IconsFontAwesome6.h>
 #include <tuple>
 
 namespace PlatinumEngine
@@ -20,9 +21,18 @@ namespace PlatinumEngine
 		 * Responsible for the pop up window opened by
 		 * the render component in Inspector Window
 		 */
-		 std::tuple<bool, Mesh*> ShowGuiWindow();
-
+     //Mesh
+		 std::tuple<bool, Mesh*> ShowMeshGuiWindow();
+  
+		 std::tuple<bool, Mesh*> GetMeshAsset(std::string filePath);
+     //Audio
 		 std::tuple<bool, std::string> ShowAudioGuiWindow();
+     //Texture
+		 std::tuple<bool, Texture*> ShowTextureGuiWindow();
+
+		 std::tuple<bool, Texture*> GetTextureAsset(std::string filePath);
+
+		 std::tuple<bool, Texture*> ShowNormalTextureGuiWindow();
 
 	private:
 		AssetDatabase* _assetDatabase;

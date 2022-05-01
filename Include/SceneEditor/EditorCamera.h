@@ -5,32 +5,36 @@
 #pragma once
 
 #include "Maths/Matrices.h"
+#include "Maths/Quaternion.h"
+
 
 namespace PlatinumEngine
 {
 	class EditorCamera
 	{
 	public:
-		// VARIABLE
+		// ___VARIABLE___
 
-		// Camera relative Matrix
+		// view Matrix stuff
 		Maths::Mat4 viewMatrix4;
+
+		// projection stuff
 		Maths::Mat4 projectionMatrix4;
+
 
 		// Flags
 		bool isOrthogonal;
-
 		enum AxisType{horizontalAxis, verticalAxis};
+
+		// Translation?
+		float viewPortSize = 100; // for moving closer in orthogonal mode?
 
 
 		// FUNCTION
 		/**
 		 * The function calculate the newest view matrix.
-		 * @param eulerAngle
-		 * @param translationValue
 		 */
-		void MoveCamera(Maths::Vec3 eulerAngle,
-				Maths::Vec3 translationValue);
+		void UpdateViewMatrix();
 
 
 		/**
@@ -38,12 +42,6 @@ namespace PlatinumEngine
 		 * @param delta
 		 */
 		void RotationByMouse(Maths::Vec2 delta);
-
-		/**
-		 * Rotate the camera by euler angle
-		 * @param eulerAngle : the euler angle
-		 */
-		void RotateCamera(Maths::Vec3 eulerAngle);
 
 
 		/**
@@ -68,12 +66,6 @@ namespace PlatinumEngine
 		void TranslationByKeyBoard(float x, float y);
 
 		/**
-		 * Translate
-		 * @param movement : the translation direction with magnitude
-		 */
-		void TranslateCamera(Maths::Vec3 translateMovement);
-
-		/**
 		 * The three functions are to calculate new up/forward/right
 		 * direction by the newest view matrix
 		 * @return glm::vec3 is the new up/forward/right direction
@@ -94,26 +86,71 @@ namespace PlatinumEngine
 		 * @param far
 		 * ...
 		 */
-		void SetFrustumMatrix(float left, float right, float bottom, float top, float near, float far);
 		void SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar);
 		void SetPerspectiveMatrix(float fovy, float aspect, float near, float far);
 
-		// CONSTRUCTOR
+
+		/**
+		 * Get camera position const reference
+		 * @return : camera position const reference
+		 */
+		const Maths::Vec3& GetCameraPosition();
+
+		/**
+		 *
+		 * @param matrixArray
+		 */
+		void UpdateCameraQuaternion();
+
+		/**
+		 * Set the flag _IsViewMatrixUsed to be true (meaning the flag is passed into the shader?)
+		 */
+		void MarkViewMatrixAsUsed();
+
+		/**
+		 * Return the _IsViewMatrixUsed flag
+		 * @return : the _IsViewMatrixUsed flag
+		 */
+		bool CheckIfViewMatrixUsed();
+
+		/**
+		 * Set the flag _IsViewMatrixUsed to be false (meaning the flag is passed into the shader?)
+		 */
+		void MarkProjectionMatrixAsUsed();
+
+		/**
+		 * Return the _IsProjectionMatrixUsed flag
+		 * @return : the _IsProjectionMatrixUsed flag
+		 */
+		bool CheckIfProjectionMatrixUsed();
+
+
+		/**
+		 * Return the rotation part of the view matrix
+		 * @return
+		 */
+		Maths::Mat4 GetRotationOnlyViewMatrix();
+
+		Maths::Vec3 GetPos() const;
+
+		// ___CONSTRUCTOR___
 		EditorCamera();
 
 
 	private:
-		// PARAMETER
+		// ___PARAMETER___
+
+		// flag
+		bool _IsViewMatrixUsed = false;
+		bool _IsProjectionMatrixUsed = false;
 
 		// transformation
-		Maths::Vec3 _eulerAngle;
+		Maths::Quaternion _quaternion;
 		Maths::Vec3 _translationValue;
-		Maths::Vec3 _cameraPosition; // need this position is because we need to adjust the camera position
-									 // after the user change the fov of the camera)
 
 		// device input data
-		float _translationSpeed = 0.005;
-		float _rotationSpeed = 0.005;
+		float _translationSpeed = 0.05;
+		float _rotationSpeed = 0.002;
 
 	};
 

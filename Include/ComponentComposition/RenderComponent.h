@@ -8,7 +8,7 @@
 #include "Renderer/Renderer.h"
 #include "Loaders/MeshLoader.h"
 #include <AssetDatabase/AssetHelper.h>
-
+#include "OpenGL/Material.h"
 namespace PlatinumEngine
 {
 	class RenderComponent: public Component
@@ -19,14 +19,22 @@ namespace PlatinumEngine
 		// update mesh from mesh loader
 		void SetMesh(Mesh* mesh);
 
+		void SetMaterial(Texture* texture);
+		void SetNormalMap(Texture* texture);
+
 		// return mesh
 		Mesh* GetMesh();
 
 		// override the OnRender() of the Component
 		void OnRender(Scene& scene, Renderer& renderer) override;
 
+	public:
+		Material material;
+
 	private:
 		Mesh* _mesh;
+
+
 		ShaderInput _shaderInput;
 	};
 }

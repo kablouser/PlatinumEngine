@@ -43,7 +43,7 @@ int main(int, char**)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
 
 	// Create window with graphics context
-	GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(1280, 720, "Platinum Engine", NULL, NULL);
 	if (window == NULL)
 		return EXIT_FAILURE;
 	glfwMakeContextCurrent(window);
@@ -59,19 +59,22 @@ int main(int, char**)
 		ImPlot::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-		static const ImWchar ke_icons_ranges[] = { ICON_MIN_KI, ICON_MAX_KI, 0 };
-		static const ImWchar aw_icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
+		const ImWchar aw_icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
+
 		ImFontConfig config;
 		config.MergeMode = true;
 		io.Fonts->AddFontFromFileTTF("./Fonts/NotoSansDisplay-Regular.ttf", 18.0f);
 		io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, 16.0f, &config, aw_icons_ranges);
-		io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_KI, 16.0f, &config, ke_icons_ranges);             // Merge into first font
 		io.Fonts->Build();
 
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+		//imguizmo
+		float viewManipulateRight = io.DisplaySize.x;
+		float viewManipulateTop = 0;
 
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
@@ -89,11 +92,13 @@ int main(int, char**)
 		PlatinumEngine::InputManager inputManager;
 		PlatinumEngine::Renderer rasterRenderer;
 		PlatinumEngine::Scene scene;
-		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer);
-		PlatinumEngine::HierarchyWindow hierarchyWindow;
-		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper);
+		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer, &assetHelper);
+
+		PlatinumEngine::HierarchyWindow hierarchyWindow(&sceneEditor, &assetHelper);
+		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper, &sceneEditor);
+
 		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
-		PlatinumEngine::ProjectWindow projectWindow;
+		PlatinumEngine::ProjectWindow projectWindow(&scene, &assetHelper, &sceneEditor);
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler, &projectWindow);
 
 		// Main loop
@@ -113,6 +118,7 @@ int main(int, char**)
 					ImGui_ImplOpenGL3_NewFrame();
 					ImGui_ImplGlfw_NewFrame();
 					ImGui::NewFrame();
+					ImGuizmo::BeginFrame();
 				}
 
 				//--------------------------------------------------------------------------------------------------------------

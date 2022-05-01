@@ -6,7 +6,7 @@
 #include <filesystem>
 
 #include <OpenGL/Mesh.h>
-
+#include <OpenGL/Texture.h>
 namespace PlatinumEngine
 {
 	//--------------------------------------------------------------------------------------------------------------
@@ -38,6 +38,11 @@ namespace PlatinumEngine
 		AssetID id;
 	};
 
+
+	struct TextureAssetID
+	{
+		AssetID id;
+	};
 	/**
 	 * Keeps track of assets in assets folder, loads them, and manages a database file.
 	 */
@@ -163,6 +168,7 @@ namespace PlatinumEngine
 		// Get Loaded Asset functions
 		//--------------------------------------------------------------------------------------------------------------
 
+		//Mesh
 		/**
 		 * nodiscard means compiler creates warning if you don't use this function's return value
 		 * @param requireExist if true, return only existent assets
@@ -191,8 +197,16 @@ namespace PlatinumEngine
 		 */
 		Mesh* operator[](MeshAssetID meshAssetID);
 
-
+    //Audio
 		std::string operator[](AudioAssetID audioAssetID);
+
+		//Texture
+		[[nodiscard]] std::vector<TextureAssetID> GetTextureAssetIDs(bool requireExist = true) const;
+
+		Texture* GetLoadedTextureAsset(TextureAssetID textureAssetID);
+
+		Texture* operator[](TextureAssetID TextureAssetID);
+
 
 	private:
 
@@ -212,8 +226,8 @@ namespace PlatinumEngine
 		std::vector<void*> _loadedAssets;
 		// Assets loaded in their classes/structures appropriately
 		std::vector<Mesh*> _loadedMeshAssets;
-
 		std::vector<std::string> _loadedAudioAssets;
+		std::vector<Texture*> _loadedTextureAssets;
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Internal

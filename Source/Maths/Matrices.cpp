@@ -8,6 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iterator>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 namespace PlatinumEngine
 {
@@ -154,16 +155,14 @@ namespace PlatinumEngine
 		{
 
 			// get rotation matrix (quaternion)
-			glm::quat quaternionX(glm::vec3(eulerAngle.x, 0, 0));
+			glm::quat quaternionX(glm::vec3(eulerAngle.x, eulerAngle.y, eulerAngle.z));
+			glm::mat4x4 rotationMat4 = glm::mat4_cast(quaternionX);
 
-			glm::quat quaternionY(glm::vec3(0, eulerAngle.y, 0));
-
-			glm::quat quaternionZ(glm::vec3(0, 0, eulerAngle.z));
-
-			ConvertFromGLM(glm::mat4_cast(quaternionY * quaternionX * quaternionZ));
-
+			// convert glm::mat4 into Mat4
+			float* rotationMatrix = glm::value_ptr(rotationMat4);
+			// set the matrix to be the same the glm rotation matrix
+			this->ConvertFromArray(rotationMatrix, 16);
 		}
-
 		void Mat4::SetRotationMatrix(Quaternion quaternion)
 		{
 			ConvertFromGLM(glm::toMat4(glm::quat(
@@ -216,6 +215,29 @@ namespace PlatinumEngine
 		void Mat4::ConvertFromGLM(glm::mat4 mat4)
 		{
 			ConvertFromArray(glm::value_ptr(mat4), 16);
+		}
+
+		void Mat4::Decompose(
+				Maths::Vec3* outTranslation,
+				Maths::Quaternion* outQuaternion,
+				float* outScale) const
+		{
+			glm::vec3 scale;
+			glm::quat quaternion;
+			glm::vec3 translation;
+			glm::vec3 skew;
+			glm::vec4 perspective;
+			glm::decompose(
+					(glm::mat4)*this,
+					scale, quaternion, translation, skew, perspective
+					);
+
+			if (outTranslation)
+				*outTranslation = {translation.x, translation.y , translation.z};
+			if (outQuaternion)
+				*outQuaternion = {quaternion.w, quaternion.x, quaternion.y, quaternion.z};
+			if(outScale)
+				*outScale = std::max(std::max(scale.x, scale.y), scale.z);
 		}
 
 		Mat3 Mat3::operator*(float scale)
@@ -350,6 +372,12 @@ namespace PlatinumEngine
 			glm::quat quaternionZ(glm::vec3(0, 0, eulerAngle.z));
 
 			ConvertFromGLM(glm::mat3_cast(quaternionY * quaternionX * quaternionZ));
+		}
+
+		void Mat3::SetRotationMatrix(Quaternion quaternion)
+		{
+			ConvertFromGLM(glm::toMat3(glm::quat(
+					quaternion.w, quaternion.x, quaternion.y, quaternion.z)));
 		}
 
 		void Mat3::SetScaleMatrix(PlatinumEngine::Maths::Vec3 scale)

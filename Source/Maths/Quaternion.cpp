@@ -10,6 +10,9 @@ namespace PlatinumEngine
 		Quaternion::Quaternion():w(0.f), x(0.f), y(0.f), z(0.f)
 		{
 		}
+		Quaternion::Quaternion(float w, Maths::Vec3 xyz):w(w), x(xyz.x), y(xyz.y), z(xyz.z)
+		{
+		}
 		Quaternion::Quaternion(float w, float x, float y, float z): w(w), x(x), y(y), z(z)
 		{
 		}
@@ -180,7 +183,7 @@ namespace PlatinumEngine
 		}
 		Vec3 Quaternion::EulerAngles()
 		{
-			return QuaternionToEuler(Quaternion(w,x,y,z))*Common::RAD2DEG;
+			return QuaternionToEuler(Quaternion(w,x,y,z));
 		}
 		Vec4 Quaternion::ToVec4()
 		{
@@ -311,7 +314,7 @@ namespace PlatinumEngine
 		Quaternion Quaternion::EulerToQuaternion(Vec3 euler)
 		{
 			glm::quat q{euler * Common::DEG2RAD};
-			return Quaternion(q.w,q.x,q.y,q.z);
+			return {q.w,q.x,q.y,q.z};
 		}
 
 		Mat4 Quaternion::QuaternionToMatrix(Quaternion q)
