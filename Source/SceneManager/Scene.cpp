@@ -64,7 +64,7 @@ namespace PlatinumEngine
 			code = typeDatabase->Deserialize(loadFile, this);
 			if (code != TypeDatabase::DeserializeReturnCode::success)
 				PLATINUM_WARNING_STREAM << "Loading ID System has return code " << (int)code;
-			
+
 			AfterLoad();
 		}
 		else

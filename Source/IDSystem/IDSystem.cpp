@@ -80,10 +80,10 @@ namespace PlatinumEngine
 		while (inputStream.good())
 		{
 			if (!(inputStream >> stringToken))
-				return;
+				break;// todo return
 			// next string begins with }
 			if (stringToken.rfind('}', 0) == 0)
-				return;
+				break;// todo return
 
 			ID id;
 			if (!(stringToken == "{" &&
@@ -188,6 +188,10 @@ namespace PlatinumEngine
 				continue;
 			}
 		}
+
+		PLATINUM_INFO_STREAM << idSystem->_typeIndexToIDMap.size();
+		for (auto& kvp : idSystem->_typeIndexToIDMap)
+			PLATINUM_INFO_STREAM << TypeDatabase::Instance->GetStoredTypeName(kvp.first) << kvp.second.size();
 	}
 
 	bool IDSystem::IsStreamable(std::type_index typeIndex, std::string* outTypeName)
@@ -232,8 +236,13 @@ namespace PlatinumEngine
 	{
 		// while UpdatePointer, SavedReferences could be added/removed
 		std::set<void*> allSavedReferencesCopy = AllSavedReferences;
+		int i = 0;
+		int tots = allSavedReferencesCopy.size();
 		for (void* savedReference: allSavedReferencesCopy)
+		{
 			reinterpret_cast<SavedReference<void>*>(savedReference)->UpdatePointer(*this);
+			++i;
+		}
 	}
 
 	std::shared_ptr<void> IDSystem::GetSavedReferenceInternal(ID id, std::type_index typeIndex)
