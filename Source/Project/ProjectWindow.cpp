@@ -4,9 +4,9 @@
 
 #include <Project/ProjectWindow.h>
 #include "ComponentComposition/GameObject.h"
-#include "ComponentComposition/TransformComponent.h"
-#include "ComponentComposition/RenderComponent.h"
 #include "SDL_mixer.h"
+#include "ComponentComposition/Transform.h"
+#include "ComponentComposition/MeshRender.h"
 
 using namespace PlatinumEngine;
 
@@ -226,11 +226,11 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 					if (ImGui::Selectable("Add Mesh"))
 					{
 						GameObject* go = _scene->AddGameObject(dir.stem().string());
-						_scene->AddComponent<TransformComponent>(go);
-						_scene->AddComponent<RenderComponent>(go);
+						_scene->AddComponent<Transform>(go);
+						_scene->AddComponent<MeshRender>(go);
 						auto asset_Helper = _assetHelper->GetMeshAsset(dir.string());
 						if (std::get<0>(asset_Helper))
-							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+							go->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
 						_sceneEditor->SetSelectedGameobject(go);
 					}
 					ImGui::Separator();
@@ -245,15 +245,15 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 							auto asset_Helper = _assetHelper->GetTextureAsset(dir.string());
 							if (std::get<0>(asset_Helper))
 							{
-								go->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
-								go->GetComponent<RenderComponent>()->material.useTexture = true;
+								go->GetComponent<MeshRender>()->SetMaterial(std::get<1>(asset_Helper));
+								go->GetComponent<MeshRender>()->material.useTexture = true;
 							}
 						}
 						if (ImGui::Selectable("Add Normal"))
 						{
 							auto asset_Helper = _assetHelper->GetTextureAsset(dir.string());
 							if (std::get<0>(asset_Helper))
-								go->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
+								go->GetComponent<MeshRender>()->SetNormalMap(std::get<1>(asset_Helper));
 						}
 						ImGui::Separator();
 					}

@@ -310,7 +310,8 @@ namespace PlatinumEngine
 	void AssetDatabase::ReloadAssets()
 	{
 		// each entry corresponds to the loader in the ALLOWED_EXTENSIONS
-		std::vector<std::function<void*(const std::filesystem::path &filePath)>> loaders{
+		std::vector<std::function<void*(const std::filesystem::path &filePath)>> loaders
+		{
 				// remember to add the allocated data to its individual list
 				[&](const std::filesystem::path& filePath) -> void*
 				{
@@ -320,13 +321,12 @@ namespace PlatinumEngine
 					allocateMesh->fileName = filePath.filename().string();
 					return allocateMesh;
 				},
-
 				[&](const std::filesystem::path& filePath) -> void*
 				{
 					PixelData pixelData;
 					Texture* allocateTexture = new Texture;
 					pixelData.Create(filePath.string());
-					allocateTexture->Create(pixelData.width, pixelData.height, (const void*)pixelData.pixelData);
+					allocateTexture->Create(pixelData.width, pixelData.height, (const void*)pixelData.pixelData, pixelData.nrComponents);
 					_loadedTextureAssets.emplace_back(allocateTexture);
 					allocateTexture->fileName = filePath.filename().string();
 					return allocateTexture;
@@ -457,8 +457,8 @@ namespace PlatinumEngine
 		return (*this)[textureAssetID];
 	}
 
-	Texture* AssetDatabase::operator[](TextureAssetID textureAssetID)
-	{
+  Texture* AssetDatabase::operator[](TextureAssetID textureAssetID)
+  {
 		auto findID = _assetIDsMap.find(textureAssetID.id);
 		if (findID == _assetIDsMap.end())
 			return nullptr;

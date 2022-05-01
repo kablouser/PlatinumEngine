@@ -3,6 +3,8 @@
 //
 
 #include <WindowManager/WindowManager.h>
+#include <Physics/Physics.h>
+
 #include <imgui.h>
 #include <iostream>
 #include <ImGuiFileDialog.h>
@@ -15,7 +17,8 @@ namespace PlatinumEngine
 								Logger *logger,
 								InspectorWindow *inspector,
 								Profiler *profiler,
-								ProjectWindow *projectWindow
+								ProjectWindow *projectWindow,
+								Scene *scene
 								):
 								_gameWindow(gameWindow),
 								_sceneEditor(sceneEditor),
@@ -23,12 +26,14 @@ namespace PlatinumEngine
 								_logger(logger),
 								_inspector(inspector),
 								_profiler(profiler),
-								_projectWindow(projectWindow)
+								_projectWindow(projectWindow),
+								_scene(scene)
 	{
 	}
 
 	/// this is a bool parameter used for disable or enable the pause and step button
 	static bool enablePauseButton = true;
+	static bool enableStepButton = false;
 	///--------------------------------------------------------------------------
 	/// this function will create a basic window when you open the Platinum Engine
 	///--------------------------------------------------------------------------
@@ -44,7 +49,6 @@ namespace PlatinumEngine
 		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector, scene);
 		if (_showWindowProject) 		ShowWindowProject(&_showWindowProject);
 		if (_showWindowAnimation) 		ShowWindowAnimation(&_showWindowAnimation);
-		if (_showWindowAudio) 			ShowWindowAudio(&_showWindowAudio);
 		if (_showWindowLight) 			ShowWindowLight(&_showWindowLight);
 		if (_showWindowLogger)   		ShowWindowLogger(&_showWindowLogger);
 		if(_showWindowProfiler) 		ShowWindowProfiler(&_showWindowProfiler);
@@ -99,36 +103,37 @@ namespace PlatinumEngine
 
 			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 130.f);
 
+
 			///------------------------------------------------------------------
 			/// This section is for main menu bar to control the game view play/pause/step
 			///------------------------------------------------------------------
+			if(ImGui::Button(ICON_FA_RECYCLE "##Reset"))
+			{
+				if(_scene->IsStarted())
+					_scene->End();
+			}
+
 			if (ImGui::Button(ICON_FA_PLAY "##Play"))
 			{
-				_gameWindow->_onUpdate = !_gameWindow->_onUpdate;
-				if(_gameWindow->_onUpdate)
-				{
-					enablePauseButton = !enablePauseButton;
-				}
-				else if(!_gameWindow->_onUpdate)
-				{
-					enablePauseButton = true;
-				}
+				if(!_scene->IsStarted())
+					_scene->Start();
+
+					_gameWindow->isPaused = false;
+					enablePauseButton = false;
 			}
 
   			// activate or inactive pause and step button
 			ImGui::BeginDisabled(enablePauseButton);
 			if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
 			{
-				_pause = !_pause;
-				_gameWindow->Pause(_pause);
+				_gameWindow->Pause();
 			}
 
 			if (ImGui::Button(ICON_FA_FORWARD_STEP "##Step"))
 			{
-				if(!_pause)
-					_pause = true;
 				_gameWindow->Step();
 			}
+
 			ImGui::EndDisabled();
 
 			ImGui::EndMainMenuBar();
@@ -181,11 +186,30 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	void WindowManager::ShowMenuGameObject(Scene &scene)
 	{
-		if (ImGui::MenuItem(ICON_FA_CIRCLE_NODES " Create Empty"))
+		if (ImGui::MenuItem("Create Empty"))
 		{
 			scene.AddGameObject();
 		}
-
+		if (ImGui::BeginMenu("Create Game Object"))
+		{
+			if (ImGui::MenuItem(ICON_FA_CAMERA " Camera"))
+			{
+				auto obj = scene.AddGameObject("Camera");
+				scene.AddComponent<Camera>(obj);
+				scene.AddComponent<Transform>(obj);
+				_sceneEditor->SetSelectedGameobject(obj);
+			}
+			if (ImGui::MenuItem("Light"))
+			{}
+			if (ImGui::MenuItem(ICON_FA_FIRE " Particle Effect"))
+			{
+				auto obj = scene.AddGameObject("Particle Effect");
+				scene.AddComponent<ParticleEffect>(obj);
+				scene.AddComponent<Transform>(obj);
+				_sceneEditor->SetSelectedGameobject(obj);
+			}
+			ImGui::EndMenu();
+		}
 		if (ImGui::BeginMenu("3D Object"))
 		{
 			if (ImGui::MenuItem("Cube"))
@@ -198,16 +222,6 @@ namespace PlatinumEngine
 			{}
 			ImGui::EndMenu();
 		}
-		if (ImGui::BeginMenu("Effect"))
-		{
-			if (ImGui::MenuItem("Particle System"))
-			{}
-			ImGui::EndMenu();
-		}
-		if (ImGui::MenuItem("Camera"))
-		{}
-		if (ImGui::MenuItem("Light"))
-		{}
 	}
 
 	///--------------------------------------------------------------------------
@@ -245,8 +259,6 @@ namespace PlatinumEngine
 		ImGui::Separator();
 
 		if (ImGui::MenuItem("Animation", "", &_showWindowAnimation))
-		{}
-		if (ImGui::MenuItem("Audio", "", &_showWindowAudio))
 		{}
 		if (ImGui::MenuItem(ICON_FA_GAMEPAD " Game", "", &_showWindowGame))
 		{
@@ -320,12 +332,6 @@ namespace PlatinumEngine
 	{
 		//TODO:
 		_inspector->ShowGUIWindow(outIsOpen, scene);
-	}
-
-	//Please implement Audio Window below
-	void WindowManager::ShowWindowAudio(bool* outIsOpen)
-	{
-		//TODO:
 	}
 
 	//Please implement Hierarchy Window below
