@@ -30,14 +30,14 @@ namespace PlatinumEngine
 		{
 			renderer.SetAnimationStatus(isAnimationDisplay);
 
-			if (_mesh->animation.isAnimationExist)
+			if (!_animations.empty())
 			{
-				_mesh->animation.UpdateWorldTransformMatrix();
-				_mesh->animation.UpdateAnimationTime();
+				_animations[selectedAnimationIndex]->UpdateWorldTransformMatrix(_mesh->skeleton, _mesh->bones);
+				_animations[selectedAnimationIndex]->UpdateAnimationTime();
 
-				for (unsigned int i = 0; i < _mesh->animation.worldTransform.size(); ++i)
+				for (unsigned int i = 0; i < _animations[selectedAnimationIndex]->worldTransform.size(); ++i)
 				{
-					renderer.SetAnimationTransform(i, _mesh->animation.worldTransform[i]);
+					renderer.SetAnimationTransform(i, _animations[selectedAnimationIndex]->worldTransform[i]);
 				}
 			}
 		}
@@ -62,10 +62,10 @@ namespace PlatinumEngine
 		_mesh = mesh;
 		if(mesh != nullptr)
 		{
-			if(_mesh->animation.isAnimationExist)
+			if(_mesh->isAnimationExist)
 			{
 				_shaderInput.Clear();
-				_shaderInput.Set(_mesh->animation.animationVertex, _mesh->indices);
+				_shaderInput.Set(_mesh->animationVertices, _mesh->indices);
 			}
 			else
 			{
@@ -79,8 +79,18 @@ namespace PlatinumEngine
 		}
 	}
 
-	Mesh* MeshRender::GetMesh()
+	void RenderComponent::AddAnimation(Animation* animation)
+	{
+		_animations.push_back(animation);
+	}
+
+	Mesh* RenderComponent::GetMesh()
 	{
 		return _mesh;
+	}
+
+	std::vector<Animation*>& RenderComponent::GetAnimation()
+	{
+		return _animations;
 	}
 }

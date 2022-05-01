@@ -83,7 +83,10 @@ namespace PlatinumEngine
 			resultVec4.z = result.z;
 			resultVec4.w = result.w;
 
-			return { resultVec4.x / resultVec4.w, resultVec4.y / resultVec4.w,resultVec4.z / resultVec4.w };
+			if(w == 0.f)
+				return { resultVec4.x, resultVec4.y,resultVec4.z};
+			else
+				return { resultVec4.x / resultVec4.w, resultVec4.y / resultVec4.w,resultVec4.z / resultVec4.w };
 
 		}
 

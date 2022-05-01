@@ -342,6 +342,7 @@ namespace PlatinumEngine{
 		// check if mouse is inside the screen
 		//--------------------------------------
 
+		// Check mouse input
 		if (   _inputManager->GetMousePosition().x <= ImGui::GetWindowContentRegionMax().x
 			&& _inputManager->GetMousePosition().x >= ImGui::GetWindowContentRegionMin().x
 			&& _inputManager->GetMousePosition().y <= ImGui::GetWindowContentRegionMax().y
@@ -371,11 +372,30 @@ namespace PlatinumEngine{
 
 		}
 
-		// check if there is any keyboard input
+		// check if there is any keyboard input to move camera position
 		if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
 			_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
-			_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"), _inputManager->GetAxis("HorizontalAxisForEditorCamera"));
+		{
+			// Do translation based on keyboard input
+			_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"),
+					_inputManager->GetAxis("HorizontalAxisForEditorCamera"));
+		}
 
+		// Move camera to look at the selected object
+		if (_inputManager->IsKeyPressed(GLFW_KEY_SPACE))
+		{
+			TransformComponent* transformComponent = _selectedGameobject->GetComponent<TransformComponent>();
+
+			Maths::Vec3 gameObjectPosition = Maths::Vec3(0.f, 0.f, 0.f);
+
+			if(transformComponent != nullptr)
+			{
+				gameObjectPosition = transformComponent->GetLocalToWorldMatrix().MultiplyVec3(gameObjectPosition, 1.f);
+
+			}
+
+			_camera.SetCameraPosition(gameObjectPosition - _camera.GetForwardDirection() * 20);
+		}
 
 
 		//---------------------------
@@ -669,11 +689,11 @@ namespace PlatinumEngine{
 
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
-					if(mesh->animation.isAnimationExist)
+					if(mesh->isAnimationExist)
 					{
-						vertex0 = mesh->animation.animationVertex[mesh->indices[count + 0]].position;
-						vertex1 = mesh->animation.animationVertex[mesh->indices[count + 1]].position;
-						vertex2 = mesh->animation.animationVertex[mesh->indices[count + 2]].position;
+						vertex0 = mesh->animationVertices[mesh->indices[count + 0]].position;
+						vertex1 = mesh->animationVertices[mesh->indices[count + 1]].position;
+						vertex2 = mesh->animationVertices[mesh->indices[count + 2]].position;
 
 					}
 					else

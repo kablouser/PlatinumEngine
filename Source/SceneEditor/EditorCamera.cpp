@@ -120,7 +120,6 @@ namespace PlatinumEngine
 
 		// update view matrix
 		UpdateViewMatrix();
-
 	}
 
 
@@ -236,8 +235,10 @@ namespace PlatinumEngine
 		return matrix;
 	}
 
-	Maths::Vec3 EditorCamera::GetPos() const
+	void EditorCamera::SetCameraPosition(Maths::Vec3 newPosition)
 	{
-		return _translationValue;
+		_translationValue = newPosition;
+		UpdateViewMatrix();
 	}
+
 }

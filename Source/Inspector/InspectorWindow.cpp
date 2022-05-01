@@ -103,7 +103,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
-	if (ImGui::Button("X##RemoveRenderComponent")) {
+	if (ImGui::Button("X##RemoveRenderComponent"))
+	{
 		// remove component
 		scene.RemoveComponent(*obj->GetComponent<MeshRender>());
 		return;
@@ -153,7 +154,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		}
 
 		{
-			auto asset_Helper = _assetHelper->ShowMeshGuiWindow();
+			auto asset_Helper = _assetHelper->ShowMeshGuiWindow("Select Mesh");
 			if (std::get<0>(asset_Helper))
 			{
 				obj->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
@@ -280,20 +281,37 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::PopItemWidth();
 
 		// Animation
+		// store pointer of renderComponent
+		RenderComponent* renderComponent = _activeGameObject->GetComponent<RenderComponent>();
 
-		// check if the component has a mesh
-		if(Mesh* componentMesh = _activeGameObject->GetComponent<RenderComponent>()->GetMesh(); componentMesh!= nullptr)
+		if (ImGui::RadioButton("Display Animation",renderComponent->isAnimationDisplay == true))
 		{
-			// check if the mesh has an animation
-			if(componentMesh->animation.isAnimationExist)
-			{
-				// store reference of the boolean
-				bool& isAnimationDisplay = _activeGameObject->GetComponent<RenderComponent>()->isAnimationDisplay;
+			renderComponent->isAnimationDisplay = !renderComponent->isAnimationDisplay;
+		}
 
-				// create check box for choosing to display animation or not
-				if (ImGui::RadioButton("Display Animation", isAnimationDisplay))
+		std::vector<Animation*> animations = renderComponent->GetAnimation();
+		for(unsigned int i=0; i < animations.size(); ++i)
+		{
+			// create check box for choosing to display animation or not
+			if (ImGui::RadioButton(
+					std::to_string(i).append(". " + animations[i]->rawAnimation.name).c_str(),
+					renderComponent->selectedAnimationIndex == i))
+			{
+				renderComponent->selectedAnimationIndex = i;
+			}
+		}
+
+		if(ImGui::Button("Select Animation From Mesh"))
+		{
+			ImGui::OpenPopup("Select ANIMATION Mesh");
+		}
+		{
+			auto asset_Helper = _assetHelper->ShowMeshGuiWindow("Select ANIMATION Mesh");
+			if (std::get<0>(asset_Helper) && std::get<1>(asset_Helper) != nullptr)
+			{
+				for(Animation* animation: std::get<1>(asset_Helper)->animations)
 				{
-					isAnimationDisplay = !isAnimationDisplay;
+					_activeGameObject->GetComponent<RenderComponent>()->AddAnimation(animation);
 				}
 			}
 		}

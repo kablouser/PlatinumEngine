@@ -22,8 +22,11 @@ namespace PlatinumEngine
 		void SetMaterial(Texture* texture);
 		void SetNormalMap(Texture* texture);
 
+		void AddAnimation(Animation* animation);
+
 		// return mesh
 		Mesh* GetMesh();
+		std::vector<Animation*>& GetAnimation();
 
 		// override the OnRender() of the Component
 		void OnRender(Scene& scene, Renderer& renderer) override;
@@ -31,10 +34,11 @@ namespace PlatinumEngine
 	public:
 		Material material;
 		bool isAnimationDisplay;
+		unsigned int selectedAnimationIndex = 0;
 
 	private:
 		Mesh* _mesh;
-
+		std::vector<Animation*> _animations;
 		ShaderInput _shaderInput;
 	};
 }

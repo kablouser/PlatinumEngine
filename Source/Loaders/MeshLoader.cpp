@@ -83,21 +83,25 @@ namespace PlatinumEngine
 			if(scene->mNumAnimations > 0)
 			{
 				// if number of animations is bigger than 0, mark animation as "existed"
-				returnMesh.animation.isAnimationExist = true;
+				returnMesh.isAnimationExist = true;
 
 				//------------------------------
-				// SKELETON
+				// SKELETON (Based on nothing)
 				//------------------------------
 
 				// Store the raw skeleton hierarchy
-				returnMesh.animation.rawSkeleton.roots.resize(1);
-				AddNodeData(scene->mRootNode,  &returnMesh.animation.rawSkeleton.roots[0]);
+				returnMesh.rawSkeleton.roots.resize(1);
+				AddNodeData(scene->mRootNode,  &returnMesh.rawSkeleton.roots[0]);
 				// Turn skeleton hierarchy structure into runtime format
-				returnMesh.animation.BuildSkeletonRuntimeData();
+				{
+					ozz::animation::offline::SkeletonBuilder skeletonBuilder;
+					returnMesh.skeleton = skeletonBuilder(returnMesh.rawSkeleton);
+				}
 
-				//------------------------------
-				// Bone For Every Vertex
-				//------------------------------
+
+				//---------------------------------------------
+				// Bone For Every Vertex (Based on skeleton)
+				//---------------------------------------------
 
 				// update mesh and bone data for every vertex
 				for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
@@ -109,24 +113,22 @@ namespace PlatinumEngine
 					AddBoneData(returnMesh, scene->mMeshes[i], scene->mAnimations[0], tempOffset);
 				}
 
-				//--------------------------------
-				// ANIMATION (channel data)
-				//--------------------------------
+				//---------------------------------------------
+				// ANIMATION (channel data, based on skeleton)
+				//---------------------------------------------
 
 				// Loop all animations
 				for(unsigned int i = 0; i < scene->mNumAnimations; ++i)
 				{
 					// Load animation data (contain the channel data)
-					AddAnimationData(returnMesh, scene->mAnimations[i]);
-					break; // can only read one animation from one fbx file for now
+					AddAnimationChannelData(returnMesh, scene->mAnimations[i]);
 				}
-
 			}
 			else
 			{
 
 				// if number of animations is bigger than 0, mark animation as "existed"
-				returnMesh.animation.isAnimationExist = false;
+				returnMesh.isAnimationExist = false;
 
 				// load all vertices in all meshes
 				for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
@@ -205,12 +207,8 @@ namespace PlatinumEngine
 			offset += highestIndex + 1;
 		}
 
-
 		void AddAnimationMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset)
 		{
-			// Store offset
-			//outMesh.offset.push_back(offset);
-
 			// Keep track of the highest index of this mesh
 			unsigned int highestIndex = 0;
 
@@ -236,7 +234,7 @@ namespace PlatinumEngine
 					vertex.textureCoords.y = 0.0f;
 				}
 
-				outMesh.animation.animationVertex.emplace_back(vertex);
+				outMesh.animationVertices.emplace_back(vertex);
 			}
 
 			// Loop indices of the faces of the mesh
@@ -263,9 +261,9 @@ namespace PlatinumEngine
 			// Bond variables
 			Bone bone;
 			aiBone* inBone;
-			unsigned int boneID = outMesh.animation.bones.size();
+			unsigned int boneID = outMesh.bones.size();
 
-			if(outMesh.animation.animationVertex.empty())
+			if(outMesh.animationVertices.empty())
 			{
 				PLATINUM_WARNING("There is no vertex.");
 			}
@@ -278,29 +276,29 @@ namespace PlatinumEngine
 				bone.boneName = inBone->mName.C_Str();
 
 				// Update bone mapping
-				if (outMesh.animation.boneMapping.find(bone.boneName) == outMesh.animation.boneMapping.end())
+				if (outMesh.boneMapping.find(bone.boneName) == outMesh.boneMapping.end())
 				{
 					// Update bone map
-					outMesh.animation.boneMapping[bone.boneName] = boneID;
+					outMesh.boneMapping[bone.boneName] = boneID;
 
 					// Update ids
 					boneID++;
-					FindChanelID(bone.boneName, outMesh.animation.skeleton.get(), bone.trackID);
+					FindChanelID(bone.boneName, outMesh.skeleton.get(), bone.trackID);
 
 					// Matrix
 					bone.SetTranformMatrixByaiMatrix(inBone->mOffsetMatrix);
-					outMesh.animation.bones.push_back(bone);
+					outMesh.bones.push_back(bone);
 				}
 				else
 				{
-					bone.trackID = outMesh.animation.bones[outMesh.animation.boneMapping[bone.boneName]].trackID;
+					bone.trackID = outMesh.bones[outMesh.boneMapping[bone.boneName]].trackID;
 				}
 
 				// Update VertexBone info
 				for(unsigned int i = 0; i < inBone->mNumWeights; ++i)
 				{
-					if(outMesh.animation.animationVertex.size() > inBone->mWeights[i].mVertexId + offset)
-						outMesh.animation.animationVertex[inBone->mWeights[i].mVertexId + offset].AddTrack(bone.trackID,inBone->mWeights[i].mWeight);
+					if(outMesh.animationVertices.size() > inBone->mWeights[i].mVertexId + offset)
+						outMesh.animationVertices[inBone->mWeights[i].mVertexId + offset].AddTrack(bone.trackID,inBone->mWeights[i].mWeight);
 					else
 						PLATINUM_WARNING("Vertex number doesn't match the vertex id in bones info read by Assimp.");
 				}
@@ -347,22 +345,27 @@ namespace PlatinumEngine
 			}
 		}
 
-		void AddAnimationData(Mesh &outMesh, aiAnimation* inAnimation)
+		void AddAnimationChannelData(Mesh &outMesh, aiAnimation* inAnimation)
 		{
+
 			// Number of nodes
 			unsigned int numberOfJoints = 0;
-
-			if(outMesh.animation.skeleton == nullptr)
+			if(outMesh.skeleton == nullptr)
 			{
 				return;
 			}
+			numberOfJoints = outMesh.skeleton->num_joints();
 
-			numberOfJoints = outMesh.animation.skeleton->num_joints();
+
+			// Add new animation into animations list
+			outMesh.animations.emplace_back(new Animation());
+			Animation* animation = outMesh.animations.back();
+
 
 			// Basic info
-			outMesh.animation.rawAnimation.name = inAnimation->mName.C_Str();
-			outMesh.animation.rawAnimation.duration = (float)inAnimation->mDuration;
-			outMesh.animation.rawAnimation.tracks.resize(numberOfJoints);
+			animation->rawAnimation.name = inAnimation->mName.C_Str();
+			animation->rawAnimation.duration = (float)inAnimation->mDuration;
+			animation->rawAnimation.tracks.resize(numberOfJoints);
 
 			// Channels
 			for(unsigned int i=0; i<numberOfJoints; ++i)
@@ -370,7 +373,7 @@ namespace PlatinumEngine
 
 				// get ID of channel which contains the same joint name
 				unsigned int channelID;
-				if(!FindChanelID(outMesh.animation.skeleton->joint_names()[i], inAnimation,channelID))
+				if(!FindChanelID(outMesh.skeleton->joint_names()[i], inAnimation,channelID))
 				{
 					// if it cannot find the channel with the same name
 
@@ -387,7 +390,7 @@ namespace PlatinumEngine
 									inAnimation->mChannels[channelID]->mPositionKeys[j].mValue.y,
 									inAnimation->mChannels[channelID]->mPositionKeys[j].mValue.z)};
 
-					outMesh.animation.rawAnimation.tracks[i].translations.push_back(key);
+					animation->rawAnimation.tracks[i].translations.push_back(key);
 				}
 
 				// rotation
@@ -402,7 +405,7 @@ namespace PlatinumEngine
 									inAnimation->mChannels[channelID]->mRotationKeys[j].mValue.z,
 									inAnimation->mChannels[channelID]->mRotationKeys[j].mValue.w)};
 
-					outMesh.animation.rawAnimation.tracks[i].rotations.push_back(key);
+					animation->rawAnimation.tracks[i].rotations.push_back(key);
 				}
 
 				// scale
@@ -416,12 +419,12 @@ namespace PlatinumEngine
 									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.y,
 									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.z)};
 
-					outMesh.animation.rawAnimation.tracks[i].scales.push_back(key);
+					animation->rawAnimation.tracks[i].scales.push_back(key);
 				}
 			}
 
 			// turn data into runtime format
-			outMesh.animation.BuildAnimationRuntimeData();
+			animation->BuildAnimationRuntimeData();
 		}
 
 		bool FindChanelID(const std::string& inBoneName, aiAnimation* inAnimation, unsigned int& trackID)

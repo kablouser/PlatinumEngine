@@ -67,7 +67,7 @@ namespace PlatinumEngine
 
 		void AddNodeData(aiNode* inNode, ozz::animation::offline::RawSkeleton::Joint* currentJoint);
 
-		void AddAnimationData(Mesh &outMesh, aiAnimation* inAnimation);
+		void AddAnimationChannelData(Mesh &outMesh, aiAnimation* inAnimation);
 
 		bool FindChanelID(const std::string& boneName, aiAnimation* animation, unsigned int& trackID);
 
