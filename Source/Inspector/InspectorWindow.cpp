@@ -1039,9 +1039,9 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 				"RigidBody Component",
 				"BoxCollider Component",
 				"SphereCollider Component",
-				"CapsuleCollider Component"
-				"Particle Effect Component"
-				"Audio Component"
+				"CapsuleCollider Component",
+					"Particle Effect Component",
+					"Audio Component"
 		};
 		static const char* selectedComponent = nullptr;
 		static char componentSelectorBuffer[128];
@@ -1120,7 +1120,7 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			{
 				// Add Particle Effect Component
 				scene.AddComponent<ParticleEffect>(obj);
-      }
+      		}
 			else if (strcmp(selectedComponent, "Audio Component") == 0)
 			{
 				scene.AddComponent<AudioComponent>(obj);

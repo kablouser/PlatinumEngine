@@ -195,8 +195,8 @@ namespace PlatinumEngine
 			if (ImGui::MenuItem(ICON_FA_CAMERA " Camera"))
 			{
 				auto obj = scene.AddGameObject("Camera");
-				scene.AddComponent<CameraComponent>(obj);
-				scene.AddComponent<TransformComponent>(obj);
+				scene.AddComponent<Camera>(obj);
+				scene.AddComponent<Transform>(obj);
 				_sceneEditor->SetSelectedGameobject(obj);
 			}
 			if (ImGui::MenuItem("Light"))
@@ -205,7 +205,7 @@ namespace PlatinumEngine
 			{
 				auto obj = scene.AddGameObject("Particle Effect");
 				scene.AddComponent<ParticleEffect>(obj);
-				scene.AddComponent<TransformComponent>(obj);
+				scene.AddComponent<Transform>(obj);
 				_sceneEditor->SetSelectedGameobject(obj);
 			}
 			ImGui::EndMenu();

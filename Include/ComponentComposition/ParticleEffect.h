@@ -5,7 +5,7 @@
 #pragma once
 
 #include <ComponentComposition/Component.h>
-#include <ComponentComposition/TransformComponent.h>
+#include <ComponentComposition/Transform.h>
 #include <ParticleEffects/ParticleEmitter.h>
 #include <ParticleEffects/ParticleRenderer.h>
 #include <OpenGL/Texture.h>
