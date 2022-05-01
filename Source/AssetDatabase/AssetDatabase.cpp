@@ -310,7 +310,8 @@ namespace PlatinumEngine
 	void AssetDatabase::ReloadAssets()
 	{
 		// each entry corresponds to the loader in the ALLOWED_EXTENSIONS
-		std::vector<std::function<void*(const std::filesystem::path &filePath)>> loaders{
+		std::vector<std::function<void*(const std::filesystem::path &filePath)>> loaders
+		{
 				// remember to add the allocated data to its individual list
 				[&](const std::filesystem::path& filePath) -> void*
 				{
@@ -320,7 +321,19 @@ namespace PlatinumEngine
 					allocateMesh->fileName = filePath.filename().string();
 					return allocateMesh;
 				},
+        		//Audio
+				[&](const std::filesystem::path& filePath) -> void*
+				{
+					//Audio* allocateAudio = new Audio;
+					//*allocateAudio = Loaders::LoadAudio(filePath);
+					//_loadedAudioAssets.push_back(allocateAudio);
+					//return allocateAudio;
 
+					//Audio Component handles loading so we just need the path
+					_loadedAudioAssets.push_back(filePath.string());
+					return (void*)filePath.c_str();
+				},
+        		//Texture
 				[&](const std::filesystem::path& filePath) -> void*
 				{
 					PixelData pixelData;
@@ -388,6 +401,22 @@ namespace PlatinumEngine
 		return results;
 	}
 
+	std::vector<AudioAssetID> AssetDatabase::GetAudioAssetIDs(bool requireExist) const
+	{
+		std::vector<AudioAssetID> results;
+		for (const auto& asset: _database)
+		{
+			if (requireExist && !asset.doesExist)
+				continue;
+
+			if (GetExtension(asset.path.string()) == "wav")
+			{
+				results.push_back({ asset.id });
+			}
+		}
+		return results;
+	}
+
 	Mesh* AssetDatabase::GetLoadedMeshAsset(MeshAssetID meshAssetID)
 	{
 		return (*this)[meshAssetID];
@@ -411,8 +440,8 @@ namespace PlatinumEngine
 
 		return nullptr;
 	}
-
-	std::vector<TextureAssetID> AssetDatabase::GetTextureAssetIDs(bool requireExist) const
+    
+  std::vector<TextureAssetID> AssetDatabase::GetTextureAssetIDs(bool requireExist) const
 	{
 		std::vector<TextureAssetID> results;
 		for (const auto& asset: _database)
@@ -433,8 +462,8 @@ namespace PlatinumEngine
 		return (*this)[textureAssetID];
 	}
 
-	Texture* AssetDatabase::operator[](TextureAssetID textureAssetID)
-	{
+  Texture* AssetDatabase::operator[](TextureAssetID textureAssetID)
+  {
 		auto findID = _assetIDsMap.find(textureAssetID.id);
 		if (findID == _assetIDsMap.end())
 			return nullptr;
@@ -442,8 +471,27 @@ namespace PlatinumEngine
 		size_t databaseIndex = findID->second;
 		if (_database[databaseIndex].doesExist)
 		{
-			if (GetExtension(_database[databaseIndex].path.string()) == "png")
+      if (GetExtension(_database[databaseIndex].path.string()) == "png")
 				return static_cast<Texture*>(_loadedAssets[databaseIndex]);
+      else
+				PLATINUM_WARNING_STREAM << "AssetDatabase: can't load get loaded asset because the type you want "
+										   "is different to the type stored";
+		 }
+     
+     return nullptr;
+  }
+
+	std::string AssetDatabase::operator[](AudioAssetID audioAssetID)
+	{
+		auto findID = _assetIDsMap.find(audioAssetID.id);
+  	if (findID == _assetIDsMap.end())
+			return nullptr;
+
+		size_t databaseIndex = findID->second;
+		if (_database[databaseIndex].doesExist)
+		{
+			if (GetExtension(_database[databaseIndex].path.string()) == "wav")
+				return (_database[databaseIndex].path.string());
 			else
 				PLATINUM_WARNING_STREAM << "AssetDatabase: can't load get loaded asset because the type you want "
 										   "is different to the type stored";
@@ -627,5 +675,6 @@ namespace PlatinumEngine
 
 		_loadedAssets.clear();
 		_loadedMeshAssets.clear();
+		_loadedAudioAssets.clear();
 	}
 }

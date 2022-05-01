@@ -5,12 +5,17 @@
 #pragma once
 
 #include "WindowManager/Filedialog.h"
+
 #include <ComponentComposition/Component.h>
 #include <ComponentComposition/RenderComponent.h>
 #include <ComponentComposition/TransformComponent.h>
+#include <ComponentComposition/CameraComponent.h>
+#include <ComponentComposition/AudioComponent.h>
 #include <ComponentComposition/GameObject.h>
 #include <ComponentComposition/ParticleEffect.h>
+
 #include <ParticleEffects/ParticleEmitter.h>
+
 #include <SceneManager/SceneManager.h>
 #include <OpenGL/Mesh.h>
 #include <SceneEditor/SceneEditor.h>
@@ -29,15 +34,18 @@ namespace PlatinumEngine
 		void ShowTransformComponent(Scene& scene);
 		void ShowCameraComponent(Scene& scene);
 		void ShowParticleEffectComponent(Scene &scene);
+		void ShowAudioComponent(Scene& scene);
+
 
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);
+
+		std::filesystem::path GetPayloadPath(const ImGuiPayload* payload);
 
 		void cameraComponentHelper(char* cameraType[]);
 	private:
 		AssetHelper* _assetHelper;
 		SceneEditor* _sceneEditor;
-		std::string _meshFileName;
 		bool _isAddComponentWindowOpen = false;
 
 		// Have to keep track of if object enabled ourselves as isEnabled is a private member of game object

@@ -3,9 +3,9 @@
 //
 
 #include <Inspector/InspectorWindow.h>
-#include <ComponentComposition/CameraComponent.h>
 #include <ImGuizmo.h>
 #include <Inspector/Bezier.h>
+
 
 using namespace PlatinumEngine;
 
@@ -41,12 +41,16 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 			if (obj->GetComponent<TransformComponent>() != nullptr)
 				ShowTransformComponent(scene);
 
+
 		  	if (obj->GetComponent<CameraComponent>())
 				ShowCameraComponent(scene);
 
 		  	if (obj->GetComponent<ParticleEffect>() != nullptr)
 				ShowParticleEffectComponent(scene);
 
+		  if (obj->GetComponent<AudioComponent>())
+			  ShowAudioComponent(scene);
+      
 		  	ImGui::Separator();
 		  	if (_isAddComponentWindowOpen)
 				  ShowAddComponent(scene);
@@ -112,17 +116,13 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			//Accept any regular file (but it will check if it is mesh or not)
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
 			{
-				char* payloadPointer = (char*)payload->Data;
-				int size = payload->DataSize;
-				std::string filePath = "";
-				for(int i=0;i<size;i++)
-					filePath+=*(payloadPointer+i);
-				std::filesystem::path payloadPath = std::filesystem::path(filePath);
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
 				if(payloadPath.extension()==".obj")
 				{
-					std::cout<<"NAME: "<<payloadPath.filename().string()<<"\n";
-					//Maybe we SetMesh on _activeGameObject
-					//_activeGameObject->GetComponent<RenderComponent>()->SetMesh(mesh);
+					//Set The mesh that we dragged to the RenderComponent
+					auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
+					if (std::get<0>(asset_Helper))
+						obj->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
 				}
 			}
 			// End DragDropTarget
@@ -176,6 +176,26 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		// store the current material name into mesh buffer, so that we can display it in the input text box
 
 		ImGui::InputText("##Material Name", textureBuffer, sizeof(textureBuffer), ImGuiInputTextFlags_ReadOnly);
+		if (ImGui::BeginDragDropTarget())
+		{
+			//Accept any regular file (but it will check if it is texture or not)
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
+			{
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
+				if(payloadPath.extension()==".png")
+				{
+					//Set The texture that we dragged to the RenderComponent
+					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
+					if (std::get<0>(asset_Helper))
+					{
+						obj->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
+						obj->GetComponent<RenderComponent>()->material.useTexture = true;
+					}
+				}
+			}
+			// End DragDropTarget
+			ImGui::EndDragDropTarget();
+		}
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 		if(ImGui::Button("Select##Texture"))
@@ -197,6 +217,23 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::SameLine(_textWidthMeshRenderComponent);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		ImGui::InputText("##Normal Map Name", normalTextureBuffer, sizeof(normalTextureBuffer), ImGuiInputTextFlags_ReadOnly);
+		if (ImGui::BeginDragDropTarget())
+		{
+			//Accept any regular file (but it will check if it is texture or not) [Same things as before]
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
+			{
+				std::filesystem::path payloadPath = GetPayloadPath(payload);
+				if(payloadPath.extension()==".png")
+				{
+					//Set The texture that we dragged to the RenderComponent
+					auto asset_Helper = _assetHelper->GetTextureAsset(payloadPath.string());
+					if (std::get<0>(asset_Helper))
+						obj->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
+				}
+			}
+			// End DragDropTarget
+			ImGui::EndDragDropTarget();
+		}
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 		if(ImGui::Button("Select##NormalTexture"))
@@ -430,6 +467,7 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 		ImGui::InputFloat("##OrthographicSize", &camera->orthographicSize);
 	}
 }
+
 
 void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 {
@@ -744,24 +782,54 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 			ImGui::Text("Number of Columns: ");
 			ImGui::SameLine();
 			ImGui::InputInt("##NumberOfColsInTexture", &(component->particleEmitter->numColsInTexture));
+		}
+	}
+}
 
-			// TODO: Index by and max val
-//			ImGui::Text("Index By: ");
+void InspectorWindow::ShowAudioComponent(Scene& scene)
+{
+	auto obj = _sceneEditor->GetSelectedGameobject();
+	ImGui::Separator();
+	char sampleBuffer[64];
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_TABLE_CELLS "  Audio", ImGuiTreeNodeFlags_AllowItemOverlap);
+	// TODO: Icon button maybe?
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveRenderComponent")) {
+		// remove component
+		scene.RemoveComponent(*obj->GetComponent<AudioComponent>());
+		return;
+	}
+	if (isHeaderOpen)
+	{
+		ImGui::Text("Audio");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(130.0f);
 
-//			// Red Bezier
-//			ImVec2 array[4] = {ImVec2(0, component->particleEmitter->startColour[0]),
-//							   ImVec2(component->particleEmitter->P2Times[0], component->particleEmitter->P2Colour[0]),
-//							   ImVec2(component->particleEmitter->P3Times[0], component->particleEmitter->P3Colour[0]),
-//							   ImVec2(1, component->particleEmitter->endColour[0])};
-////			ImGui::MyBezier("HelloRed", array);
-//
-//			// Now set values back for red channel
-//			component->particleEmitter->startColour[0] = array[0][1];
-//		   	component->particleEmitter->P2Times[0] = array[1][0];
-//		   	component->particleEmitter->P2Colour[0] = array[1][1];
-//			component->particleEmitter->P3Times[0] = array[2][0];
-//			component->particleEmitter->P3Colour[0] = array[2][1];
-//			component->particleEmitter->endColour[0] = array[3][1];
+		// store the current mesh name into mesh buffer, so that we can display it in the input text box
+		if(obj->GetComponent<AudioComponent>() != nullptr)
+			strcpy(sampleBuffer,  obj->GetComponent<AudioComponent>()->fileName.c_str());
+		else
+			memset(sampleBuffer, 0, 64 * sizeof(char));
+
+		// show text box (read only)
+		ImGui::InputText("##Sample Name",sampleBuffer,sizeof(sampleBuffer), ImGuiInputTextFlags_ReadOnly);
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
+		if(ImGui::Button("Choose sample"))
+		{
+			ImGui::OpenPopup("Select Sample");
+		}
+
+		if(ImGui::Button("Play"))
+		{
+			obj->GetComponent<AudioComponent>()->Play();
+		}
+
+		auto asset_Helper = _assetHelper->ShowAudioGuiWindow();
+		if(std::get<0>(asset_Helper))
+		{
+			obj->GetComponent<AudioComponent>()->LoadSample(std::get<1>(asset_Helper));
 		}
 	}
 }
@@ -777,6 +845,7 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 				"Transform Component",
 				"Camera Component",
 				"Particle Effect Component"
+				"Audio Component"
 		};
 		static const char* selectedComponent = nullptr;
 		static char componentSelectorBuffer[128];
@@ -831,10 +900,24 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			{
 				// Add Particle Effect Component
 				scene.AddComponent<ParticleEffect>(obj);
+      }
+			else if (strcmp(selectedComponent, "Audio Component") == 0)
+			{
+				scene.AddComponent<AudioComponent>(obj);
 			}
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;
 		}
 		ImGui::EndChild();
 	}
+}
+
+std::filesystem::path InspectorWindow::GetPayloadPath(const ImGuiPayload* payload)
+{
+	char* payloadPointer = (char*)payload->Data;
+	int size = payload->DataSize;
+	std::string filePath = "";
+	for(int i=0;i<size;i++)
+		filePath+=*(payloadPointer+i);
+	return std::filesystem::path(filePath);
 }
