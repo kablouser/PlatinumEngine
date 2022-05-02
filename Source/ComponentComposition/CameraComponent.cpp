@@ -107,8 +107,8 @@ namespace PlatinumEngine
 		if (tc)
 		{
 			Maths::Mat4 invR, invT;
-			invR = Maths::Quaternion::QuaternionToMatrix(Maths::Quaternion::Inverse(tc.pointer->localRotation));
-			invT.SetTranslationMatrix(-tc.pointer->localPosition);
+			invR = Maths::Quaternion::QuaternionToMatrix(Maths::Quaternion::Inverse(tc.DeRef()->localRotation));
+			invT.SetTranslationMatrix(-tc.DeRef()->localPosition);
 			worldToCameraMatrix = invR * invT;
 		}
 		else
@@ -124,8 +124,8 @@ namespace PlatinumEngine
 		if (tc)
 		{
 			Maths::Mat4 t, r;
-			t.SetTranslationMatrix(tc.pointer->localPosition);
-			r = Maths::Quaternion::QuaternionToMatrix(tc.pointer->localRotation);
+			t.SetTranslationMatrix(tc.DeRef()->localPosition);
+			r = Maths::Quaternion::QuaternionToMatrix(tc.DeRef()->localRotation);
 			cameraToWorldMatrix = t * r;
 		}
 		else

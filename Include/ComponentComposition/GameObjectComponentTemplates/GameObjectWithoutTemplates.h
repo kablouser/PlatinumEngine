@@ -146,5 +146,7 @@ namespace PlatinumEngine
 		// IsEnabledInHierarchy might change if _parent or _isEnabled is changed
 		// Uses scene to broadcast events when there's a change
 		void UpdateIsEnabledInHierarchy(Scene& scene, SavedReference<GameObject>& referenceToThis);
+
+		void OnIDSystemUpdate(IDSystem& idSystem);
 	};
 }

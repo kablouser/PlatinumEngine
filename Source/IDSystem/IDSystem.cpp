@@ -7,6 +7,10 @@
 
 namespace PlatinumEngine
 {
+	// todo remove
+	int COUNTER = 0;
+
+
 	// Instance of the global variable
 	std::set<void*> AllSavedReferences;
 
@@ -223,38 +227,25 @@ namespace PlatinumEngine
 		}
 	}
 
-	void IDSystem::Overwrite(ID id, std::shared_ptr<void>& pointer, std::type_index typeIndex)
-	{
-		_typeIndexToIDMap[typeIndex][id] = pointer;
-	}
-
-	void IDSystem::UpdateSavedReferences()
-	{
-		// while UpdatePointer, SavedReferences could be added/removed
-		std::set<void*> allSavedReferencesCopy = AllSavedReferences;
-		for (void* savedReference: allSavedReferencesCopy)
-			reinterpret_cast<SavedReference<void>*>(savedReference)->UpdatePointer(*this);
-	}
-
-	std::shared_ptr<void> IDSystem::GetSavedReferenceInternal(ID id, std::type_index typeIndex)
+	std::pair<bool, std::shared_ptr<void>*> IDSystem::GetSavedReferenceInternal(ID id, std::type_index typeIndex)
 	{
 		if (id == 0)
 			// 0 is reserved for nullptr
-			return {}; // nullptr
+			return {false, {}}; // nullptr
 
 		auto typeIndexToIDMapIterator = _typeIndexToIDMap.find(typeIndex);
 		if (typeIndexToIDMapIterator == _typeIndexToIDMap.end())
 			// not found
-			return {}; // nullptr
+			return {false, {}}; // nullptr
 
 		IDMap& idMap = typeIndexToIDMapIterator->second;
 		auto idMapIterator = idMap.find(id);
 		if (idMapIterator == idMap.end())
 			// not found
-			return {}; // nullptr
+			return {false, {}}; // nullptr
 
 		// found
-		return idMapIterator->second; // return a copy
+		return {true, &idMapIterator->second}; // return a copy
 	}
 
 	SavedReference<void> IDSystem::GetSavedReferenceInternal(void* rawPointer, std::type_index typeIndex)
@@ -279,18 +270,19 @@ namespace PlatinumEngine
 		return {}; // nullptr
 	}
 
-	bool IDSystem::AddInternal(IDSystem::ID id, const std::shared_ptr<void>& pointer, std::type_index typeIndex)
+	bool IDSystem::AddInternal(IDSystem::ID id, std::shared_ptr<void>& pointer, std::type_index typeIndex)
 	{
-		auto[_, success] =_typeIndexToIDMap[typeIndex].insert({ id, pointer });
+		auto[_, success] =_typeIndexToIDMap[typeIndex].insert({ id, std::move(pointer) });
 		return success;
 	}
 
-	IDSystem::ID IDSystem::AddInternal(const std::shared_ptr<void>& pointer, std::type_index typeIndex)
+	std::pair<IDSystem::ID,std::shared_ptr<void>&> IDSystem::AddInternal(std::shared_ptr<void>& pointer, std::type_index typeIndex)
 	{
 		IDMap& idMap = _typeIndexToIDMap[typeIndex];
 		ID newID = GenerateID(idMap);
-		assert(idMap.insert({ newID, pointer }).second); // checks the newID was added
-		return newID;
+		auto[iterator, success]=idMap.insert({ newID, std::move(pointer) });
+		assert(success); // checks the newID was added
+		return {newID, iterator->second};
 	}
 
 	bool IDSystem::RemoveInternal(IDSystem::ID id, std::type_index typeIndex)

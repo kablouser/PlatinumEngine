@@ -24,6 +24,6 @@ namespace PlatinumEngine
 		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 
 		Material();
+		void OnIDSystemUpdate(IDSystem& idSystem);
 	};
 }
-

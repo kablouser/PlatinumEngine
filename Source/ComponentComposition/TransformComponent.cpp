@@ -69,7 +69,7 @@ namespace PlatinumEngine
 		SavedReference<TransformComponent> transform = GetParentComponent<TransformComponent>();
 		if (transform)
 			// recursive, slow but oh well
-			return transform.pointer->GetLocalToWorldMatrix() * transformMatrix;
+			return transform.DeRef()->GetLocalToWorldMatrix() * transformMatrix;
 		return transformMatrix;
 	}
 
@@ -100,7 +100,7 @@ namespace PlatinumEngine
 		Maths::Mat4 ParentToWorld, LocalToParent;
 		SavedReference<TransformComponent> parent = GetParentComponent<TransformComponent>();
 		if (parent)
-			ParentToWorld = parent.pointer->GetLocalToWorldMatrix();
+			ParentToWorld = parent.DeRef()->GetLocalToWorldMatrix();
 		else
 			ParentToWorld.SetIdentityMatrix();
 

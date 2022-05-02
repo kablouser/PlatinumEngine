@@ -169,12 +169,6 @@ namespace PlatinumEngine
 		_gridShader.Unbind();
 	}
 
-
-	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
-	{
-		_framebuffer = *framebuffer;
-	}
-
 	void Renderer::ResizeFrameBuffer(Framebuffer &framebuffer, ImVec2 targetSize)
 	{
 		_framebufferWidth = (int)targetSize.x;
@@ -194,7 +188,7 @@ namespace PlatinumEngine
 		{
 			_phongShader.SetUniform("diffuseMap", (int)0);
 			glActiveTexture(GL_TEXTURE0);
-			material.diffuseTexture.pointer->Bind();
+			material.diffuseTexture.DeRef()->Bind();
 		}
 
 		_phongShader.SetUniform("useNormalTexture", material.useNormalTexture);
@@ -202,7 +196,7 @@ namespace PlatinumEngine
 		{
 			_phongShader.SetUniform("normalMap", (int)1);
 			glActiveTexture(GL_TEXTURE1);
-			material.normalTexture.pointer->Bind();
+			material.normalTexture.DeRef()->Bind();
 		}
 
 		// Other uniforms

@@ -45,9 +45,9 @@ namespace PlatinumEngine
 		 * Loads a file into a mesh
 		 * @param filePath : Location of file
 		 * @param JoinVertices : Will join vertices so the mesh contains unique vertices only, default true
-		 * @return if good: {true, Mesh data structure}, otherwise {false, null}
+		 * @return if good: {true, Mesh data structure}, otherwise {false, empty mesh}
 		 */
-		std::pair<bool, std::shared_ptr<Mesh>> LoadMesh(const std::filesystem::path& filePath, bool JoinVertices=true, bool CalcTangents=true);
+		std::pair<bool, Mesh> LoadMesh(const std::filesystem::path& filePath, bool JoinVertices=true, bool CalcTangents=true);
 
 		/**
 		 * AddInternal new mesh data to an existing mesh

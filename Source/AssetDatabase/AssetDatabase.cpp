@@ -7,6 +7,7 @@
 #include <Logger/Logger.h>
 #include <Loaders/LoaderCommon.h>
 #include <Loaders/MeshLoader.h>
+#include <TypeDatabase/TypeDatabase.h>
 
 using namespace std;
 
@@ -283,7 +284,7 @@ namespace PlatinumEngine
 		// TODO only load assets that are in-use, otherwise leave them alone
 		for (Asset& asset: _assets)
 		{
-			if (!asset.doesExist)
+			if (!asset.doesExist || asset.id == 0)
 				continue;
 
 			auto findExtension = Loaders::EXTENSION_TO_TYPE.find(asset.path.extension().string());
@@ -294,23 +295,22 @@ namespace PlatinumEngine
 				continue;
 			}
 
-			shared_ptr<void> pointer;
 			if (findExtension->second == typeid(Mesh))
 			{
-				auto[success, meshPointer]= Loaders::LoadMesh(asset.path);
+				auto[success, mesh]= Loaders::LoadMesh(asset.path);
 				if (!success)
 					continue;
-				pointer = move(meshPointer);
+				idSystem.Overwrite<Mesh>(asset.id, std::move(mesh));
 			}
 			else if (findExtension->second == typeid(Texture))
 			{
 				PixelData pixelData;
 				if (!pixelData.Create(asset.path.string()))
 					continue;
-				shared_ptr<Texture> texturePointer = make_shared<Texture>();
-				texturePointer->fileName = asset.path.filename().string();
-				texturePointer->Create(pixelData);
-				pointer = move(texturePointer);
+				Texture texture;
+				texture.fileName = asset.path.filename().string();
+				texture.Create(pixelData);
+				idSystem.Overwrite<Texture>(asset.id, std::move(texture));
 			}
 			else
 			{
@@ -318,8 +318,6 @@ namespace PlatinumEngine
 										<< asset.path;
 				continue;
 			}
-
-			idSystem.Overwrite(asset.id, pointer, findExtension->second);
 		}
 	}
 
@@ -441,10 +439,21 @@ namespace PlatinumEngine
 					};
 
 					// Reserve an ID for this asset in the id system
-					std::shared_ptr<void> dummy; // doesn't have any data, quite dangerous to do this
-					idSystem.AddInternal(dummy, asset.GetTypeIndex());
-					// we will overwrite this dummy pointer with proper loaded data later in CreateAssets()
+					std::type_index typeIndex = asset.GetTypeIndex();
+					auto[success, typeInfo]=TypeDatabase::Instance->GetTypeInfo(typeIndex);
+					if (success && typeInfo->allocate)
+					{
+						std::shared_ptr<void> empty = typeInfo->allocate();
+						auto[id, _]= idSystem.AddInternal(empty, typeIndex);
+						asset.id = id;
+					}
+					else
+					{
+						PLATINUM_ERROR_STREAM << "No allocator for asset type "
+											  << TypeDatabase::Instance->GetStoredTypeName(typeIndex);
+					}
 
+					// we will overwrite this empty data with proper loaded data later in CreateAssets()
 					_assets.push_back(asset);
 					assert(pathsMap.insert({ path, _assets.size() - 1 }).second);
 					hashesMap.insert({ asset.hash, _assets.size() - 1 });

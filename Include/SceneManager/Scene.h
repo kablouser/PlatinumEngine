@@ -141,7 +141,7 @@ namespace PlatinumEngine
 				if (!nextGameObject->operator bool())
 					continue;
 
-				GameObject* rawPointer = nextGameObject->pointer.get();
+				GameObject* rawPointer = nextGameObject->DeRef().get();
 				if (requireEnabled && !rawPointer->_isEnabledInHierarchy)
 					continue;
 
@@ -149,11 +149,11 @@ namespace PlatinumEngine
 				SavedReference<T> targetComponent = rawPointer->GetComponent<T>();
 				if (targetComponent)
 				{
-					if (!requireEnabled || targetComponent.pointer->_isEnabledInHierarchy)
+					if (!requireEnabled || targetComponent.DeRef()->_isEnabledInHierarchy)
 						return targetComponent;
 				}
 
-				for (SavedReference<GameObject>& child: nextGameObject->pointer->_children)
+				for (SavedReference<GameObject>& child: nextGameObject->DeRef()->_children)
 					gameObjectsToFind.push(&child);
 			}
 

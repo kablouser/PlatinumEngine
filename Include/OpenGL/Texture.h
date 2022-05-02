@@ -17,8 +17,14 @@ namespace PlatinumEngine
 	public:
 
 		Texture();
-
 		~Texture();
+
+		// copying not allowed. OpenGL texture properties are hard to copy. Just move it instead.
+		Texture(Texture&) = delete;
+		Texture& operator=(Texture&) = delete;
+
+		Texture(Texture&& moveFrom) noexcept;
+		Texture& operator=(Texture&& moveFrom) noexcept;
 
 		// Create no data, just dimensions
 		void Create(GLsizei width, GLsizei height);

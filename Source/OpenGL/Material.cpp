@@ -31,4 +31,11 @@ namespace PlatinumEngine
 	Material::Material() : shininessFactor(1.0f), useBlinnPhong(false), useTexture(false), useNormalTexture(false)
 	{
 	}
+
+	void Material::OnIDSystemUpdate(IDSystem& idSystem)
+	{
+		diffuseTexture.OnIDSystemUpdate(idSystem);
+		normalTexture.OnIDSystemUpdate(idSystem);
+		specularTexture.OnIDSystemUpdate(idSystem);
+	}
 }

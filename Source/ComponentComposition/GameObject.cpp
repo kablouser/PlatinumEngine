@@ -2,6 +2,8 @@
 #include <SceneManager/Scene.h>
 #include <Logger/Logger.h>
 #include <algorithm>
+#include "ComponentComposition/GameObjectComponentTemplates/GameObjectWithoutTemplates.h"
+
 
 namespace PlatinumEngine
 {
@@ -94,13 +96,13 @@ namespace PlatinumEngine
 		}
 
 		if (_parent)
-			_parent.pointer->RemoveChild(referenceToThis);
+			_parent.DeRef()->RemoveChild(referenceToThis);
 		else
 			// this has become NOT a root GameObject now
 			scene.RemoveRootGameObject(referenceToThis);
 
 		if (parent)
-			parent.pointer->_children.push_back(referenceToThis);
+			parent.DeRef()->_children.push_back(referenceToThis);
 		else
 			// this has become a root GameObject now
 			scene._rootGameObjects.push_back(referenceToThis);
@@ -128,7 +130,7 @@ namespace PlatinumEngine
 	size_t GameObject::GetChildIndex(GameObject* child) const
 	{
 		for (size_t i = 0; i < _children.size(); i++)
-			if (_children[i].pointer.get() == child)
+			if (_children[i].DeRef().get() == child)
 				return i;
 		return (size_t)-1;
 	}
@@ -208,7 +210,7 @@ namespace PlatinumEngine
 	bool GameObject::CalculateIsEnabledInHierarchy() const
 	{
 		if (_parent)
-			return _isEnabled && _parent.pointer->_isEnabledInHierarchy;
+			return _isEnabled && _parent.DeRef()->_isEnabledInHierarchy;
 		else
 			return _isEnabled;
 	}
@@ -223,5 +225,14 @@ namespace PlatinumEngine
 		_isEnabledInHierarchy = isEnabledInHierarchyNow;
 
 		scene.UpdateIsEnabledInHierarchy(referenceToThis);
+	}
+
+	void GameObject::OnIDSystemUpdate(IDSystem& idSystem)
+	{
+		_parent.OnIDSystemUpdate(idSystem);
+		for (auto& child : _children)
+			child.OnIDSystemUpdate(idSystem);
+		for (auto& component : _components)
+			component.OnIDSystemUpdate(idSystem);
 	}
 }

@@ -66,9 +66,6 @@ namespace PlatinumEngine
 
 		~Renderer();
 
-		// set framebuffer from SceneEditor
-		void SetFramebuffer(Framebuffer *framebuffer);
-
 		// initialize framebuffer
 		void Begin();
 

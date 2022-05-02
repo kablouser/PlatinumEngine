@@ -13,9 +13,9 @@ namespace PlatinumEngine
 	{
 		for (SavedReference<Component>& component: _components)
 		{
-			std::shared_ptr<T> castedPointer = std::dynamic_pointer_cast<T>(component.pointer);
-			if (castedPointer)
-				return { component.id, castedPointer };
+			SavedReference<T> castedReference = (SavedReference<T>)component;
+			if (castedReference)
+				return std::move(castedReference);
 		}
 		return {}; // nullptr
 	}
@@ -25,7 +25,7 @@ namespace PlatinumEngine
 	{
 		SavedReference<GameObject>& parent = GetParent();
 		if (parent)
-			return parent.pointer->GetComponent<T>();
+			return parent.DeRef()->GetComponent<T>();
 		return {}; // nullptr
 	}
 
@@ -33,7 +33,7 @@ namespace PlatinumEngine
 	SavedReference<T> Component::GetComponent()
 	{
 		if (_gameObject)
-			return _gameObject.pointer->GetComponent<T>();
+			return _gameObject.DeRef()->GetComponent<T>();
 		return {};
 	}
 
@@ -41,7 +41,7 @@ namespace PlatinumEngine
 	SavedReference<T> Component::GetParentComponent()
 	{
 		if (_gameObject)
-			return _gameObject.pointer->GetParentComponent<T>();
+			return _gameObject.DeRef()->GetParentComponent<T>();
 		return {};
 	}
 }

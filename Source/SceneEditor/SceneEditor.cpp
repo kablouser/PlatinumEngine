@@ -566,7 +566,7 @@ namespace PlatinumEngine{
 			SavedReference<GameObject>& currentGameobject = _scene->GetRootGameObject(gameObjectIndex);
 
 			// check if the object enable
-			if(currentGameobject.pointer->IsEnabledInHierarchy())
+			if(currentGameobject.DeRef()->IsEnabledInHierarchy())
 			{
 				// check whether this game object or one of its children is selected
 				if(_camera.isOrthogonal!=true)
@@ -595,7 +595,7 @@ namespace PlatinumEngine{
 			return currentSelectedGameObject;
 
 		// check if the game object enable
-		if(!currentCheckingGameobject.pointer->IsEnabledInHierarchy())
+		if(!currentCheckingGameobject.DeRef()->IsEnabledInHierarchy())
 			return currentSelectedGameObject;
 
 		//------------------//
@@ -603,14 +603,14 @@ namespace PlatinumEngine{
 		//------------------//
 
 		// check if the game object has mesh component
-		if( auto renderComponent = currentCheckingGameobject.pointer->GetComponent<RenderComponent>();
+		if( auto renderComponent = currentCheckingGameobject.DeRef()->GetComponent<RenderComponent>();
 			renderComponent)
 		{
 			// fetch mesh
-			SavedReference<Mesh>& meshReference = renderComponent.pointer->GetMesh();
+			SavedReference<Mesh>& meshReference = renderComponent.DeRef()->GetMesh();
 			Mesh* mesh = nullptr;
 			if (meshReference)
-				mesh = meshReference.pointer.get();
+				mesh = meshReference.DeRef().get();
 
 			// Make sure there is mesh
 			if(mesh)
@@ -625,10 +625,10 @@ namespace PlatinumEngine{
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
 					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject.pointer->GetComponent<TransformComponent>();
+					if (auto transformComponent = currentCheckingGameobject.DeRef()->GetComponent<TransformComponent>();
 							transformComponent)
 					{
-						Maths::Mat4 modelMatrix = transformComponent.pointer->GetLocalToWorldMatrix();
+						Maths::Mat4 modelMatrix = transformComponent.DeRef()->GetLocalToWorldMatrix();
 						Maths::Vec4 temporaryMatrix;
 
 						// get the world coordinate of vertex 0
@@ -783,9 +783,9 @@ namespace PlatinumEngine{
 
 		// Keep checking the children of currentChecking Gameobject
 		// if children exist, call this function for every child
-		for(int counter = 0; counter < currentCheckingGameobject.pointer->GetChildrenCount(); counter++)
+		for(int counter = 0; counter < currentCheckingGameobject.DeRef()->GetChildrenCount(); counter++)
 		{
-			currentSelectedGameObject = UpdateSelectedGameObject(currentCheckingGameobject.pointer->GetChild(counter), inRay,
+			currentSelectedGameObject = UpdateSelectedGameObject(currentCheckingGameobject.DeRef()->GetChild(counter), inRay,
 					inCameraPosition, currentSelectedGameObject, closestZValueForCrossPoint);
 		}
 
@@ -882,7 +882,7 @@ namespace PlatinumEngine{
 			return currentSelectedGameObject;
 
 		// check if the game object enable
-		if(!currentCheckingGameobject.pointer->IsEnabledInHierarchy())
+		if(!currentCheckingGameobject.DeRef()->IsEnabledInHierarchy())
 			return currentSelectedGameObject;
 
 		//------------------//
@@ -890,14 +890,14 @@ namespace PlatinumEngine{
 		//------------------//
 
 		// check if the game object has mesh component
-		if( auto renderComponent = currentCheckingGameobject.pointer->GetComponent<RenderComponent>();
+		if( auto renderComponent = currentCheckingGameobject.DeRef()->GetComponent<RenderComponent>();
 			renderComponent)
 		{
 			// fetch mesh
-			SavedReference<Mesh>& meshReference = renderComponent.pointer->GetMesh();
+			SavedReference<Mesh>& meshReference = renderComponent.DeRef()->GetMesh();
 			Mesh* mesh = nullptr;
 			if (meshReference)
-				mesh = meshReference.pointer.get();
+				mesh = meshReference.DeRef().get();
 
 			// Make sure there is mesh
 			if (mesh)
@@ -913,10 +913,10 @@ namespace PlatinumEngine{
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
 					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject.pointer->GetComponent<TransformComponent>();
+					if (auto transformComponent = currentCheckingGameobject.DeRef()->GetComponent<TransformComponent>();
 							transformComponent)
 					{
-						Maths::Mat4 modelMatrix = transformComponent.pointer->GetLocalToWorldMatrix();
+						Maths::Mat4 modelMatrix = transformComponent.DeRef()->GetLocalToWorldMatrix();
 
 
 						Maths::Vec4 temporaryMatrix;
@@ -992,9 +992,9 @@ namespace PlatinumEngine{
 
 		// Keep checking the children of currentChecking Gameobject
 		// if children exist, call this function for every child
-		for(int counter = 0; counter < currentCheckingGameobject.pointer->GetChildrenCount(); counter++)
+		for(int counter = 0; counter < currentCheckingGameobject.DeRef()->GetChildrenCount(); counter++)
 		{
-			currentSelectedGameObject = UpdateSelectedGameObject(currentCheckingGameobject.pointer->GetChild(counter),
+			currentSelectedGameObject = UpdateSelectedGameObject(currentCheckingGameobject.DeRef()->GetChild(counter),
 					currentSelectedGameObject, clickedPosition, closestZValueForCrossPoint);
 		}
 
@@ -1041,17 +1041,17 @@ namespace PlatinumEngine{
 		if(onGizmo)
 		{
 			if (_selectedGameobject &&
-				_selectedGameobject.pointer->GetComponent<TransformComponent>())
+				_selectedGameobject.DeRef()->GetComponent<TransformComponent>())
 			{
-				auto transform = _selectedGameobject.pointer->GetComponent<TransformComponent>();
-				Maths::Mat4 transform_matrix = transform.pointer->GetLocalToWorldMatrix();
+				auto transform = _selectedGameobject.DeRef()->GetComponent<TransformComponent>();
+				Maths::Mat4 transform_matrix = transform.DeRef()->GetLocalToWorldMatrix();
 
 				ImGuizmo::Manipulate(
 						cameraView, cameraProjection, currentGizmoOperation, currentGizmoMode,
 						transform_matrix.matrix, NULL, _useSnap ? &_snap[0] : NULL,
 						_boundSizing ? _bounds : NULL, _boundSizingSnap ? _boundsSnap : NULL);
 
-				transform.pointer->SetLocalToWorldMatrix(transform_matrix);
+				transform.DeRef()->SetLocalToWorldMatrix(transform_matrix);
 			}
 		}
 		// view manipulate gizmo

@@ -22,26 +22,26 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 			ImGui::Text("Name: ");
 			ImGui::SameLine();
 			static char objectNameBuffer[128];
-			strcpy(objectNameBuffer, obj.pointer->name.c_str());
+			strcpy(objectNameBuffer, obj.DeRef()->name.c_str());
 			ImGui::InputText("##input name", objectNameBuffer, IM_ARRAYSIZE(objectNameBuffer));
-			obj.pointer->name = std::string( objectNameBuffer );
+			obj.DeRef()->name = std::string( objectNameBuffer );
 
 			ImGui::SameLine();
-			bool isEnabled = obj.pointer->IsEnabled();
+			bool isEnabled = obj.DeRef()->IsEnabled();
 
 			if (ImGui::Checkbox("##IsEnabled", &isEnabled))
 			{
-				obj.pointer->SetEnabled(isEnabled, scene);
+				obj.DeRef()->SetEnabled(isEnabled, scene);
 			}
 
 			// Now render each component gui
-			if (obj.pointer->GetComponent<RenderComponent>())
+			if (obj.DeRef()->GetComponent<RenderComponent>())
 				ShowMeshRenderComponent(scene);
 
-			if (obj.pointer->GetComponent<TransformComponent>())
+			if (obj.DeRef()->GetComponent<TransformComponent>())
 				ShowTransformComponent(scene);
 
-		  	if (obj.pointer->GetComponent<CameraComponent>())
+		  	if (obj.DeRef()->GetComponent<CameraComponent>())
 				  ShowCameraComponent(scene);
 
 		  	ImGui::Separator();
@@ -77,7 +77,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 	std::string meshBuffer, textureBuffer, normalTextureBuffer;
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_VECTOR_SQUARE "  Mesh Render Component", ImGuiTreeNodeFlags_AllowItemOverlap);
 	SavedReference<GameObject>& obj = _sceneEditor->GetSelectedGameobject();
-	SavedReference<RenderComponent> renderComponent = obj.pointer->GetComponent<RenderComponent>();
+	SavedReference<RenderComponent> renderComponent = obj.DeRef()->GetComponent<RenderComponent>();
 
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
@@ -95,8 +95,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 
 		// store the current mesh name into mesh buffer, so that we can display it in the input text box
-		if(renderComponent.pointer->GetMesh())
-			meshBuffer = renderComponent.pointer->GetMesh().pointer->fileName;
+		if(renderComponent.DeRef()->GetMesh())
+			meshBuffer = renderComponent.DeRef()->GetMesh().DeRef()->fileName;
 
 		// show text box (read only)--------Choose Mesh
 		ImGui::InputText("##Mesh Name",&meshBuffer[0],meshBuffer.size(), ImGuiInputTextFlags_ReadOnly);
@@ -133,14 +133,14 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		{
 			auto[isClicked, assetReference] = _assetHelper->PickAssetGUIWindow<Mesh>("Select Mesh");
 			if (isClicked)
-				renderComponent.pointer->SetMesh(assetReference);
+				renderComponent.DeRef()->SetMesh(assetReference);
 		}
 
-		if(renderComponent.pointer->material.diffuseTexture)
-			textureBuffer = renderComponent.pointer->material.diffuseTexture.pointer->fileName;
+		if(renderComponent.DeRef()->material.diffuseTexture)
+			textureBuffer = renderComponent.DeRef()->material.diffuseTexture.DeRef()->fileName;
 
-		if(renderComponent.pointer->material.normalTexture)
-			normalTextureBuffer = renderComponent.pointer->material.normalTexture.pointer->fileName;
+		if(renderComponent.DeRef()->material.normalTexture)
+			normalTextureBuffer = renderComponent.DeRef()->material.normalTexture.DeRef()->fileName;
 
 		//Show text box (read only)----------Choose Material
 		ImGui::Text("%s", "Material Properties");
@@ -150,12 +150,12 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 
 		ImGui::SameLine(_textWidthMeshRenderComponent);
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
-		ImGui::SliderFloat("##shininess",&(renderComponent.pointer->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
+		ImGui::SliderFloat("##shininess",&(renderComponent.DeRef()->material.shininessFactor),0.f, 100.f, "%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 
 		ImGui::Text("Blinn-Phong");
 		ImGui::SameLine();
-		ImGui::Checkbox("##Blinn-Phong", &(renderComponent.pointer->material.useBlinnPhong));
+		ImGui::Checkbox("##Blinn-Phong", &(renderComponent.DeRef()->material.useBlinnPhong));
 
 		ImGui::Text("Texture");
 		ImGui::SameLine(_textWidthMeshRenderComponent);
@@ -174,12 +174,12 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			auto[isClicked, assetReference] = _assetHelper->PickAssetGUIWindow<Texture>("Select Texture");
 			if (isClicked)
 			{
-				renderComponent.pointer->SetMaterial(assetReference);
-				renderComponent.pointer->material.useTexture = true;
+				renderComponent.DeRef()->SetMaterial(assetReference);
+				renderComponent.DeRef()->material.useTexture = true;
 			}
 		}
 		ImGui::SameLine();
-		ImGui::Checkbox("##UseTexture", &(renderComponent.pointer->material.useTexture));
+		ImGui::Checkbox("##UseTexture", &(renderComponent.DeRef()->material.useTexture));
 
 		ImGui::Text("%s", "Normal Map");
 		ImGui::SameLine(_textWidthMeshRenderComponent);
@@ -194,10 +194,10 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		{
 			auto[isClicked, assetReference] = _assetHelper->PickAssetGUIWindow<Texture>("Select Normal Texture");
 			if (isClicked)
-				renderComponent.pointer->SetNormalMap(assetReference);
+				renderComponent.DeRef()->SetNormalMap(assetReference);
 		}
 		ImGui::SameLine();
-		ImGui::Checkbox("##UseNormalTexture", &(renderComponent.pointer->material.useNormalTexture));
+		ImGui::Checkbox("##UseNormalTexture", &(renderComponent.DeRef()->material.useNormalTexture));
 	}
 }
 
@@ -213,7 +213,7 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 	if (ImGui::Button("X##RemoveTransformComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(obj.pointer->GetComponent<TransformComponent>());
+		scene.RemoveComponent(obj.DeRef()->GetComponent<TransformComponent>());
 		return;
 	}
 	if (isHeaderOpen)
@@ -223,17 +223,17 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::SameLine(_textWidthTransformComponent);
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Xpos", &obj.pointer->GetComponent<TransformComponent>().pointer->localPosition[0], 0.001f);
+		ImGui::DragFloat("##Xpos", &obj.DeRef()->GetComponent<TransformComponent>().DeRef()->localPosition[0], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Ypos", &obj.pointer->GetComponent<TransformComponent>().pointer->localPosition[1], 0.001f);
+		ImGui::DragFloat("##Ypos", &obj.DeRef()->GetComponent<TransformComponent>().DeRef()->localPosition[1], 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Zpos", &obj.pointer->GetComponent<TransformComponent>().pointer->localPosition[2], 0.001f);
+		ImGui::DragFloat("##Zpos", &obj.DeRef()->GetComponent<TransformComponent>().DeRef()->localPosition[2], 0.001f);
     
-    	Maths::Vec3 eulerRotation = obj.pointer->GetComponent<TransformComponent>().pointer->localRotation.EulerAngles();
+    	Maths::Vec3 eulerRotation = obj.DeRef()->GetComponent<TransformComponent>().DeRef()->localRotation.EulerAngles();
 		ImGui::Text(ICON_FA_ROTATE " Rotation: ");
 		ImGui::SameLine(_textWidthTransformComponent);
 		ImGui::Text("X");
@@ -247,13 +247,13 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 		ImGui::Text("Z");
 		ImGui::SameLine();
 		ImGui::DragFloat("##Zrpt", &eulerRotation[2], 0.001f);
-		obj.pointer->GetComponent<TransformComponent>().pointer->localRotation = Maths::Quaternion::EulerToQuaternion(
+		obj.DeRef()->GetComponent<TransformComponent>().DeRef()->localRotation = Maths::Quaternion::EulerToQuaternion(
 				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2])); 
 
 		ImGui::Text(ICON_FA_MAXIMIZE " Scale: ");
 		// Scale is special case and needs some extra offset applied
 		ImGui::SameLine(_textWidthTransformComponent + 16.0f);
-		ImGui::InputFloat("##scale", &obj.pointer->GetComponent<TransformComponent>().pointer->localScale);
+		ImGui::InputFloat("##scale", &obj.DeRef()->GetComponent<TransformComponent>().DeRef()->localScale);
 		ImGui::PopItemWidth();
 	}
 
@@ -273,19 +273,19 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 	if (ImGui::Button("X##RemoveCameraComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(obj.pointer->GetComponent<CameraComponent>());
+		scene.RemoveComponent(obj.DeRef()->GetComponent<CameraComponent>());
 		return;
 	}
 	if (isHeaderOpen)
 	{
-		auto camera = obj.pointer->GetComponent<CameraComponent>();
+		auto camera = obj.DeRef()->GetComponent<CameraComponent>();
 
 		{// the camera projection type
-			if (CameraComponent::ProjectionType::perspective == camera.pointer->projectionType)
+			if (CameraComponent::ProjectionType::perspective == camera.DeRef()->projectionType)
 			{
 				std::strcpy(cameraType, _temp[0].c_str());
 			}
-			if (CameraComponent::ProjectionType::orthographic == camera.pointer->projectionType)
+			if (CameraComponent::ProjectionType::orthographic == camera.DeRef()->projectionType)
 			{
 
 				std::strcpy(cameraType, _temp[1].c_str());
@@ -300,12 +300,12 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 			{
 				if (ImGui::Selectable("Perspective"))
 				{
-					camera.pointer->projectionType = CameraComponent::ProjectionType::perspective;
+					camera.DeRef()->projectionType = CameraComponent::ProjectionType::perspective;
 					//std::strcpy(cameraType, _temp[0].c_str());
 				}
 				if (ImGui::Selectable("Orthographic"))
 				{
-					camera.pointer->projectionType = CameraComponent::ProjectionType::orthographic;
+					camera.DeRef()->projectionType = CameraComponent::ProjectionType::orthographic;
 					//std::strcpy(cameraType, _temp[1].c_str());
 				}
 				ImGui::EndPopup();
@@ -318,15 +318,15 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 		}
 
 		{// the camera clear mode
-			if (CameraComponent::ClearMode::backgroundColor == camera.pointer->clearMode)
+			if (CameraComponent::ClearMode::backgroundColor == camera.DeRef()->clearMode)
 			{
 				std::strcpy(clearMode, _clearMode[2].c_str());
 			}
-			if (CameraComponent::ClearMode::skybox == camera.pointer->clearMode)
+			if (CameraComponent::ClearMode::skybox == camera.DeRef()->clearMode)
 			{
 				std::strcpy(clearMode, _clearMode[1].c_str());
 			}
-			if (CameraComponent::ClearMode::none == camera.pointer->clearMode)
+			if (CameraComponent::ClearMode::none == camera.DeRef()->clearMode)
 			{
 				std::strcpy(clearMode, _clearMode[0].c_str());
 			}
@@ -341,15 +341,15 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 			{
 				if (ImGui::Selectable("SkyBox"))
 				{
-					camera.pointer->clearMode = CameraComponent::ClearMode::skybox;
+					camera.DeRef()->clearMode = CameraComponent::ClearMode::skybox;
 				}
 				if (ImGui::Selectable("None"))
 				{
-					camera.pointer->clearMode = CameraComponent::ClearMode::none;
+					camera.DeRef()->clearMode = CameraComponent::ClearMode::none;
 				}
 				if (ImGui::Selectable("BackgroundColour"))
 				{
-					camera.pointer->clearMode = CameraComponent::ClearMode::backgroundColor;
+					camera.DeRef()->clearMode = CameraComponent::ClearMode::backgroundColor;
 				}
 				ImGui::EndPopup();
 			}
@@ -366,22 +366,22 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 		// To avoid making window excessively wide, start new line
 		ImGui::Text("R");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Red", &camera.pointer->backgroundColor.r);
+		ImGui::InputFloat("##Red", &camera.DeRef()->backgroundColor.r);
 		ImGui::SameLine();
     
 		ImGui::Text("G");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Green", &camera.pointer->backgroundColor.g);
+		ImGui::InputFloat("##Green", &camera.DeRef()->backgroundColor.g);
 		ImGui::SameLine();
     
 		ImGui::Text("B");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Blue", &camera.pointer->backgroundColor.b);
+		ImGui::InputFloat("##Blue", &camera.DeRef()->backgroundColor.b);
 		ImGui::SameLine();
     
 		ImGui::Text("A");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Alpha", &camera.pointer->backgroundColor.a);
+		ImGui::InputFloat("##Alpha", &camera.DeRef()->backgroundColor.a);
 
 		float fov;
 		float nearClippingPlane;
@@ -390,19 +390,19 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 
 		ImGui::Text("Field of View: ");
 		ImGui::SameLine(_textWidthCameraComponent);
-		ImGui::InputFloat("##FOV", &camera.pointer->fov);
+		ImGui::InputFloat("##FOV", &camera.DeRef()->fov);
 
 		ImGui::Text("Near Clipping Plane: ");
 		ImGui::SameLine(_textWidthCameraComponent);
-		ImGui::InputFloat("##NearClippingPlane", &camera.pointer->nearClippingPlane);
+		ImGui::InputFloat("##NearClippingPlane", &camera.DeRef()->nearClippingPlane);
 
 		ImGui::Text("Far Clipping Plane: ");
 		ImGui::SameLine(_textWidthCameraComponent);
-		ImGui::InputFloat("##FarClippingPlane", &camera.pointer->farClippingPlane);
+		ImGui::InputFloat("##FarClippingPlane", &camera.DeRef()->farClippingPlane);
 
 		ImGui::Text("Orthographic Size: ");
 		ImGui::SameLine(_textWidthCameraComponent);
-		ImGui::InputFloat("##OrthographicSize", &camera.pointer->orthographicSize);
+		ImGui::InputFloat("##OrthographicSize", &camera.DeRef()->orthographicSize);
 	}
 }
 

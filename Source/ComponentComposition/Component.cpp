@@ -51,7 +51,7 @@ namespace PlatinumEngine
 	bool Component::IsEnabledInHierarchy() const
 	{
 		if (_gameObject)
-			return _isEnabled && _gameObject.pointer->IsEnabledInHierarchy();
+			return _isEnabled && _gameObject.DeRef()->IsEnabledInHierarchy();
 		else
 			return false;
 	}
@@ -78,9 +78,9 @@ namespace PlatinumEngine
 		}
 
 		if (_gameObject)
-			_gameObject.pointer->RemoveComponent(referenceToThis);
+			_gameObject.DeRef()->RemoveComponent(referenceToThis);
 		if (gameObject)
-			gameObject.pointer->_components.push_back(referenceToThis);
+			gameObject.DeRef()->_components.push_back(referenceToThis);
 
 		_gameObject = std::move(gameObject);
 		UpdateIsEnabledInHierarchy(scene);
@@ -127,7 +127,7 @@ namespace PlatinumEngine
 	bool Component::CalculateIsEnabledInHierarchy() const
 	{
 		if (_gameObject)
-			return _isEnabled && _gameObject.pointer->_isEnabledInHierarchy;
+			return _isEnabled && _gameObject.DeRef()->_isEnabledInHierarchy;
 		else
 			return false;
 	}

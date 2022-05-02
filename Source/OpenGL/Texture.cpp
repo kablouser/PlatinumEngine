@@ -17,6 +17,20 @@ namespace PlatinumEngine
 		GL_CHECK(glDeleteTextures(1,&_textureHandle));
 	}
 
+	Texture::Texture(Texture&& moveFrom) noexcept :
+		fileName(std::move(moveFrom.fileName)), _textureHandle(moveFrom._textureHandle)
+	{
+		moveFrom._textureHandle = 0;
+	}
+
+	Texture& Texture::operator=(Texture&& moveFrom) noexcept
+	{
+		fileName = std::move(moveFrom.fileName);
+		_textureHandle = moveFrom._textureHandle;
+		moveFrom._textureHandle = 0;
+		return *this;
+	}
+
 	void Texture::Create(GLsizei width, GLsizei height)
 	{
 		if(_textureHandle == 0)

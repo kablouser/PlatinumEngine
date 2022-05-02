@@ -20,16 +20,16 @@ namespace PlatinumEngine
 			return;
 
 		// Store the states (is expanded or not) of the node
-		bool is_expanded = ImGui::TreeNodeEx(gameObject.pointer.get(),
+		bool is_expanded = ImGui::TreeNodeEx(gameObject.DeRef().get(),
 				ImGuiTreeNodeFlags_FramePadding|
-				(gameObject.pointer->GetChildrenCount()==0 ? ImGuiTreeNodeFlags_Leaf : 0),
+				(gameObject.DeRef()->GetChildrenCount()==0 ? ImGuiTreeNodeFlags_Leaf : 0),
 				"%s","");
 
 		// this is to make sure the selectable block below is on the same line
 		ImGui::SameLine();
 
 		// push id of current node
-		ImGui::PushID(gameObject.pointer.get());
+		ImGui::PushID(gameObject.DeRef().get());
 
 		// check if the current game object is selected
 		if(_sceneEditor->GetSelectedGameobject() == gameObject)
@@ -40,7 +40,7 @@ namespace PlatinumEngine
 		}
 
 		// create selectable block
-		ImGui::Selectable((std::string(ICON_FA_CIRCLE_NODES) + " " + gameObject.pointer->name).c_str(), false);
+		ImGui::Selectable((std::string(ICON_FA_CIRCLE_NODES) + " " + gameObject.DeRef()->name).c_str(), false);
 
 		// check if the current game object is selected
 		if(_sceneEditor->GetSelectedGameobject() == gameObject)
@@ -73,13 +73,13 @@ namespace PlatinumEngine
 				{
 					// For a safe delete, we need to check if the selected game object is a child of the selected
 					// object to delete
-					auto parent = _sceneEditor->GetSelectedGameobject().pointer->GetParent();
+					auto parent = _sceneEditor->GetSelectedGameobject().DeRef()->GetParent();
 					while (parent)
 					{
 						// Manually set nullptr as we know we will remove directly later
 						if (parent == gameObject)
 							_sceneEditor->SetSelectedGameobject({});
-						parent = parent.pointer->GetParent();
+						parent = parent.DeRef()->GetParent();
 					}
 
 					scene.RemoveGameObject(gameObject);
@@ -122,7 +122,7 @@ namespace PlatinumEngine
 				{
 
 					// check if the dragged objects is the parent or ancestor of the target object
-					SavedReference<GameObject>& temp = gameObject.pointer->GetParent();
+					SavedReference<GameObject>& temp = gameObject.DeRef()->GetParent();
 					while(temp)
 					{
 						if(temp == payloadPointer)
@@ -131,12 +131,12 @@ namespace PlatinumEngine
 							break;
 						}
 
-						temp = temp.pointer->GetParent();
+						temp = temp.DeRef()->GetParent();
 					}
 
 					if(!temp) // if null
 						// change the dragged object's parent
-						payloadPointer.pointer->SetParent(gameObject, scene);
+						payloadPointer.DeRef()->SetParent(gameObject, scene);
 				}
 				// if the mode is to change order between game objects
 				else
@@ -144,12 +144,12 @@ namespace PlatinumEngine
 					// check if the two game object have a same parent
 					// when the two game objects do not have same a parent
 					// change the parent of dragged object to be the same as the target object
-					if(payloadPointer.pointer->GetParent() == gameObject.pointer->GetParent())
+					if(payloadPointer.DeRef()->GetParent() == gameObject.DeRef()->GetParent())
 					{
 
 						// move the position of the dragged objects in the list
 						// move the position of objects with no parent
-						if (!payloadPointer.pointer->GetParent())
+						if (!payloadPointer.DeRef()->GetParent())
 						{
 							if (!scene.MoveRootGameObjectPositionInList(gameObject, payloadPointer))
 								PlatinumEngine::Logger::LogInfo("Cannot move game object to the new position.");
@@ -158,7 +158,7 @@ namespace PlatinumEngine
 						// move the position of objects with the same parent
 						else
 						{
-							if (!gameObject.pointer->GetParent().pointer->
+							if (!gameObject.DeRef()->GetParent().DeRef()->
 								MoveChildGameObjectPositionInList(gameObject, payloadPointer))
 								PlatinumEngine::Logger::LogInfo("Cannot move game object to the new position.");
 						}
@@ -182,10 +182,10 @@ namespace PlatinumEngine
 		{
 
 			// Loop through the children under this node
-			for(int i = 0; i < gameObject.pointer->GetChildrenCount(); i++)
+			for(int i = 0; i < gameObject.DeRef()->GetChildrenCount(); i++)
 			{
 
-				DisplayTreeNote(gameObject.pointer->GetChild(i), scene, modeForDraggingBehavior);
+				DisplayTreeNote(gameObject.DeRef()->GetChild(i), scene, modeForDraggingBehavior);
 
 			}
 

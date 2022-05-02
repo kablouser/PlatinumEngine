@@ -43,7 +43,7 @@ namespace PlatinumEngine
 			}
 		}
 
-		std::pair<bool, std::shared_ptr<Mesh>> LoadMesh(const std::filesystem::path& filePath, const bool JoinVertices, const bool CalcTangents)
+		std::pair<bool, Mesh> LoadMesh(const std::filesystem::path& filePath, const bool JoinVertices, const bool CalcTangents)
 		{
 			// no point in checking extension here, just load it if possible
 
@@ -68,13 +68,13 @@ namespace PlatinumEngine
 			}
 
 			// Loop all meshes and add data
-			std::shared_ptr<Mesh> returnMesh = std::make_shared<Mesh>();
-			returnMesh->fileName = filePath.filename().string();
+			Mesh returnMesh;
+			returnMesh.fileName = filePath.filename().string();
 			// Keep track of offset for multiple meshes
 			unsigned int offset = 0;
 			for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 			{
-				AddMeshData(*returnMesh.get(), scene->mMeshes[i], offset);
+				AddMeshData(returnMesh, scene->mMeshes[i], offset);
 			}
 
 			return {true, std::move(returnMesh)};

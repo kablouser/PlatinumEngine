@@ -4,6 +4,7 @@
 #include <ComponentComposition/RenderComponent.h>
 #include <Renderer/Renderer.h>
 #include <ComponentComposition/TransformComponent.h>
+#include <SceneManager/Scene.h>
 
 namespace PlatinumEngine
 {
@@ -31,7 +32,7 @@ namespace PlatinumEngine
 
 		SavedReference<TransformComponent> transform = GetComponent<TransformComponent>();
 		if (transform)
-			renderer.SetModelMatrix(transform.pointer->GetLocalToWorldMatrix());
+			renderer.SetModelMatrix(transform.DeRef()->GetLocalToWorldMatrix());
 		else
 			renderer.SetModelMatrix();
 
@@ -41,9 +42,11 @@ namespace PlatinumEngine
 
 	void RenderComponent::OnIDSystemUpdate(Scene& scene)
 	{
+		_mesh.OnIDSystemUpdate(scene.idSystem);
+		material.OnIDSystemUpdate(scene.idSystem);
 		_shaderInput.Clear();
 		if (_mesh)
-			_shaderInput.Set(_mesh.pointer->vertices, _mesh.pointer->indices);
+			_shaderInput.Set(_mesh.DeRef()->vertices, _mesh.DeRef()->indices);
 	}
 
 	void RenderComponent::SetMesh(SavedReference<Mesh> mesh)
@@ -51,7 +54,7 @@ namespace PlatinumEngine
 		_mesh = std::move(mesh);
 		_shaderInput.Clear();
 		if (_mesh)
-			_shaderInput.Set(_mesh.pointer->vertices, _mesh.pointer->indices);
+			_shaderInput.Set(_mesh.DeRef()->vertices, _mesh.DeRef()->indices);
 	}
 
 	void RenderComponent::SetMaterial(SavedReference<Texture> texture)
