@@ -81,6 +81,8 @@ namespace PlatinumEngine
 						{ GL_FLOAT, 3, offsetof(AnimationVertex, position)},
 						{ GL_FLOAT, 3, offsetof(AnimationVertex, normal) },
 						{ GL_FLOAT, 2, offsetof(AnimationVertex, textureCoords) },
+						{ GL_FLOAT, 3, offsetof(Vertex, tangent) },
+						{ GL_FLOAT, 3, offsetof(Vertex, biTangent) },
 						{ GL_FLOAT, 4, offsetof(AnimationVertex, trackIDs) },
 						{ GL_FLOAT, 4, offsetof(AnimationVertex, weights) }
 						},

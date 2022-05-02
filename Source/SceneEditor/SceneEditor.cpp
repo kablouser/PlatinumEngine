@@ -384,7 +384,7 @@ namespace PlatinumEngine{
 		// Move camera to look at the selected object
 		if (_inputManager->IsKeyPressed(GLFW_KEY_SPACE))
 		{
-			TransformComponent* transformComponent = _selectedGameobject->GetComponent<TransformComponent>();
+			Transform* transformComponent = _selectedGameobject->GetComponent<Transform>();
 
 			Maths::Vec3 gameObjectPosition = Maths::Vec3(0.f, 0.f, 0.f);
 
@@ -704,7 +704,7 @@ namespace PlatinumEngine{
 					}
 
 					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject->GetComponent<TransformComponent>();
+					if (auto transformComponent = currentCheckingGameobject->GetComponent<Transform>();
 							transformComponent != nullptr)
 					{
 						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();

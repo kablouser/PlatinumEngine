@@ -52,13 +52,13 @@ namespace PlatinumEngine
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);
 
-    void cameraComponentHelper(char* cameraType[]);
+    	void cameraComponentHelper(char* cameraType[]);
     
 		std::filesystem::path GetPayloadPath(const ImGuiPayload* payload);
 	private:
 		AssetHelper* _assetHelper;
 		SceneEditor* _sceneEditor;
-    Physics* _physics;
+    	Physics* _physics;
 
 		bool _isAddComponentWindowOpen = false;
 

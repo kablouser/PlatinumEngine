@@ -51,7 +51,7 @@ namespace PlatinumEngine
 		}
 
 		// load texture
-		renderer.LoadTexture(material);
+		renderer.LoadMaterial(material);
 		_shaderInput.Draw();
 	}
 
@@ -88,7 +88,7 @@ namespace PlatinumEngine
 	}
 
 
-	Mesh* RenderComponent::GetMesh()
+	Mesh* MeshRender::GetMesh()
 	{
 		return _mesh;
 	}

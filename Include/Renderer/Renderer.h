@@ -116,9 +116,6 @@ namespace PlatinumEngine
 
 		void SetCameraPos(const Maths::Vec3 &pos);
 
-		// update model matrix in shader
-		void SetModelMatrixAnimation(Maths::Mat4 mat = Maths::Mat4(1.0));
-
 		void SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat = Maths::Mat4(1.0));
 
 		void SetAnimationStatus(bool isAnimationOn);
@@ -129,7 +126,6 @@ namespace PlatinumEngine
 		void SetProjectionMatrixSkyBox(Maths::Mat4 mat);
 
 		void SetViewMatrixSkyBox(Maths::Mat4 mat);
-
 
 		void SetViewMatrixForGridShader(Maths::Mat4 mat);
 
@@ -178,7 +174,6 @@ namespace PlatinumEngine
 		ShaderProgram _phongShader;
 		ShaderProgram _reflectRefractShader;
 		ShaderProgram _particleShader;
-		ShaderProgram _animationShader;
 
 		// ShaderInput _meshShaderInput, _lightShaderInput;
 

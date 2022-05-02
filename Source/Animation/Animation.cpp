@@ -61,7 +61,7 @@ namespace PlatinumEngine
 		ozz::animation::SamplingJob samplingJob;
 		samplingJob.animation = animation.get();
 		samplingJob.context = &context;
-		samplingJob.ratio = animationTime/animation->duration();
+		samplingJob.ratio = _animationTime/animation->duration();
 		samplingJob.output = make_span(localTransformOZZ);
 
 		// sample animation
@@ -97,11 +97,11 @@ namespace PlatinumEngine
 		if(animation == nullptr)
 			return;
 
-		animationTime += 0.1f;
+		_animationTime += 0.1f;
 
-		if(animationTime >= animation->duration())
+		if(_animationTime >= animation->duration())
 		{
-			animationTime = 0.f;
+			_animationTime = 0.f;
 
 			_isLastFrame = true;
 		}
@@ -113,19 +113,22 @@ namespace PlatinumEngine
 
 	void Animation::SetAnimationTime(float newTime)
 	{
-		animationTime = newTime;
+		if(animation== nullptr)
+			return;
+
+		_animationTime = newTime - float(int(newTime/animation->duration())) * animation->duration();
 	}
 
 	void Animation::RestartAnimation()
 	{
-		animationTime = 0.f;
+		_animationTime = 0.f;
 		_isLastFrame = false;
 		_isAnimationPlaying = true;
 	}
 
 	void Animation::StopAnimation()
 	{
-		animationTime = 0.f;
+		_animationTime = 0.f;
 		_isLastFrame = false;
 		_isAnimationPlaying = false;
 	}

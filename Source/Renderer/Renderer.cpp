@@ -48,12 +48,6 @@ const std::string PARTICLE_VERTEX_SHADER =
 ;
 const std::string PARTICLE_FRAGMENT_SHADER =
 #include <Shaders/Unlit/ParticleShader.frag>
-
-const std::string ANIMATION_VERTEX_SHADER =
-#include <Shaders/Unlit/AnimationShader.vert>
-;
-const std::string ANIMATION_FRAGMENT_SHADER =
-#include <Shaders/Unlit/AnimationShader.frag>
 ;
 
 namespace PlatinumEngine
@@ -120,11 +114,6 @@ namespace PlatinumEngine
 		if (!_particleShader.Compile(PARTICLE_VERTEX_SHADER, PARTICLE_FRAGMENT_SHADER))
 		{
 			PLATINUM_ERROR("Cannot generate the particle shader.");
-			return;
-		}
-		if(!_animationShader.Compile(ANIMATION_VERTEX_SHADER, ANIMATION_FRAGMENT_SHADER))
-		{
-			PLATINUM_ERROR("Cannot generate the animation shader.");
 			return;
 		}
 
@@ -380,14 +369,14 @@ namespace PlatinumEngine
 	void Renderer::SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat)
 	{
 		if(transformMatrixIndex <300)
-			_unlitShader.SetUniform("tracks["+std::to_string(transformMatrixIndex)+"]", mat);
+			_phongShader.SetUniform("tracks["+std::to_string(transformMatrixIndex)+"]", mat);
 		else
 			PLATINUM_WARNING("Size of transformation matrices for animation exceeds 300.");
 	}
 
 	void Renderer::SetAnimationStatus(bool isAnimationOn)
 	{
-		_unlitShader.SetUniform("isAnimationDisplay", isAnimationOn);
+		_phongShader.SetUniform("isAnimationDisplay", isAnimationOn);
 	}
 
 	// update view matrix in shader
@@ -498,22 +487,4 @@ namespace PlatinumEngine
 		_particleShader.SetUniform("cameraPos", pos);
 	}
 
-	void Renderer::SetLightPropertiesAnimation()
-	{
-		pointLight.lightPos = Maths::Vec3(0.9f * (float)std::cos(glfwGetTime()),0.9f * (float)std::sin(glfwGetTime()),0.9f);
-		// set basic properties
-		_animationShader.SetUniform("objectColour", Maths::Vec3(1.0f,0.5f,0.31f));
-
-		_animationShader.SetUniform("pointLight.position", pointLight.lightPos);
-		_animationShader.SetUniform("pointLight.ambient", pointLight.ambientStrength);
-		_animationShader.SetUniform("pointLight.diffuse", pointLight.diffuseStrength);
-		_animationShader.SetUniform("pointLight.specular", pointLight.specularStrength);
-
-		_animationShader.SetUniform("pointLight.constant", pointLight.constant);
-		_animationShader.SetUniform("pointLight.linear", pointLight.linear);
-		_animationShader.SetUniform("pointLight.quadratic", pointLight.quadratic);
-		_animationShader.SetUniform("viewPosition", Maths::Vec3(0.0, 0.0, 10.0));
-
-		_animationShader.SetUniform("isPointLight", true);
-	}
 }

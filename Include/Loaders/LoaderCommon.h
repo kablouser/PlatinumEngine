@@ -15,7 +15,7 @@ namespace PlatinumEngine
 	// also create a enum extensions allowed, makes programming less error prone
 
 	// For now to avoid anything weird explicitly only allow these files to be loaded
-	static const std::vector<std::vector<std::string>> ALLOWED_EXTENSIONS {{ "fbx" , "obj"}, { "png" }};
+	static const std::vector<std::vector<std::string>> ALLOWED_EXTENSIONS {{ "fbx" , "obj"}, { "wav" }, { "png" }};
 
 	/**
 	 * Returns the extensions of the given filepath

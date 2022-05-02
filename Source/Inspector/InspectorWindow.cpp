@@ -1036,19 +1036,21 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 	char meshBuffer[64];
 	char textureBuffer[64];
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_TABLE_CELLS "  Animation", ImGuiTreeNodeFlags_AllowItemOverlap);
+	auto obj = _sceneEditor->GetSelectedGameobject();
+
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveAnimationComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(*_activeGameObject->GetComponent<AnimationComponent>());
+		scene.RemoveComponent(*obj->GetComponent<AnimationComponent>());
 		return;
 	}
 	if (isHeaderOpen)
 	{
 
 		// store pointer of renderComponent
-		AnimationComponent* animationComponent = _activeGameObject->GetComponent<AnimationComponent>();
+		AnimationComponent* animationComponent = obj->GetComponent<AnimationComponent>();
 
 		if (ImGui::RadioButton("Display Animation",animationComponent->isAnimationDisplay == true))
 		{
@@ -1112,7 +1114,7 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 				"SphereCollider Component",
 				"CapsuleCollider Component",
 				"Particle Effect Component",
-				"Audio Component"
+				"Audio Component",
 				"Animation Component"
 		};
 		static const char* selectedComponent = nullptr;
@@ -1199,7 +1201,7 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			}
 			else if (strcmp(selectedComponent, "Animation Component") == 0)
 			{
-				scene.AddComponent<AnimationComponent>(_activeGameObject);
+				scene.AddComponent<AnimationComponent>(obj);
 			}
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;
