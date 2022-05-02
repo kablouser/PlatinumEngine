@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+#define OZZ_BUILD_SIMD_REF
 // Unclassified
 #include <vector>
 #include <assimp/scene.h>

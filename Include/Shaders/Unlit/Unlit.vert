@@ -7,7 +7,7 @@ layout (location = 3) in ivec4 trackIDs;
 layout (location = 4) in vec4 weights;
 
 
-const int MAX_BONES = 300;
+const int MAX_BONES = 128;
 
 uniform mat4 model;
 uniform mat4 view;

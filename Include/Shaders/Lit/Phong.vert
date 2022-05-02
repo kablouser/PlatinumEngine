@@ -12,10 +12,9 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-const int MAX_BONES = 300;
+const int MAX_BONES = 128;
 uniform bool isAnimationDisplay;
 uniform mat4 tracks[MAX_BONES];
-
 
 out vec3 vertexPos;
 out vec3 vertexNormal;

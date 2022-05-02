@@ -1093,7 +1093,6 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 				// remove animation
 				animationComponent->RemoveAnimation(i);
 			}
-
 		}
 
 	}
@@ -1206,8 +1205,8 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;
 		}
-		ImGui::EndChild();
 	}
+	ImGui::EndChild();
 }
 
 std::filesystem::path InspectorWindow::GetPayloadPath(const ImGuiPayload* payload)

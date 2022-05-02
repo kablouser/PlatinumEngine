@@ -368,10 +368,10 @@ namespace PlatinumEngine
 
 	void Renderer::SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat)
 	{
-		if(transformMatrixIndex <300)
+		if(transformMatrixIndex < 128)
 			_phongShader.SetUniform("tracks["+std::to_string(transformMatrixIndex)+"]", mat);
 		else
-			PLATINUM_WARNING("Size of transformation matrices for animation exceeds 300.");
+			PLATINUM_WARNING_STREAM << "Size of transformation matrices " << transformMatrixIndex << " for animation exceeds 128.";
 	}
 
 	void Renderer::SetAnimationStatus(bool isAnimationOn)

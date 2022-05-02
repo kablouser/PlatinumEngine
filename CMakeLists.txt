@@ -3,6 +3,9 @@
 #-----------------------------
 cmake_minimum_required(VERSION 3.21)
 project(PlatinumEngine VERSION 0.0.2)
+if (APPLE)
+	enable_language(OBJC)
+endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
 # static libraries please
@@ -100,6 +103,7 @@ set(ozz_build_howtos ON)
 set(ozz_build_tests OFF)
 set(ozz_build_tools ON)
 set(ozz_build_postfix OFF)
+set(ozz_build_simd_ref ON)
 FetchContent_Declare(ozz GIT_REPOSITORY https://github.com/guillaumeblanc/ozz-animation.git GIT_TAG 0.14.0)
 FetchContent_MakeAvailable(ozz)
 

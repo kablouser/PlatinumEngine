@@ -196,12 +196,14 @@ namespace PlatinumEngine
 
 		for(ozz::math::Float4x4 m : worldTransformOZZ)
 		{
-			worldTransform.push_back(Maths::Mat4({
-					m.cols[0][0], m.cols[0][1], m.cols[0][2], m.cols[0][3],
-					m.cols[1][0], m.cols[1][1], m.cols[1][2], m.cols[1][3],
-					m.cols[2][0], m.cols[2][1], m.cols[2][2], m.cols[2][3],
-					m.cols[3][0], m.cols[3][1], m.cols[3][2], m.cols[3][3],
-			}));
+			auto matrix = Maths::Mat4({
+					m.cols[0].x, m.cols[0].y, m.cols[0].z, m.cols[0].w,
+					m.cols[1].x, m.cols[1].y, m.cols[1].z, m.cols[1].w,
+					m.cols[2].x, m.cols[2].y, m.cols[2].z, m.cols[2].w,
+					m.cols[3].x, m.cols[3].y, m.cols[3].z, m.cols[3].w
+			});
+			std::cout << matrix << std::endl;
+			worldTransform.push_back(matrix);
 		}
 	}
 
