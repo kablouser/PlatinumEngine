@@ -508,8 +508,15 @@ namespace PlatinumEngine{
 				_camera.MarkProjectionMatrixAsUsed();
 			}
 
-			_renderer->SetCameraPos(_camera.GetCameraPosition());
-			_scene->LoadLights(*_renderer);
+			{
+				Maths::Mat4 scaleMatrix;
+				scaleMatrix.SetScaleMatrix(
+						Maths::Vec3(((float)_near * 2.f), ((float)_near * 2.f), ((float)_near * 2.f)));
+				Maths::Mat4 vpMat =
+						Maths::Inverse(_camera.GetRotationOnlyViewMatrix()) * scaleMatrix * _camera.projectionMatrix4;
+				_renderer->SetCameraPos(_camera.GetCameraPosition());
+				_scene->LoadLights(*_renderer);
+			}
 			// Render game objects
 			_scene->Render(*_renderer);
 

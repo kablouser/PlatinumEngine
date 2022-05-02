@@ -35,6 +35,7 @@ namespace PlatinumEngine
 
 		LightComponent();
 		~LightComponent();
+		void UpdateMesh();
 		explicit LightComponent(LightType type);
 
 		virtual void OnRender(Scene& scene, Renderer& renderer) override;

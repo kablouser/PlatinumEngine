@@ -41,13 +41,18 @@ uniform vec3 ambientLight;
 
 uniform bool isDirLight = false;
 uniform bool isPointLight = false;
+uniform vec3 viewPos;
+uniform bool useBlinnPhong;
+
+// shadow mapping properties
+uniform bool shadowMappingOn = false;
+uniform sampler2D directionalLightShadowMap;
 
 // Calculate lights
 vec3 GetDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 colour);
 vec3 GetPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 colour);
-
-uniform vec3 viewPos;
-uniform bool useBlinnPhong;
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal);
+float Calculate_Avg_Dblockreceiver(vec2 projCoords_xy, int AvgTextureSize,int layer);
 
 void main()
 {
@@ -75,6 +80,8 @@ void main()
     {
         for(int i = 0; i < MAX_NUM_DIR_LIGHTS; i++)
             result += GetDirLight(dirLights[i], normal, viewDirection, colour);
+//        if(shadowMappingOn)
+//            ShadowCalculation();
     }
 
     if(isPointLight)
@@ -142,6 +149,39 @@ vec3 GetPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, ve
     vec3 diffuse = light.baseLight * diff * colour;
     vec3 specular = light.baseLight * spec * materialSpec;
 
-    return (diffuse + specular) * attenuation;
+    return (diffuse + specular);
+}
+
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, DirLight light)
+{
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+    float closestDepth = texture(directionalLightShadowMap, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+
+    normal = normalize(normal);
+    vec3 lightDir = normalize(-light.direction);
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+
+    // Check whether current frag pos is in shadow
+    // float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+    // PCF
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(directionalLightShadowMap, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(directionalLightShadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;
+        }
+    }
+    shadow /= 9.0;
+
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
+
+    return shadow;
 }
 )"

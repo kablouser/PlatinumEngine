@@ -7,22 +7,13 @@
 namespace PlatinumEngine
 {
 	LightComponent::LightComponent()
-		:type(LightType::Directional),
+		:type(LightType::Point),
 		 direction({0.0f, 1.0f, 0.0f}),
 		 ambientLight({ 0.2f, 0.2f, 0.2f }),
 		 intensity(1.0f),
-		 spectrum(1.0f)
+		 spectrum(0.7f)
 	{
-		if(type == LightType::Directional)
-		{
-			Mesh arrow = ArrowMesh(0.03f, 0.075f, 1.0f);
-			shaderInput.Set(arrow.vertices, arrow.indices);
-		}
-		else if(type == LightType::Point)
-		{
-			Mesh arrow = SphereMesh(0.3f, 10);
-			shaderInput.Set(arrow.vertices, arrow.indices);
-		}
+		UpdateMesh();
 	}
 	LightComponent::LightComponent(LightType type)
 		:type(type),
@@ -31,16 +22,7 @@ namespace PlatinumEngine
 		 intensity(1.0f),
 		 spectrum(1.0f)
 	{
-		if(type == LightType::Directional)
-		{
-			Mesh arrow = ArrowMesh(0.03f, 0.075f, 1.0f);
-			shaderInput.Set(arrow.vertices, arrow.indices);
-		}
-		else if(type == LightType::Point)
-		{
-			Mesh arrow = SphereMesh(0.3f, 10);
-			shaderInput.Set(arrow.vertices, arrow.indices);
-		}
+		UpdateMesh();
 	}
 
 	LightComponent::~LightComponent()
@@ -48,10 +30,38 @@ namespace PlatinumEngine
 
 	}
 
+	void LightComponent::UpdateMesh()
+	{
+		if(type == LightType::Directional)
+		{
+			Mesh arrow = ArrowMesh(0.03f, 0.075f, 1.0f);
+			shaderInput.Set(arrow.vertices, arrow.indices);
+		}
+		else if(type == LightType::Point)
+		{
+			Mesh sphere = SphereMesh(0.1f, 3);
+			shaderInput.Set(sphere.vertices, sphere.indices);
+		}
+	}
+
+
 	void LightComponent::OnRender(Scene& scene, Renderer& renderer)
 	{
 		auto transform = GetComponent<TransformComponent>();
-		renderer.DrawLight(transform->GetLocalToWorldMatrix());
+
+		if(transform)
+		{
+			if(type == LightType::Point)
+				transform->localScale = 0.1f;
+			renderer.DrawLight(transform->GetLocalToWorldMatrix());
+		}
+		else
+		{
+			Maths::Mat4 matrix(1.f);
+			if(type == LightType::Point)
+				matrix.SetScaleMatrix(Maths::Vec3(0.1f, 0.1f, 0.1f));
+			renderer.DrawLight(matrix);
+		}
 		shaderInput.Draw();
 	}
 }

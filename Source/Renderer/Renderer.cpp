@@ -238,7 +238,7 @@ namespace PlatinumEngine
 		}
 
 		// Other uniforms
-		_phongShader.SetUniform("materialSpec", Maths::Vec3(0.1f, 0.1f, 0.1f));
+		_phongShader.SetUniform("materialSpec", Maths::Vec3(0.6f, 0.6f, 0.6f));
 		_phongShader.SetUniform("shininess", material.shininessFactor);
 		_phongShader.SetUniform("useBlinnPhong", material.useBlinnPhong);
 

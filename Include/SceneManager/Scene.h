@@ -9,6 +9,8 @@
 #include <algorithm>
 
 #include <ComponentComposition/GameObject.h>
+#include <Maths/Vectors.h>
+#include <Maths/Matrices.h>
 
 namespace PlatinumEngine
 {

@@ -106,7 +106,7 @@ namespace PlatinumEngine
 		 * draw light
 		 * @param model matrix
 		 */
-		void DrawLight(Maths::Mat4 matrix = Maths::Mat4(1.0f));
+		void DrawLight(Maths::Mat4 matrix = Maths::Mat4(0.1f));
 	private:
 
 		// true iff all init steps were successful

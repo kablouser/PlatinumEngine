@@ -554,7 +554,9 @@ void InspectorWindow::ShowLightComponent(Scene& scene)
 	{
 		auto light = obj->GetComponent<LightComponent>();
 		if(ImGui::Combo("Type", (int*)&light->type, light->LightTypeNames, (int)LightComponent::LightType::count))
-		{}
+		{
+			light->UpdateMesh();
+		}
 
 		ImGui::ColorEdit3("Spectrum", light->spectrum.data);
 		ImGui::DragFloat("Intensity", &light->intensity, 0.1f, 0.0f,
