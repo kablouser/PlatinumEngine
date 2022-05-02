@@ -313,7 +313,7 @@ namespace PlatinumEngine
 					bone.trackID = outMesh.bones[outMesh.boneMapping[bone.boneName]].trackID;
 				}
 
-				// Update VertexBone info
+				// Update bone info for every vertex
 				for(unsigned int i = 0; i < inBone->mNumWeights; ++i)
 				{
 					if(outMesh.animationVertices.size() > inBone->mWeights[i].mVertexId + offset)
@@ -395,7 +395,6 @@ namespace PlatinumEngine
 				if(!FindChanelID(outMesh.skeleton->joint_names()[i], inAnimation,channelID))
 				{
 					// if it cannot find the channel with the same name
-
 					continue;
 				}
 

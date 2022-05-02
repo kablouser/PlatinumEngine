@@ -20,36 +20,6 @@ namespace PlatinumEngine
 	Bone::Bone() : trackID(0), offsetMatrix(1.f){}
 }
 
-
-namespace PlatinumEngine
-{
-
-	void VertexBone::AddTrack(unsigned int inTrackID, float inWeight)
-	{
-		for (unsigned int i = 0; i < 4; i++)
-		{
-			if (weights[i] == 0.f)
-			{
-				trackIDs[i] = inTrackID;
-				weights[i] = inWeight;
-			}
-		}
-	}
-
-	void VertexBone::Clean()
-	{
-		trackIDs.clear();
-		weights.clear();
-	}
-
-	VertexBone::VertexBone()
-	{
-		trackIDs.resize(4, 0);
-		weights.resize(4, 0.f);
-	}
-}
-
-
 namespace PlatinumEngine
 {
 	void Animation::UpdateWorldTransformMatrix(ozz::unique_ptr<ozz::animation::Skeleton>& skeleton, const std::vector<Bone>& bones)
@@ -202,9 +172,7 @@ namespace PlatinumEngine
 					m.cols[2].x, m.cols[2].y, m.cols[2].z, m.cols[2].w,
 					m.cols[3].x, m.cols[3].y, m.cols[3].z, m.cols[3].w
 			});
-			std::cout << matrix << std::endl;
 			worldTransform.push_back(matrix);
 		}
 	}
-
 }

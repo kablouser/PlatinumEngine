@@ -52,23 +52,6 @@ namespace PlatinumEngine
 
 	};
 
-	class VertexBone{
-	public:
-
-		// __(( PARAMETER ))__
-		std::vector<unsigned int> trackIDs;
-		std::vector<float> weights;
-
-		// __(( FUNCTION ))__
-		void AddTrack(unsigned int inTrackID, float inWeight);
-
-		void Clean();
-
-		// __(( CONSTRUCTOR ))__
-		VertexBone();
-
-	};
-
 	class Animation
 	{
 	public:
