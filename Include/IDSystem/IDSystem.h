@@ -6,8 +6,6 @@
 #include <random>
 #include <typeindex>
 #include <memory> // std::shared_ptr
-//todo remove
-#include <Logger/Logger.h>
 
 namespace PlatinumEngine
 {
@@ -96,8 +94,6 @@ namespace PlatinumEngine
 		std::uniform_int_distribution<ID> _anyNumber;
 	};
 
-	extern int COUNTER;
-
 	/**
 	 * A reference that can be saved automatically.
 	 * Serializable.
@@ -117,16 +113,8 @@ namespace PlatinumEngine
 		std::weak_ptr<T> pointer;
 		std::type_index typeIndex;
 
-		~SavedReference()
-		{
-			COUNTER--;
-			PLATINUM_INFO_STREAM << COUNTER;
-		}
-
 		SavedReference() : id(0), typeIndex(typeid(T))
 		{
-			COUNTER++;
-			PLATINUM_INFO_STREAM << COUNTER;
 		}
 
 		// this cannot be used when T is void
@@ -136,30 +124,22 @@ namespace PlatinumEngine
 				// it cannot work otherwise
 				typeIndex(typeid(*inPointer.lock().get()))
 		{
-			COUNTER++;
-			PLATINUM_INFO_STREAM << COUNTER;
 		}
 
 		SavedReference(IDSystem::ID inID, std::weak_ptr<T> inPointer, std::type_index inTypeIndex) :
 				id(inID), pointer(inPointer), typeIndex(inTypeIndex)
 		{
-			COUNTER++;
-			PLATINUM_INFO_STREAM << COUNTER;
 		}
 
 		SavedReference(const SavedReference<T>& copyFrom) :
 			id(copyFrom.id), pointer(copyFrom.pointer), typeIndex(copyFrom.typeIndex)
 		{
-			COUNTER++;
-			PLATINUM_INFO_STREAM << COUNTER;
 		}
 
 		SavedReference(SavedReference<T>&& moveFrom) noexcept :
 			id(moveFrom.id), pointer(std::move(moveFrom.pointer)), typeIndex(moveFrom.typeIndex)
 		{
 			moveFrom.id = 0;
-			COUNTER++;
-			PLATINUM_INFO_STREAM << COUNTER;
 		}
 
 		SavedReference<T>& operator=(const SavedReference<T>& copyFrom)

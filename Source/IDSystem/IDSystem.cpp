@@ -7,10 +7,6 @@
 
 namespace PlatinumEngine
 {
-	// todo remove
-	int COUNTER = 0;
-
-
 	// Instance of the global variable
 	std::set<void*> AllSavedReferences;
 
