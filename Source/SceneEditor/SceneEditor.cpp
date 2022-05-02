@@ -478,7 +478,7 @@ namespace PlatinumEngine{
 				// enable depth test for the later rendering
 				glDepthMask(true);
 			}
-
+			glEnable(GL_DEPTH_TEST);
 			// ------------- Render Game Objects ------------- //
 			// Start rendering (bind a shader)
 			_renderer->Begin();
@@ -523,7 +523,7 @@ namespace PlatinumEngine{
 				_gridShaderInput.Draw();
 				_renderer->EndGrid();
 			}
-			glEnable(GL_DEPTH_TEST);
+
 			// ------------- Render Game Objects ------------- //
 			// Start rendering (bind a shader)
 			_renderer->Begin();
