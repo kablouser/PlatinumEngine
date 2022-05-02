@@ -10,13 +10,13 @@ namespace PlatinumEngine
 
 	AssetHelper::~AssetHelper() {}
 
-	std::tuple<bool, Mesh*> AssetHelper::ShowMeshGuiWindow()
+	std::tuple<bool, Mesh*> AssetHelper::ShowMeshGuiWindow(const std::string& name)
 	{
 		bool isAssetSelected = false;
 		static ImGuiTextFilter filter;
 		Asset asset;
 		Mesh* mesh;
-		if(ImGui::BeginPopupModal("Select Mesh", nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
+		if(ImGui::BeginPopupModal(name.c_str(), nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			filter.Draw(ICON_FA_MAGNIFYING_GLASS);
 			ImGui::Separator();

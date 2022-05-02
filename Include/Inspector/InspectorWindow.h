@@ -11,6 +11,7 @@
 #include <ComponentComposition/MeshRender.h>
 #include <ComponentComposition/Transform.h>
 #include <ComponentComposition/Camera.h>
+#include <ComponentComposition/AnimationComponent.h>
 #include <ComponentComposition/GameObject.h>
 #include <ComponentComposition/RigidBody.h>
 #include <ComponentComposition/BoxCollider.h>
@@ -45,17 +46,19 @@ namespace PlatinumEngine
 		void ShowCapsuleColliderComponent(Scene& scene);
 		void ShowParticleEffectComponent(Scene &scene);
 		void ShowAudioComponent(Scene& scene);
+		void ShowAnimationComponent(Scene& scene);
+
 
 		// Shown when add component button pressed
 		void ShowAddComponent(Scene& scene);
 
-    void cameraComponentHelper(char* cameraType[]);
+    	void cameraComponentHelper(char* cameraType[]);
     
 		std::filesystem::path GetPayloadPath(const ImGuiPayload* payload);
 	private:
 		AssetHelper* _assetHelper;
 		SceneEditor* _sceneEditor;
-    Physics* _physics;
+    	Physics* _physics;
 
 		bool _isAddComponentWindowOpen = false;
 

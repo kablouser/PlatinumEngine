@@ -93,6 +93,18 @@ add_subdirectory("stb CMake")
 FetchContent_Declare(bullet3 GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git GIT_TAG 3.22b)
 FetchContent_MakeAvailable(bullet3)
 #-----------------------------
+# ozz
+set(ozz_build_fbx OFF)
+set(ozz_build_samples OFF)
+set(ozz_build_howtos ON)
+set(ozz_build_tests OFF)
+set(ozz_build_tools ON)
+set(ozz_build_postfix OFF)
+FetchContent_Declare(ozz GIT_REPOSITORY https://github.com/guillaumeblanc/ozz-animation.git GIT_TAG 0.14.0)
+FetchContent_MakeAvailable(ozz)
+
+
+#-----------------------------
 # Add more libraries from git repos here:
 #-----------------------------
 
@@ -106,12 +118,14 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
 	"${CMAKE_BINARY_DIR}/_deps/imguizmo-src/ImGuizmo.cpp;"
 	
+	"Source/Animation/Animation.cpp;"
+	
 	"Source/AssetDatabase/AssetDatabase.cpp;"
 	"Source/AssetDatabase/AssetHelper.cpp;"
 	
-
 	"Source/ComponentComposition/Camera.cpp;"
 	"Source/ComponentComposition/AudioComponent.cpp;"
+	"Source/ComponentComposition/AnimationComponent.cpp;"
 	"Source/ComponentComposition/Color.cpp;"
 	"Source/ComponentComposition/Component.cpp;"
 	"Source/ComponentComposition/GameObject.cpp;"
@@ -196,9 +210,7 @@ set(UNIT_TESTS
 	"Test/TestTemplate.cpp;"
 	"Test/Maths/VectorsTest.cpp;"
 	"Test/Maths/MatricesTest.cpp;"
-	"Test/SceneEditor/EditorCameraTest.cpp;"
-  	"Test/TestScene.cpp;"
-	)
+	"Test/SceneEditor/EditorCameraTest.cpp;")
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 
 target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
@@ -230,6 +242,8 @@ set(PROJECT_LIBRARIES
 	"SDL2-static;"
 	"SDL2_mixer;"
 
+	"ozz_animation;"
+	"ozz_animation_offline;"
   )
 
 # different targets

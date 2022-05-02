@@ -316,7 +316,7 @@ namespace PlatinumEngine
 				[&](const std::filesystem::path& filePath) -> void*
 				{
 					Mesh* allocateMesh = new Mesh;
-					*allocateMesh = Loaders::LoadMesh(filePath.string());
+					Loaders::LoadMesh(filePath.string(), *allocateMesh);
 					_loadedMeshAssets.push_back(allocateMesh);
 					allocateMesh->fileName = filePath.filename().string();
 					return allocateMesh;
@@ -352,8 +352,9 @@ namespace PlatinumEngine
 		std::map<std::string, size_t> fileExtensionToLoader;
 		for (size_t i = 0; i < ALLOWED_EXTENSIONS.size(); ++i)
 		{
-			// this will fail if there's duplicates in ALLOWED_EXTENSIONS
-			assert(fileExtensionToLoader.insert({ ALLOWED_EXTENSIONS[i], i }).second);
+			for(size_t j = 0; j < ALLOWED_EXTENSIONS[i].size(); ++j)
+				// this will fail if there's duplicates in ALLOWED_EXTENSIONS
+				assert(fileExtensionToLoader.insert({ ALLOWED_EXTENSIONS[i][j], i }).second);
 		}
 
 		DeleteLoadedAssets();
@@ -393,7 +394,7 @@ namespace PlatinumEngine
 			if (requireExist && !asset.doesExist)
 				continue;
 
-			if (GetExtension(asset.path.string()) == "obj")
+			if (GetExtension(asset.path.string()) == "fbx" || GetExtension(asset.path.string()) == "obj")
 			{
 				results.push_back({ asset.id });
 			}
@@ -431,7 +432,7 @@ namespace PlatinumEngine
 		size_t databaseIndex = findID->second;
 		if (_database[databaseIndex].doesExist)
 		{
-			if (GetExtension(_database[databaseIndex].path.string()) == "obj")
+			if (GetExtension(_database[databaseIndex].path.string()) == "fbx" || GetExtension(_database[databaseIndex].path.string()) == "obj")
 				return static_cast<Mesh*>(_loadedAssets[databaseIndex]);
 			else
 				PLATINUM_WARNING_STREAM << "AssetDatabase: can't load get loaded asset because the type you want "

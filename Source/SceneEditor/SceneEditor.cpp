@@ -342,6 +342,7 @@ namespace PlatinumEngine{
 		// check if mouse is inside the screen
 		//--------------------------------------
 
+		// Check mouse input
 		if (   _inputManager->GetMousePosition().x <= ImGui::GetWindowContentRegionMax().x
 			&& _inputManager->GetMousePosition().x >= ImGui::GetWindowContentRegionMin().x
 			&& _inputManager->GetMousePosition().y <= ImGui::GetWindowContentRegionMax().y
@@ -371,11 +372,30 @@ namespace PlatinumEngine{
 
 		}
 
-		// check if there is any keyboard input
+		// check if there is any keyboard input to move camera position
 		if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
 			_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
-			_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"), _inputManager->GetAxis("HorizontalAxisForEditorCamera"));
+		{
+			// Do translation based on keyboard input
+			_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"),
+					_inputManager->GetAxis("HorizontalAxisForEditorCamera"));
+		}
 
+		// Move camera to look at the selected object
+		if (_inputManager->IsKeyPressed(GLFW_KEY_SPACE))
+		{
+			Transform* transformComponent = _selectedGameobject->GetComponent<Transform>();
+
+			Maths::Vec3 gameObjectPosition = Maths::Vec3(0.f, 0.f, 0.f);
+
+			if(transformComponent != nullptr)
+			{
+				gameObjectPosition = transformComponent->GetLocalToWorldMatrix().MultiplyVec3(gameObjectPosition, 1.f);
+
+			}
+
+			_camera.SetCameraPosition(gameObjectPosition - _camera.GetForwardDirection() * 20);
+		}
 
 
 		//---------------------------
@@ -458,6 +478,25 @@ namespace PlatinumEngine{
 				// enable depth test for the later rendering
 				glDepthMask(true);
 			}
+
+			// ------------- Render Game Objects ------------- //
+			// Start rendering (bind a shader)
+			_renderer->Begin();
+
+			// Update rendering information to renderer
+			_renderer->SetModelMatrix();
+
+			// check if the view matrix is passed to shader
+			_renderer->SetViewMatrix(_camera.viewMatrix4);
+			_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
+			_renderer->SetLightProperties();
+
+			// Render game objects
+			_scene->Render(*_renderer);
+
+			// End rendering (unbind a shader)
+			_renderer->End();
+
 			// -------------------- Render GRID ------------------ //
 			if(_enableGrid)
 			{
@@ -640,6 +679,7 @@ namespace PlatinumEngine{
 			// Make sure there is mesh
 			if(mesh != nullptr)
 			{
+
 				// loop all the vertices
 				for (int count = 0; count < mesh->indices.size(); count += 3)
 				{
@@ -649,42 +689,41 @@ namespace PlatinumEngine{
 
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
-					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject->GetComponent<Transform>();
-							transformComponent != nullptr)
+					if(mesh->isAnimationExist)
 					{
-						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
-						Maths::Vec4 temporaryMatrix;
+						vertex0 = mesh->animationVertices[mesh->indices[count + 0]].position;
+						vertex1 = mesh->animationVertices[mesh->indices[count + 1]].position;
+						vertex2 = mesh->animationVertices[mesh->indices[count + 2]].position;
 
-						// get the world coordinate of vertex 0
-						temporaryMatrix = modelMatrix *
-										  Maths::Vec4(mesh->vertices[mesh->indices[count + 0]].position.x,
-												  mesh->vertices[mesh->indices[count + 0]].position.y,
-												  mesh->vertices[mesh->indices[count + 0]].position.z, 1.0f);
-						temporaryMatrix = temporaryMatrix / temporaryMatrix.w;
-						vertex0 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
-
-						// get the world coordinate of vertex 1
-						temporaryMatrix = modelMatrix *
-										  Maths::Vec4(mesh->vertices[mesh->indices[count + 1]].position.x,
-												  mesh->vertices[mesh->indices[count + 1]].position.y,
-												  mesh->vertices[mesh->indices[count + 1]].position.z, 1.0f);
-						temporaryMatrix = temporaryMatrix / temporaryMatrix.w;
-						vertex1 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
-
-						// get the world coordinate of vertex 2
-						temporaryMatrix = modelMatrix *
-										  Maths::Vec4(mesh->vertices[mesh->indices[count + 2]].position.x,
-												  mesh->vertices[mesh->indices[count + 2]].position.y,
-												  mesh->vertices[mesh->indices[count + 2]].position.z, 1.0f);
-						temporaryMatrix = temporaryMatrix / temporaryMatrix.w;
-						vertex2 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
 					}
 					else
 					{
 						vertex0 = mesh->vertices[mesh->indices[count + 0]].position;
 						vertex1 = mesh->vertices[mesh->indices[count + 1]].position;
 						vertex2 = mesh->vertices[mesh->indices[count + 2]].position;
+					}
+
+					// check if the game object has transformation components
+					if (auto transformComponent = currentCheckingGameobject->GetComponent<Transform>();
+							transformComponent != nullptr)
+					{
+						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
+						Maths::Vec4 temporaryVertex;
+
+						// get the world coordinate of vertex 0
+						temporaryVertex = modelMatrix * Maths::Vec4(vertex0.x,vertex0.y,vertex0.z, 1.0f);
+						temporaryVertex = temporaryVertex / temporaryVertex.w;
+						vertex0 = PlatinumEngine::Maths::Vec3(temporaryVertex.x, temporaryVertex.y, temporaryVertex.z);
+
+						// get the world coordinate of vertex 1
+						temporaryVertex = modelMatrix * Maths::Vec4(vertex1.x,vertex1.y,vertex1.z, 1.0f);
+						temporaryVertex = temporaryVertex / temporaryVertex.w;
+						vertex1 = PlatinumEngine::Maths::Vec3(temporaryVertex.x, temporaryVertex.y, temporaryVertex.z);
+
+						// get the world coordinate of vertex 2
+						temporaryVertex = modelMatrix * Maths::Vec4(vertex2.x,vertex2.y,vertex2.z, 1.0f);
+						temporaryVertex = temporaryVertex / temporaryVertex.w;
+						vertex2 = PlatinumEngine::Maths::Vec3(temporaryVertex.x, temporaryVertex.y, temporaryVertex.z);
 					}
 
 					//----------------------------------//
@@ -712,7 +751,7 @@ namespace PlatinumEngine{
 					if (lengthU == 0 || lengthN == 0 || lengthW == 0)
 					{
 						//PLATINUM_ERROR("You are clicking on an object with invalid triangle primitive.");
-						break;
+						continue;
 					}
 
 					// if the length of the three axes are not 0, normalize them
@@ -744,7 +783,7 @@ namespace PlatinumEngine{
 					}
 					else
 					{
-						break;
+						continue;
 					}
 
 					// calculate the cross point by adding vector with the right ratio to the camera position (which is the start point of the Ray)

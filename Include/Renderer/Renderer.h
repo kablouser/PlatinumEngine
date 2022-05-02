@@ -116,13 +116,16 @@ namespace PlatinumEngine
 
 		void SetCameraPos(const Maths::Vec3 &pos);
 
+		void SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat = Maths::Mat4(1.0));
+
+		void SetAnimationStatus(bool isAnimationOn);
+
 		// a window for renderer to test
 		void ShowGUIWindow(bool* outIsOpen);
 
 		void SetProjectionMatrixSkyBox(Maths::Mat4 mat);
 
 		void SetViewMatrixSkyBox(Maths::Mat4 mat);
-
 
 		void SetViewMatrixForGridShader(Maths::Mat4 mat);
 

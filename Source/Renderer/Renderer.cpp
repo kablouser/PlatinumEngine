@@ -155,6 +155,8 @@ namespace PlatinumEngine
 		_phongShader.Bind();
 	}
 
+
+
 	void Renderer::End()
 	{
 //		glDisable(GL_DEPTH_TEST);
@@ -167,21 +169,12 @@ namespace PlatinumEngine
 
 	void Renderer::BeginSkyBoxShader()
 	{
-//		_framebuffer.Bind();
-
-//		glEnable(GL_DEPTH_TEST);
-//		GL_CHECK(glViewport(0, 0, _framebufferWidth, _framebufferHeight));
-//		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-//		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 		_skyBoxShader.Bind();
 	}
 
 	void Renderer::EndSkyBoxShader()
 	{
-//		glDisable(GL_DEPTH_TEST);
-//		_framebuffer.Unbind();
-//		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-//		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
+
 		_skyBoxShader.Unbind();
 	}
 
@@ -274,6 +267,7 @@ namespace PlatinumEngine
 
 	void Renderer::LoadMaterial(const Material& material)
 	{
+
 		if (material.useReflectionShader)
 		{
 			_reflectRefractShader.Bind();
@@ -293,6 +287,8 @@ namespace PlatinumEngine
 
 		_phongShader.Bind();
 		_phongShader.SetUniform("useTexture", material.useTexture);
+
+		// bind diffuse map
 		if (material.diffuseTexture)
 		{
 			_phongShader.SetUniform("diffuseMap", (int)0);
@@ -348,6 +344,39 @@ namespace PlatinumEngine
 		_particleShader.SetUniform("projection", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("projection", mat);
+	}
+
+	/*// update model matrix in shader
+	void Renderer::SetModelMatrixAnimation(Maths::Mat4 mat)
+	{
+		//mat.SetRotationMatrix(Maths::Vec3(0.5f * (float)glfwGetTime() * 50.0f / 180.0f * 3.14f, 1.0f, 0.0f));
+		_animationShader.SetUniform("model", mat);
+	}
+
+	// update view matrix in shader
+	void Renderer::SetViewMatrixAnimation(Maths::Mat4 mat)
+	{
+		//glm::mat4 view = GetViewMatrix();
+		_animationShader.SetUniform("view", mat);
+	}
+
+	// update perspective matrix in shader
+	void Renderer::SetProjectionMatrixAnimation(Maths::Mat4 mat)
+	{
+		_animationShader.SetUniform("projection", mat);
+	}*/
+
+	void Renderer::SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat)
+	{
+		if(transformMatrixIndex <300)
+			_phongShader.SetUniform("tracks["+std::to_string(transformMatrixIndex)+"]", mat);
+		else
+			PLATINUM_WARNING("Size of transformation matrices for animation exceeds 300.");
+	}
+
+	void Renderer::SetAnimationStatus(bool isAnimationOn)
+	{
+		_phongShader.SetUniform("isAnimationDisplay", isAnimationOn);
 	}
 
 	// update view matrix in shader
@@ -457,4 +486,5 @@ namespace PlatinumEngine
 		_particleShader.Bind();
 		_particleShader.SetUniform("cameraPos", pos);
 	}
+
 }

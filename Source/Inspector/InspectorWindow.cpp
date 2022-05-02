@@ -50,6 +50,9 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 			if(obj->GetComponent<RigidBody>() != nullptr)
 				ShowRigidBodyComponent(scene);
 
+			if (obj->GetComponent<AnimationComponent>() != nullptr)
+				ShowAnimationComponent(scene);
+
 			if(obj->GetComponent<BoxCollider>() != nullptr)
 				ShowBoxColliderComponent(scene);
 
@@ -103,7 +106,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
-	if (ImGui::Button("X##RemoveRenderComponent")) {
+	if (ImGui::Button("X##RemoveRenderComponent"))
+	{
 		// remove component
 		scene.RemoveComponent(*obj->GetComponent<MeshRender>());
 		return;
@@ -153,7 +157,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		}
 
 		{
-			auto asset_Helper = _assetHelper->ShowMeshGuiWindow();
+			auto asset_Helper = _assetHelper->ShowMeshGuiWindow("Select Mesh");
 			if (std::get<0>(asset_Helper))
 			{
 				obj->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
@@ -1026,6 +1030,75 @@ void InspectorWindow::ShowAudioComponent(Scene& scene)
 	}
 }
 
+void InspectorWindow::ShowAnimationComponent(Scene& scene)
+{
+	ImGui::Separator();
+	char meshBuffer[64];
+	char textureBuffer[64];
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_TABLE_CELLS "  Animation", ImGuiTreeNodeFlags_AllowItemOverlap);
+	auto obj = _sceneEditor->GetSelectedGameobject();
+
+	// TODO: Icon button maybe?
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveAnimationComponent"))
+	{
+		// remove component
+		scene.RemoveComponent(*obj->GetComponent<AnimationComponent>());
+		return;
+	}
+	if (isHeaderOpen)
+	{
+
+		// store pointer of renderComponent
+		AnimationComponent* animationComponent = obj->GetComponent<AnimationComponent>();
+
+		if (ImGui::RadioButton("Display Animation",animationComponent->isAnimationDisplay == true))
+		{
+			animationComponent->isAnimationDisplay = !animationComponent->isAnimationDisplay;
+		}
+
+
+		if(ImGui::Button("Select Animation From Mesh"))
+		{
+			ImGui::OpenPopup("Select ANIMATION Mesh");
+		}
+		{
+			auto asset_Helper = _assetHelper->ShowMeshGuiWindow("Select ANIMATION Mesh");
+			if (std::get<0>(asset_Helper) && std::get<1>(asset_Helper) != nullptr)
+			{
+				for(auto animation: std::get<1>(asset_Helper)->animations)
+				{
+					animationComponent->AddAnimation(animation);
+				}
+			}
+		}
+
+		std::vector<Animation*> animations = animationComponent->GetAnimation();
+
+		for(unsigned int i=0; i < animations.size(); ++i)
+		{
+			// create check box
+			if (ImGui::RadioButton(
+					std::to_string(i).append(". " + animations[i]->rawAnimation.name).c_str(),
+					animationComponent->selectedAnimationIndex == i))
+			{
+				// set the animation presented by this check box to be the current selected animation
+				animationComponent->selectedAnimationIndex = i;
+			}
+			ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+
+			// create remove button
+			if (ImGui::Button(("X##RemoveAnimation" + std::to_string(i)).c_str()))
+			{
+				// remove animation
+				animationComponent->RemoveAnimation(i);
+			}
+
+		}
+
+	}
+}
+
 void InspectorWindow::ShowAddComponent(Scene& scene)
 {
 	if (ImGui::BeginChild("ComponentSelector"))
@@ -1040,8 +1113,9 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 				"BoxCollider Component",
 				"SphereCollider Component",
 				"CapsuleCollider Component",
-					"Particle Effect Component",
-					"Audio Component"
+				"Particle Effect Component",
+				"Audio Component",
+				"Animation Component"
 		};
 		static const char* selectedComponent = nullptr;
 		static char componentSelectorBuffer[128];
@@ -1124,6 +1198,10 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			else if (strcmp(selectedComponent, "Audio Component") == 0)
 			{
 				scene.AddComponent<AudioComponent>(obj);
+			}
+			else if (strcmp(selectedComponent, "Animation Component") == 0)
+			{
+				scene.AddComponent<AnimationComponent>(obj);
 			}
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;

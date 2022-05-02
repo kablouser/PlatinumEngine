@@ -31,9 +31,9 @@ namespace PlatinumEngine
 	public:
 		Material material;
 
+
 	private:
 		Mesh* _mesh;
-
 		ShaderInput _shaderInput;
 	};
 }

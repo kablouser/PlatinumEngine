@@ -11,15 +11,19 @@ namespace PlatinumEngine
 		return filePath.substr(filePath.find_last_of(".") + 1);
 	}
 
+
 	bool ExtensionAllowed(const std::string &extension)
 	{
 		bool isAllowed = false;
 		for (unsigned int i = 0; i < ALLOWED_EXTENSIONS.size(); ++i)
 		{
-			if (ALLOWED_EXTENSIONS[i] == extension)
+			for(std::string const &s : ALLOWED_EXTENSIONS[i])
 			{
-				isAllowed = true;
-				break;
+				if (s == extension)
+				{
+					isAllowed = true;
+					break;
+				}
 			}
 		}
 		return isAllowed;

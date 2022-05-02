@@ -22,7 +22,7 @@ namespace PlatinumEngine
 		 * the render component in Inspector Window
 		 */
      //Mesh
-		 std::tuple<bool, Mesh*> ShowMeshGuiWindow();
+		 std::tuple<bool, Mesh*> ShowMeshGuiWindow(const std::string& name);
   
 		 std::tuple<bool, Mesh*> GetMeshAsset(std::string filePath);
      //Audio
