@@ -354,7 +354,7 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 
 		ImGui::Text("Type: IMAGE");
 
-		std::string dim = std::to_string(image->width)+" x "+std::to_string(image->height);
+		std::string dim = std::to_string((int)image->width)+" x "+std::to_string((int)image->height);
 		ImGui::Text("Dimensions: ");
 		ImGui::SameLine();
 		ImGui::Text(dim.c_str());

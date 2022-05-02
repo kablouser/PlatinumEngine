@@ -87,14 +87,14 @@ namespace PlatinumEngine
 			if (ImGui::IsItemClicked())
 			{
 				GameObject* duplicateGameObject = scene.AddGameObject(gameObject->name);;
-				RenderComponent* gameObjectRC = gameObject->GetComponent<RenderComponent>();
-				TransformComponent* gameObjectTC = gameObject->GetComponent<TransformComponent>();
+				MeshRender* gameObjectRC = gameObject->GetComponent<MeshRender>();
+				Transform* gameObjectTC = gameObject->GetComponent<Transform>();
 
 				//Manual copy of parameters
 				if(gameObjectRC != nullptr)
 				{
-					scene.AddComponent<RenderComponent>(duplicateGameObject);
-					RenderComponent* dupObjectRC = duplicateGameObject->GetComponent<RenderComponent>();
+					scene.AddComponent<MeshRender>(duplicateGameObject);
+					MeshRender* dupObjectRC = duplicateGameObject->GetComponent<MeshRender>();
 					dupObjectRC->material.diffuseTexture = gameObjectRC->material.diffuseTexture;
 					dupObjectRC->material.normalTexture = gameObjectRC->material.normalTexture;
 					dupObjectRC->material.useTexture = gameObjectRC->material.useTexture;
@@ -105,8 +105,8 @@ namespace PlatinumEngine
 				}
 				if(gameObjectTC != nullptr)
 				{
-					scene.AddComponent<TransformComponent>(duplicateGameObject);
-					TransformComponent* dupObjectTC = duplicateGameObject->GetComponent<TransformComponent>();
+					scene.AddComponent<Transform>(duplicateGameObject);
+					Transform* dupObjectTC = duplicateGameObject->GetComponent<Transform>();
 					dupObjectTC->localPosition = gameObjectTC->localPosition;
 					dupObjectTC->localRotation = gameObjectTC->localRotation;
 					dupObjectTC->localScale = gameObjectTC->localScale;

@@ -5,6 +5,7 @@ namespace PlatinumEngine
 	AudioComponent::AudioComponent(std::string sample, bool loop):
 		_sample(sample), isLooping(loop)
 	{
+		_sound = nullptr;
 		_isPaused = false;
 		_isPlaying = false;
 		_panning = 127;

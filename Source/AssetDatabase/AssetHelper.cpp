@@ -113,7 +113,6 @@ namespace PlatinumEngine
 	std::tuple<bool, Texture*> AssetHelper::GetTextureAsset(std::string filePath)
 	{
 		bool isAssetSelected = false;
-		static ImGuiTextFilter filter;
 		Asset asset;
 		Texture* texture = nullptr;
 		for(auto textureAssetID : _assetDatabase->GetTextureAssetIDs())

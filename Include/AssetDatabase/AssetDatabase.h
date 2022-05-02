@@ -177,13 +177,6 @@ namespace PlatinumEngine
 		[[nodiscard]] std::vector<MeshAssetID> GetMeshAssetIDs(bool requireExist = true) const;
 
 		/**
-		 * nodiscard means compiler creates warning if you don't use this function's return value
-		 * @param requireExist if true, return only existent assets
-		 * @return MeshAssetID that are in the database
-		 */
-		[[nodiscard]] std::vector<AudioAssetID> GetAudioAssetIDs(bool requireExist = true) const;
-
-		/**
 		 * Get a mesh object from id. The object (if not null) is guaranteed to be loaded/ready
 		 * @param meshAssetID to match
 		 * @return nullptr if id doesn't exist or it's not a mesh, otherwise a loaded/ready mesh object
@@ -205,6 +198,8 @@ namespace PlatinumEngine
 		Texture* operator[](TextureAssetID TextureAssetID);
 
 		//Audio
+		[[nodiscard]] std::vector<AudioAssetID> GetAudioAssetIDs(bool requireExist = true) const;
+
 		std::string operator[](AudioAssetID audioAssetID);
 
 	private:

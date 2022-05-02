@@ -331,7 +331,6 @@ namespace PlatinumEngine
 					allocateTexture->fileName = filePath.filename().string();
 					return allocateTexture;
 				},
-
 				[&](const std::filesystem::path& filePath) -> void*
 				{
 					//Audio Component handles loading so we just need the path
@@ -396,22 +395,6 @@ namespace PlatinumEngine
 		return results;
 	}
 
-	std::vector<AudioAssetID> AssetDatabase::GetAudioAssetIDs(bool requireExist) const
-	{
-		std::vector<AudioAssetID> results;
-		for (const auto& asset: _database)
-		{
-			if (requireExist && !asset.doesExist)
-				continue;
-
-			if (GetExtension(asset.path.string()) == "wav")
-			{
-				results.push_back({ asset.id });
-			}
-		}
-		return results;
-	}
-
 	Mesh* AssetDatabase::GetLoadedMeshAsset(MeshAssetID meshAssetID)
 	{
 		return (*this)[meshAssetID];
@@ -457,8 +440,8 @@ namespace PlatinumEngine
 		return (*this)[textureAssetID];
 	}
 
-  Texture* AssetDatabase::operator[](TextureAssetID textureAssetID)
-  {
+	Texture* AssetDatabase::operator[](TextureAssetID textureAssetID)
+	{
 		auto findID = _assetIDsMap.find(textureAssetID.id);
 		if (findID == _assetIDsMap.end())
 			return nullptr;
@@ -468,12 +451,29 @@ namespace PlatinumEngine
 		{
 			if (GetExtension(_database[databaseIndex].path.string()) == "png")
 				return static_cast<Texture*>(_loadedAssets[databaseIndex]);
+
 			else
 				PLATINUM_WARNING_STREAM << "AssetDatabase: can't load get loaded asset because the type you want "
 										   "is different to the type stored";
 		}
 
 		return nullptr;
+	}
+
+	std::vector<AudioAssetID> AssetDatabase::GetAudioAssetIDs(bool requireExist) const
+	{
+		std::vector<AudioAssetID> results;
+		for (const auto& asset: _database)
+		{
+			if (requireExist && !asset.doesExist)
+				continue;
+
+			if (GetExtension(asset.path.string()) == "wav")
+			{
+				results.push_back({ asset.id });
+			}
+		}
+		return results;
 	}
 
 	std::string AssetDatabase::operator[](AudioAssetID audioAssetID)
@@ -670,6 +670,7 @@ namespace PlatinumEngine
 
 		_loadedAssets.clear();
 		_loadedMeshAssets.clear();
+		_loadedTextureAssets.clear();
 		_loadedAudioAssets.clear();
 	}
 }

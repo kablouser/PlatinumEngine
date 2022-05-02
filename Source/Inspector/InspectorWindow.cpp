@@ -983,7 +983,6 @@ void InspectorWindow::ShowAudioComponent(Scene& scene)
 	auto obj = _sceneEditor->GetSelectedGameobject();
 	ImGui::Separator();
 	char sampleBuffer[64];
-	auto obj = _sceneEditor->GetSelectedGameobject();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_TABLE_CELLS "  Audio", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
