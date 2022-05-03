@@ -54,7 +54,8 @@ namespace PlatinumEngine
 			renderer.SetShadeByParticleShader(shadeBy);
 			renderer.SetFloatParticleShader("minVal", minShadeValue);
 			renderer.SetFloatParticleShader("maxVal", maxShadeValue);
-
+			renderer.SetBoolParticleShader("isSpherical", !particleEmitter->useCylindricalBillboard);
+			renderer.SetScaleFactors("scaleFactors", particleEmitter->scaleFactors);
 			renderer.particleRenderer.Render();
 			renderer.EndParticleShader();
 		}

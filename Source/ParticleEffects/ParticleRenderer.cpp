@@ -91,7 +91,12 @@ namespace PlatinumEngine
 
 		void ParticleRenderer::Clear()
 		{
-			// TODO: Delete buffers
+			GL_CHECK(glDeleteVertexArrays(1, &_particleVertexVAO));
+			GL_CHECK(glDeleteBuffers(1, &_particleVertexVBO));
+			GL_CHECK(glDeleteBuffers(1, &_textureIndexVBO));
+			GL_CHECK(glDeleteBuffers(1, &_positionLifeVBO));
+			GL_CHECK(glDeleteBuffers(1, &_velocityScaleVBO));
+			_positionLifeVBO = _velocityScaleVBO = _textureIndexVBO = _particleVertexVAO = _particleVertexVBO = 0;
 		}
 
 		void ParticleRenderer::Init()

@@ -258,6 +258,24 @@ namespace PlatinumEngine
 		_particleShader.SetUniform(name, val);
 	}
 
+	void Renderer::SetBoolParticleShader(const char* name, bool val)
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform(name, val);
+	}
+
+	void Renderer::SetScaleFactors(const char * name, float scaleFactors[3])
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform(name, Maths::Vec3(scaleFactors[0], scaleFactors[1], scaleFactors[2]));
+	}
+
+
+	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
+	{
+		_framebuffer = *framebuffer;
+	}
+
 	void Renderer::ResizeFrameBuffer(Framebuffer &framebuffer, ImVec2 targetSize)
 	{
 		_framebufferWidth = (int)targetSize.x;
