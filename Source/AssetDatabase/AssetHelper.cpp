@@ -7,5 +7,8 @@ namespace PlatinumEngine
 			_assetDatabase(assetDatabase),
 			_idSystem(idSystem)
 	{
+		
 	}
+
+	
 }

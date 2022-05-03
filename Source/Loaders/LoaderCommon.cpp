@@ -11,7 +11,7 @@ namespace PlatinumEngine
 		// Instance of the global variable
 		const std::map<std::string, std::type_index> EXTENSION_TO_TYPE{
 				{ ".obj", std::type_index(typeid(Mesh)) },
-				// .fbx?
+				{ ".fbx", std::type_index(typeid(Mesh)) },
 
 				{ ".png", std::type_index(typeid(Texture)) },
 				// .jpg? .jpeg?

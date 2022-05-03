@@ -33,6 +33,8 @@ namespace PlatinumEngine
 
 	void Texture::Create(GLsizei width, GLsizei height)
 	{
+		width = _width;
+		height = _height;
 		if(_textureHandle == 0)
 			GL_CHECK(glGenTextures(1, &_textureHandle));
 

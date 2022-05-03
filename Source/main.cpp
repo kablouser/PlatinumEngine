@@ -16,6 +16,11 @@
 
 #include <OpenGL/GLCheck.h>
 
+#define SDL_MAIN_HANDLED
+#include "SDL.h"
+#include "SDL_mixer.h"
+#include "ComponentComposition/AudioComponent.h"
+
 static void GlfwErrorCallback(int error, const char* description)
 {
 	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
@@ -23,6 +28,9 @@ static void GlfwErrorCallback(int error, const char* description)
 
 int main(int, char**)
 {
+	if(SDL_Init(SDL_INIT_AUDIO)<0) printf("SDL could not initialize! SDL Error: %s\n",SDL_GetError());
+	if(Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,1024)<0) printf("Failed to open audio! Mix Error: %s\n",Mix_GetError());
+
 	// Setup window
 	glfwSetErrorCallback(GlfwErrorCallback);
 	if (!glfwInit())
@@ -79,6 +87,8 @@ int main(int, char**)
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
 		// construct logger before everything to save all logs
+		PlatinumEngine::Time time;
+		PlatinumEngine::Physics physics;
 		PlatinumEngine::Profiler profiler;
 		// typeDatabase before idSystem, and everything that uses type reflection
 		PlatinumEngine::TypeDatabase typeDatabase;
@@ -88,12 +98,12 @@ int main(int, char**)
 		PlatinumEngine::Logger logger;
 		PlatinumEngine::InputManager inputManager;
 		PlatinumEngine::Renderer rasterRenderer;
-		PlatinumEngine::Scene scene(idSystem);
-		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer);
-		PlatinumEngine::HierarchyWindow hierarchyWindow(&sceneEditor);
-		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper, &sceneEditor);
-		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
-		PlatinumEngine::ProjectWindow projectWindow;
+		PlatinumEngine::Scene scene(idSystem, &physics);
+		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer,&assetHelper, &time, &physics);
+    	PlatinumEngine::HierarchyWindow hierarchyWindow(&sceneEditor, &assetHelper);
+		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper, &sceneEditor, &physics);
+		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer, &time, &physics);
+		PlatinumEngine::ProjectWindow projectWindow(&scene, &assetHelper, &sceneEditor);
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger,
 				&inspectorWindow, &profiler, &projectWindow, idSystem, typeDatabase, assetDatabase, scene);
 
@@ -103,6 +113,11 @@ int main(int, char**)
 		// load default scene
 		scene.LoadFile("Assets/Default.scene");
 
+
+	
+
+		physics.Initialize();
+		time.Update();
 		// Main loop
 		while (!glfwWindowShouldClose(window))
 		{
@@ -162,6 +177,9 @@ int main(int, char**)
 			glfwSwapBuffers(window);
 		}
 
+		// Cleanup bullet physics
+		physics.CleanUp();
+
 		// Cleanup ImGui
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
@@ -172,6 +190,9 @@ int main(int, char**)
 	// Cleanup glfw
 	glfwDestroyWindow(window);
 	glfwTerminate();
+
+	Mix_Quit();
+	SDL_Quit();
 
 	return EXIT_SUCCESS;
 }

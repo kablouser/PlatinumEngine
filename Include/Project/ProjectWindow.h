@@ -8,6 +8,10 @@
 #include <filesystem>
 #include <string>
 #include <IconsFontAwesome6.h>
+#include "Logger/Logger.h"
+#include "AssetDatabase/AssetHelper.h"
+#include "SceneManager/Scene.h"
+#include "Inspector/InspectorWindow.h"
 
 namespace PlatinumEngine
 {
@@ -17,14 +21,19 @@ namespace PlatinumEngine
 	class ProjectWindow
 	{
 	public:
-		ProjectWindow() = default;
+		ProjectWindow(Scene* scene, AssetHelper* assetHelper, SceneEditor* sceneEditor);
 		void ShowGUIWindow(bool* isOpen);
+
+
 
 	private:
 		void ShowTreeNode(std::filesystem::path dir);
 		void DragDropMoveRegularFile(std::filesystem::path dir, const ImGuiPayload* payload);
 
 	private:
+		Scene* _scene;
+		SceneEditor* _sceneEditor;
+		AssetHelper* _assetHelper;
 		std::string _parentFolder = "./Assets";
 		std::string _ignoreDatabaseName = "AssetDatabase.csv";
 		// Mac has this file called .DS_Store which should also be ignored

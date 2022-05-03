@@ -15,6 +15,10 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <ozz/base/io/stream.h>
+#include <ozz/animation/runtime/skeleton.h>
+#include <ozz/animation/runtime/animation.h>
+#include <ozz/base/io/archive.h>
 #include <glm/glm.hpp>
 
 // Post processing options: http://assimp.sourceforge.net/lib_html/postprocess_8h.html
@@ -56,6 +60,18 @@ namespace PlatinumEngine
 		 * @param offset : This is the offset of indices for the current mesh, should start at 0
 		 */
 		void AddMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset);
+
+		void AddAnimationMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset);
+
+		void AddBoneData(Mesh &outMesh, aiMesh *mesh, aiAnimation* inAnimation, unsigned int offset);
+
+		void AddNodeData(aiNode* inNode, ozz::animation::offline::RawSkeleton::Joint* currentJoint);
+
+		void AddAnimationChannelData(Mesh &outMesh, aiAnimation* inAnimation);
+
+		bool FindChanelID(const std::string& boneName, aiAnimation* animation, unsigned int& trackID);
+
+		bool FindChanelID(const std::string& boneName, ozz::animation::Skeleton* skeleton, unsigned int& trackID);
 	}
 }
 

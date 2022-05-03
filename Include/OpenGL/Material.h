@@ -14,12 +14,15 @@ namespace PlatinumEngine
 		SavedReference<Texture>			normalTexture;
 		SavedReference<Texture>			specularTexture;
 
-		float         	shininessFactor;
+		float         	shininessFactor = 8.0f;
+		float refractionIndex = 1.5f;
 
 		// Flags
-		bool useBlinnPhong;
-		bool useTexture;
-		bool useNormalTexture;
+		bool useBlinnPhong = false;
+		bool useTexture = false;
+		bool useNormalTexture = false;
+		bool useReflectionShader = false;
+		bool useRefractionShader = false;
 
 		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 

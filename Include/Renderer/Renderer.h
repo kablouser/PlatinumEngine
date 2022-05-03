@@ -12,6 +12,7 @@
 #include <OpenGL/Mesh.h>
 #include <GLFW/glfw3.h>
 #include "OpenGL/Material.h"
+#include <ParticleEffects/ParticleRenderer.h>
 
 namespace PlatinumEngine
 {
@@ -84,13 +85,21 @@ namespace PlatinumEngine
 		// unbind grid shader
 		void EndGrid();
 
+		// Particle shader uniforms
+		void BeginParticleShader();
+		void EndParticleShader();
+		void SetTextureParticleShader(Texture* texture, bool useTexture, int numCols, int numRows);
+		void SetShadeByParticleShader(const std::string &shadeBy);
+		void SetVec4ParticleShader(const char* name, Maths::Vec4 vec);
+		void SetFloatParticleShader(const char* name, float val);
+
 		/**
 		 * resize framebuffer, it's an interface for SceneEditor
 		 * @param framebuffer, targetSize
 		 * */
 		void ResizeFrameBuffer(Framebuffer &framebuffer, ImVec2 targetSize);
 
-		// three temporary functions to update model, view, projection matrix before TransformComponent
+		// three temporary functions to update model, view, projection matrix before Transform
 		// update model matrix in shader
 		void SetModelMatrix(Maths::Mat4 mat = Maths::Mat4(1.0));
 
@@ -102,13 +111,18 @@ namespace PlatinumEngine
 
 		void SetLightProperties();
 
+		void SetCameraPos(const Maths::Vec3 &pos);
+
+		void SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat = Maths::Mat4(1.0));
+
+		void SetAnimationStatus(bool isAnimationOn);
+
 		// a window for renderer to test
 		void ShowGUIWindow(bool* outIsOpen);
 
 		void SetProjectionMatrixSkyBox(Maths::Mat4 mat);
 
 		void SetViewMatrixSkyBox(Maths::Mat4 mat);
-
 
 		void SetViewMatrixForGridShader(Maths::Mat4 mat);
 
@@ -142,6 +156,10 @@ namespace PlatinumEngine
 		// void LoadLight(const Light &light);
 		void LoadLight();
 
+	public:
+		Maths::Vec3 cameraPos;
+		ParticleEffects::ParticleRenderer particleRenderer;
+
 	private:
 
 		// true iff all init steps were successful
@@ -151,6 +169,8 @@ namespace PlatinumEngine
 		ShaderProgram _skyBoxShader;
 		ShaderProgram _gridShader;
 		ShaderProgram _phongShader;
+		ShaderProgram _reflectRefractShader;
+		ShaderProgram _particleShader;
 
 		// ShaderInput _meshShaderInput, _lightShaderInput;
 

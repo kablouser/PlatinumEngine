@@ -4,14 +4,18 @@
 
 #pragma once
 #include "InputManager/InputManager.h"
+#include "OpenGL/ShaderInput.h"
 #include "SceneManager/Scene.h"
+#include <Helpers/Time.h>
 #include "Renderer/Renderer.h"
+#include <Physics/Physics.h>
+
 namespace PlatinumEngine
 {
 	class GameWindow
 	{
 	public:
-		GameWindow(InputManager* inputManager, Scene* scene, Renderer* renderer);
+		GameWindow(InputManager* inputManager, Scene* scene, Renderer* renderer, Time* time, Physics* physics);
 		GameWindow();
 		//~GameWindow();
 
@@ -22,15 +26,17 @@ namespace PlatinumEngine
 		void ShowGuiWindow(bool* OutIsOpen);
 
 		/**
-		 * Pause function that will make the update in gameWinodw pause
-		 * @param OnPause
+		 * Step function for updating the scene
 		 */
-		void Pause(bool OnPause);
-
 		void Step();
 
 		/**
-		 * Update the GameObject states in scene
+		 * Start the simulation
+		 */
+		void Play();
+
+		/**
+		 * Render the GameObject states in scene
 		 */
 		void Update(double deltaTime);
 
@@ -40,26 +46,33 @@ namespace PlatinumEngine
 		 * @param scene
 		 */
 		void Render(ImVec2 targetSize, Scene* scene);
+
+
+		void CreateSkyBoxShaderInput();
+
 	private:
 		InputManager* _inputManager;
 		Scene* _scene;
 		Renderer* _renderer;
+		Time* _time;
+		Physics* _physics;
+		// Skybox
+		Texture _skyboxTexture;
+		ShaderInput _skyBoxShaderInput;
 
 		// output of OpenGL rendering
 		Framebuffer _renderTexture;
 		int _framebufferWidth;
 		int _framebufferHeight;
 
-		double _previousTime = 0.0;
-		double _deltaTime = 0.0;
 		// user event
 		ImVec2 _mouseMoveDelta;
 		int _mouseButtonType;
 		float _wheelValueDelta;
 
-		bool _onPlay = true;
+		bool _isPlay;
 		bool _hasWarningBeenShown = false;
 	public:
-		bool _onUpdate = false;
+		bool isPaused;
 	};
 }

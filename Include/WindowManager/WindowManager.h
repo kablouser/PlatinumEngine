@@ -3,6 +3,8 @@
 //
 
 #pragma once
+
+#include <ComponentComposition/Camera.h>
 #include <WindowManager/Filedialog.h>
 #include <SceneManager/Scene.h>
 #include <GameWindow/GameWindow.h>
@@ -59,7 +61,6 @@ namespace PlatinumEngine
 		void ShowWindowProject(bool* outIsOpen);
 		void ShowWindowAnimation(bool* outIsOpen);
 		void ShowWindowLight(bool* outIsOpen);
-		void ShowWindowAudio(bool* outIsOpen);
 		void ShowWindowLogger(bool* outIsOpen);
 		void ShowWindowProfiler(bool* outIsOpen);
 	private:
@@ -72,23 +73,9 @@ namespace PlatinumEngine
 		bool _showWindowHierarchy            = true;
 		bool _showWindowProject              = true;
 		bool _showWindowAnimation            = false;
-		bool _showWindowAudio                = false;
 		bool _showWindowLight                = false;
 		bool _showWindowLogger				 = false;
 		bool _showWindowProfiler			 = false;
-		///-----------------------------------------------------------------------
-		///bools in main menu GameObject list
-		///-----------------------------------------------------------------------
-		bool _showGameObjectEmpty            = false;
-		bool _showGameObjectEmptyChild       = false;
-		bool _showGameObjectEmptyParent      = false;
-		bool _showGameObjectCube      		 = false;
-		bool _showGameObjectSphere  		 = false;
-		bool _showGameObjectPlane   		 = false;
-		bool _showGameObjectCapsule   		 = false;
-		bool _showGameObjectParticleEffect   = false;
-		bool _showGameObjectCamera           = false;
-		bool _showGameObjectLight            = false;
 
 		///-----------------------------------------------------------------------
 		///bools in main menu file list
@@ -96,13 +83,8 @@ namespace PlatinumEngine
 	    bool _showFileLoad          		 = false;
 	    bool _showFileSave                   = false;
 
-        ///-----------------------------------------------------------------------
-		///bools in main menu that controls the play/pause/step function of GameWindow
-		///-----------------------------------------------------------------------
-		bool _pause							 = true;
-		bool _step							 = false;
-
-
+		// this is used to set up the play button
+		bool _start                          = false;
 	private:
 		///-----------------------------------------------------------------------
 		///pointers to the constructor of each window need to be shown

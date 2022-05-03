@@ -9,7 +9,7 @@
 #include <Logger/Logger.h>
 
 // test
-#include "ComponentComposition/RenderComponent.h"
+#include "ComponentComposition/MeshRender.h"
 
 // shaders
 // DON'T FORMAT THESE LINES, OTHERWISE IT BREAKS
@@ -36,6 +36,18 @@ const std::string GRID_VERTEX_SHADER =
 ;
 const std::string GRID_FRAGMENT_SHADER =
 #include <Shaders/Unlit/GridShader.frag>
+;
+const std::string REFLECT_REFRACT_VERTEX_SHADER =
+#include <Shaders/Unlit/ReflectionRefraction.vert>
+;
+const std::string REFLECT_REFRACT_FRAGMENT_SHADER =
+#include <Shaders/Unlit/ReflectionRefraction.frag>
+;
+const std::string PARTICLE_VERTEX_SHADER =
+#include <Shaders/Unlit/ParticleShader.vert>
+;
+const std::string PARTICLE_FRAGMENT_SHADER =
+#include <Shaders/Unlit/ParticleShader.frag>
 ;
 
 namespace PlatinumEngine
@@ -93,6 +105,18 @@ namespace PlatinumEngine
 			return;
 		}
 
+		if (!_reflectRefractShader.Compile(REFLECT_REFRACT_VERTEX_SHADER, REFLECT_REFRACT_FRAGMENT_SHADER))
+		{
+			PLATINUM_ERROR("Cannot generate the reflect/refract shader.");
+			return;
+		}
+		
+		if (!_particleShader.Compile(PARTICLE_VERTEX_SHADER, PARTICLE_FRAGMENT_SHADER))
+		{
+			PLATINUM_ERROR("Cannot generate the particle shader.");
+			return;
+		}
+
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
 		if (!_framebuffer.Create(_framebufferWidth, _framebufferHeight))
@@ -108,6 +132,8 @@ namespace PlatinumEngine
 		pointLight.specularStrength = Maths::Vec3(1.0f, 1.0f, 1.0f);
 		// check for uncaught errors
 //		GL_CHECK();
+
+		particleRenderer.Init();
 
 		_isInitGood = true;
 	}
@@ -129,6 +155,8 @@ namespace PlatinumEngine
 		_phongShader.Bind();
 	}
 
+
+
 	void Renderer::End()
 	{
 //		glDisable(GL_DEPTH_TEST);
@@ -141,21 +169,12 @@ namespace PlatinumEngine
 
 	void Renderer::BeginSkyBoxShader()
 	{
-//		_framebuffer.Bind();
-
-//		glEnable(GL_DEPTH_TEST);
-//		GL_CHECK(glViewport(0, 0, _framebufferWidth, _framebufferHeight));
-//		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-//		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 		_skyBoxShader.Bind();
 	}
 
 	void Renderer::EndSkyBoxShader()
 	{
-//		glDisable(GL_DEPTH_TEST);
-//		_framebuffer.Unbind();
-//		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-//		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
+
 		_skyBoxShader.Unbind();
 	}
 
@@ -167,6 +186,81 @@ namespace PlatinumEngine
 	void Renderer::EndGrid()
 	{
 		_gridShader.Unbind();
+	}
+
+	void Renderer::BeginParticleShader()
+	{
+		_particleShader.Bind();
+	}
+
+	void Renderer::EndParticleShader()
+	{
+		_particleShader.Unbind();
+	}
+
+	void Renderer::SetTextureParticleShader(Texture* texture, bool useTexture, int numCols, int numRows)
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform("useTexture", useTexture);
+		_particleShader.SetUniform("sampleTexture", (int)0);
+
+		if (texture)
+		{
+			glActiveTexture(GL_TEXTURE0);
+			texture->Bind();
+
+			_particleShader.SetUniform("textureWidth", texture->width);
+			_particleShader.SetUniform("textureHeight", texture->height);
+			_particleShader.SetUniform("spriteWidth", texture->width / (float) numCols);
+			_particleShader.SetUniform("spriteHeight", texture->height / (float) numRows);
+			_particleShader.SetUniform("textureRatio", texture->height / texture->width);
+		}
+		else
+		{
+			_particleShader.SetUniform("textureWidth", 0.0f);
+			_particleShader.SetUniform("textureHeight", 0.0f);
+			_particleShader.SetUniform("spriteWidth", 1.0f);
+			_particleShader.SetUniform("spriteHeight", 1.0f);
+			_particleShader.SetUniform("textureRatio", 1.0f);
+		}
+	}
+
+	void Renderer::SetShadeByParticleShader(const std::string &shadeBy)
+	{
+		_particleShader.Bind();
+
+		// Set all shade by to false
+		_particleShader.SetUniform("useShadeByLife", false);
+		_particleShader.SetUniform("useShadeByPosition", false);
+		_particleShader.SetUniform("useShadeBySpeed", false);
+		_particleShader.SetUniform("useShadeBySize", false);
+
+		// It must be one of these options,
+		if (shadeBy == "Life")
+			_particleShader.SetUniform("useShadeByLife", true);
+		else if (shadeBy == "Position")
+			_particleShader.SetUniform("useShadeByPosition", true);
+		else if (shadeBy == "Speed")
+			_particleShader.SetUniform("useShadeBySpeed", true);
+		else if (shadeBy == "Size")
+			_particleShader.SetUniform("useShadeBySize", true);
+	}
+
+	void Renderer::SetVec4ParticleShader(const char* name, Maths::Vec4 vec)
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform(name, vec);
+	}
+
+	void Renderer::SetFloatParticleShader(const char* name, float val)
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform(name, val);
+	}
+
+	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
+	{
+		_framebuffer = *framebuffer;
 	}
 
 	void Renderer::ResizeFrameBuffer(Framebuffer &framebuffer, ImVec2 targetSize)
@@ -182,8 +276,28 @@ namespace PlatinumEngine
 
 	void Renderer::LoadMaterial(const Material& material)
 	{
+
+		if (material.useReflectionShader)
+		{
+			_reflectRefractShader.Bind();
+			_reflectRefractShader.SetUniform("useReflection", true);
+			_reflectRefractShader.SetUniform("refractionIndex", material.refractionIndex);
+			_reflectRefractShader.SetUniform("skybox", 7);
+			return;
+		}
+		if (material.useRefractionShader)
+		{
+			_reflectRefractShader.Bind();
+			_reflectRefractShader.SetUniform("useReflection", false);
+			_reflectRefractShader.SetUniform("refractionIndex", material.refractionIndex);
+			_reflectRefractShader.SetUniform("skybox", 7);
+			return;
+		}
+
 		_phongShader.Bind();
 		_phongShader.SetUniform("useTexture", material.useTexture);
+
+		// bind diffuse map
 		if (material.diffuseTexture)
 		{
 			_phongShader.SetUniform("diffuseMap", (int)0);
@@ -203,11 +317,18 @@ namespace PlatinumEngine
 		_phongShader.SetUniform("materialSpec", Maths::Vec3(0.1f, 0.1f, 0.1f));
 		_phongShader.SetUniform("shininess", material.shininessFactor);
 		_phongShader.SetUniform("useBlinnPhong", material.useBlinnPhong);
+
+		// Reset state
+		glActiveTexture(GL_TEXTURE0);
 	}
 
 	// update model matrix in shader
 	void Renderer::SetModelMatrix(Maths::Mat4 mat)
 	{
+		_reflectRefractShader.Bind();
+		_reflectRefractShader.SetUniform("model", mat);
+		_particleShader.Bind();
+		_particleShader.SetUniform("model", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("model", mat);
 	}
@@ -215,6 +336,10 @@ namespace PlatinumEngine
 	// update view matrix in shader
 	void Renderer::SetViewMatrix(Maths::Mat4 mat)
 	{
+		_reflectRefractShader.Bind();
+		_reflectRefractShader.SetUniform("view", mat);
+		_particleShader.Bind();
+		_particleShader.SetUniform("view", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("view", mat);
 	}
@@ -222,8 +347,45 @@ namespace PlatinumEngine
 	// update perspective matrix in shader
 	void Renderer::SetProjectionMatrix(Maths::Mat4 mat)
 	{
+		_reflectRefractShader.Bind();
+		_reflectRefractShader.SetUniform("projection", mat);
+		_particleShader.Bind();
+		_particleShader.SetUniform("projection", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("projection", mat);
+	}
+
+	/*// update model matrix in shader
+	void Renderer::SetModelMatrixAnimation(Maths::Mat4 mat)
+	{
+		//mat.SetRotationMatrix(Maths::Vec3(0.5f * (float)glfwGetTime() * 50.0f / 180.0f * 3.14f, 1.0f, 0.0f));
+		_animationShader.SetUniform("model", mat);
+	}
+
+	// update view matrix in shader
+	void Renderer::SetViewMatrixAnimation(Maths::Mat4 mat)
+	{
+		//glm::mat4 view = GetViewMatrix();
+		_animationShader.SetUniform("view", mat);
+	}
+
+	// update perspective matrix in shader
+	void Renderer::SetProjectionMatrixAnimation(Maths::Mat4 mat)
+	{
+		_animationShader.SetUniform("projection", mat);
+	}*/
+
+	void Renderer::SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat)
+	{
+		if(transformMatrixIndex < 128)
+			_phongShader.SetUniform("tracks["+std::to_string(transformMatrixIndex)+"]", mat);
+		else
+			PLATINUM_WARNING_STREAM << "Size of transformation matrices " << transformMatrixIndex << " for animation exceeds 128.";
+	}
+
+	void Renderer::SetAnimationStatus(bool isAnimationOn)
+	{
+		_phongShader.SetUniform("isAnimationDisplay", isAnimationOn);
 	}
 
 	// update view matrix in shader
@@ -292,7 +454,7 @@ namespace PlatinumEngine
 
 				Begin();
 				Mesh mesh(vertices, indices);
-//				RenderComponent renderComponent(mesh);
+//				MeshRender renderComponent(mesh);
 				LoadMesh(mesh);
 				End();
 
@@ -324,4 +486,14 @@ namespace PlatinumEngine
 		_phongShader.SetUniform("lightSpecular", lightSpecular);
 		_phongShader.SetUniform("viewPos", Maths::Vec3(0.0, 0.0, 0.0));
 	}
+
+	void Renderer::SetCameraPos(const Maths::Vec3 &pos)
+	{
+		cameraPos = pos;
+		_reflectRefractShader.Bind();
+		_reflectRefractShader.SetUniform("cameraPos", pos);
+		_particleShader.Bind();
+		_particleShader.SetUniform("cameraPos", pos);
+	}
+
 }

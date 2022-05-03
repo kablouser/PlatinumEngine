@@ -11,6 +11,7 @@
 #include <TypeDatabase/TypeDatabase.h>
 
 #include <ComponentComposition/GameObject.h>
+#include <Physics/Physics.h>
 
 namespace PlatinumEngine
 {
@@ -34,7 +35,7 @@ namespace PlatinumEngine
 		// Constructors/destructors
 		//--------------------------------------------------------------------------------------------------------------
 
-		explicit Scene(IDSystem& idSystem);
+		explicit Scene(IDSystem& idSystem, Physics& physics);
 
 		// Delete all these operators. Messes up data.
 
@@ -59,6 +60,11 @@ namespace PlatinumEngine
 
 		// Please call this after this object has just been deserialized
 		void AfterLoad();
+		
+		//--------------------------------------------------------------------------------------------------------------
+		// physics
+		//--------------------------------------------------------------------------------------------------------------
+		Physics& physics;
 
 		//--------------------------------------------------------------------------------------------------------------
 		// _gameObjects controls
@@ -182,7 +188,7 @@ namespace PlatinumEngine
 		/**
 		 * Please call when you want to update all components in the scene.
 		 * Respects hierarchy order and objects that are "enabled in hierarchy".
-		 * @param deltaTime time since last Update call
+		 * @param deltaTime time since last Render call
 		 */
 		void Update(double deltaTime);
 

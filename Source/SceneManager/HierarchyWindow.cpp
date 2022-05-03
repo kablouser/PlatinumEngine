@@ -5,8 +5,8 @@
 // Platinum Engine library
 #include <SceneManager/HierarchyWindow.h>
 #include <Logger/Logger.h>
-#include "ComponentComposition/TransformComponent.h"
-#include "ComponentComposition/RenderComponent.h"
+#include "ComponentComposition/Transform.h"
+#include "ComponentComposition/MeshRender.h"
 
 namespace PlatinumEngine
 {
@@ -67,7 +67,8 @@ namespace PlatinumEngine
 			ImGui::Text("Remove Object");
 			if (ImGui::IsItemClicked())
 			{
-				if (gameObject == _sceneEditor->GetSelectedGameobject())
+				auto selectedObject = _sceneEditor->GetSelectedGameobject();
+				if (gameObject == selectedObject)
 					_sceneEditor->DeleteSelectedGameObject();
 				else
 				{
@@ -165,12 +166,6 @@ namespace PlatinumEngine
 					}
 				}
 			}
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MeshPathPayload"))
-			{
-				char* payloadPointer = (char*)payload->Data;
-				int size = payload->DataSize;
-				std::cout<<"SIZE: "<<size<<std::endl;
-			}
 
 			// End DragDropTarget
 			ImGui::EndDragDropTarget();
@@ -261,8 +256,13 @@ namespace PlatinumEngine
 					{
 						std::string name = payloadPath.stem().string();
 						SavedReference<GameObject> go = scene.AddGameObject(name);
-						scene.AddComponent<TransformComponent>(go);
-						scene.AddComponent<RenderComponent>(go);
+						scene.AddComponent<Transform>(go);
+						scene.AddComponent<MeshRender>(go);
+
+						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
+						if (std::get<0>(asset_Helper))
+							go->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
+						_sceneEditor->SetSelectedGameobject(go);
 					}
 				}
 				// End DragDropTarget
@@ -274,7 +274,7 @@ namespace PlatinumEngine
 	}
 
 	// ---CONSTRUCTOR
-	HierarchyWindow::HierarchyWindow(SceneEditor* sceneEditor):_sceneEditor(sceneEditor),
+	HierarchyWindow::HierarchyWindow(SceneEditor* sceneEditor, AssetHelper* assetHelper):_sceneEditor(sceneEditor),_assetHelper(assetHelper),
 		_modeForDraggingBehavior(_orderMode)
 	{}
 }

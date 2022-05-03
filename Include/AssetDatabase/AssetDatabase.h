@@ -165,6 +165,7 @@ namespace PlatinumEngine
 			}
 		}
 
+
 	private:
 
 		std::string _assetsFolderPath;

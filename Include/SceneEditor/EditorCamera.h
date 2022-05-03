@@ -127,9 +127,15 @@ namespace PlatinumEngine
 
 		/**
 		 * Return the rotation part of the view matrix
-		 * @return
+		 * @return : the rotation part of the view matrix
 		 */
 		Maths::Mat4 GetRotationOnlyViewMatrix();
+
+		/**
+		 * Set camera position by the input position value
+		 * @param newPosition : the position that we want to move to
+		 */
+		void SetCameraPosition(Maths::Vec3 newPosition);
 
 		// ___CONSTRUCTOR___
 		EditorCamera();
@@ -146,10 +152,8 @@ namespace PlatinumEngine
 		Maths::Quaternion _quaternion;
 		Maths::Vec3 _translationValue;
 
-
-
 		// device input data
-		float _translationSpeed = 0.05;
+		float _translationSpeed = 0.1;
 		float _rotationSpeed = 0.002;
 
 	};

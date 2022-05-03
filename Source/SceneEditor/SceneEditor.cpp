@@ -8,21 +8,25 @@
 // Platinum library
 #include "ComponentComposition/Objects.h"
 #include <SceneEditor/SceneEditor.h>
-#include <ComponentComposition/TransformComponent.h>
-#include <ComponentComposition/RenderComponent.h>
+#include <ComponentComposition/Transform.h>
+#include <ComponentComposition/MeshRender.h>
 
 
 namespace PlatinumEngine{
 
 	// ___CONSTRUCTOR___
 
-	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer):
+
+	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer,AssetHelper* assetHelper, Time* time, Physics* physics):
 			_ifCameraSettingWindowOpen(false),
 			_camera(), _fov(60), _near(0.1), _far(10000),
 
 			_inputManager(inputManager),
 			_scene(scene),
 			_renderer(renderer),
+			_time(time),
+			_physics(physics),
+
 			_renderTexture(),
 
 			_mouseMoveDelta(0, 0) ,
@@ -45,9 +49,11 @@ namespace PlatinumEngine{
 			_skyBoxShaderInput(),
 			_transparency(1.0),
 
-			_enableGrid(false),
-			_enableSkyBox(false),
-			_xGrid(false), _yGrid(true), _zGrid(false)
+			_enableGrid(true),
+			_enableSkyBox(true),
+			_xGrid(false), _yGrid(true), _zGrid(false),
+
+			_assetHelper(assetHelper)
 	{
 
 		// Setup skybox texture
@@ -194,7 +200,7 @@ namespace PlatinumEngine{
 				ImGui::EndPopup();
 			}
 
-			if(ImGui::Button(_transparency ? ICON_FA_BORDER_ALL "##enable###gridTransparency" : ICON_FA_BORDER_NONE "##disable###gridTransparency"))
+			if(ImGui::Button(_enableGrid ? ICON_FA_BORDER_ALL "##enable###gridTransparency" : ICON_FA_BORDER_NONE "##disable###gridTransparency"))
 			{
 				_enableGrid = !_enableGrid;
 			}
@@ -281,13 +287,36 @@ namespace PlatinumEngine{
 
 			if(ImGui::BeginChild("##renderingWindow",ImVec2(targetSize.x, targetSize.y), false,ImGuiWindowFlags_NoMove))
 			{
-
 				//------------------
-				// Update Data
+				// Render Data
 				//------------------
-				Update(targetSize, isProjectionUpdated, _currentGizmoMode, _currentGizmoOperation);
+				Render(targetSize, isProjectionUpdated, _currentGizmoMode, _currentGizmoOperation);
 			}
 			ImGui::EndChild();
+			if(ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RegularFilePathPayload"))
+				{
+					char* payloadPointer = (char*)payload->Data;
+					int size = payload->DataSize;
+					std::string filePath = "";
+					for(int i=0;i<size;i++)
+						filePath+=*(payloadPointer+i);
+					std::filesystem::path payloadPath = std::filesystem::path(filePath);
+					if(payloadPath.extension()==".obj")
+					{
+						GameObject* go = _scene->AddGameObject(payloadPath.stem().string());
+						_scene->AddComponent<Transform>(go);
+						_scene->AddComponent<MeshRender>(go);
+						//Now we set the mesh
+						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
+						if (std::get<0>(asset_Helper))
+							go->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
+						_selectedGameobject = go;
+					}
+				}
+				ImGui::EndDragDropTarget();
+			}
 		}
 
 
@@ -297,7 +326,7 @@ namespace PlatinumEngine{
 
 
 
-	void SceneEditor::Update(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
+	void SceneEditor::Render(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
 	{
 
 		//--------------------------------
@@ -311,6 +340,7 @@ namespace PlatinumEngine{
 		// check if mouse is inside the screen
 		//--------------------------------------
 
+		// Check mouse input
 		if (   _inputManager->GetMousePosition().x <= ImGui::GetWindowContentRegionMax().x
 			&& _inputManager->GetMousePosition().x >= ImGui::GetWindowContentRegionMin().x
 			&& _inputManager->GetMousePosition().y <= ImGui::GetWindowContentRegionMax().y
@@ -340,15 +370,34 @@ namespace PlatinumEngine{
 
 		}
 
-		// check if there is any keyboard input
+		// check if there is any keyboard input to move camera position
 		if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
 			_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
-			_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"), _inputManager->GetAxis("HorizontalAxisForEditorCamera"));
+		{
+			// Do translation based on keyboard input
+			_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"),
+					_inputManager->GetAxis("HorizontalAxisForEditorCamera"));
+		}
 
+		// Move camera to look at the selected object
+		if (_inputManager->IsKeyPressed(GLFW_KEY_SPACE))
+		{
+			Transform* transformComponent = _selectedGameobject->GetComponent<Transform>();
+
+			Maths::Vec3 gameObjectPosition = Maths::Vec3(0.f, 0.f, 0.f);
+
+			if(transformComponent != nullptr)
+			{
+				gameObjectPosition = transformComponent->GetLocalToWorldMatrix().MultiplyVec3(gameObjectPosition, 1.f);
+
+			}
+
+			_camera.SetCameraPosition(gameObjectPosition - _camera.GetForwardDirection() * 20);
+		}
 
 
 		//---------------------------
-		// Update projection matrix
+		// Render projection matrix
 		//---------------------------
 
 		// check camera type
@@ -428,6 +477,24 @@ namespace PlatinumEngine{
 				glDepthMask(true);
 			}
 
+			// ------------- Render Game Objects ------------- //
+			// Start rendering (bind a shader)
+			_renderer->Begin();
+
+			// Update rendering information to renderer
+			_renderer->SetModelMatrix();
+
+			// check if the view matrix is passed to shader
+			_renderer->SetViewMatrix(_camera.viewMatrix4);
+			_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
+			_renderer->SetLightProperties();
+
+			// Render game objects
+			_scene->Render(*_renderer);
+
+			// End rendering (unbind a shader)
+			_renderer->End();
+
 			// -------------------- Render GRID ------------------ //
 			if(_enableGrid)
 			{
@@ -459,6 +526,11 @@ namespace PlatinumEngine{
 			// Start rendering (bind a shader)
 			_renderer->Begin();
 
+			// Bind skybox for objects to sample from, use an unused texture
+			glActiveTexture(GL_TEXTURE7);
+			_skyboxTexture.BindCubeMap();
+			glActiveTexture(GL_TEXTURE0);
+
 			// Update rendering information to renderer
 			_renderer->SetModelMatrix();
 
@@ -477,6 +549,7 @@ namespace PlatinumEngine{
 			}
       
 			_renderer->SetLightProperties();
+			_renderer->SetCameraPos(_camera.GetCameraPosition());
 
 			// Render game objects
 			_scene->Render(*_renderer);
@@ -615,6 +688,7 @@ namespace PlatinumEngine{
 			// Make sure there is mesh
 			if(mesh)
 			{
+
 				// loop all the vertices
 				for (int count = 0; count < mesh->indices.size(); count += 3)
 				{
@@ -625,41 +699,41 @@ namespace PlatinumEngine{
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
 					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject.DeRef()->GetComponent<TransformComponent>();
+					if (auto transformComponent = currentCheckingGameobject.DeRef()->GetComponent<Transform>();
 							transformComponent)
 					{
 						Maths::Mat4 modelMatrix = transformComponent.DeRef()->GetLocalToWorldMatrix();
 						Maths::Vec4 temporaryMatrix;
 
-						// get the world coordinate of vertex 0
-						temporaryMatrix = modelMatrix *
-										  Maths::Vec4(mesh->vertices[mesh->indices[count + 0]].position.x,
-												  mesh->vertices[mesh->indices[count + 0]].position.y,
-												  mesh->vertices[mesh->indices[count + 0]].position.z, 1.0f);
-						temporaryMatrix = temporaryMatrix / temporaryMatrix.w;
-						vertex0 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
-
-						// get the world coordinate of vertex 1
-						temporaryMatrix = modelMatrix *
-										  Maths::Vec4(mesh->vertices[mesh->indices[count + 1]].position.x,
-												  mesh->vertices[mesh->indices[count + 1]].position.y,
-												  mesh->vertices[mesh->indices[count + 1]].position.z, 1.0f);
-						temporaryMatrix = temporaryMatrix / temporaryMatrix.w;
-						vertex1 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
-
-						// get the world coordinate of vertex 2
-						temporaryMatrix = modelMatrix *
-										  Maths::Vec4(mesh->vertices[mesh->indices[count + 2]].position.x,
-												  mesh->vertices[mesh->indices[count + 2]].position.y,
-												  mesh->vertices[mesh->indices[count + 2]].position.z, 1.0f);
-						temporaryMatrix = temporaryMatrix / temporaryMatrix.w;
-						vertex2 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
 					}
 					else
 					{
 						vertex0 = mesh->vertices[mesh->indices[count + 0]].position;
 						vertex1 = mesh->vertices[mesh->indices[count + 1]].position;
 						vertex2 = mesh->vertices[mesh->indices[count + 2]].position;
+					}
+
+					// check if the game object has transformation components
+					if (auto transformComponent = currentCheckingGameobject->GetComponent<Transform>();
+							transformComponent != nullptr)
+					{
+						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
+						Maths::Vec4 temporaryVertex;
+
+						// get the world coordinate of vertex 0
+						temporaryVertex = modelMatrix * Maths::Vec4(vertex0.x,vertex0.y,vertex0.z, 1.0f);
+						temporaryVertex = temporaryVertex / temporaryVertex.w;
+						vertex0 = PlatinumEngine::Maths::Vec3(temporaryVertex.x, temporaryVertex.y, temporaryVertex.z);
+
+						// get the world coordinate of vertex 1
+						temporaryVertex = modelMatrix * Maths::Vec4(vertex1.x,vertex1.y,vertex1.z, 1.0f);
+						temporaryVertex = temporaryVertex / temporaryVertex.w;
+						vertex1 = PlatinumEngine::Maths::Vec3(temporaryVertex.x, temporaryVertex.y, temporaryVertex.z);
+
+						// get the world coordinate of vertex 2
+						temporaryVertex = modelMatrix * Maths::Vec4(vertex2.x,vertex2.y,vertex2.z, 1.0f);
+						temporaryVertex = temporaryVertex / temporaryVertex.w;
+						vertex2 = PlatinumEngine::Maths::Vec3(temporaryVertex.x, temporaryVertex.y, temporaryVertex.z);
 					}
 
 					//----------------------------------//
@@ -687,7 +761,7 @@ namespace PlatinumEngine{
 					if (lengthU == 0 || lengthN == 0 || lengthW == 0)
 					{
 						//PLATINUM_ERROR("You are clicking on an object with invalid triangle primitive.");
-						break;
+						continue;
 					}
 
 					// if the length of the three axes are not 0, normalize them
@@ -719,7 +793,7 @@ namespace PlatinumEngine{
 					}
 					else
 					{
-						break;
+						continue;
 					}
 
 					// calculate the cross point by adding vector with the right ratio to the camera position (which is the start point of the Ray)
@@ -890,8 +964,8 @@ namespace PlatinumEngine{
 		//------------------//
 
 		// check if the game object has mesh component
-		if( auto renderComponent = currentCheckingGameobject.DeRef()->GetComponent<RenderComponent>();
-			renderComponent)
+		if( auto renderComponent = currentCheckingGameobject.DeRef()->GetComponent<MeshRender>(); 
+		    renderComponent)
 		{
 			// fetch mesh
 			SavedReference<Mesh>& meshReference = renderComponent.DeRef()->GetMesh();
@@ -913,7 +987,7 @@ namespace PlatinumEngine{
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
 					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject.DeRef()->GetComponent<TransformComponent>();
+					if (auto transformComponent = currentCheckingGameobject.DeRef()->GetComponent<Transform>();
 							transformComponent)
 					{
 						Maths::Mat4 modelMatrix = transformComponent.DeRef()->GetLocalToWorldMatrix();
@@ -1041,9 +1115,9 @@ namespace PlatinumEngine{
 		if(onGizmo)
 		{
 			if (_selectedGameobject &&
-				_selectedGameobject.DeRef()->GetComponent<TransformComponent>())
+				_selectedGameobject.DeRef()->GetComponent<Transform>())
 			{
-				auto transform = _selectedGameobject.DeRef()->GetComponent<TransformComponent>();
+				auto transform = _selectedGameobject.DeRef()->GetComponent<Transform>();
 				Maths::Mat4 transform_matrix = transform.DeRef()->GetLocalToWorldMatrix();
 
 				ImGuizmo::Manipulate(
@@ -1060,6 +1134,10 @@ namespace PlatinumEngine{
 
 	}
 
+
+	///--------------------------------------------
+	/// SkyBox
+	///--------------------------------------------
 	void SceneEditor::CreateSkyBoxShaderInput()
 	{
 

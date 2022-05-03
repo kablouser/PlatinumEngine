@@ -144,6 +144,8 @@ namespace PlatinumEngine
 
 			Vec4 operator*(Vec4 homogeneousVector);
 
+			Vec3 MultiplyVec3(Vec3 homogeneousVector, float w);
+
 			Mat4 operator+(Mat4 otherMatrix);
 
 			Mat4 operator-(Mat4 otherMatrix);

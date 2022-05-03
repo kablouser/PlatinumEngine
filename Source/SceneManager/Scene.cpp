@@ -37,7 +37,7 @@ namespace PlatinumEngine
 	// Constructors/destructors
 	//--------------------------------------------------------------------------------------------------------------
 
-	Scene::Scene(IDSystem& inIDSystem) : _isStarted(false), idSystem(inIDSystem)
+	Scene::Scene(IDSystem& inIDSystem, Physics& physicsRef) : _isStarted(false), idSystem(inIDSystem), physics(physicsRef)
 	{
 	}
 
@@ -168,17 +168,15 @@ namespace PlatinumEngine
 			BroadcastOnDisable(gameObject);
 			BroadcastOnEnd(gameObject);
 		}
-
 		// you only need to clean up the top-most parent. Because everything underneath is deleted anyway.
 		SavedReference<GameObject>& parent = gameObject.DeRef()->GetParent();
 		if (parent)
 			parent.DeRef()->RemoveChild(gameObject);
 		else
-			RemoveRootGameObject(gameObject);
-
-		// this must be after, it removes from the idSystem which makes every weak_ptr to it null
+		{
+			parent->RemoveChild(&gameObject);
+		}
 		RemoveGameObjectRecurse(gameObject);
-
 		// removal changes pointers in the id system
 		OnIDSystemUpdate();
 	}
@@ -522,4 +520,5 @@ namespace PlatinumEngine
 		if (!VectorHelpers::RemoveFirst(_rootGameObjects, rootGameObject))
 			PLATINUM_ERROR("Hierarchy is invalid: _rootGameObjects is missing an element");
 	}
+
 }
