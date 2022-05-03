@@ -371,7 +371,7 @@ namespace PlatinumEngine{
 		}
 
 		// don't check buttons, it's cheap to translate
-		if (_inputManager.Get)
+		if (_inputManager)
 		{
 			// Do translation based on keyboard input
 			_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"),
