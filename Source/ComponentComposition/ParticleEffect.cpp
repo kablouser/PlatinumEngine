@@ -21,9 +21,9 @@ namespace PlatinumEngine
 	void ParticleEffect::OnRender(Scene& scene, Renderer& renderer)
 	{
 		// Render all particles
-		Transform* transform = GetComponent<Transform>();
+		SavedReference<Transform> transform = GetComponent<Transform>();
 		if (transform)
-			renderer.SetModelMatrix(transform->GetLocalToWorldMatrix());
+			renderer.SetModelMatrix(transform.DeRef()->GetLocalToWorldMatrix());
 		else
 			renderer.SetModelMatrix();
 

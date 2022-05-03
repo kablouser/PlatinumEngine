@@ -1,96 +1,74 @@
 //
 // Created by Jinyuan and Shawn on 26/03/2022.
 //
-#include "ComponentComposition/MeshRender.h"
+#include <ComponentComposition/MeshRender.h>
 #include <Renderer/Renderer.h>
 #include <ComponentComposition/Transform.h>
-#include <ComponentComposition/AnimationComponent.h>
+#include <SceneManager/Scene.h>
+
 namespace PlatinumEngine
 {
+	void MeshRender::CreateTypeInfo(TypeDatabase& database)
+	{
+		/*
+		Material material;
+		SavedReference<Mesh> _mesh;
+		ShaderInput _shaderInput;
+		 */
+		database.BeginTypeInfo<MeshRender>()
+				.WithInherit<Component>()
+		        .WithField<Material>("material", PLATINUM_OFFSETOF(MeshRender, material))
+				.WithField<SavedReference<Mesh>>("_mesh", PLATINUM_OFFSETOF(MeshRender, _mesh));
+	}
+
 	MeshRender::MeshRender()
 	{
-		SetMesh(nullptr);
-		SetMaterial(nullptr);
 	}
 
 	void MeshRender::OnRender(Scene& scene, Renderer& renderer)
 	{
+		if (!_mesh)
+			return;
 
-		Transform* transform = GetComponent<Transform>();
-
+		SavedReference<Transform> transform = GetComponent<Transform>();
 		if (transform)
-			renderer.SetModelMatrix(transform->GetLocalToWorldMatrix());
+			renderer.SetModelMatrix(transform.DeRef()->GetLocalToWorldMatrix());
 		else
 			renderer.SetModelMatrix();
 
-
-		// set animation matrix
-		AnimationComponent* animation = GetComponent<AnimationComponent>();
-
-		if(animation!= nullptr && _mesh!= nullptr)
-		{
-
-			// send flag to uniform
-			renderer.SetAnimationStatus(animation->isAnimationDisplay);
-
-			// get animation list from animation component
-			std::vector<Animation*> animationList = animation->GetAnimation();
-
-			// calculate the transform matrices for a post at a specific animation time
-			if (!animationList.empty())
-			{
-				animationList[animation->selectedAnimationIndex]->UpdateWorldTransformMatrix(_mesh->skeleton, _mesh->bones);
-				animationList[animation->selectedAnimationIndex]->PlayAnimationTimer();
-
-				// pass transform matrices to
-				for (unsigned int i = 0; i < animationList[animation->selectedAnimationIndex]->worldTransform.size(); ++i)
-				{
-					renderer.SetAnimationTransform(i, animationList[animation->selectedAnimationIndex]->worldTransform[i]);
-				}
-			}
-		}
-
-		// load texture
 		renderer.LoadMaterial(material);
 		_shaderInput.Draw();
 	}
 
-	void MeshRender::SetMaterial(Texture* texture)
+	void MeshRender::OnIDSystemUpdate(Scene& scene)
 	{
-		material.diffuseTexture = texture;
+		_mesh.OnIDSystemUpdate(scene.idSystem);
+		material.OnIDSystemUpdate(scene.idSystem);
+		_shaderInput.Clear();
+		if (_mesh)
+			_shaderInput.Set(_mesh.DeRef()->vertices, _mesh.DeRef()->indices);
 	}
 
-	void MeshRender::SetNormalMap(Texture* texture)
+	void MeshRender::SetMesh(SavedReference<Mesh> mesh)
 	{
-		material.normalTexture = texture;
+		_mesh = std::move(mesh);
+		_shaderInput.Clear();
+		if (_mesh)
+			_shaderInput.Set(_mesh.DeRef()->vertices, _mesh.DeRef()->indices);
 	}
 
-	void MeshRender::SetMesh(Mesh* mesh)
+	void MeshRender::SetMaterial(SavedReference<Texture> texture)
 	{
-		_mesh = mesh;
-		if(mesh != nullptr)
-		{
-			if(_mesh->isAnimationExist)
-			{
-				_shaderInput.Clear();
-				_shaderInput.Set(_mesh->animationVertices, _mesh->indices);
-			}
-			else
-			{
-				_shaderInput.Clear();
-				_shaderInput.Set(mesh->vertices, mesh->indices);
-			}
-		}
-		else
-		{
-			_shaderInput.Clear();
-		}
+		material.diffuseTexture = std::move(texture);
 	}
 
+	void MeshRender::SetNormalMap(SavedReference<Texture> texture)
+	{
+		material.normalTexture = std::move(texture);
+	}
 
-	Mesh* MeshRender::GetMesh()
+	SavedReference<Mesh>& MeshRender::GetMesh()
 	{
 		return _mesh;
 	}
-
 }

@@ -173,9 +173,8 @@ namespace PlatinumEngine
 		if (parent)
 			parent.DeRef()->RemoveChild(gameObject);
 		else
-		{
-			parent->RemoveChild(&gameObject);
-		}
+			RemoveRootGameObject(gameObject);
+
 		RemoveGameObjectRecurse(gameObject);
 		// removal changes pointers in the id system
 		OnIDSystemUpdate();

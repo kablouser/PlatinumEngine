@@ -4,7 +4,6 @@
 
 #include "Loaders/MeshLoader.h"
 
-
 namespace PlatinumEngine
 {
 	namespace Loaders
@@ -65,7 +64,7 @@ namespace PlatinumEngine
 			if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 			{
 				PLATINUM_ERROR(import.GetErrorString());
-				return {false, {}};
+				return {false, Mesh()};
 			}
 
 			// Loop all meshes and add data
@@ -76,9 +75,6 @@ namespace PlatinumEngine
 
 			if(scene->mNumAnimations > 0)
 			{
-				// if number of animations is bigger than 0, mark animation as "existed"
-				returnMesh.isAnimationExist = true;
-
 				//------------------------------
 				// SKELETON (Based on nothing)
 				//------------------------------
@@ -120,10 +116,6 @@ namespace PlatinumEngine
 			}
 			else
 			{
-
-				// if number of animations is bigger than 0, mark animation as "existed"
-				returnMesh.isAnimationExist = false;
-
 				// load all vertices in all meshes
 				for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 				{

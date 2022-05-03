@@ -17,8 +17,6 @@ namespace PlatinumEngine
 		// update Animation from mesh loader
 		void AddAnimation(Animation* animation);
 
-
-
 		// return mesh
 		std::vector<Animation*>& GetAnimation();
 

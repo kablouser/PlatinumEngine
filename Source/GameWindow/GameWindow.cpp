@@ -110,7 +110,7 @@ namespace PlatinumEngine
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 				Maths::Mat4 scaleMatrix;
-				switch (camera->clearMode)
+				switch (camera.DeRef()->clearMode)
 				{
 				case Camera::ClearMode::skybox:
 					// ---------------- Render SKY BOX ---------------- //
@@ -120,10 +120,10 @@ namespace PlatinumEngine
 					_renderer->BeginSkyBoxShader();
 					// matrix for rescaling the skybox based on the near panel distance
 					scaleMatrix.SetScaleMatrix(
-							Maths::Vec3(((float)camera->nearClippingPlane * 2.f), ((float)camera->nearClippingPlane * 2.f), ((float)camera->nearClippingPlane * 2.f)));
+							Maths::Vec3(((float)camera.DeRef()->nearClippingPlane * 2.f), ((float)camera.DeRef()->nearClippingPlane * 2.f), ((float)camera.DeRef()->nearClippingPlane * 2.f)));
 					// set matrix uniform
-					_renderer->SetViewMatrixSkyBox(camera->GetViewMatrixRotationOnly()* scaleMatrix);
-					_renderer->SetProjectionMatrixSkyBox(camera->GetProjectionMatrix(Maths::Vec2((float)_framebufferWidth,(float)_framebufferHeight)));
+					_renderer->SetViewMatrixSkyBox(camera.DeRef()->GetViewMatrixRotationOnly()* scaleMatrix);
+					_renderer->SetProjectionMatrixSkyBox(camera.DeRef()->GetProjectionMatrix(Maths::Vec2((float)_framebufferWidth,(float)_framebufferHeight)));
 					_skyboxTexture.BindCubeMap();
 					_skyBoxShaderInput.Draw();
 					_renderer->EndSkyBoxShader();
@@ -135,18 +135,18 @@ namespace PlatinumEngine
 					break;
 				case Camera::ClearMode::backgroundColor:
 					glClearColor(
-							camera->backgroundColor.r,
-							camera->backgroundColor.g,
-							camera->backgroundColor.b,
-							camera->backgroundColor.a);
+							camera.DeRef()->backgroundColor.r,
+							camera.DeRef()->backgroundColor.g,
+							camera.DeRef()->backgroundColor.b,
+							camera.DeRef()->backgroundColor.a);
 					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 					break;
 				case Camera::ClearMode::none:
 					break;
 				}
 
-				_renderer->SetViewMatrix(camera->GetViewMatrix());
-				_renderer->SetProjectionMatrix(camera->GetProjectionMatrix(
+				_renderer->SetViewMatrix(camera.DeRef()->GetViewMatrix());
+				_renderer->SetProjectionMatrix(camera.DeRef()->GetProjectionMatrix(
 						{(float)_framebufferWidth, (float)_framebufferHeight}));
 			}
 			else

@@ -57,6 +57,18 @@ namespace PlatinumEngine
 			return { isAssetSelected, assetReference };
 		}
 
+		template<typename T>
+		std::tuple<bool, SavedReference<T>> GetAsset(std::string filePath)
+		{
+			auto [success, asset] =
+					_assetDatabase->GetAsset(filePath);
+
+			if (success)
+				return {true ,_idSystem.GetSavedReference<T>(asset->id)};
+			else
+				return {false, {}};
+		}
+
 	private:
 		AssetDatabase* _assetDatabase;
 		IDSystem& _idSystem;

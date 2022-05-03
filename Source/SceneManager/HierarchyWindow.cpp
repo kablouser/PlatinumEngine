@@ -259,9 +259,9 @@ namespace PlatinumEngine
 						scene.AddComponent<Transform>(go);
 						scene.AddComponent<MeshRender>(go);
 
-						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
+						auto asset_Helper = _assetHelper->GetAsset<Mesh>(payloadPath.string());
 						if (std::get<0>(asset_Helper))
-							go->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
+							go.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(std::get<1>(asset_Helper));
 						_sceneEditor->SetSelectedGameobject(go);
 					}
 				}

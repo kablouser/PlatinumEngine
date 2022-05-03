@@ -31,10 +31,10 @@ namespace PlatinumEngine
 		return *this;
 	}
 
-	void Texture::Create(GLsizei width, GLsizei height)
+	void Texture::Create(GLsizei inWidth, GLsizei inHeight)
 	{
-		width = _width;
-		height = _height;
+		inWidth = width;
+		inHeight = height;
 		if(_textureHandle == 0)
 			GL_CHECK(glGenTextures(1, &_textureHandle));
 

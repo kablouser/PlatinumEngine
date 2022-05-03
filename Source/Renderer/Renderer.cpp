@@ -198,7 +198,7 @@ namespace PlatinumEngine
 		_particleShader.Unbind();
 	}
 
-	void Renderer::SetTextureParticleShader(Texture* texture, bool useTexture, int numCols, int numRows)
+	void Renderer::SetTextureParticleShader(SavedReference<Texture> texture, bool useTexture, int numCols, int numRows)
 	{
 		_particleShader.Bind();
 		_particleShader.SetUniform("useTexture", useTexture);
@@ -207,13 +207,13 @@ namespace PlatinumEngine
 		if (texture)
 		{
 			glActiveTexture(GL_TEXTURE0);
-			texture->Bind();
+			texture.DeRef()->Bind();
 
-			_particleShader.SetUniform("textureWidth", texture->width);
-			_particleShader.SetUniform("textureHeight", texture->height);
-			_particleShader.SetUniform("spriteWidth", texture->width / (float) numCols);
-			_particleShader.SetUniform("spriteHeight", texture->height / (float) numRows);
-			_particleShader.SetUniform("textureRatio", texture->height / texture->width);
+			_particleShader.SetUniform("textureWidth", texture.DeRef()->width);
+			_particleShader.SetUniform("textureHeight", texture.DeRef()->height);
+			_particleShader.SetUniform("spriteWidth", texture.DeRef()->width / (float) numCols);
+			_particleShader.SetUniform("spriteHeight", texture.DeRef()->height / (float) numRows);
+			_particleShader.SetUniform("textureRatio", texture.DeRef()->height / texture.DeRef()->width);
 		}
 		else
 		{
@@ -256,11 +256,6 @@ namespace PlatinumEngine
 	{
 		_particleShader.Bind();
 		_particleShader.SetUniform(name, val);
-	}
-
-	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
-	{
-		_framebuffer = *framebuffer;
 	}
 
 	void Renderer::ResizeFrameBuffer(Framebuffer &framebuffer, ImVec2 targetSize)

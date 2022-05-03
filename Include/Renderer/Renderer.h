@@ -88,7 +88,7 @@ namespace PlatinumEngine
 		// Particle shader uniforms
 		void BeginParticleShader();
 		void EndParticleShader();
-		void SetTextureParticleShader(Texture* texture, bool useTexture, int numCols, int numRows);
+		void SetTextureParticleShader(SavedReference<Texture> texture, bool useTexture, int numCols, int numRows);
 		void SetShadeByParticleShader(const std::string &shadeBy);
 		void SetVec4ParticleShader(const char* name, Maths::Vec4 vec);
 		void SetFloatParticleShader(const char* name, float val);

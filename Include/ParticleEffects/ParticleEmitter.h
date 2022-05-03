@@ -9,6 +9,7 @@
 #include <ParticleEffects/Particle.h>
 #include <OpenGL/Texture.h>
 #include <memory>
+#include <IDSystem/IDSystem.h>
 
 namespace PlatinumEngine
 {
@@ -47,7 +48,7 @@ namespace PlatinumEngine
 			float minMaxVelocityZ[2] = {-1.0f, 1.0f};
 
 			// Info needed to calc texture coords appropriately
-			Texture *texture = nullptr;
+			SavedReference<Texture> texture;
 			int numRowsInTexture = 1;
 			int numColsInTexture = 1;
 

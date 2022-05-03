@@ -2,8 +2,13 @@
 #include <IDSystem/IDSystem.h>
 #include <SceneManager/Scene.h>
 #include <ComponentComposition/GameObject.h>
-#include <ComponentComposition/RenderComponent.h>
-#include <ComponentComposition/CameraComponent.h>
+#include <ComponentComposition/MeshRender.h>
+#include <ComponentComposition/Camera.h>
+#include <ComponentComposition/AnimationComponent.h>
+#include <ComponentComposition/BoxCollider.h>
+#include <ComponentComposition/SphereCollider.h>
+#include <ComponentComposition/CapsuleCollider.h>
+#include <ComponentComposition/RigidBody.h>
 
 namespace PlatinumEngine
 {
@@ -23,9 +28,14 @@ namespace PlatinumEngine
 		Scene::CreateTypeInfo(*this);
 		GameObject::CreateTypeInfo(*this);
 		Component::CreateTypeInfo(*this);
-		RenderComponent::CreateTypeInfo(*this);
-		CameraComponent::CreateTypeInfo(*this);
-		TransformComponent::CreateTypeInfo(*this);
+		MeshRender::CreateTypeInfo(*this);
+		Camera::CreateTypeInfo(*this);
+		Transform::CreateTypeInfo(*this);
+		AnimationComponent::CreateTypeInfo(*this);
+		RigidBody::CreateTypeInfo(*this);
+		BoxCollider::CreateTypeInfo(*this);
+		SphereCollider::CreateTypeInfo(*this);
+		CapsuleCollider::CreateTypeInfo(*this);
 
 		//------------------------------------------------------------------------------------------------------------------
 		// Purely public objects

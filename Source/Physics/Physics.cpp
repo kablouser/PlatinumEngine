@@ -56,7 +56,7 @@ namespace PlatinumEngine
 		return _gravity;
 	}
 
-	std::vector<GameObject*> Physics::GetPhysicalObject()
+	std::vector<SavedReference<GameObject>> Physics::GetPhysicalObject()
 	{
 		return _physicsObjects;
 	}
@@ -70,14 +70,14 @@ namespace PlatinumEngine
 		for (auto & _physicsObject : _physicsObjects)
 		{
 			//The actual position is a combination of the rigidBody position and the transform position
-			_physicsObject->GetComponent<Transform>()->localPosition = _physicsObject->GetComponent<RigidBody>()->GetBulletPosition();
-			_physicsObject->GetComponent<Transform>()->localRotation = _physicsObject->GetComponent<RigidBody>()->GetBulletRotation();
+			_physicsObject.DeRef()->GetComponent<Transform>().DeRef()->localPosition = _physicsObject.DeRef()->GetComponent<RigidBody>().DeRef()->GetBulletPosition();
+			_physicsObject.DeRef()->GetComponent<Transform>().DeRef()->localRotation = _physicsObject.DeRef()->GetComponent<RigidBody>().DeRef()->GetBulletRotation();
 		}
 	}
 
-	void Physics::AddRigidBody(GameObject* gameObject)
+	void Physics::AddRigidBody(SavedReference<GameObject> gameObject)
 	{
-		if(gameObject->GetComponent<RigidBody>() != nullptr)
+		if(gameObject.DeRef()->GetComponent<RigidBody>().DeRef() != nullptr)
 		{
 			_physicsObjects.emplace_back(gameObject);
 		}

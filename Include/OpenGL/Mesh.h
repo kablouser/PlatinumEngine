@@ -32,7 +32,6 @@ namespace PlatinumEngine {
 		std::vector<AnimationVertex> animationVertices;
 		ozz::animation::offline::RawSkeleton rawSkeleton;
 		ozz::unique_ptr<ozz::animation::Skeleton> skeleton;
-		bool isAnimationExist = false;
 		// Storing connection between vertices and bones/nodes
 		std::vector<Bone> bones;
 		// Mapping bones' name and id
@@ -41,5 +40,11 @@ namespace PlatinumEngine {
 		Mesh();
 		Mesh(std::vector<Vertex> newVertices, std::vector<unsigned int> newIndices);
 		~Mesh();
+
+		Mesh(Mesh&&) noexcept = default;
+		Mesh& operator=(Mesh&&) noexcept = default;
+
+		Mesh(const Mesh&) = delete;
+		Mesh& operator=(const Mesh&) = delete;
 	};
 }

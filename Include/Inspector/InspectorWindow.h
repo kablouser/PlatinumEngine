@@ -22,8 +22,6 @@
 
 #include <ParticleEffects/ParticleEmitter.h>
 
-
-#include <SceneManager/SceneManager.h>
 #include <OpenGL/Mesh.h>
 #include <SceneEditor/SceneEditor.h>
 #include <AssetDatabase/AssetHelper.h>

@@ -127,13 +127,13 @@ namespace PlatinumEngine
 				{
 					_start = true;
 					_gameWindow->isPaused = false;
-					_scene->Start();
+					_scene.Start();
 				}
 				else if(_start)
 				{
 					_start = false;
 					_gameWindow->isPaused = true;
-					_scene->End();
+					_scene.End();
 				}
 
 				enablePauseButton = !enablePauseButton;

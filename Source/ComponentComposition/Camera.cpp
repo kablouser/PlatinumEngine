@@ -119,11 +119,11 @@ namespace PlatinumEngine
 	Maths::Mat4 Camera::GetViewMatrixRotationOnly()
 	{
 		Maths::Mat4 worldToCameraMatrix;
-		Transform* tc = GetGameObject()->GetComponent<Transform>();
-		if (tc != nullptr)
+		SavedReference<Transform> tc = GetGameObject().DeRef()->GetComponent<Transform>();
+		if (tc.DeRef() != nullptr)
 		{
 			Maths::Mat4 invR, invT;
-			invR = Maths::Quaternion::QuaternionToMatrix(Maths::Quaternion::Inverse(tc->localRotation));
+			invR = Maths::Quaternion::QuaternionToMatrix(Maths::Quaternion::Inverse(tc.DeRef()->localRotation));
 			worldToCameraMatrix = invR;
 		}
 		else

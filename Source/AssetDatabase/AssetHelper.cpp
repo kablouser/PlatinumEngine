@@ -3,12 +3,9 @@
 
 namespace PlatinumEngine
 {
-	AssetHelper::AssetHelper(AssetDatabase* assetDatabase, IDSystem& idSystem):
+	AssetHelper::AssetHelper(AssetDatabase* assetDatabase, IDSystem& idSystem) :
 			_assetDatabase(assetDatabase),
 			_idSystem(idSystem)
 	{
-		
 	}
-
-	
 }

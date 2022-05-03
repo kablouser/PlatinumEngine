@@ -305,13 +305,13 @@ namespace PlatinumEngine{
 					std::filesystem::path payloadPath = std::filesystem::path(filePath);
 					if(payloadPath.extension()==".obj")
 					{
-						GameObject* go = _scene->AddGameObject(payloadPath.stem().string());
+						SavedReference<GameObject> go = _scene->AddGameObject(payloadPath.stem().string());
 						_scene->AddComponent<Transform>(go);
 						_scene->AddComponent<MeshRender>(go);
 						//Now we set the mesh
-						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
+						auto asset_Helper = _assetHelper->GetAsset<Mesh>(payloadPath.string());
 						if (std::get<0>(asset_Helper))
-							go->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
+							go.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(std::get<1>(asset_Helper));
 						_selectedGameobject = go;
 					}
 				}
@@ -382,13 +382,13 @@ namespace PlatinumEngine{
 		// Move camera to look at the selected object
 		if (_inputManager->IsKeyPressed(GLFW_KEY_SPACE))
 		{
-			Transform* transformComponent = _selectedGameobject->GetComponent<Transform>();
+			SavedReference<Transform> transformComponent = _selectedGameobject.DeRef()->GetComponent<Transform>();
 
 			Maths::Vec3 gameObjectPosition = Maths::Vec3(0.f, 0.f, 0.f);
 
-			if(transformComponent != nullptr)
+			if(transformComponent.DeRef() != nullptr)
 			{
-				gameObjectPosition = transformComponent->GetLocalToWorldMatrix().MultiplyVec3(gameObjectPosition, 1.f);
+				gameObjectPosition = transformComponent.DeRef()->GetLocalToWorldMatrix().MultiplyVec3(gameObjectPosition, 1.f);
 
 			}
 
@@ -676,7 +676,7 @@ namespace PlatinumEngine{
 		//------------------//
 
 		// check if the game object has mesh component
-		if( auto renderComponent = currentCheckingGameobject.DeRef()->GetComponent<RenderComponent>();
+		if( auto renderComponent = currentCheckingGameobject.DeRef()->GetComponent<MeshRender>();
 			renderComponent)
 		{
 			// fetch mesh
@@ -714,10 +714,10 @@ namespace PlatinumEngine{
 					}
 
 					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject->GetComponent<Transform>();
-							transformComponent != nullptr)
+					if (auto transformComponent = currentCheckingGameobject.DeRef()->GetComponent<Transform>();
+							transformComponent)
 					{
-						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
+						Maths::Mat4 modelMatrix = transformComponent.DeRef()->GetLocalToWorldMatrix();
 						Maths::Vec4 temporaryVertex;
 
 						// get the world coordinate of vertex 0

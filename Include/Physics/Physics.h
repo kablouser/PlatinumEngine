@@ -52,7 +52,7 @@ namespace PlatinumEngine
 		void SetGravity(float gravity);
 
 		float GetGravity();
-		std::vector<GameObject*> GetPhysicalObject();
+		std::vector<SavedReference<GameObject>> GetPhysicalObject();
 
 		//helper function helps to convert vectors, quaternions and scalars from bullet to us or us to bullet
 		static btQuaternion ConvertEulerToQuaternion(const btVector3& vector);
@@ -63,7 +63,7 @@ namespace PlatinumEngine
 
 
 		//Add rigidbody enabled gameobject to the list of updated objects
-		void AddRigidBody(GameObject* gameObject);
+		void AddRigidBody(SavedReference<GameObject> gameObject);
 		void AddBulletBody(btRigidBody* rigidBody);
 		void RemoveBulletBody(btRigidBody* rigidBody);
 
@@ -79,8 +79,7 @@ namespace PlatinumEngine
 		btSequentialImpulseConstraintSolver* _solver;
 		btDiscreteDynamicsWorld* _bulletWorld;
 
-		//Holds a list of gameobject pointer that need to be updated
-		std::vector<GameObject*> _physicsObjects;
+		std::vector<SavedReference<GameObject>> _physicsObjects;
 
 		//Holds the current gravity value
 		float _gravity;

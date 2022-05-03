@@ -42,18 +42,18 @@ namespace PlatinumEngine
 			auto objectTransform = GetComponent<Transform>();
 
 			_motionState = new btDefaultMotionState(
-					btTransform(Physics::ConvertQuaternion(objectTransform->localRotation),
-							Physics::ConvertVector(objectTransform->localPosition)));
+					btTransform(Physics::ConvertQuaternion(objectTransform.DeRef()->localRotation),
+							Physics::ConvertVector(objectTransform.DeRef()->localPosition)));
 		}
 		//Set the btRigidBody based on its collider type
 		{
 			auto temp = Physics::ConvertVector(_inertia);
 
-			if (GetComponent<BoxCollider>() != nullptr)
+			if (GetComponent<BoxCollider>().DeRef() != nullptr)
 			{
-				GetComponent<BoxCollider>()->GetShape()->calculateLocalInertia(mass, temp);
+				GetComponent<BoxCollider>().DeRef()->GetShape()->calculateLocalInertia(mass, temp);
 				btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, _motionState,
-						GetComponent<BoxCollider>()->GetShape(), temp);
+						GetComponent<BoxCollider>().DeRef()->GetShape(), temp);
 				constructionInfo.m_restitution = material.bounciness;
 				constructionInfo.m_friction = material.friction;
 				constructionInfo.m_linearDamping = material.damping;
@@ -61,22 +61,22 @@ namespace PlatinumEngine
 				_rigidBody = new btRigidBody(constructionInfo);
 
 			}
-			else if (GetComponent<SphereCollider>() != nullptr)
+			else if (GetComponent<SphereCollider>().DeRef() != nullptr)
 			{
-				GetComponent<SphereCollider>()->GetShape()->calculateLocalInertia(mass, temp);
+				GetComponent<SphereCollider>().DeRef()->GetShape()->calculateLocalInertia(mass, temp);
 				btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, _motionState,
-						GetComponent<SphereCollider>()->GetShape(), temp);
+						GetComponent<SphereCollider>().DeRef()->GetShape(), temp);
 				constructionInfo.m_restitution = material.bounciness;
 				constructionInfo.m_friction = material.friction;
 				constructionInfo.m_linearDamping = material.damping;
 				constructionInfo.m_angularDamping = material.angularDamping;
 				_rigidBody = new btRigidBody(constructionInfo);
 			}
-			else if (GetComponent<CapsuleCollider>() != nullptr)
+			else if (GetComponent<CapsuleCollider>().DeRef() != nullptr)
 			{
-				GetComponent<CapsuleCollider>()->GetShape()->calculateLocalInertia(mass, temp);
+				GetComponent<CapsuleCollider>().DeRef()->GetShape()->calculateLocalInertia(mass, temp);
 				btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, _motionState,
-						GetComponent<CapsuleCollider>()->GetShape(), temp);
+						GetComponent<CapsuleCollider>().DeRef()->GetShape(), temp);
 				constructionInfo.m_restitution = material.bounciness;
 				constructionInfo.m_friction = material.friction;
 				constructionInfo.m_linearDamping = material.damping;
@@ -100,8 +100,8 @@ namespace PlatinumEngine
 	{
 		auto transform = GetComponent<Transform>();
 		btTransform worldTransform;
-		worldTransform.setOrigin(Physics::ConvertVector(transform->localPosition));
-		worldTransform.setRotation(Physics::ConvertQuaternion(transform->localRotation));
+		worldTransform.setOrigin(Physics::ConvertVector(transform.DeRef()->localPosition));
+		worldTransform.setRotation(Physics::ConvertQuaternion(transform.DeRef()->localRotation));
 
 		_rigidBody->setWorldTransform(worldTransform);
 		_rigidBody->getMotionState()->setWorldTransform(worldTransform);
