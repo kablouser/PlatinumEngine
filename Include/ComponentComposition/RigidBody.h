@@ -23,9 +23,6 @@ namespace PlatinumEngine
 		Maths::Quaternion GetBulletRotation(); // Get the Bullet RigidBody Rotation Vector
 		Maths::Vec3 GetBulletPosition(); // Get the Bullet RigidBody Translation Vector
 
-		void SetBulletRotation(Maths::Quaternion rotation);
-		void SetBulletPosition(Maths::Vec3 position);
-
 	public:
 		bool  kinematic; //kinematic
 		float mass; // mass

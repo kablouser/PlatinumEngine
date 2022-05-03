@@ -54,11 +54,6 @@ namespace PlatinumEngine
 		Update(_time->GetDelta());
 	}
 
-	void GameWindow::Pause()
-	{
-		isPaused = true;
-	}
-
 	void GameWindow::Play()
 	{
 		isPaused = false;
