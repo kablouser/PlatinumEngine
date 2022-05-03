@@ -95,6 +95,8 @@ namespace PlatinumEngine
 		void SetShadeByParticleShader(const std::string &shadeBy);
 		void SetVec4ParticleShader(const char* name, Maths::Vec4 vec);
 		void SetFloatParticleShader(const char* name, float val);
+		void SetBoolParticleShader(const char* name, bool val);
+		void SetScaleFactors(const char * name, float scaleFactors[3]);
 
 		/**
 		 * resize framebuffer, it's an interface for SceneEditor

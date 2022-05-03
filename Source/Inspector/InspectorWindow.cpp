@@ -689,29 +689,29 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 		if (ImGui::CollapsingHeader("Emitter Settings"))
 		{
 			ImGui::Text("Maximum Particles: ");
-			ImGui::SameLine(_textWidthParticleEffectComponent);
-			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+//			ImGui::SameLine(_textWidthParticleEffectComponent);
+//			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
 			ImGui::SliderInt("##MaximumNumberOfParticles",&(component->particleEmitter->numberOfParticles),0.f, 5000, "%d", ImGuiSliderFlags_None);
-			ImGui::PopItemWidth();
+//			ImGui::PopItemWidth();
 
 			ImGui::Text("Particle Lifetime: ");
-			ImGui::SameLine(_textWidthParticleEffectComponent);
-			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+//			ImGui::SameLine(_textWidthParticleEffectComponent);
+//			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
 
 			ImGui::SliderFloat("##RespawnLifetime: ", &(component->particleEmitter->respawnLifetime), 0.f, 10, "%.3f", ImGuiSliderFlags_None);
-			ImGui::PopItemWidth();
+//			ImGui::PopItemWidth();
 
 			ImGui::Text("New Particles: ");
-			ImGui::SameLine(_textWidthParticleEffectComponent);
-			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+//			ImGui::SameLine(_textWidthParticleEffectComponent);
+//			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
 			ImGui::SliderInt("##NumberOfNewParticles",&(component->particleEmitter->numberOfNewParticles),0.f, 100, "%d", ImGuiSliderFlags_None);
-			ImGui::PopItemWidth();
+//			ImGui::PopItemWidth();
 
 			ImGui::Text("Spawn Interval: ");
-			ImGui::SameLine(_textWidthParticleEffectComponent);
-			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
+//			ImGui::SameLine(_textWidthParticleEffectComponent);
+//			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
 			ImGui::SliderFloat("##SpawnIntervalParticles", &(component->particleEmitter->spawnInterval),0.016f, 5, "%.3f", ImGuiSliderFlags_None);
-			ImGui::PopItemWidth();
+//			ImGui::PopItemWidth();
 
 			// TODO: Don't say acting force, Maybe have acceleration and calculate it properly in emitter?
 			ImGui::Text("Acting Force: ");
@@ -731,7 +731,54 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 			ImGui::Text("Z");
 			ImGui::SameLine();
 			ImGui::InputFloat("##ActingForceZ", &(component->particleEmitter->actingForce[2]));
+
 		}
+
+		if (ImGui::CollapsingHeader("Particle Settings"))
+		{
+			ImGui::Text("Scale");
+			ImGui::PushItemWidth(50);
+			ImGui::Text("X");
+			ImGui::SameLine();
+			ImGui::InputFloat("##ScaleParticleX", &(component->particleEmitter->scaleFactors[0]));
+			ImGui::SameLine();
+
+			ImGui::Text("Y");
+			ImGui::SameLine();
+			ImGui::InputFloat("##ScaleParticleY", &(component->particleEmitter->scaleFactors[1]));
+			ImGui::SameLine();
+
+			ImGui::Text("Z");
+			ImGui::SameLine();
+			ImGui::InputFloat("##ScaleParticleZ", &(component->particleEmitter->scaleFactors[2]));
+		}
+
+//		ImGui::Text("Clear Mode");
+//		ImGui::SameLine(_textWidth);
+//		ImGui::SetNextItemWidth(_itemWidthMeshRenderComponent);
+//		ImGui::InputText("##Clear Mode", clearMode, sizeof(clearMode), ImGuiInputTextFlags_ReadOnly);
+//		ImGui::SameLine();
+//		if (ImGui::BeginPopupContextItem("clear mode"))
+//		{
+//			if (ImGui::Selectable("SkyBox"))
+//			{
+//				camera->clearMode = Camera::ClearMode::skybox;
+//			}
+//			if (ImGui::Selectable("None"))
+//			{
+//				camera->clearMode = Camera::ClearMode::none;
+//			}
+//			if (ImGui::Selectable("BackgroundColour"))
+//			{
+//				camera->clearMode = Camera::ClearMode::backgroundColor;
+//			}
+//			ImGui::EndPopup();
+//		}
+//
+//		if (ImGui::Button(ICON_FA_CARET_DOWN "##ClearMode"))
+//		{
+//			ImGui::OpenPopup("clear mode");
+//		}
 
 		if (ImGui::CollapsingHeader("Position Settings"))
 		{
@@ -865,6 +912,10 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 		{
 			// TODO: Scale shading stuff
 
+			ImGui::Text("%s", "Use Cylinder billboard");
+			ImGui::SameLine();
+			ImGui::Checkbox("##Use Cylinder billboard", &(component->particleEmitter->useCylindricalBillboard));
+
 			auto ColourPickerFlags =
 					ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_AlphaBar;
 
@@ -884,7 +935,7 @@ void InspectorWindow::ShowParticleEffectComponent(Scene &scene)
 			{
 				ImGui::PushItemWidth(180.0f);
 				ImGui::ColorPicker4("##StartColour", (float*)&(component->startColour),
-						ColourPickerFlags);
+						ColourPickerFlags, (float*)&(component->startColour));
 				ImGui::PopItemWidth();
 				ImGui::EndPopup();
 			}
