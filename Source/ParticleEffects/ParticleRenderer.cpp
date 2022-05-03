@@ -39,7 +39,6 @@ namespace PlatinumEngine
 			// Reset for other rendering
 			if (isUsingDepthTest)
 				glEnable(GL_DEPTH_TEST);
-
 			GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 		}
 

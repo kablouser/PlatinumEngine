@@ -5,7 +5,7 @@ layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inTextureCoordinate;
 layout (location = 3) in vec3 inTangent;
 layout (location = 4) in vec3 inBiTangent;
-layout (location = 5) in ivec4 trackIDs;
+layout (location = 5) in vec4 trackIDs;
 layout (location = 6) in vec4 weights;
 
 uniform mat4 model;
@@ -27,10 +27,10 @@ void main()
 
     if(isAnimationDisplay)
     {
-         animationTransform  = tracks[trackIDs[0]] * weights[0];
-         animationTransform += tracks[trackIDs[1]] * weights[1];
-         animationTransform += tracks[trackIDs[2]] * weights[2];
-         animationTransform += tracks[trackIDs[3]] * weights[3];
+         animationTransform  = tracks[int(trackIDs[0])] * weights[0];
+         animationTransform += tracks[int(trackIDs[1])] * weights[1];
+         animationTransform += tracks[int(trackIDs[2])] * weights[2];
+         animationTransform += tracks[int(trackIDs[3])] * weights[3];
     }
 
     gl_Position = projection * view * model * animationTransform * vec4(inVertex, 1.0);

@@ -1092,6 +1092,10 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 			{
 				// remove animation
 				animationComponent->RemoveAnimation(i);
+				if(animationComponent->selectedAnimationIndex == i)
+					animationComponent->selectedAnimationIndex = 0;
+				else if(animationComponent->selectedAnimationIndex > i)
+					--animationComponent->selectedAnimationIndex;
 			}
 		}
 

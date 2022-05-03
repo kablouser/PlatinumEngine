@@ -25,7 +25,7 @@ namespace PlatinumEngine {
 		Maths::Vec3 biTangent;
 
 		// for animation
-		unsigned int trackIDs[4] = {0};
+		float trackIDs[4] = {0};
 		float weights[4] = {0};
 
 		void AddTrack(unsigned int inTrackID, float inWeight)

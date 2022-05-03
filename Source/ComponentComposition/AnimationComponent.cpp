@@ -13,6 +13,12 @@ namespace PlatinumEngine
 
 	void AnimationComponent::AddAnimation(Animation* animation)
 	{
+		for(Animation* a : _animations)
+		{
+			if(a == animation)
+				return;
+		}
+
 		_animations.push_back(animation);
 	}
 
