@@ -202,9 +202,10 @@ namespace PlatinumEngine
 	{
 		_particleShader.Bind();
 		_particleShader.SetUniform("useTexture", useTexture);
+		_particleShader.SetUniform("sampleTexture", (int)0);
+
 		if (texture)
 		{
-			_particleShader.SetUniform("sampleTexture", (int)0);
 			glActiveTexture(GL_TEXTURE0);
 			texture->Bind();
 
@@ -213,6 +214,14 @@ namespace PlatinumEngine
 			_particleShader.SetUniform("spriteWidth", texture->width / (float) numCols);
 			_particleShader.SetUniform("spriteHeight", texture->height / (float) numRows);
 			_particleShader.SetUniform("textureRatio", texture->height / texture->width);
+		}
+		else
+		{
+			_particleShader.SetUniform("textureWidth", 0.0f);
+			_particleShader.SetUniform("textureHeight", 0.0f);
+			_particleShader.SetUniform("spriteWidth", 1.0f);
+			_particleShader.SetUniform("spriteHeight", 1.0f);
+			_particleShader.SetUniform("textureRatio", 1.0f);
 		}
 	}
 

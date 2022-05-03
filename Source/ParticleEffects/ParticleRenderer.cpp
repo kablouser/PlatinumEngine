@@ -64,25 +64,24 @@ namespace PlatinumEngine
 				textureIndexData[i * 2 + 1] = particles->at(i).textureIndex.y;
 			}
 
+			GL_CHECK(glBindVertexArray(_particleVertexVAO));
+
 			// Now, set the sub-data of the big buffer we created earlier, that way we only render particles in use
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _positionLifeVBO));
 			GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * 4 * particles->size(), &positionLifeData));
-			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _positionLifeVBO));
+			GL_CHECK(glEnableVertexAttribArray(2));
 			GL_CHECK(glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _velocityScaleVBO));
 			GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * 4 * particles->size(), &velocityScaleData));
-			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _velocityScaleVBO));
+			GL_CHECK(glEnableVertexAttribArray(3));
 			GL_CHECK(glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _textureIndexVBO));
 			GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * 2 * particles->size(), &textureIndexData));
-			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, _textureIndexVBO));
+			GL_CHECK(glEnableVertexAttribArray(4));
 			GL_CHECK(glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0));
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
