@@ -92,29 +92,19 @@ namespace PlatinumEngine
 	void RigidBody::OnEnd(Scene& scene)
 	{
 		delete _motionState;
+		scene.physics.RemoveBulletBody(_rigidBody);
 		delete _rigidBody;
-	}
-
-	void RigidBody::SetBulletRotation(Maths::Quaternion rotation)
-	{
-		btQuaternion quaternion = Physics::ConvertQuaternion(rotation);
-		GetWorldTransform().setRotation(quaternion);
-	}
-
-	void RigidBody::SetBulletPosition(Maths::Vec3 position)
-	{
-		btVector3 translation = Physics::ConvertVector(position);
-		GetWorldTransform().setOrigin(translation);
 	}
 
 	void RigidBody::OnUpdate(Scene& scene, double deltaTime)
 	{
 		auto transform = GetComponent<Transform>();
+		btTransform worldTransform;
+		worldTransform.setOrigin(Physics::ConvertVector(transform->localPosition));
+		worldTransform.setRotation(Physics::ConvertQuaternion(transform->localRotation));
 
-		btMotionState* tempState = new btDefaultMotionState(btTransform(Physics::ConvertQuaternion(transform->localRotation),
-				Physics::ConvertVector(transform->localPosition)));
-
-		_rigidBody->setMotionState(tempState);
+		_rigidBody->setWorldTransform(worldTransform);
+		_rigidBody->getMotionState()->setWorldTransform(worldTransform);
 	}
 }
 

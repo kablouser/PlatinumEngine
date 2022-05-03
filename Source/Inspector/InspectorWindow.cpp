@@ -618,10 +618,19 @@ void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_USER "  RigidBody Component", ImGuiTreeNodeFlags_AllowItemOverlap);
 	auto obj = _sceneEditor->GetSelectedGameobject();
+	auto bulletWorldObject = _physics->GetPhysicalObject();
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveRigidBodyComponent")) {
 		// remove component
 		scene.RemoveComponent(*obj->GetComponent<RigidBody>());
+		//remove the object from the bullet physics world
+		for(int i = 0; i < bulletWorldObject.size(); i++)
+		{
+			auto physicsObject = bulletWorldObject[i];
+			if(obj == physicsObject)
+				bulletWorldObject.erase(bulletWorldObject.begin()+i);
+		}
+
 		return;
 	}
 

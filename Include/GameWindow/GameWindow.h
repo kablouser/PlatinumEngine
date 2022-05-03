@@ -26,11 +26,6 @@ namespace PlatinumEngine
 		void ShowGuiWindow(bool* OutIsOpen);
 
 		/**
-		 * Pause function that will make the update in gameWinodw pause
-		 */
-		void Pause();
-
-		/**
 		 * Step function for updating the scene
 		 */
 		void Step();
