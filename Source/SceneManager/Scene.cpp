@@ -57,8 +57,6 @@ namespace PlatinumEngine
 			BroadcastOnDisable(gameObject);
 			BroadcastOnEnd(gameObject);
 		}
-		RemoveGameObjectRecurse(gameObject);
-
 		// you only need to clean up the top-most parent. Because everything underneath is deleted anyway.
 		GameObject* parent = gameObject.GetParent();
 		if(parent == nullptr)
@@ -69,6 +67,8 @@ namespace PlatinumEngine
 		{
 			parent->RemoveChild(&gameObject);
 		}
+		RemoveGameObjectRecurse(gameObject);
+
 	}
 
 	size_t Scene::GetGameObjectsCount() const
