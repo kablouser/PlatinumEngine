@@ -8,7 +8,7 @@
 //
 // 	      right button					  -> translation
 //
-// 	      middle wheel (scroll) 		  -> translation
+// 	      middle wheel (scroll) 		  -> speedup/slowdown translation
 //
 // Keyboard:
 // 		  up, down. left. right           -> translation
@@ -59,44 +59,25 @@ namespace PlatinumEngine
 	void EditorCamera::TranslationByMouse(Maths::Vec2 delta)
 	{
 		// update translation value
-		_translationValue += GetUpDirection()    * delta.y  * _translationSpeed;//* deltaClock.getElapsedTime().asSeconds();
-		_translationValue += GetRightDirection() * -delta.x * _translationSpeed;//* deltaClock.getElapsedTime().asSeconds();
+		_translationValue += GetUpDirection() * delta.y * _translationSpeed * _speedScale;
+		_translationValue += GetRightDirection() * -delta.x * _translationSpeed * _speedScale;
 
 		// update view matrix
 		UpdateViewMatrix();
 	}
 
-	void EditorCamera::TranslationByMouse(float wheelDelta)
+	void EditorCamera::ChangeSpeedScale(float wheelDelta)
 	{
-
-		// change the rendering view size to zoom in orthogonal mode?
-		if(wheelDelta > 0)
-		{
-			if(isOrthogonal == true)
-				_IsProjectionMatrixUsed = false;
-			viewPortSize *= (1.2f);
-		}
-		else if(wheelDelta < 0)
-		{
-			if(isOrthogonal == true)
-				_IsProjectionMatrixUsed = false;
-			viewPortSize /= (1.2f);
-		}
-
-
 		// update translation value
-		if (wheelDelta < 0)
-			_translationValue += GetForwardDirection() * -_translationSpeed * 10.f;//* deltaClock.getElapsedTime().asSeconds();
-		else if(wheelDelta > 0)
-			_translationValue += GetForwardDirection() * _translationSpeed * 10.f;//* deltaClock.getElapsedTime().asSeconds();
-
-		// update view matrix
-		UpdateViewMatrix();
+		constexpr float SCROLL_SPEED = 1.1f;
+		if (0 < wheelDelta)
+			_speedScale *= SCROLL_SPEED;
+		else if (wheelDelta < 0)
+			_speedScale /= SCROLL_SPEED;
 	}
 
 	void EditorCamera::TranslationByKeyBoard(float forwardDirectionValue, float rightDirectionValue)
 	{
-
 		// change the rendering view size to zoom in orthogonal mode?
 		if(forwardDirectionValue > 0)
 		{
@@ -112,10 +93,10 @@ namespace PlatinumEngine
 		}
 
 		// move along forward direction
-		_translationValue += forwardDirectionValue * GetForwardDirection() * _translationSpeed * 15.f;
+		_translationValue += forwardDirectionValue * GetForwardDirection() * _translationSpeed * 10.f * _speedScale;
 		// * deltaClock.getElapsedTime().asSeconds();
 
-		_translationValue += rightDirectionValue * GetRightDirection() * _translationSpeed * 15.f;
+		_translationValue += rightDirectionValue * GetRightDirection() * _translationSpeed * 10.f * _speedScale;
 		// * deltaClock.getElapsedTime().asSeconds();
 
 		// update view matrix

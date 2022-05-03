@@ -103,10 +103,10 @@ int main(int, char**)
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler, &projectWindow, &scene);
 
 		physics.Initialize();
-		time.Update();
 		// Main loop
 		while (!glfwWindowShouldClose(window))
 		{
+			time.Update();
 			{
 				PlatinumEngine::Profiler::Frame frame;
 

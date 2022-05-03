@@ -77,6 +77,8 @@ namespace PlatinumEngine{
 		_inputManager->CreateAxis(std::string ("HorizontalAxisForEditorCamera"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
 		_inputManager->CreateAxis(std::string ("VerticalAxisForEditorCamera"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
 
+		_inputManager->CreateAxis(std::string ("ControlSpeed"), GLFW_KEY_EQUAL,GLFW_KEY_MINUS, InputManager::AxisType::keyboardMouseButton);
+
 		// Setup frame buffer
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
@@ -336,7 +338,7 @@ namespace PlatinumEngine{
 		//--------------------------------
 		_mouseButtonType = _inputManager->GetMouseDown();
 		_mouseMoveDelta  = _inputManager->GetMouseMoveVector();
-		_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
+		_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue() + _inputManager->GetAxis("ControlSpeed");
 
 		//--------------------------------------
 		// check if mouse is inside the screen
@@ -364,17 +366,12 @@ namespace PlatinumEngine{
 			{
 				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
 			}
-			// check this is for moving camera closer/further
-			if (_wheelValueDelta != 0)
-			{
-				_camera.TranslationByMouse(_wheelValueDelta);
-			}
-
+			// no checks, this is cheap
+			_camera.ChangeSpeedScale(_wheelValueDelta);
 		}
 
-		// check if there is any keyboard input to move camera position
-		if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
-			_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
+		// don't check buttons, it's cheap to translate
+		if (_inputManager.Get)
 		{
 			// Do translation based on keyboard input
 			_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"),
