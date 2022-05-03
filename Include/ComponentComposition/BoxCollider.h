@@ -14,6 +14,7 @@ namespace PlatinumEngine
 	public:
 		BoxCollider();
 
+		static void CreateTypeInfo(TypeDatabase& database);
 	public:
 		Maths::Vec3 size;
 		Maths::Vec3 center;

@@ -28,4 +28,13 @@ namespace PlatinumEngine
 		return _capsuleShape;
 	}
 
+	void CapsuleCollider::CreateTypeInfo(TypeDatabase& database)
+	{
+		database.BeginTypeInfo<CapsuleCollider>()
+		        .WithInherit<Component>()
+				.WithField<float>("radius", PLATINUM_OFFSETOF(CapsuleCollider, radius))
+				.WithField<float>("height", PLATINUM_OFFSETOF(CapsuleCollider, height))
+				.WithField<Maths::Vec3>("center", PLATINUM_OFFSETOF(CapsuleCollider, center));
+	}
+
 }

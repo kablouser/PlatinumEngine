@@ -23,11 +23,12 @@ namespace PlatinumEngine
 		Maths::Quaternion GetBulletRotation(); // Get the Bullet RigidBody Rotation Vector
 		Maths::Vec3 GetBulletPosition(); // Get the Bullet RigidBody Translation Vector
 
+		static void CreateTypeInfo(TypeDatabase& database);
 	public:
 		bool  kinematic; //kinematic
 		float mass; // mass
 
-		PhysicalMaterial material;
+		PhysicalMaterial physicalMaterial;
 	public:
 		// Set the rigidBody when it starts
 		void OnStart(Scene& scene) override;

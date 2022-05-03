@@ -33,4 +33,5 @@ namespace PlatinumEngine
 		if(index < _animations.size())
 			_animations.erase(_animations.begin() + index);
 	}
+
 }

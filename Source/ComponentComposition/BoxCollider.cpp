@@ -26,5 +26,13 @@ namespace PlatinumEngine
 	{
 		return _boxShape;
 	}
+
+	void BoxCollider::CreateTypeInfo(TypeDatabase& database)
+	{
+		database.BeginTypeInfo<BoxCollider>()
+		        .WithInherit<Component>()
+				.WithField<Maths::Vec3>("size", PLATINUM_OFFSETOF(BoxCollider, size))
+				.WithField<Maths::Vec3>("center", PLATINUM_OFFSETOF(BoxCollider, center));
+	}
 }
 

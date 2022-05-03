@@ -15,6 +15,8 @@ namespace PlatinumEngine
 		CapsuleCollider();
 
 		btCollisionShape* GetShape();
+
+		static void CreateTypeInfo(TypeDatabase& database);
 	public:
 		float radius;
 		float height;

@@ -54,10 +54,10 @@ namespace PlatinumEngine
 				GetComponent<BoxCollider>().DeRef()->GetShape()->calculateLocalInertia(mass, temp);
 				btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, _motionState,
 						GetComponent<BoxCollider>().DeRef()->GetShape(), temp);
-				constructionInfo.m_restitution = material.bounciness;
-				constructionInfo.m_friction = material.friction;
-				constructionInfo.m_linearDamping = material.damping;
-				constructionInfo.m_angularDamping = material.angularDamping;
+				constructionInfo.m_restitution = physicalMaterial.bounciness;
+				constructionInfo.m_friction = physicalMaterial.friction;
+				constructionInfo.m_linearDamping = physicalMaterial.damping;
+				constructionInfo.m_angularDamping = physicalMaterial.angularDamping;
 				_rigidBody = new btRigidBody(constructionInfo);
 
 			}
@@ -66,10 +66,10 @@ namespace PlatinumEngine
 				GetComponent<SphereCollider>().DeRef()->GetShape()->calculateLocalInertia(mass, temp);
 				btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, _motionState,
 						GetComponent<SphereCollider>().DeRef()->GetShape(), temp);
-				constructionInfo.m_restitution = material.bounciness;
-				constructionInfo.m_friction = material.friction;
-				constructionInfo.m_linearDamping = material.damping;
-				constructionInfo.m_angularDamping = material.angularDamping;
+				constructionInfo.m_restitution = physicalMaterial.bounciness;
+				constructionInfo.m_friction = physicalMaterial.friction;
+				constructionInfo.m_linearDamping = physicalMaterial.damping;
+				constructionInfo.m_angularDamping = physicalMaterial.angularDamping;
 				_rigidBody = new btRigidBody(constructionInfo);
 			}
 			else if (GetComponent<CapsuleCollider>().DeRef() != nullptr)
@@ -77,10 +77,10 @@ namespace PlatinumEngine
 				GetComponent<CapsuleCollider>().DeRef()->GetShape()->calculateLocalInertia(mass, temp);
 				btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, _motionState,
 						GetComponent<CapsuleCollider>().DeRef()->GetShape(), temp);
-				constructionInfo.m_restitution = material.bounciness;
-				constructionInfo.m_friction = material.friction;
-				constructionInfo.m_linearDamping = material.damping;
-				constructionInfo.m_angularDamping = material.angularDamping;
+				constructionInfo.m_restitution = physicalMaterial.bounciness;
+				constructionInfo.m_friction = physicalMaterial.friction;
+				constructionInfo.m_linearDamping = physicalMaterial.damping;
+				constructionInfo.m_angularDamping = physicalMaterial.angularDamping;
 				_rigidBody = new btRigidBody(constructionInfo);
 			}
 		}
@@ -105,6 +105,18 @@ namespace PlatinumEngine
 
 		_rigidBody->setWorldTransform(worldTransform);
 		_rigidBody->getMotionState()->setWorldTransform(worldTransform);
+	}
+
+	void RigidBody::CreateTypeInfo(TypeDatabase& database)
+	{
+			database.BeginTypeInfo<RigidBody>()
+			        .WithInherit<Component>()
+					.WithField<PhysicalMaterial>("physicalMaterial", PLATINUM_OFFSETOF(RigidBody, physicalMaterial))
+					.WithField<float>("mass", PLATINUM_OFFSETOF(RigidBody, mass))
+					.WithField<bool>("kinematic", PLATINUM_OFFSETOF(RigidBody, kinematic))
+					.WithField<Maths::Vec3>("inertia", PLATINUM_OFFSETOF(RigidBody, _inertia))
+					.WithField<Maths::Vec3>("linearVelocity", PLATINUM_OFFSETOF(RigidBody, _linearVelocity))
+					.WithField<Maths::Vec3>("_angularVelocity", PLATINUM_OFFSETOF(RigidBody, _angularVelocity));
 	}
 }
 

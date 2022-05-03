@@ -664,13 +664,13 @@ void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Damping: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::DragFloat("##Damping", &obj.DeRef()->GetComponent<RigidBody>().DeRef()->material.damping, 0.001f);
+		ImGui::DragFloat("##Damping", &obj.DeRef()->GetComponent<RigidBody>().DeRef()->physicalMaterial.damping, 0.001f);
 
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("AngularDamping: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::DragFloat("##AngularDamping", &obj.DeRef()->GetComponent<RigidBody>().DeRef()->material.angularDamping, 0.001f);
+		ImGui::DragFloat("##AngularDamping", &obj.DeRef()->GetComponent<RigidBody>().DeRef()->physicalMaterial.angularDamping, 0.001f);
 
 		ImGui::Separator();
 		ImGui::Text("Physical Material");
@@ -678,12 +678,12 @@ void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Friction: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::DragFloat("##Friction", &obj.DeRef()->GetComponent<RigidBody>().DeRef()->material.friction, 0.001f);
+		ImGui::DragFloat("##Friction", &obj.DeRef()->GetComponent<RigidBody>().DeRef()->physicalMaterial.friction, 0.001f);
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Bounciness: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::SliderFloat("##Bounciness", &obj.DeRef()->GetComponent<RigidBody>().DeRef()->material.bounciness, 0.f, 1.f, "%.2f");
+		ImGui::SliderFloat("##Bounciness", &obj.DeRef()->GetComponent<RigidBody>().DeRef()->physicalMaterial.bounciness, 0.f, 1.f, "%.2f");
 	}
 }
 

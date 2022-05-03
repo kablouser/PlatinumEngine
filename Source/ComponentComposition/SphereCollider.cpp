@@ -24,4 +24,12 @@ namespace PlatinumEngine
 	{
 		return _sphereShape;
 	}
+
+	void SphereCollider::CreateTypeInfo(TypeDatabase& database)
+	{
+		database.BeginTypeInfo<SphereCollider>()
+		        .WithInherit<Component>()
+				.WithField<float>("radius", PLATINUM_OFFSETOF(SphereCollider, radius))
+				.WithField<Maths::Vec3>("center", PLATINUM_OFFSETOF(SphereCollider, center));
+	}
 }

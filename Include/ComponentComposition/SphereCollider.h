@@ -15,6 +15,8 @@ namespace PlatinumEngine
 		SphereCollider();
 
 		btCollisionShape* GetShape();
+
+		static void CreateTypeInfo(TypeDatabase& database);
 	public:
 		float radius;
 		Maths::Vec3 center;
