@@ -78,6 +78,8 @@ namespace PlatinumEngine
 	    bool _showFileLoad          		 = false;
 	    bool _showFileSave                   = false;
 
+		// this is used to set up the play button
+		bool _start                          = false;
 	private:
 		///-----------------------------------------------------------------------
 		///pointers to the constructor of each window need to be shown

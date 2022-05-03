@@ -204,7 +204,7 @@ namespace PlatinumEngine{
 				ImGui::EndPopup();
 			}
 
-			if(ImGui::Button(_transparency ? ICON_FA_BORDER_ALL "##enable###gridTransparency" : ICON_FA_BORDER_NONE "##disable###gridTransparency"))
+			if(ImGui::Button(_enableGrid ? ICON_FA_BORDER_ALL "##enable###gridTransparency" : ICON_FA_BORDER_NONE "##disable###gridTransparency"))
 			{
 				_enableGrid = !_enableGrid;
 			}

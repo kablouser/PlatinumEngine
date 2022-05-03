@@ -164,7 +164,6 @@ int main(int, char**)
 		}
 
 		// Cleanup bullet physics
-		scene.End();
 		physics.CleanUp();
 
 		// Cleanup ImGui

@@ -107,26 +107,30 @@ namespace PlatinumEngine
 			///------------------------------------------------------------------
 			/// This section is for main menu bar to control the game view play/pause/step
 			///------------------------------------------------------------------
-			if(ImGui::Button(ICON_FA_RECYCLE "##Reset"))
-			{
-				if(_scene->IsStarted())
-					_scene->End();
-			}
 
-			if (ImGui::Button(ICON_FA_PLAY "##Play"))
+			if (ImGui::Button(_start ? ICON_FA_STOP "##Play###startButton" : ICON_FA_PLAY "##Stop###startButton"))
 			{
-				if(!_scene->IsStarted())
-					_scene->Start();
-
+				if(!_start)
+				{
+					_start = true;
 					_gameWindow->isPaused = false;
-					enablePauseButton = false;
+					_scene->Start();
+				}
+				else if(_start)
+				{
+					_start = false;
+					_gameWindow->isPaused = true;
+					_scene->End();
+				}
+
+				enablePauseButton = !enablePauseButton;
 			}
 
   			// activate or inactive pause and step button
 			ImGui::BeginDisabled(enablePauseButton);
 			if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
 			{
-				_gameWindow->Pause();
+				_gameWindow->isPaused = !_gameWindow->isPaused;
 			}
 
 			if (ImGui::Button(ICON_FA_FORWARD_STEP "##Step"))

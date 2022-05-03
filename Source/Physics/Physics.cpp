@@ -24,15 +24,10 @@ namespace PlatinumEngine
 	{
 		//initialize the bullet physics broadphase which
 		//bullet will remove the objects that can not collide able
-		_broadPhase = new btDbvtBroadphase();
-
-		//Use defaults
 		_config = new btDefaultCollisionConfiguration();
 		_dispatcher = new btCollisionDispatcher(_config);
-
-		//the solver allows objects to interact properly
+		_broadPhase = new btDbvtBroadphase();
 		_solver = new btSequentialImpulseConstraintSolver;
-
 		_bulletWorld = new btDiscreteDynamicsWorld(_dispatcher, _broadPhase, _solver, _config);
 		SetGravity(_gravity);
 	}
@@ -42,9 +37,9 @@ namespace PlatinumEngine
 	{
 		delete _bulletWorld;
 		delete _solver;
+		delete _broadPhase;
 		delete _dispatcher;
 		delete _config;
-		delete _broadPhase;
 	}
 
 	//set the world gravity
@@ -59,6 +54,11 @@ namespace PlatinumEngine
 	float Physics::GetGravity()
 	{
 		return _gravity;
+	}
+
+	std::vector<GameObject*> Physics::GetPhysicalObject()
+	{
+		return _physicsObjects;
 	}
 
 	//Render the bulletWorld

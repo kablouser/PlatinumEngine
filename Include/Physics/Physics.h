@@ -52,6 +52,7 @@ namespace PlatinumEngine
 		void SetGravity(float gravity);
 
 		float GetGravity();
+		std::vector<GameObject*> GetPhysicalObject();
 
 		//helper function helps to convert vectors, quaternions and scalars from bullet to us or us to bullet
 		static btQuaternion ConvertEulerToQuaternion(const btVector3& vector);
