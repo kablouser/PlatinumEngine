@@ -9,10 +9,9 @@
 
 namespace PlatinumEngine
 {
-	RigidBody::RigidBody():
-						mass(1.f),
-						kinematic(false),
-						_inertia(Maths::Vec3(0.f, 0.f, 0.f))
+	RigidBody::RigidBody() :
+			mass(1.f),
+			kinematic(false)
 	{
 
 	}
@@ -23,6 +22,7 @@ namespace PlatinumEngine
 		_rigidBody->getMotionState()->getWorldTransform(temp);
 		return temp;
 	}
+
 	Maths::Quaternion RigidBody::GetBulletRotation()
 	{
 		Maths::Quaternion temp;
@@ -47,9 +47,9 @@ namespace PlatinumEngine
 		}
 		//Set the btRigidBody based on its collider type
 		{
-			auto temp = Physics::ConvertVector(_inertia);
+			btVector3 temp(0.0f, 0.0f, 0.0f);
 
-			if (GetComponent<BoxCollider>().DeRef() != nullptr)
+			if (GetComponent<BoxCollider>())
 			{
 				GetComponent<BoxCollider>().DeRef()->GetShape()->calculateLocalInertia(mass, temp);
 				btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, _motionState,
@@ -61,7 +61,7 @@ namespace PlatinumEngine
 				_rigidBody = new btRigidBody(constructionInfo);
 
 			}
-			else if (GetComponent<SphereCollider>().DeRef() != nullptr)
+			else if (GetComponent<SphereCollider>())
 			{
 				GetComponent<SphereCollider>().DeRef()->GetShape()->calculateLocalInertia(mass, temp);
 				btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, _motionState,
@@ -72,7 +72,7 @@ namespace PlatinumEngine
 				constructionInfo.m_angularDamping = physicalMaterial.angularDamping;
 				_rigidBody = new btRigidBody(constructionInfo);
 			}
-			else if (GetComponent<CapsuleCollider>().DeRef() != nullptr)
+			else if (GetComponent<CapsuleCollider>())
 			{
 				GetComponent<CapsuleCollider>().DeRef()->GetShape()->calculateLocalInertia(mass, temp);
 				btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, _motionState,
@@ -109,14 +109,11 @@ namespace PlatinumEngine
 
 	void RigidBody::CreateTypeInfo(TypeDatabase& database)
 	{
-			database.BeginTypeInfo<RigidBody>()
-			        .WithInherit<Component>()
-					.WithField<PhysicalMaterial>("physicalMaterial", PLATINUM_OFFSETOF(RigidBody, physicalMaterial))
-					.WithField<float>("mass", PLATINUM_OFFSETOF(RigidBody, mass))
-					.WithField<bool>("kinematic", PLATINUM_OFFSETOF(RigidBody, kinematic))
-					.WithField<Maths::Vec3>("inertia", PLATINUM_OFFSETOF(RigidBody, _inertia))
-					.WithField<Maths::Vec3>("linearVelocity", PLATINUM_OFFSETOF(RigidBody, _linearVelocity))
-					.WithField<Maths::Vec3>("_angularVelocity", PLATINUM_OFFSETOF(RigidBody, _angularVelocity));
+		database.BeginTypeInfo<RigidBody>()
+				.WithInherit<Component>()
+				.WithField<PhysicalMaterial>("physicalMaterial", PLATINUM_OFFSETOF(RigidBody, physicalMaterial))
+				.WithField<float>("mass", PLATINUM_OFFSETOF(RigidBody, mass))
+				.WithField<bool>("kinematic", PLATINUM_OFFSETOF(RigidBody, kinematic));
 	}
 }
 

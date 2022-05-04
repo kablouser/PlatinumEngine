@@ -209,11 +209,11 @@ namespace PlatinumEngine
 			glActiveTexture(GL_TEXTURE0);
 			texture.DeRef()->Bind();
 
-			_particleShader.SetUniform("textureWidth", texture.DeRef()->width);
-			_particleShader.SetUniform("textureHeight", texture.DeRef()->height);
-			_particleShader.SetUniform("spriteWidth", texture.DeRef()->width / (float) numCols);
-			_particleShader.SetUniform("spriteHeight", texture.DeRef()->height / (float) numRows);
-			_particleShader.SetUniform("textureRatio", texture.DeRef()->height / texture.DeRef()->width);
+			_particleShader.SetUniform("textureWidth", (float)texture.DeRef()->width);
+			_particleShader.SetUniform("textureHeight", (float)texture.DeRef()->height);
+			_particleShader.SetUniform("spriteWidth", (float)texture.DeRef()->width / (float) numCols);
+			_particleShader.SetUniform("spriteHeight", (float)texture.DeRef()->height / (float) numRows);
+			_particleShader.SetUniform("textureRatio", (float)texture.DeRef()->height / texture.DeRef()->width);
 		}
 		else
 		{
@@ -448,7 +448,9 @@ namespace PlatinumEngine
 				}
 
 				Begin();
-				Mesh mesh(vertices, indices);
+				Mesh mesh;
+				mesh.vertices = vertices;
+				mesh.indices = indices;
 //				MeshRender renderComponent(mesh);
 				LoadMesh(mesh);
 				End();

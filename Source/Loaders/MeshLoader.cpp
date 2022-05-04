@@ -80,14 +80,14 @@ namespace PlatinumEngine
 				//------------------------------
 
 				// Store the raw skeleton hierarchy
-				returnMesh.rawSkeleton.roots.resize(1);
-				AddNodeData(scene->mRootNode,  &returnMesh.rawSkeleton.roots[0]);
+				ozz::animation::offline::RawSkeleton rawSkeleton;
+				rawSkeleton.roots.resize(1);
+				AddNodeData(scene->mRootNode,  &rawSkeleton.roots[0]);
 				// Turn skeleton hierarchy structure into runtime format
 				{
 					ozz::animation::offline::SkeletonBuilder skeletonBuilder;
-					returnMesh.skeleton = skeletonBuilder(returnMesh.rawSkeleton);
+					returnMesh.skeleton = skeletonBuilder(rawSkeleton);
 				}
-
 
 				//---------------------------------------------
 				// Bone For Every Vertex (Based on skeleton)
@@ -353,25 +353,17 @@ namespace PlatinumEngine
 
 		void AddAnimationChannelData(Mesh &outMesh, aiAnimation* inAnimation)
 		{
+			if(outMesh.skeleton == nullptr)
+				return;
 
 			// Number of nodes
-			unsigned int numberOfJoints = 0;
-			if(outMesh.skeleton == nullptr)
-			{
-				return;
-			}
-			numberOfJoints = outMesh.skeleton->num_joints();
-
-
-			// Add new animation into animations list
-			outMesh.animations.emplace_back(new Animation());
-			Animation* animation = outMesh.animations.back();
-
+			unsigned int numberOfJoints = outMesh.skeleton->num_joints();
 
 			// Basic info
-			animation->rawAnimation.name = inAnimation->mName.C_Str();
-			animation->rawAnimation.duration = (float)inAnimation->mDuration;
-			animation->rawAnimation.tracks.resize(numberOfJoints);
+			ozz::animation::offline::RawAnimation rawAnimation;
+			rawAnimation.name = inAnimation->mName.C_Str();
+			rawAnimation.duration = (float)inAnimation->mDuration;
+			rawAnimation.tracks.resize(numberOfJoints);
 
 			// Channels
 			for(unsigned int i=0; i<numberOfJoints; ++i)
@@ -395,7 +387,7 @@ namespace PlatinumEngine
 									inAnimation->mChannels[channelID]->mPositionKeys[j].mValue.y,
 									inAnimation->mChannels[channelID]->mPositionKeys[j].mValue.z)};
 
-					animation->rawAnimation.tracks[i].translations.push_back(key);
+					rawAnimation.tracks[i].translations.push_back(key);
 				}
 
 				// rotation
@@ -410,7 +402,7 @@ namespace PlatinumEngine
 									inAnimation->mChannels[channelID]->mRotationKeys[j].mValue.z,
 									inAnimation->mChannels[channelID]->mRotationKeys[j].mValue.w)};
 
-					animation->rawAnimation.tracks[i].rotations.push_back(key);
+					rawAnimation.tracks[i].rotations.push_back(key);
 				}
 
 				// scale
@@ -424,12 +416,17 @@ namespace PlatinumEngine
 									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.y,
 									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.z)};
 
-					animation->rawAnimation.tracks[i].scales.push_back(key);
+					rawAnimation.tracks[i].scales.push_back(key);
 				}
 			}
 
+			// Add new animation into animations list
+			Animation animation;
+			outMesh.animations.push_back(Animation());
+
 			// turn data into runtime format
-			animation->BuildAnimationRuntimeData();
+			ozz::animation::offline::AnimationBuilder animationBuilder;
+			outMesh.animations.back().animation = animationBuilder(rawAnimation);
 		}
 
 		bool FindChanelID(const std::string& inBoneName, aiAnimation* inAnimation, unsigned int& trackID)

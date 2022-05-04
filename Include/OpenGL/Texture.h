@@ -42,7 +42,7 @@ namespace PlatinumEngine
 		void UnbindCubeMap() const;
 
 		std::string fileName;
-		float width, height;
+		GLsizei width, height;
 	private:
 
 		GLuint _textureHandle;

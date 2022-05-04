@@ -6,10 +6,14 @@
 
 namespace PlatinumEngine
 {
+	void AnimationComponent::CreateTypeInfo(TypeDatabase& typeDatabase)
+	{
+		// TODO implement
+	}
+
 	AnimationComponent::AnimationComponent(): isAnimationDisplay(false), selectedAnimationIndex(0)
 	{
 	}
-
 
 	void AnimationComponent::AddAnimation(Animation* animation)
 	{
@@ -22,7 +26,6 @@ namespace PlatinumEngine
 		_animations.push_back(animation);
 	}
 
-
 	std::vector<Animation*>& AnimationComponent::GetAnimation()
 	{
 		return _animations;
@@ -33,5 +36,4 @@ namespace PlatinumEngine
 		if(index < _animations.size())
 			_animations.erase(_animations.begin() + index);
 	}
-
 }

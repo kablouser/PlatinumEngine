@@ -4,6 +4,7 @@
 #include <ComponentComposition/MeshRender.h>
 #include <Renderer/Renderer.h>
 #include <ComponentComposition/Transform.h>
+#include <ComponentComposition/AnimationComponent.h>
 #include <SceneManager/Scene.h>
 
 namespace PlatinumEngine
@@ -36,6 +37,40 @@ namespace PlatinumEngine
 		else
 			renderer.SetModelMatrix();
 
+		SavedReference<AnimationComponent> animation = GetComponent<AnimationComponent>();
+
+		// set animation matrix
+		if (animation)
+		{
+			AnimationComponent* animationComponent = animation.DeRef().get();
+
+			// send flag to uniform
+			renderer.SetAnimationStatus(animationComponent->isAnimationDisplay);
+
+			// get animation list from animation component
+			std::vector<Animation*> animationList = animationComponent->GetAnimation();
+
+			// calculate the transform matrices for a post at a specific animation time
+			if (!animationList.empty())
+			{
+				animationList[animationComponent->selectedAnimationIndex]->UpdateWorldTransformMatrix(
+						_mesh.DeRef()->skeleton,
+						_mesh.DeRef()->bones,
+						animationComponent->context);
+				animationList[animationComponent->selectedAnimationIndex]->PlayAnimationTimer();
+
+				// pass transform matrices to
+				for (unsigned int i = 0; i < animationList[animationComponent->selectedAnimationIndex]->worldTransform.size(); ++i)
+				{
+					renderer.SetAnimationTransform(i, animationList[animationComponent->selectedAnimationIndex]->worldTransform[i]);
+				}
+			}
+		}
+
+		renderer.LoadMaterial(material);
+		_shaderInput.Draw();
+
+		// load texture
 		renderer.LoadMaterial(material);
 		_shaderInput.Draw();
 	}

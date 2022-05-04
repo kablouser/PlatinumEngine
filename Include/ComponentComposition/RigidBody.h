@@ -39,10 +39,6 @@ namespace PlatinumEngine
 		void OnUpdate(Scene& scene, double deltaTime) override;
 	private:
 
-		Maths::Vec3 _inertia;
-		Maths::Vec3 _linearVelocity;
-		Maths::Vec3 _angularVelocity;
-
 		//pointer of bullet objects
 		btRigidBody* _rigidBody;
 		btDefaultMotionState* _motionState;

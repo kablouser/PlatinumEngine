@@ -1099,9 +1099,13 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 			auto [success, asset] = _assetHelper->GetAsset<Mesh>("Select ANIMATION Mesh");
 			if (success && asset)
 			{
-				for (auto animation: asset.DeRef()->animations)
+				for (auto& animation: asset.DeRef()->animations)
 				{
-					animationComponent.DeRef()->AddAnimation(animation);
+					// TODO Change. This is very strange and unnessary.
+					// For a mesh asset, we know the list of animations already.
+					// Don't ask the user to select a mesh as the mesh render.
+					// The selected mesh must be the same as the mesh render anyway.
+					// animationComponent.DeRef()->AddAnimation(animation);
 				}
 			}
 		}
@@ -1112,7 +1116,7 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 		{
 			// create check box
 			if (ImGui::RadioButton(
-					std::to_string(i).append(". " + animations[i]->rawAnimation.name).c_str(),
+					std::to_string(i).append(". ").append(animations[i]->animation->name()).c_str(),
 					animationComponent.DeRef()->selectedAnimationIndex == i))
 			{
 				// set the animation presented by this check box to be the current selected animation

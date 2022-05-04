@@ -22,7 +22,10 @@ namespace PlatinumEngine
 
 namespace PlatinumEngine
 {
-	void Animation::UpdateWorldTransformMatrix(ozz::unique_ptr<ozz::animation::Skeleton>& skeleton, const std::vector<Bone>& bones)
+	void Animation::UpdateWorldTransformMatrix(
+			ozz::unique_ptr<ozz::animation::Skeleton>& skeleton,
+			const std::vector<Bone>& bones,
+			ozz::animation::SamplingJob::Context& context)
 	{
 		if(animation == nullptr || skeleton == nullptr)
 			return;
@@ -144,19 +147,20 @@ namespace PlatinumEngine
 			_isAnimationFinish = false;
 	}
 
-	void Animation::BuildAnimationRuntimeData()
-	{
-		ozz::animation::offline::AnimationBuilder animationBuilder;
-		if(!rawAnimation.Validate())
-			std::cout << "raw animation invalid"<<std::endl;
-
-		animation = animationBuilder(rawAnimation);
-
-		// Resize based on the number of joints
-		context.Resize(animation->num_tracks());
-		localTransformOZZ.resize(animation->num_tracks());
-		worldTransformOZZ.resize(animation->num_tracks());
-	}
+//	void Animation::BuildAnimationRuntimeData()
+//	{
+//		ozz::animation::offline::AnimationBuilder animationBuilder;
+//		if(!rawAnimation.Validate())
+//			std::cout << "raw animation invalid"<<std::endl;
+//
+//		animation = animationBuilder(rawAnimation);
+//
+//		// TODO move into animation component
+//		// Resize based on the number of joints
+//		context.Resize(animation->num_tracks());
+//		localTransformOZZ.resize(animation->num_tracks());
+//		worldTransformOZZ.resize(animation->num_tracks());
+//	}
 
 
 	void Animation::ConvertMatrix()

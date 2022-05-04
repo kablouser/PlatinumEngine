@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Component.h"
+#include <TypeDatabase/TypeDatabase.h>
 
 
 namespace PlatinumEngine
@@ -12,6 +13,8 @@ namespace PlatinumEngine
 	class AnimationComponent: public Component
 	{
 	public:
+		static void CreateTypeInfo(TypeDatabase& typeDatabase);
+
 		AnimationComponent();
 
 		// update Animation from mesh loader
@@ -30,8 +33,13 @@ namespace PlatinumEngine
 	public:
 		bool isAnimationDisplay;
 		unsigned int selectedAnimationIndex;
+		ozz::animation::SamplingJob::Context context;
 
 	private:
+
+		// TODO you shouldn't use Animation pointers.
+		// Because you should restrict the animations to the one attached to the current mesh.
+		// You can fetch the list of animations from the mesh on the MeshRender.
 		std::vector<Animation*> _animations;
 	};
 }

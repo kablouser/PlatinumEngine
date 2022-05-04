@@ -9,7 +9,8 @@
 namespace PlatinumEngine
 {
 	Texture::Texture() :
-			_textureHandle(0)
+			_textureHandle(0),
+			width(0), height(0)
 	{}
 
 	Texture::~Texture()
@@ -18,30 +19,35 @@ namespace PlatinumEngine
 	}
 
 	Texture::Texture(Texture&& moveFrom) noexcept :
-		fileName(std::move(moveFrom.fileName)), _textureHandle(moveFrom._textureHandle)
+		fileName(std::move(moveFrom.fileName)), _textureHandle(moveFrom._textureHandle),
+		width(moveFrom.width), height(moveFrom.height)
 	{
 		moveFrom._textureHandle = 0;
+		moveFrom.width = moveFrom.height = 0;
 	}
 
 	Texture& Texture::operator=(Texture&& moveFrom) noexcept
 	{
 		fileName = std::move(moveFrom.fileName);
 		_textureHandle = moveFrom._textureHandle;
+		width = moveFrom.width;
+		height = moveFrom.height;
 		moveFrom._textureHandle = 0;
+		moveFrom.width = moveFrom.height = 0;
 		return *this;
 	}
 
 	void Texture::Create(GLsizei inWidth, GLsizei inHeight)
 	{
-		inWidth = width;
-		inHeight = height;
+		width = inWidth;
+		height = inHeight;
 		if(_textureHandle == 0)
 			GL_CHECK(glGenTextures(1, &_textureHandle));
 
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, _textureHandle));
 		GL_CHECK(glTexImage2D(
 				GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
-				GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
+				GL_RGB, GL_UNSIGNED_BYTE, nullptr));
 		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
@@ -49,6 +55,8 @@ namespace PlatinumEngine
 
 	void Texture::Create(const PixelData& pixelData)
 	{
+		width = pixelData.width;
+		height = pixelData.height;
 		if(_textureHandle == 0)
 			GL_CHECK(glGenTextures(1, &_textureHandle));
 
@@ -58,12 +66,12 @@ namespace PlatinumEngine
 		{
 		case 4:
 			GL_CHECK(glTexImage2D(
-					GL_TEXTURE_2D, 0, GL_RGBA, pixelData.width, pixelData.height, 0,
+					GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
 					GL_RGBA, GL_UNSIGNED_BYTE, pixelData.pixelData));
 			break;
 		case 3:
 			GL_CHECK(glTexImage2D(
-					GL_TEXTURE_2D, 0, GL_RGB, pixelData.width, pixelData.height, 0,
+					GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
 					GL_RGB, GL_UNSIGNED_BYTE, pixelData.pixelData));
 			break;
 		default:
