@@ -29,6 +29,7 @@ namespace PlatinumEngine
 		void DragDropMoveRegularFile(std::filesystem::path dir, const ImGuiPayload* payload);
 		void ShowProjectWindowPreview(std::filesystem::path filePath);
 		std::string FormatFileSize(uintmax_t size, int precision=2);
+		void RenderPreview(std::filesystem::path filePath);
 
 	private:
 		//Preview related
@@ -39,6 +40,8 @@ namespace PlatinumEngine
 		Framebuffer _renderTexture;
 		int _framebufferWidth;
 		int _framebufferHeight;
+		EditorCamera* _previewCamera;
+		Maths::Vec3 _modelRotation;
 
 		//Filesystem related
 		enum class MoveType {copy, cut, none};

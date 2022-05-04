@@ -18,6 +18,9 @@ ProjectWindow::ProjectWindow(Scene* scene, AssetHelper* assetHelper, SceneEditor
 	_childWindowCount = 1;
 	_isPreviewEnabled = false;
 	_renderer = new Renderer;
+	_previewCamera = new EditorCamera;
+	_previewCamera->UpdateViewMatrix();
+	_modelRotation = Maths::Vec3(0,0,0);
 }
 
 void ProjectWindow::ShowGUIWindow(bool* isOpen)
@@ -215,6 +218,7 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 			if(ImGui::IsItemClicked(0))
 			{
 				_previewFilePath = dir;
+				_modelRotation = Maths::Vec3(0,0,0);
 			}
 
 			//Right-click actions
@@ -366,67 +370,8 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 		//We can also define a subwindow to display a resizable framebuffer in future
 		//auto targetSize = ImGui::GetContentRegionAvail();
 
-		//Create the texture of fixed size (No need for checks since we know that framebuffer will be of sufficient size)
-		_renderTexture.Create(_framebufferWidth, _framebufferHeight);
-
-		// bind framebuffer
-		_renderTexture.Bind();
-
-		// initiate setting before rendering
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glViewport(0, 0, _framebufferWidth, _framebufferHeight);
-		glClearColor(0.2784f, 0.2784f, 0.2784f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-		// Start rendering (bind a shader)
-		_renderer->Begin();
-
-		// Get the mesh to be rendered
-		Mesh* mesh;
-		auto asset_Helper = _assetHelper->GetMeshAsset(filePath.string());
-		if (std::get<0>(asset_Helper))
-			mesh = std::get<1>(asset_Helper);
-
-		ShaderInput _shaderInput;
-		if(mesh != nullptr)
-		{
-			_shaderInput.Clear();
-			_shaderInput.Set(mesh->vertices, mesh->indices);
-		}
-		else
-			_shaderInput.Clear();
-		_shaderInput.Draw();
-
-		//TODO: Fix the view matrix
-		PlatinumEngine::Maths::Mat4 rotation, translation;
-		Maths::Mat4 viewMatrix4(1.f);
-		rotation.SetRotationMatrix(Maths::Quaternion::Inverse(Maths::Quaternion::identity));
-		translation.SetTranslationMatrix(Maths::Vec3(0,0,-1));
-		//viewMatrix4 = rotation*translation;
-
-		//Setup renderer's settings
-		_renderer->SetModelMatrix(translation);
-		_renderer->SetViewMatrix(viewMatrix4);
-		_renderer->SetProjectionMatrix();
-		_renderer->SetLightProperties();
-		//_renderer->SetCameraPos(Maths::Vec3::forward * 10.f);
-
-		// End rendering (unbind a shader)
-		_renderer->End();
-
-		// unbind framebuffer
-		_renderTexture.Unbind();
-
-		// reset setting after rendering
-		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		// display updated framebuffer
-		ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), ImVec2(_framebufferWidth,_framebufferHeight));
+		//Render the mesh
+		RenderPreview(filePath);
 
 		ImGui::Text("Type: MESH");
 	}
@@ -495,4 +440,117 @@ std::string ProjectWindow::FormatFileSize(uintmax_t size, int precision)
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(precision) << dblByte;
 	return (stream.str()+" "+sizes[i]);
+}
+
+/**
+ * This handles rendering of mesh into an image
+ * @param filePath the path of the mesh
+ */
+void ProjectWindow::RenderPreview(std::filesystem::path filePath)
+{
+	// Create the texture of fixed size (No need for checks since we know that framebuffer will be of sufficient size)
+	_renderTexture.Create(_framebufferWidth, _framebufferHeight);
+
+	// bind framebuffer
+	_renderTexture.Bind();
+
+	// initiate setting before rendering
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glViewport(0, 0, _framebufferWidth, _framebufferHeight);
+	glClearColor(0.2784f, 0.2784f, 0.2784f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+	// Start rendering (bind a shader)
+	_renderer->Begin();
+
+	// Get the mesh to be rendered
+	Mesh* mesh;
+	auto asset_Helper = _assetHelper->GetMeshAsset(filePath.string());
+	if (std::get<0>(asset_Helper))
+		mesh = std::get<1>(asset_Helper);
+
+	// Setup shader
+	ShaderInput _shaderInput;
+	if(mesh != nullptr)
+	{
+		_shaderInput.Clear();
+		_shaderInput.Set(mesh->vertices, mesh->indices);
+	}
+	else
+		_shaderInput.Clear();
+	_shaderInput.Draw();
+
+	// Using a perspective camera
+	_previewCamera->SetPerspectiveMatrix(60.f, _framebufferWidth/_framebufferHeight, 0.1f, 1000.f);
+
+	// Set the rotation of the model
+	Maths::Mat4 modelRotationMat;
+	modelRotationMat.SetRotationMatrix(_modelRotation);
+
+	// Setup renderer's settings
+	_renderer->SetModelMatrix(modelRotationMat);
+	_renderer->SetViewMatrix(_previewCamera->viewMatrix4);
+	_renderer->SetProjectionMatrix(_previewCamera->projectionMatrix4);
+	_renderer->SetLightProperties();
+
+	// End rendering (unbind a shader)
+	_renderer->End();
+
+	// unbind framebuffer
+	_renderTexture.Unbind();
+
+	// reset setting after rendering
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// display updated framebuffer
+	ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), ImVec2(_framebufferWidth,_framebufferHeight), ImVec2(0, 1), ImVec2(1, 0));
+
+	// Setup this renderer's camera settings
+	if(ImGui::IsItemHovered())
+	{
+		//Mouse Wheel changes zoom
+		float wheelValue = ImGui::GetIO().MouseWheel;
+		if (wheelValue != 0)
+			_previewCamera->TranslationByMouse(wheelValue);
+
+		// Item's properties
+		ImVec2 itemSize = ImGui::GetItemRectSize();
+		ImVec2 itemPosMin = ImGui::GetItemRectMin();
+		ImVec2 itemPosMax = ImGui::GetItemRectMax();
+
+		//Calculate mouse position
+		ImVec2 absMousePos = ImGui::GetMousePos();
+		ImVec2 relMousePos = ImVec2(absMousePos.x-itemPosMin.x,absMousePos.y-itemPosMin.y);
+
+		//Drawing overlay
+		if(relMousePos.x<_framebufferWidth/4.f)
+			ImGui::GetWindowDrawList()->AddRectFilled(itemPosMin, ImVec2(itemPosMin.x+_framebufferWidth/4.f,itemPosMin.y+itemSize.y), IM_COL32(255, 255, 255, 32));
+		else if(relMousePos.x >_framebufferWidth*3.f/4.f)
+			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(itemPosMin.x+_framebufferWidth*3.f/4.f,itemPosMin.y), itemPosMax, IM_COL32(255, 255, 255, 32));
+		if(relMousePos.y<_framebufferHeight/4.f)
+			ImGui::GetWindowDrawList()->AddRectFilled(itemPosMin, ImVec2(itemPosMin.x+itemSize.x,itemPosMin.y+_framebufferHeight/4.f), IM_COL32(255, 255, 255, 32));
+		else if(relMousePos.y >_framebufferHeight*3.f/4.f)
+			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(itemPosMin.x,itemPosMin.y+_framebufferHeight*3.f/4.f), itemPosMax, IM_COL32(255, 255, 255, 32));
+
+		// Rotate the model
+		if(ImGui::IsMouseDown(ImGuiMouseButton_Left))
+		{
+			//Calculate Mouse position
+			if(relMousePos.x<_framebufferWidth/4.f)
+				_modelRotation.y -= 0.05f;
+			else if(relMousePos.x >_framebufferWidth*3.f/4.f)
+			_modelRotation.y += 0.05f;
+
+			if(relMousePos.y<_framebufferHeight/4.f)
+				_modelRotation.x -= 0.05f;
+			else if(relMousePos.y >_framebufferHeight*3.f/4.f)
+				_modelRotation.x += 0.05f;
+		}
+	}
+
 }
