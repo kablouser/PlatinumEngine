@@ -175,7 +175,7 @@ namespace PlatinumEngine
 		if (pixelData == nullptr)
 		{
 			height = width = numberOfComponents = 0; // reset other fields
-			PLATINUM_WARNING_STREAM << "Failed to load image at path: " << filePath;
+			PLATINUM_ERROR_STREAM << "Failed to load image at path: " << filePath;
 			return false;
 		}
 

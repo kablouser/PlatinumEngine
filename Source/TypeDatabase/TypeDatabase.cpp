@@ -393,6 +393,7 @@ namespace PlatinumEngine
 		else
 		{
 			ostream << '?';
+			PLATINUM_WARNING_STREAM << "Serializing a unknown type. Have you forgotten to create type info for something?";
 		}
 	}
 
@@ -436,6 +437,7 @@ namespace PlatinumEngine
 			auto[foundElement, elementTypeInfo]= GetTypeInfo(typeInfo->collection->elementTypeIndex);
 			if (!foundElement)
 			{
+				PLATINUM_WARNING_STREAM << "Unknown element type for collection: " << typeInfo->typeName;
 				// no collection element info
 				if (SkipCurlyBrackets(istream, 1))// skip brackets
 					return DeserializeReturnCode::missingCollection;
@@ -569,15 +571,24 @@ namespace PlatinumEngine
 
 				auto[fieldSuccess, fieldTypeInfo]=GetTypeInfo(typeName);
 				if (!fieldSuccess)
+				{
+					PLATINUM_WARNING_STREAM << "Unknown type: " << typeName;
 					continue; // unknown type
+				}
 
 				// find fieldName in our type with inheritance
 				auto[foundFieldName, fieldInfo] = FindFieldName(*typeInfo, fieldName);
 				if (!foundFieldName)
+				{
+					PLATINUM_WARNING_STREAM << "Unknown field name: " << typeInfo->typeName << '.' << fieldName;
 					continue; // mismatch, no fieldName
+				}
 
 				if (fieldTypeInfo->typeIndex != fieldInfo->typeIndex)
+				{
+					PLATINUM_WARNING_STREAM << "Field type doesn't match: " << typeInfo->typeName << '.' << fieldName;
 					continue; // mismatch, field type is unexpected
+				}
 
 				istream.seekg(startPosition + std::streamoff(equalIndex + 1)); // after the equals
 
@@ -611,6 +622,8 @@ namespace PlatinumEngine
 			if (success)
 				// recurse
 				return FindFieldName(*inheritedTypeInfo, fieldName);
+			else
+				PLATINUM_WARNING_STREAM << "Unknown inherited type for: " << typeInfo.typeName;
 		}
 
 		return { false, nullptr };

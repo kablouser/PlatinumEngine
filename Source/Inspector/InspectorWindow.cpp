@@ -1016,15 +1016,19 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 void InspectorWindow::ShowAudioComponent(Scene& scene)
 {
 	auto obj = _sceneEditor->GetSelectedGameobject();
+	SavedReference<AudioComponent> audioComponent = obj.DeRef()->GetComponent<AudioComponent>();
+	if (!audioComponent)
+		return;
+	AudioComponent* audioComponentPointer = audioComponent.DeRef().get();
+
 	ImGui::Separator();
-	char sampleBuffer[64];
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_TABLE_CELLS "  Audio", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveRenderComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(obj.DeRef()->GetComponent<AudioComponent>());
+		scene.RemoveComponent(audioComponent);
 		return;
 	}
 	if (isHeaderOpen)
@@ -1034,32 +1038,35 @@ void InspectorWindow::ShowAudioComponent(Scene& scene)
 		ImGui::PushItemWidth(130.0f);
 
 		// store the current mesh name into mesh buffer, so that we can display it in the input text box
-		if (obj.DeRef()->GetComponent<AudioComponent>().DeRef() != nullptr)
-			strcpy(sampleBuffer, obj.DeRef()->GetComponent<AudioComponent>().DeRef()->fileName.c_str());
+		std::string emptyString;
+		std::string* audioClipName = nullptr;
+		if (audioComponentPointer->audioClip)
+			audioClipName = &audioComponentPointer->audioClip.DeRef()->fileName;
 		else
-			memset(sampleBuffer, 0, 64 * sizeof(char));
+			audioClipName = &emptyString;
 
 		// show text box (read only)
-		ImGui::InputText("##Sample Name", sampleBuffer, sizeof(sampleBuffer), ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputText("##Sample Name", audioClipName->data(), audioClipName->size(), ImGuiInputTextFlags_ReadOnly);
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
 
+		const char SELECT_AUDIO_CLIP[] = "Select Audio Clip";
+
 		if (ImGui::Button("Choose sample"))
 		{
-			ImGui::OpenPopup("Select Sample");
+			ImGui::OpenPopup(SELECT_AUDIO_CLIP);
 		}
 
 		if (ImGui::Button("Play"))
 		{
 			obj.DeRef()->GetComponent<AudioComponent>().DeRef()->Play();
 		}
-		/*
-		auto [success, asset] = _assetHelper->PickAssetGUIWindow<std::string>("Select Sample");
+
+		auto [success, asset] = _assetHelper->PickAssetGUIWindow<AudioClip>(SELECT_AUDIO_CLIP);
 		if (success)
 		{
-			obj.DeRef()->GetComponent<AudioComponent>().DeRef()->LoadSample(asset);
+			obj.DeRef()->GetComponent<AudioComponent>().DeRef()->audioClip = asset;
 		}
-		 */
 	}
 }
 

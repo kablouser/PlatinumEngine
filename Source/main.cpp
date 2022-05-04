@@ -21,15 +21,23 @@
 #include "SDL_mixer.h"
 #include "ComponentComposition/AudioComponent.h"
 
-static void GlfwErrorCallback(int error, const char* description)
+void GlfwErrorCallback(int error, const char* description)
 {
-	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
+	PLATINUM_ERROR_STREAM << "Glfw Error " << error << ": " << description;
 }
 
 int main(int, char**)
 {
-	if(SDL_Init(SDL_INIT_AUDIO)<0) printf("SDL could not initialize! SDL Error: %s\n",SDL_GetError());
-	if(Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,1024)<0) printf("Failed to open audio! Mix Error: %s\n",Mix_GetError());
+	if (SDL_Init(SDL_INIT_AUDIO) < 0)
+	{
+		PLATINUM_ERROR_STREAM << "SDL could not initialize! SDL Error: " << SDL_GetError();
+		return EXIT_FAILURE;
+	}
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0)
+	{
+		PLATINUM_ERROR_STREAM << "Failed to open audio! Mix Error: " << Mix_GetError();
+		return EXIT_FAILURE;
+	}
 
 	// Setup window
 	glfwSetErrorCallback(GlfwErrorCallback);
@@ -50,7 +58,6 @@ int main(int, char**)
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
 
-
 	{
 		// this scope has a valid OpenGL context initialised
 
@@ -59,7 +66,6 @@ int main(int, char**)
 		ImGui::CreateContext();
 		ImPlot::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
-		(void)io;
 
 		const ImWchar aw_icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 
@@ -112,9 +118,6 @@ int main(int, char**)
 
 		// load default scene
 		scene.LoadFile("Assets/Default.scene");
-
-
-	
 
 		physics.Initialize();
 		time.Update();

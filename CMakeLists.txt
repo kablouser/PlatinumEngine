@@ -127,6 +127,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/AssetDatabase/AssetDatabase.cpp;"
 	"Source/AssetDatabase/AssetHelper.cpp;"
 	
+	"Source/Audio/AudioClip.cpp;"
+	
 	"Source/ComponentComposition/Camera.cpp;"
 	"Source/ComponentComposition/AudioComponent.cpp;"
 	"Source/ComponentComposition/AnimationComponent.cpp;"

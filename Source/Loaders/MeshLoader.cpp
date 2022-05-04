@@ -63,7 +63,8 @@ namespace PlatinumEngine
 			const aiScene *scene = import.ReadFile(filePath.string(), flags);
 			if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 			{
-				PLATINUM_ERROR(import.GetErrorString());
+				PLATINUM_ERROR_STREAM << "Failed to load mesh at path: " << filePath <<
+					". Error: " << import.GetErrorString();
 				return {false, Mesh()};
 			}
 

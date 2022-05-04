@@ -8,6 +8,7 @@
 #include <Loaders/LoaderCommon.h>
 #include <Loaders/MeshLoader.h>
 #include <TypeDatabase/TypeDatabase.h>
+#include <Audio/AudioClip.h>
 
 using namespace std;
 
@@ -287,6 +288,8 @@ namespace PlatinumEngine
 			if (!asset.doesExist || asset.id == 0)
 				continue;
 
+			PLATINUM_INFO_STREAM << "Creating asset: " << asset.path;
+
 			auto findExtension = Loaders::EXTENSION_TO_TYPE.find(asset.path.extension().string());
 			if (findExtension == Loaders::EXTENSION_TO_TYPE.end())
 			{
@@ -312,6 +315,13 @@ namespace PlatinumEngine
 				texture.Create(pixelData);
 				idSystem.Overwrite<Texture>(asset.id, std::move(texture));
 			}
+			else if (findExtension->second == typeid(AudioClip))
+			{
+				AudioClip audioClip(asset.path.string().c_str());
+				if (!audioClip.IsValid())
+					continue;
+				idSystem.Overwrite<AudioClip>(asset.id, std::move(audioClip));
+			}
 			else
 			{
 				PLATINUM_WARNING_STREAM << "AssetDatabase could not load asset, extension not supported: "
@@ -319,6 +329,7 @@ namespace PlatinumEngine
 				continue;
 			}
 		}
+		PLATINUM_INFO("Finished creating assets.");
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
@@ -446,17 +457,16 @@ namespace PlatinumEngine
 						std::shared_ptr<void> empty = typeInfo->allocate();
 						auto[id, _]= idSystem.AddInternal(empty, typeIndex);
 						asset.id = id;
+
+						// we will overwrite this empty data with proper loaded data later in CreateAssets()
+						_assets.push_back(asset);
+						assert(pathsMap.insert({ path, _assets.size() - 1 }).second);
+						hashesMap.insert({ asset.hash, _assets.size() - 1 });
 					}
 					else
 					{
-						PLATINUM_ERROR_STREAM << "No allocator for asset type "
-											  << TypeDatabase::Instance->GetStoredTypeName(typeIndex);
+						PLATINUM_ERROR_STREAM << "Can't add to database because no allocator for asset: " << path;
 					}
-
-					// we will overwrite this empty data with proper loaded data later in CreateAssets()
-					_assets.push_back(asset);
-					assert(pathsMap.insert({ path, _assets.size() - 1 }).second);
-					hashesMap.insert({ asset.hash, _assets.size() - 1 });
 				}
 			}
 			else

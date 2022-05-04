@@ -5,14 +5,9 @@
 #pragma once
 
 #include <string>
-#include <vector>
 #include <map>
 #include <typeindex>
 #include <filesystem>
-
-#include <Logger/Logger.h>
-#include <OpenGL/Mesh.h>
-#include <OpenGL/Texture.h>
 
 namespace PlatinumEngine
 {

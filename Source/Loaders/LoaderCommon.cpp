@@ -3,6 +3,9 @@
 //
 
 #include <Loaders/LoaderCommon.h>
+#include <OpenGL/Mesh.h>
+#include <OpenGL/Texture.h>
+#include <Audio/AudioClip.h>
 
 namespace PlatinumEngine
 {
@@ -15,6 +18,12 @@ namespace PlatinumEngine
 
 				{ ".png", std::type_index(typeid(Texture)) },
 				// .jpg? .jpeg?
+
+				{ ".wav", std::type_index(typeid(AudioClip)) },
+				{ ".aiff", std::type_index(typeid(AudioClip)) },
+				{ ".riff", std::type_index(typeid(AudioClip)) },
+				{ ".ogg", std::type_index(typeid(AudioClip)) },
+				{ ".voc", std::type_index(typeid(AudioClip)) },
 		};
 
 		bool ExtensionAllowed(const std::filesystem::path& path)

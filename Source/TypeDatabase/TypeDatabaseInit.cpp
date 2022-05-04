@@ -9,6 +9,8 @@
 #include <ComponentComposition/SphereCollider.h>
 #include <ComponentComposition/CapsuleCollider.h>
 #include <ComponentComposition/RigidBody.h>
+#include <ComponentComposition/AudioComponent.h>
+#include <Audio/AudioClip.h>
 
 namespace PlatinumEngine
 {
@@ -32,10 +34,11 @@ namespace PlatinumEngine
 		Camera::CreateTypeInfo(*this);
 		Transform::CreateTypeInfo(*this);
 		AnimationComponent::CreateTypeInfo(*this);
-		RigidBody::CreateTypeInfo(*this);
-		BoxCollider::CreateTypeInfo(*this);
-		SphereCollider::CreateTypeInfo(*this);
-		CapsuleCollider::CreateTypeInfo(*this);
+//		RigidBody::CreateTypeInfo(*this);
+//		BoxCollider::CreateTypeInfo(*this);
+//		SphereCollider::CreateTypeInfo(*this);
+//		CapsuleCollider::CreateTypeInfo(*this);
+		AudioComponent::CreateTypeInfo(*this);
 
 		//------------------------------------------------------------------------------------------------------------------
 		// Purely public objects
@@ -88,6 +91,7 @@ namespace PlatinumEngine
 
 		BeginTypeInfo<Mesh>();
 		BeginTypeInfo<Texture>();
+		BeginTypeInfo<AudioClip>();
 
 		// this checks all fields/things are defined properly
 		FinalCheck();

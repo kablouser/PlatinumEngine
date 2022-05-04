@@ -203,7 +203,7 @@ namespace PlatinumEngine
 
 		if(ImGui::MenuItem("Quit", "Ctrl+Q"))
 		{
-			std::exit(0);
+			glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
 		}
 	}
 

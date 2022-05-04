@@ -23,7 +23,7 @@ namespace PlatinumEngine
 				.WithField<bool>("_isEnabled", PLATINUM_OFFSETOF(GameObject, _isEnabled))
 				.WithField<bool>("_isEnabledInHierarchy", PLATINUM_OFFSETOF(GameObject, _isEnabledInHierarchy))
 				.WithField<std::vector<SavedReference<GameObject>>>("_children", PLATINUM_OFFSETOF(GameObject, _children))
-				.WithField<std::vector<SavedReference<GameObject>>>("_components", PLATINUM_OFFSETOF(GameObject, _components));
+				.WithField<std::vector<SavedReference<Component>>>("_components", PLATINUM_OFFSETOF(GameObject, _components));
 	}
 
 	//--------------------------------------------------------------------------------------------------------------

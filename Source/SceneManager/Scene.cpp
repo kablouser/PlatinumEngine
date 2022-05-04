@@ -29,7 +29,7 @@ namespace PlatinumEngine
 						PLATINUM_OFFSETOF(Scene, _gameObjects))
 				.WithField<std::vector<SavedReference<GameObject>>>("_rootGameObjects",
 						PLATINUM_OFFSETOF(Scene, _rootGameObjects))
-				.WithField<std::vector<SavedReference<GameObject>>>("_components",
+				.WithField<std::vector<SavedReference<Component>>>("_components",
 						PLATINUM_OFFSETOF(Scene, _components));
 	}
 

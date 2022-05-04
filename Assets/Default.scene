@@ -1,8 +1,23 @@
 IDSystem
 {
 	{
+		9948769316098349950,
+		PlatinumEngine::AudioComponent 
+		{
+			// inherited from PlatinumEngine::Component
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 8003581218966239001;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			// from PlatinumEngine::AudioComponent
+			PlatinumEngine::SavedReference<PlatinumEngine::AudioClip> audioClip = 10267754693207273464;
+			bool _isLooping = 0;
+			int _channel = 0;
+			int _volume = -1163005939;
+		}
+	},
+	{
 		1051339079140824038,
-		PlatinumEngine::Camera
+		PlatinumEngine::Camera 
 		{
 			// inherited from PlatinumEngine::Component
 			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 798763187062360754;
@@ -35,7 +50,7 @@ IDSystem
 			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject> > _children = 
 			{
 			};
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject> > _components = 
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component> > _components = 
 			{
 				{1051339079140824038, PlatinumEngine::Camera},
 				{8649545035647055879, PlatinumEngine::Transform},
@@ -53,10 +68,27 @@ IDSystem
 			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject> > _children = 
 			{
 			};
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject> > _components = 
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component> > _components = 
 			{
 				{7428987465043416281, PlatinumEngine::MeshRender},
 				{9024192824514211433, PlatinumEngine::Transform},
+			};
+		}
+	},
+	{
+		8003581218966239001,
+		PlatinumEngine::GameObject 
+		{
+			std::string name = "AudioSource";
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 0;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject> > _children = 
+			{
+			};
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component> > _components = 
+			{
+				{9948769316098349950, PlatinumEngine::AudioComponent},
 			};
 		}
 	},
@@ -71,7 +103,7 @@ IDSystem
 			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject> > _children = 
 			{
 			};
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject> > _components = 
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component> > _components = 
 			{
 				{8978851154952401778, PlatinumEngine::MeshRender},
 				{11893554295648380710, PlatinumEngine::Transform},
@@ -80,7 +112,7 @@ IDSystem
 	},
 	{
 		7428987465043416281,
-		PlatinumEngine::MeshRender
+		PlatinumEngine::MeshRender 
 		{
 			// inherited from PlatinumEngine::Component
 			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 5894298866251707810;
@@ -102,7 +134,7 @@ IDSystem
 	},
 	{
 		8978851154952401778,
-		PlatinumEngine::MeshRender
+		PlatinumEngine::MeshRender 
 		{
 			// inherited from PlatinumEngine::Component
 			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 9385981541395253656;
@@ -124,7 +156,7 @@ IDSystem
 	},
 	{
 		8649545035647055879,
-		PlatinumEngine::Transform
+		PlatinumEngine::Transform 
 		{
 			// inherited from PlatinumEngine::Component
 			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 798763187062360754;
@@ -168,7 +200,7 @@ IDSystem
 	},
 	{
 		9024192824514211433,
-		PlatinumEngine::Transform
+		PlatinumEngine::Transform 
 		{
 			// inherited from PlatinumEngine::Component
 			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 5894298866251707810;
@@ -212,7 +244,7 @@ IDSystem
 	},
 	{
 		11893554295648380710,
-		PlatinumEngine::Transform
+		PlatinumEngine::Transform 
 		{
 			// inherited from PlatinumEngine::Component
 			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 9385981541395253656;
@@ -263,14 +295,16 @@ PlatinumEngine::Scene
 		9385981541395253656,
 		798763187062360754,
 		5894298866251707810,
+		8003581218966239001,
 	};
 	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject> > _rootGameObjects = 
 	{
 		9385981541395253656,
 		5894298866251707810,
 		798763187062360754,
+		8003581218966239001,
 	};
-	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject> > _components = 
+	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component> > _components = 
 	{
 		{8978851154952401778, PlatinumEngine::MeshRender},
 		{11893554295648380710, PlatinumEngine::Transform},
@@ -278,5 +312,6 @@ PlatinumEngine::Scene
 		{8649545035647055879, PlatinumEngine::Transform},
 		{7428987465043416281, PlatinumEngine::MeshRender},
 		{9024192824514211433, PlatinumEngine::Transform},
+		{9948769316098349950, PlatinumEngine::AudioComponent},
 	};
 };
