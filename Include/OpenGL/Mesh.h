@@ -28,15 +28,12 @@ namespace PlatinumEngine {
 		std::string fileName;
 
 		// For animation
-		std::vector<Animation> animations;
-		// todo suspicious
+		ozz::vector<ozz::unique_ptr<ozz::animation::Animation>> animations;
 		std::vector<AnimationVertex> animationVertices;
 		ozz::unique_ptr<ozz::animation::Skeleton> skeleton;
+
 		// Storing connection between vertices and bones/nodes
 		std::vector<Bone> bones;
-		// todo suspicious
-		// Mapping bones' name and id
-		std::map<std::string, unsigned int> boneMapping;
 
 		Mesh();
 

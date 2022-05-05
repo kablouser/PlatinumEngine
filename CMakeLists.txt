@@ -123,6 +123,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"${CMAKE_BINARY_DIR}/_deps/imguizmo-src/ImGuizmo.cpp;"
 	
 	"Source/Animation/Animation.cpp;"
+	"Source/Animation/AnimationLocalTimer.cpp;"
 	
 	"Source/AssetDatabase/AssetDatabase.cpp;"
 	"Source/AssetDatabase/AssetHelper.cpp;"
@@ -213,7 +214,7 @@ set(UNIT_TESTS
 	"Test/SceneEditor/EditorCameraTest.cpp;"
 	"Test/TypeDatabase/TestTypeDatabase.cpp;"
 	"Test/IDSystem/TestIDSystem.cpp;"
-	)
+	Include/Animation/AnimationLocalTimer.h Source/Animation/AnimationLocalTimer.cpp)
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 #-----------------------------
 
