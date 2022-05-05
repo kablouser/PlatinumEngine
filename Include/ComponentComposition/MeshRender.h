@@ -22,7 +22,6 @@ namespace PlatinumEngine
 		// update mesh from mesh loader
 		void SetMesh(SavedReference<Mesh> mesh);
 		void SetMaterial(SavedReference<Texture> texture);
-
 		void SetNormalMap(SavedReference<Texture> texture);
 
 		// return mesh

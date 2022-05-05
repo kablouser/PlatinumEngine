@@ -94,7 +94,7 @@ namespace PlatinumEngine
 		/**
 		 * Keep looping the animation time
 		 */
-		inline void UpdateAnimationTime();
+		void UpdateAnimationTime();
 
 	};
 

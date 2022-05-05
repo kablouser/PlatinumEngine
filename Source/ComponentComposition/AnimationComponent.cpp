@@ -13,49 +13,15 @@ namespace PlatinumEngine
 		typeDatabase.BeginTypeInfo<AnimationComponent>()
 					.WithInherit<Component>()
 					.WithField<std::vector<Maths::Mat4>>("worldTransform", PLATINUM_OFFSETOF(AnimationComponent,worldTransform))
-					.WithField<bool>("isDisplay", PLATINUM_OFFSETOF(AnimationComponent,isDisplay))
-					.WithField<ozz::unique_ptr<ozz::animation::Animation>>("animations", PLATINUM_OFFSETOF(AnimationComponent, animations))
-					.WithField<AnimationLocalTimer>("_timer", PLATINUM_OFFSETOF(AnimationComponent, _timer))
-					.WithField<unsigned int>("_selectedAnimationIndex", PLATINUM_OFFSETOF(AnimationComponent, _selectedAnimationIndex));
+					.WithField<bool>("isDisplay", PLATINUM_OFFSETOF(AnimationComponent,_isDisplay))
+					.WithField<AnimationLocalTimer>("_timer", PLATINUM_OFFSETOF(AnimationComponent, timer))
+					.WithField<unsigned int>("_selectedAnimationIndex", PLATINUM_OFFSETOF(AnimationComponent, _selectedAnimationIndex))
+					.WithField<SavedReference<Mesh>>("_mesh", PLATINUM_OFFSETOF(AnimationComponent, _mesh));
 	}
 
-	AnimationComponent::AnimationComponent(): isDisplay(false), _selectedAnimationIndex(0)
+	AnimationComponent::AnimationComponent(): _isDisplay(false), _selectedAnimationIndex(0), _mesh({})
 	{
 	}
-
-	void AnimationComponent::AddAnimation(ozz::unique_ptr<ozz::animation::Animation>& animation)
-	{
-		SavedReference<Mesh> currentMesh = GetGameObject().DeRef()->GetComponent<MeshRender>().DeRef()->GetMesh();
-
-		if(currentMesh.DeRef() == nullptr)
-			return;
-
-		if(animation->num_tracks() != currentMesh.DeRef()->skeleton->num_joints())
-			return;
-
-		for(ozz::unique_ptr<ozz::animation::Animation>& a : animations)
-		{
-			if(a == animation)
-				return;
-		}
-
-		animations.push_back(std::move(animation));
-	}
-
-
-
-	void AnimationComponent::RemoveAnimation(unsigned int index)
-	{
-		if(index < animations.size())
-		{
-			animations.erase(animations.begin() + index);
-			if (_selectedAnimationIndex == index)
-				_selectedAnimationIndex = 0;
-			else if (_selectedAnimationIndex > index)
-				--_selectedAnimationIndex;
-		}
-	}
-
 
 
 	void AnimationComponent::UpdateWorldTransformMatrix(
@@ -63,10 +29,10 @@ namespace PlatinumEngine
 			const std::vector<Bone>& bones
 	)
 	{
-		if(animations.size() <= _selectedAnimationIndex || skeleton == nullptr)
+		if(!CheckIfAnimationValid(_selectedAnimationIndex) || skeleton == nullptr)
 			return;
 
-		_timer.PlayAnimationTimer();
+		timer.PlayAnimationTimer();
 
 		ozz::vector<ozz::math::SoaTransform> localTransformOZZ;
 		ozz::vector<ozz::math::Float4x4> worldTransformOZZ;
@@ -79,9 +45,9 @@ namespace PlatinumEngine
 		// Samples runtime animation data
 		ozz::animation::SamplingJob samplingJob;
 
-		samplingJob.animation = animations[_selectedAnimationIndex].get();
+		samplingJob.animation = _mesh.DeRef()->animations[_selectedAnimationIndex].get();
 		samplingJob.context = &context;
-		samplingJob.ratio = _timer.GetAnimationTime()/animations[_selectedAnimationIndex]->duration();
+		samplingJob.ratio = timer.GetAnimationTime()/_mesh.DeRef()->animations[_selectedAnimationIndex]->duration();
 		samplingJob.output = make_span(localTransformOZZ);
 
 		// sample animation
@@ -124,10 +90,15 @@ namespace PlatinumEngine
 
 	void AnimationComponent::SetCurrentAnimationByID(unsigned int inID)
 	{
-		if (inID < animations.size())
+		if (CheckIfAnimationValid(inID))
 		{
 			_selectedAnimationIndex = inID;
-			_timer.SetAnimationDuration(animations[_selectedAnimationIndex]->duration());
+			timer.SetAnimationDuration(_mesh.DeRef()->animations[_selectedAnimationIndex]->duration());
+		}
+		else
+		{
+			_selectedAnimationIndex = 0;
+			timer.SetAnimationDuration(0);
 		}
 	}
 
@@ -138,18 +109,68 @@ namespace PlatinumEngine
 
 	unsigned int AnimationComponent::GetAmountOfAnimations() const
 	{
-		return animations.size();
+		if (CheckIfAnimationValid())
+		{
+			return _mesh.DeRef()->animations.size();
+		}
+		else
+		{
+			return 0;
+		}
 	}
 
 	std::string AnimationComponent::GetAnimationName(unsigned int inID) const
 	{
-		if(animations.size() > inID)
-			return animations[_selectedAnimationIndex]->name();
+		if(CheckIfAnimationValid(inID))
+			return _mesh.DeRef()->animations[_selectedAnimationIndex]->name();
 		else
 		{
 			PLATINUM_WARNING("Animation ID exceed the total amount of animations.");
 			return "";
 		}
+	}
+
+	void AnimationComponent::SetMesh(SavedReference<Mesh> inMesh)
+	{
+		if(!inMesh)
+			return;
+		if( inMesh.DeRef()->animations.empty())
+		{
+			// empty the mesh if the input mesh has no animation
+			_mesh = {};
+		}
+		else
+		{
+			// Set mesh as the input mesh
+			_mesh = std::move(inMesh);
+			// Set default selected animation
+			this->GetGameObject().DeRef()->GetComponent<AnimationComponent>().DeRef()->SetCurrentAnimationByID(0);
+		}
+	}
+
+	bool AnimationComponent::CheckIfAnimationValid(unsigned int inID) const
+	{
+		// return false if the mesh and animation are invalid
+		if(!_mesh)
+			return false;
+		if(_mesh.DeRef()->animations.empty())
+			return false;
+		if(_mesh.DeRef()->animations.size() <= inID)
+			return false;
+
+		// return true if the mesh and animation are valid
+		return true;
+	}
+
+	void AnimationComponent::SetIsDisplay(bool inIsDisplay)
+	{
+		if(CheckIfAnimationValid())
+			_isDisplay = inIsDisplay;
+	}
+
+	bool AnimationComponent::GetIsDisplay() const
+	{
+		return _isDisplay;
 	}
 
 }

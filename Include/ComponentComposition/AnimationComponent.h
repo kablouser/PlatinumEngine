@@ -16,9 +16,8 @@ namespace PlatinumEngine
 	public:
 		// {  PARAMETER  }
 		std::vector<Maths::Mat4> worldTransform;
-		bool isDisplay;
-		ozz::vector<ozz::unique_ptr<ozz::animation::Animation>> animations;
 
+		AnimationLocalTimer timer;
 
 	public:
 		// {  CONSTRUCTOR  }
@@ -27,12 +26,6 @@ namespace PlatinumEngine
 
 		// {  FUNCTION  }
 		static void CreateTypeInfo(TypeDatabase& typeDatabase);
-
-		// update Animation from mesh loader
-		void AddAnimation(ozz::unique_ptr<ozz::animation::Animation>& animation);
-
-		// remove animation
-		void RemoveAnimation(unsigned int index);
 
 		void UpdateWorldTransformMatrix(ozz::unique_ptr<ozz::animation::Skeleton>& skeleton,const std::vector<Bone>& bones);
 
@@ -44,9 +37,18 @@ namespace PlatinumEngine
 
 		std::string GetAnimationName(unsigned int inID) const;
 
+		void SetMesh(SavedReference<Mesh> mesh);
+
+		bool CheckIfAnimationValid(unsigned int inID = 0) const;
+
+		void SetIsDisplay(bool inIsDisplay);
+
+		bool GetIsDisplay() const;
+
 	private:
 		// {  PARAMETER  }
-		AnimationLocalTimer _timer;
+		SavedReference<Mesh> _mesh;
 		unsigned int _selectedAnimationIndex;
+		bool _isDisplay;
 	};
 }

@@ -3,7 +3,7 @@
 //
 
 #include <Animation/AnimationLocalTimer.h>
-
+#include <iostream>
 
 namespace PlatinumEngine
 {
