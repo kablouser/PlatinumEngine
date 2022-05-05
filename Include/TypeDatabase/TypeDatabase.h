@@ -47,7 +47,6 @@ namespace PlatinumEngine
 		prefix = "auto __cdecl PlatinumEngine::TypeName<";
 		suffix = ">(void)";
 #endif
-		auto x = name.data();
 		name.remove_prefix(prefix.size());
 		name.remove_suffix(suffix.size());
 		return name;

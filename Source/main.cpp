@@ -17,9 +17,8 @@
 #include <OpenGL/GLCheck.h>
 
 #define SDL_MAIN_HANDLED
-#include "SDL.h"
-#include "SDL_mixer.h"
-#include "ComponentComposition/AudioComponent.h"
+#include <SDL.h>
+#include <SDL_mixer.h>
 
 void GlfwErrorCallback(int error, const char* description)
 {
