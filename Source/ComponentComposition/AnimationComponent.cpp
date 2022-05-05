@@ -72,6 +72,10 @@ namespace PlatinumEngine
 		ozz::vector<ozz::math::Float4x4> worldTransformOZZ;
 		ozz::animation::SamplingJob::Context context;
 
+		context.Resize(skeleton->num_joints());
+		localTransformOZZ.resize(skeleton->num_joints());
+		worldTransformOZZ.resize(skeleton->num_joints());
+
 		// Samples runtime animation data
 		ozz::animation::SamplingJob samplingJob;
 
