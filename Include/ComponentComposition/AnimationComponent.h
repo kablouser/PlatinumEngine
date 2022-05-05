@@ -33,7 +33,7 @@ namespace PlatinumEngine
 
 		unsigned int GetCurrentAnimationID() const;
 
-		unsigned  int GetAmountOfAnimations() const;
+		unsigned int GetAmountOfAnimations() const;
 
 		std::string GetAnimationName(unsigned int inID) const;
 

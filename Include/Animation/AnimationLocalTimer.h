@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include <TypeDatabase/TypeDatabase.h>
 
 namespace PlatinumEngine
 {
@@ -11,6 +12,8 @@ namespace PlatinumEngine
 	public:
 
 		// {{{ Function }}}
+		static void CreateTypeInfo(TypeDatabase& typeDatabase);
+
 		void SetAnimationDuration(float inDuration);
 
 

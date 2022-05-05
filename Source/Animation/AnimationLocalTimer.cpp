@@ -7,6 +7,18 @@
 
 namespace PlatinumEngine
 {
+
+	void AnimationLocalTimer::CreateTypeInfo(TypeDatabase& typeDatabase)
+	{
+		typeDatabase.BeginTypeInfo<AnimationLocalTimer>()
+				.WithField<float>("_animationTime", PLATINUM_OFFSETOF(AnimationLocalTimer,_animationTime))
+				.WithField<float>("_duration", PLATINUM_OFFSETOF(AnimationLocalTimer,_duration))
+				.WithField<bool>("_isAnimationLooping", PLATINUM_OFFSETOF(AnimationLocalTimer,_isAnimationLooping))
+				.WithField<bool>("_isLastFrame", PLATINUM_OFFSETOF(AnimationLocalTimer,_isLastFrame))
+				.WithField<bool>("_isAnimationPlaying", PLATINUM_OFFSETOF(AnimationLocalTimer,_isAnimationPlaying))
+				.WithField<bool>("_isAnimationFinish", PLATINUM_OFFSETOF(AnimationLocalTimer,_isAnimationFinish));
+	}
+
 	void AnimationLocalTimer::SetAnimationDuration(float inDuration)
 	{
 		_duration = inDuration >= 0.f ? inDuration:0.f;
@@ -98,5 +110,7 @@ namespace PlatinumEngine
 
 	AnimationLocalTimer::AnimationLocalTimer():_duration(0.f)
 	{}
+
+
 
 }
