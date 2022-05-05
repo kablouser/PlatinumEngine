@@ -77,9 +77,7 @@ namespace PlatinumEngine
 		// OZZ data
 		ozz::animation::offline::RawAnimation rawAnimation;
 		ozz::unique_ptr<ozz::animation::Animation> animation;
-		ozz::animation::SamplingJob::Context context;
-		ozz::vector<ozz::math::SoaTransform> localTransformOZZ;
-		ozz::vector<ozz::math::Float4x4> worldTransformOZZ;
+
 		std::vector<Maths::Mat4> worldTransform;
 
 		// {  FUNCTION_  }
@@ -175,6 +173,6 @@ namespace PlatinumEngine
 		/**
 		 * Convert Matrices from ozz::math::Float4x4 to Maths::Mat4
 		 */
-		void ConvertMatrix();
+		void ConvertMatrix(ozz::vector<ozz::math::Float4x4> worldTransformOZZ);
 	};
 }

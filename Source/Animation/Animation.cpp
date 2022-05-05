@@ -57,6 +57,15 @@ namespace PlatinumEngine
 		if(animation == nullptr || skeleton == nullptr)
 			return;
 
+		ozz::animation::SamplingJob::Context context;
+		ozz::vector<ozz::math::SoaTransform> localTransformOZZ;
+		ozz::vector<ozz::math::Float4x4> worldTransformOZZ;
+
+		// Resize based on the number of joints
+		context.Resize(skeleton->num_joints());
+		localTransformOZZ.resize(skeleton->num_joints());
+		worldTransformOZZ.resize(skeleton->num_joints());
+
 		// Samples runtime animation data
 		ozz::animation::SamplingJob samplingJob;
 		samplingJob.animation = animation.get();
@@ -82,7 +91,7 @@ namespace PlatinumEngine
 		}
 
 		// convert the matrix from ozz::math::Float4x4 to Maths::Mat4
-		ConvertMatrix();
+		ConvertMatrix(worldTransformOZZ);
 
 		// calculate the final transformation matrices for every vertex
 		for(auto & bone : bones)
@@ -182,14 +191,11 @@ namespace PlatinumEngine
 
 		animation = animationBuilder(rawAnimation);
 
-		// Resize based on the number of joints
-		context.Resize(animation->num_tracks());
-		localTransformOZZ.resize(animation->num_tracks());
-		worldTransformOZZ.resize(animation->num_tracks());
+
 	}
 
 
-	void Animation::ConvertMatrix()
+	void Animation::ConvertMatrix(ozz::vector<ozz::math::Float4x4> worldTransformOZZ)
 	{
 
 		worldTransform.clear();
