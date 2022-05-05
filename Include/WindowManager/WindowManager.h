@@ -32,7 +32,8 @@ namespace PlatinumEngine
 					  IDSystem& idSystem,
 					  TypeDatabase& typeDatabase,
 					  AssetDatabase& assetDatabase,
-					  Scene& scene
+					  Scene& scene,
+					  AssetHelper *assetHelper
 					  );
 
 		///-----------------------------------
@@ -97,6 +98,6 @@ namespace PlatinumEngine
 		TypeDatabase& _typeDatabase;
 		AssetDatabase& _assetDatabase;
 		Scene& _scene;
-
+		AssetHelper *_assetHelper;
 	};
 }

@@ -21,7 +21,8 @@ namespace PlatinumEngine
 								IDSystem& idSystem,
 								TypeDatabase& typeDatabase,
 								AssetDatabase& assetDatabase,
-								Scene& scene
+								Scene& scene,
+								AssetHelper *assetHelper
 								):
 								_gameWindow(gameWindow),
 								_sceneEditor(sceneEditor),
@@ -33,7 +34,8 @@ namespace PlatinumEngine
 								_idSystem(idSystem),
 								_typeDatabase(typeDatabase),
 								_assetDatabase(assetDatabase),
-								_scene(scene)
+								_scene(scene),
+								_assetHelper(assetHelper)
 	{
 	}
 
@@ -249,13 +251,61 @@ namespace PlatinumEngine
 		if (ImGui::BeginMenu("3D Object"))
 		{
 			if (ImGui::MenuItem("Cube"))
-			{}
+			{
+				std::filesystem::path cubePath = "./Assets/Meshes/Cube.obj";
+				auto [success, asset] = _assetHelper->GetAsset<Mesh>(cubePath.string());
+				auto cube = scene.AddGameObject("Cube");
+				scene.AddComponent<Transform>(cube);
+				if(success)
+				{
+					scene.AddComponent<MeshRender>(cube);
+					cube.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(asset);
+				}
+				scene.AddComponent<BoxCollider>(cube);
+			}
+
 			if (ImGui::MenuItem("Sphere"))
-			{}
+			{
+				std::filesystem::path spherePath = "./Assets/Meshes/Sphere4.obj";
+				auto [success, asset] = _assetHelper->GetAsset<Mesh>(spherePath.string());
+				auto sphere = scene.AddGameObject("Sphere");
+				scene.AddComponent<Transform>(sphere);
+				if(success)
+				{
+					scene.AddComponent<MeshRender>(sphere);
+					sphere.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(asset);
+				}
+				scene.AddComponent<SphereCollider>(sphere);
+			}
+
 			if (ImGui::MenuItem("Capsule"))
-			{}
+			{
+				std::filesystem::path capsulePath = "./Assets/Meshes/Capsule.obj";
+				auto [success, asset] = _assetHelper->GetAsset<Mesh>(capsulePath.string());
+				auto capsule = scene.AddGameObject("Capsule");
+				scene.AddComponent<Transform>(capsule);
+				if(success)
+				{
+					scene.AddComponent<MeshRender>(capsule);
+					capsule.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(asset);
+				}
+				scene.AddComponent<CapsuleCollider>(capsule);
+			}
+
 			if (ImGui::MenuItem("Plane"))
-			{}
+			{
+				std::filesystem::path planePath = "./Assets/Meshes/Quad.obj";
+				auto [success, asset] = _assetHelper->GetAsset<Mesh>(planePath.string());
+				auto plane = scene.AddGameObject("Plane");
+				scene.AddComponent<Transform>(plane);
+				if(success)
+				{
+					scene.AddComponent<MeshRender>(plane);
+					plane.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(asset);
+				}
+
+				scene.AddComponent<BoxCollider>(plane);
+			}
 			ImGui::EndMenu();
 		}
 	}

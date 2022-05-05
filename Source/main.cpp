@@ -112,7 +112,7 @@ int main(int, char**)
 		PlatinumEngine::GameWindow gameWindow(&scene, &rasterRenderer, &time, &physics);
 		PlatinumEngine::ProjectWindow projectWindow(&scene, &assetHelper, &sceneEditor);
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger,
-				&inspectorWindow, &profiler, &projectWindow, idSystem, typeDatabase, assetDatabase, scene);
+				&inspectorWindow, &profiler, &projectWindow, idSystem, typeDatabase, assetDatabase, scene, &assetHelper);
 
 		// create assets
 		assetDatabase.Update(idSystem, scene);
