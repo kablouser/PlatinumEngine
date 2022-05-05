@@ -23,7 +23,6 @@ namespace PlatinumEngine
 
 	btCollisionShape* BoxCollider::GetShape()
 	{
-		// Update size of shape
 		_boxShape = btBoxShape(Physics::ConvertVector(size));
 		return &_boxShape;
 	}

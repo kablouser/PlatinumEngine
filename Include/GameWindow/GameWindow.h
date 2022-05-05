@@ -48,12 +48,14 @@ namespace PlatinumEngine
 		 * A resumed game can be resumed again. (no effect)
 		 *
 		 * Scene.OnUpdate is called when a game is started and resumed.
+		 *
+		 * These 2 states are controlled by:
+		 * Scene._isStarted and isPaused
 		 */
 
 		bool isPaused;
 
 	private:
-		bool _isStarted;
 
 		Scene* _scene;
 		Renderer* _renderer;

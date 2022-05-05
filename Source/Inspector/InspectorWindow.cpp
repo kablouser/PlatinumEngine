@@ -619,13 +619,13 @@ void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Damping: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::DragFloat("##Damping", &rigidBodyPointer->physicalMaterial.damping, 0.001f);
+		ImGui::DragFloat("##Damping", &rigidBodyPointer->physicsMaterial.damping, 0.001f);
 
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("AngularDamping: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::DragFloat("##AngularDamping", &rigidBodyPointer->physicalMaterial.angularDamping, 0.001f);
+		ImGui::DragFloat("##AngularDamping", &rigidBodyPointer->physicsMaterial.angularDamping, 0.001f);
 
 		ImGui::Separator();
 		ImGui::Text("Physical Material");
@@ -633,12 +633,15 @@ void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Friction: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::DragFloat("##Friction", &rigidBodyPointer->physicalMaterial.friction, 0.001f);
+		ImGui::DragFloat("##Friction", &rigidBodyPointer->physicsMaterial.friction, 0.001f);
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Bounciness: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::SliderFloat("##Bounciness", &rigidBodyPointer->physicalMaterial.bounciness, 0.f, 1.f, "%.2f");
+		ImGui::SliderFloat("##Bounciness", &rigidBodyPointer->physicsMaterial.bounciness, 0.f, 1.f, "%.2f");
+
+		if (ImGui::Button("Update Physics Properties"))
+			rigidBodyPointer->UpdatePhysicsProperties(*_physics);
 	}
 }
 

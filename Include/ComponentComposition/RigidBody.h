@@ -33,16 +33,23 @@ namespace PlatinumEngine
 		void OnEnable(Scene& scene) override;
 		// Clean up all bullet pointers
 		void OnDisable(Scene& scene) override;
+		// Removes btRigidBody from the physics world. Reconstructs it. Adds it back if there's a transform and collider.
+		// btRigidBody loses all velocities and some other stuff.
+		void UpdatePhysicsProperties(Physics& physics);
 
-		bool isKinematic; //kinematic
-		float mass; // mass
-		PlatinumEngine::PhysicsMaterial physicalMaterial;
+		// These fields are only used to construct btRigidBody.
+		// They don't change the btRigidBody while it's simulating.
+		bool isKinematic;
+		float mass; // min=00001f, because static is not allowed
+		PlatinumEngine::PhysicsMaterial physicsMaterial;
 
 	private:
 		// bullet objects
-		btDefaultMotionState _motionState;
 		btRigidBody _rigidBody;
-		// dummy shape to keep Bullet happy until a real shape is detected
-		btEmptyShape _emptyShape;
+		// has btRigidBody been added to the bullet physics world?
+		bool _addedToPhysicsWorld;
+
+		void AddToPhysicsWorld(Physics& physics);
+		void RemoveFromPhysicsWorld(Physics& physics);
 	};
 }

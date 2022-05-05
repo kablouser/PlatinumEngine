@@ -3,6 +3,7 @@
 #include <limits>
 #include <cassert>
 #include <fstream>
+#include <stack>
 
 #include <Logger/Logger.h>
 #include <Loaders/LoaderCommon.h>
@@ -393,6 +394,8 @@ namespace PlatinumEngine
 		}
 
 		filesystem::path assetDatabasePath(_assetDatabasePath);
+		// First in, last out. So end indices are removed first.
+		std::stack<size_t> indicesToErase;
 
 		// add any new assets in currentPaths
 		for (auto& path: currentExistingPaths)
@@ -505,7 +508,10 @@ namespace PlatinumEngine
 						// asset previously existed, it was renamed/moved
 						// update path in existing entry
 						_assets.at(databaseIndex).path = path;
+						_assets.at(databaseIndex).hash = hash;
 						_assets.at(databaseIndex).doesExist = true;
+						// erase old index
+						indicesToErase.push(lastDatabaseIndex);
 					}
 					else
 					{
@@ -518,6 +524,13 @@ namespace PlatinumEngine
 					}
 				}
 			}
+		}
+
+		while (!indicesToErase.empty())
+		{
+			size_t index = indicesToErase.top();
+			_assets.erase(_assets.begin() + index);
+			indicesToErase.pop();
 		}
 	}
 }

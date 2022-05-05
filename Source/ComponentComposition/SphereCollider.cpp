@@ -2,7 +2,7 @@
 // Created by shawn on 2022/4/22.
 //
 
-#include "ComponentComposition/SphereCollider.h"
+#include <ComponentComposition/SphereCollider.h>
 
 namespace PlatinumEngine
 {

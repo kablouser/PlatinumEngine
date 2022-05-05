@@ -264,15 +264,15 @@ IDSystem
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
 			// from PlatinumEngine::RigidBody
-			PlatinumEngine::PhysicsMaterial physicalMaterial = 
+			PlatinumEngine::PhysicsMaterial physicsMaterial = 
 			{
 				float friction = 0;
-				float bounciness = 0.5;
+				float bounciness = 1;
 				float damping = 0;
 				float angularDamping = 0;
 			};
-			float mass = 1;
-			bool kinematic = 1;
+			float mass = 0;
+			bool isKinematic = 0;
 		}
 	},
 	{
@@ -284,15 +284,15 @@ IDSystem
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
 			// from PlatinumEngine::RigidBody
-			PlatinumEngine::PhysicsMaterial physicalMaterial = 
+			PlatinumEngine::PhysicsMaterial physicsMaterial = 
 			{
 				float friction = 0;
-				float bounciness = 1;
+				float bounciness = 0.5;
 				float damping = 0;
 				float angularDamping = 0;
 			};
 			float mass = 1;
-			bool kinematic = 0;
+			bool isKinematic = 0;
 		}
 	},
 	{

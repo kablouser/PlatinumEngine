@@ -11,7 +11,7 @@ namespace PlatinumEngine
 {
 	PlatinumEngine::GameWindow::GameWindow(Scene* scene, Renderer* renderer, Time* time, Physics* physics)
 			: _renderer(renderer), _scene(scene), _time(time), _physics(physics), _renderTexture(), _skyboxTexture(),
-			  _skyBoxShaderInput(), isPaused(false), _isStarted(false)
+			  _skyBoxShaderInput(), isPaused(false)
 	{
 		// Setup skybox texture
 		_skyboxTexture.CreateCubeMap({ "./Assets/Texture/Left_X.png",
@@ -31,7 +31,7 @@ namespace PlatinumEngine
 
 	void GameWindow::ShowGUIWindow(bool* outIsOpen)
 	{
-		if (_isStarted && !isPaused)
+		if (_scene->IsStarted() && !isPaused)
 			Update();
 
 		if (ImGui::Begin(ICON_FA_GAMEPAD " Game View", outIsOpen))
@@ -44,14 +44,13 @@ namespace PlatinumEngine
 
 	bool GameWindow::GetIsStarted() const
 	{
-		return _isStarted;
+		return _scene->IsStarted();
 	}
 
 	void GameWindow::SetIsStarted(bool isStarted)
 	{
-		if (_isStarted == isStarted)
+		if (_scene->IsStarted() == isStarted)
 			return; // this check is necessary
-		_isStarted = isStarted;
 
 		if (isStarted)
 			_scene->Start();
@@ -61,7 +60,7 @@ namespace PlatinumEngine
 
 	void GameWindow::Step()
 	{
-		if (!_isStarted)
+		if (!_scene->IsStarted())
 			return;
 
 		isPaused = true;

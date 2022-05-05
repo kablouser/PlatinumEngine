@@ -55,9 +55,6 @@ namespace PlatinumEngine
 
 	private:
 
-		void RigidBodyOnBegin(SavedReference<PlatinumEngine::RigidBody> rigidBody);
-		void RigidBodyOnEnd(SavedReference<PlatinumEngine::RigidBody> rigidBody);
-
 		//parameters and objects
 		//bullet init objects
 		btDefaultCollisionConfiguration _config;
@@ -66,6 +63,7 @@ namespace PlatinumEngine
 		btSequentialImpulseConstraintSolver _solver;
 		btDiscreteDynamicsWorld _bulletWorld;
 
+		// RigidBodies here aren't necessarily in the physics world. They are just the active rigidBodies in the scene.
 		std::vector<SavedReference<PlatinumEngine::RigidBody>> _allRigidBodies;
 	};
 }

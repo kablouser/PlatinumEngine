@@ -60,6 +60,10 @@ namespace PlatinumEngine
 		std::ifstream loadFile(filePath, std::ios::binary); // Windows needs binary to use seekg()
 		if (loadFile.is_open())
 		{
+			// First, end before loading. Otherwise, resources leak.
+			if (_isStarted)
+				End();
+
 			// first delete existing scene data
 			idSystem.Clear();
 			Clear();
@@ -321,6 +325,12 @@ namespace PlatinumEngine
 
 	void Scene::Update(double deltaTime)
 	{
+		if (!IsStarted())
+		{
+			PLATINUM_WARNING("You cannot Update before Start");
+			return;
+		}
+
 		for (auto& gameObject: _rootGameObjects)
 			BroadcastOnUpdate(gameObject, deltaTime);
 	}
