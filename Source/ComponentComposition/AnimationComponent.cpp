@@ -12,16 +12,14 @@ namespace PlatinumEngine
 
 		typeDatabase.BeginTypeInfo<AnimationComponent>()
 					.WithInherit<Component>()
-					.WithField<std::vector<Maths::Mat4>>("worldTransform", PLATINUM_OFFSETOF(AnimationComponent,worldTransform))
 					.WithField<bool>("isDisplay", PLATINUM_OFFSETOF(AnimationComponent,_isDisplay))
 					.WithField<AnimationLocalTimer>("_timer", PLATINUM_OFFSETOF(AnimationComponent, timer))
 					.WithField<unsigned int>("_selectedAnimationIndex", PLATINUM_OFFSETOF(AnimationComponent, _selectedAnimationIndex))
 					.WithField<SavedReference<Mesh>>("_mesh", PLATINUM_OFFSETOF(AnimationComponent, _mesh));
 	}
 
-	AnimationComponent::AnimationComponent(): _isDisplay(false), _selectedAnimationIndex(0), _mesh({})
-	{
-	}
+	AnimationComponent::AnimationComponent(): _isDisplay(false), _selectedAnimationIndex(0)
+	{}
 
 
 	void AnimationComponent::UpdateWorldTransformMatrix(
