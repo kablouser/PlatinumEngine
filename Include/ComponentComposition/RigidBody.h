@@ -23,6 +23,9 @@ namespace PlatinumEngine
 		//Constructor
 		RigidBody();
 
+		//Reposition function
+		void Reposition(Maths::Vec3 position, Maths::Quaternion rotation);
+
 		// Get the WorldTransform matrix
 		btTransform GetWorldTransform() const;
 
@@ -42,6 +45,11 @@ namespace PlatinumEngine
 		bool isKinematic;
 		float mass; // min=00001f, because static is not allowed
 		PlatinumEngine::PhysicsMaterial physicsMaterial;
+
+		Maths::Vec3 initialPosition;
+		Maths::Quaternion initialRotation;
+
+
 
 	private:
 		// bullet objects

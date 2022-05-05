@@ -53,6 +53,8 @@ namespace PlatinumEngine
 		void SetGravity(Maths::Vec3 gravity = {0.f, -9.81f, 0.f});
 		Maths::Vec3 GetGravity() const;
 
+		std::vector<SavedReference<PlatinumEngine::RigidBody>> GetRigidBodies();
+
 	private:
 
 		//parameters and objects

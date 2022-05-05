@@ -120,4 +120,9 @@ namespace PlatinumEngine
 	{
 		return ConvertVectorBack(_bulletWorld.getGravity());
 	}
+
+	std::vector<SavedReference<PlatinumEngine::RigidBody>> Physics::GetRigidBodies()
+	{
+		return _allRigidBodies;
+	}
 }

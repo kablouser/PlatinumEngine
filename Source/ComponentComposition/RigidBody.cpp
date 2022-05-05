@@ -104,5 +104,19 @@ namespace PlatinumEngine
 		physics._bulletWorld.removeRigidBody(&_rigidBody);
 		_addedToPhysicsWorld = false;
 	}
+
+	void RigidBody::Reposition(Maths::Vec3 position, Maths::Quaternion rotation)
+	{
+		btTransform initialTransform;
+
+		initialTransform.setOrigin(Physics::ConvertVector(position));
+		initialTransform.setRotation(Physics::ConvertQuaternion(rotation));
+
+		btMotionState* motionState = new btDefaultMotionState(initialTransform);
+
+		_rigidBody.setWorldTransform(initialTransform);
+		_rigidBody.setMotionState(motionState);
+		_rigidBody.getMotionState()->setWorldTransform(initialTransform);
+	}
 }
 

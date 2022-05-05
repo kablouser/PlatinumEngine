@@ -122,6 +122,12 @@ namespace PlatinumEngine
 			{
 				if (ImGui::Button(ICON_FA_STOP "##StopGame"))
 				{
+					auto physicsObjects = _scene.physics.GetRigidBodies();
+					for(auto& object: physicsObjects)
+					{
+						object.DeRef()->GetComponent<Transform>().DeRef()->localRotation = object.DeRef()->initialRotation;
+						object.DeRef()->GetComponent<Transform>().DeRef()->localPosition = object.DeRef()->initialPosition;
+					}
 					_gameWindow->SetIsStarted(false);
 					// isPaused is reset to false when game is stopped
 					_gameWindow->isPaused = false;
@@ -130,9 +136,19 @@ namespace PlatinumEngine
 			else
 			{
 				if (ImGui::Button(ICON_FA_PLAY "##PlayGame"))
+				{
+					auto physicsObjects = _scene.physics.GetRigidBodies();
+					for(auto& object: physicsObjects)
+					{
+						object.DeRef()->initialRotation = object.DeRef()->GetComponent<Transform>().DeRef()->localRotation;
+						object.DeRef()->initialPosition = object.DeRef()->GetComponent<Transform>().DeRef()->localPosition;
+						object.DeRef()->Reposition(object.DeRef()->initialPosition, object.DeRef()->initialRotation);
+					}
 					_gameWindow->SetIsStarted(true);
+				}
 			}
 
+			ImGui::BeginDisabled(!_gameWindow->GetIsStarted());
 			if (_gameWindow->isPaused)
 			{
 				// When paused, cause pause button to look "hovered"
@@ -146,9 +162,7 @@ namespace PlatinumEngine
 				if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
 					_gameWindow->isPaused = true;
 			}
-
 			// Step does nothing when game is stopped. So disable it.
-			ImGui::BeginDisabled(!_gameWindow->GetIsStarted());
 			if (ImGui::Button(ICON_FA_FORWARD_STEP "##Step"))
 				_gameWindow->Step();
 			ImGui::EndDisabled();
