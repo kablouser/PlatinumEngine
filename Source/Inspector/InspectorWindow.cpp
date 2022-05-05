@@ -490,49 +490,37 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 
 void InspectorWindow::ShowBoxColliderComponent(Scene& scene)
 {
+	SavedReference<BoxCollider> boxCollider = _sceneEditor->GetSelectedGameobject().DeRef()->GetComponent<BoxCollider>();
+	BoxCollider* boxColliderPointer = boxCollider.DeRef().get();
+
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_BOX "  BoxCollider Component",
 			ImGuiTreeNodeFlags_AllowItemOverlap);
-	auto obj = _sceneEditor->GetSelectedGameobject();
+
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveBoxColliderComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(obj.DeRef()->GetComponent<BoxCollider>());
+		scene.RemoveComponent(boxCollider);
 		return;
 	}
 
 	if (isHeaderOpen)
 	{
 		ImGui::PushItemWidth(50);
-		ImGui::Text("Center: ");
-		ImGui::SameLine(_textWidth - 16.f);
-		ImGui::Text("X");
-		ImGui::SameLine();
-		ImGui::DragFloat("##XcenBox", &obj.DeRef()->GetComponent<BoxCollider>().DeRef()->center.x, 0.001f);
-		ImGui::SameLine();
-		ImGui::Text("Y");
-		ImGui::SameLine();
-		ImGui::DragFloat("##YcenBox", &obj.DeRef()->GetComponent<BoxCollider>().DeRef()->center.y, 0.001f);
-		ImGui::SameLine();
-		ImGui::Text("Z");
-		ImGui::SameLine();
-		ImGui::DragFloat("##ZcenBox", &obj.DeRef()->GetComponent<BoxCollider>().DeRef()->center.z, 0.001f);
-
-		ImGui::PushItemWidth(50);
 		ImGui::Text("Size: ");
 		ImGui::SameLine(_textWidth - 16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Xsize", &obj.DeRef()->GetComponent<BoxCollider>().DeRef()->size.x, 0.001f);
+		ImGui::DragFloat("##Xsize", &boxColliderPointer->size.x, 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Ysize", &obj.DeRef()->GetComponent<BoxCollider>().DeRef()->size.y, 0.001f);
+		ImGui::DragFloat("##Ysize", &boxColliderPointer->size.y, 0.001f);
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Zsize", &obj.DeRef()->GetComponent<BoxCollider>().DeRef()->size.z, 0.001f);
+		ImGui::DragFloat("##Zsize", &boxColliderPointer->size.z, 0.001f);
 	}
 }
 
@@ -543,42 +531,28 @@ void InspectorWindow::ShowCapsuleColliderComponent(Scene& scene)
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_CAPSULES "  CapsuleCollider Component",
 			ImGuiTreeNodeFlags_AllowItemOverlap);
-	auto obj = _sceneEditor->GetSelectedGameobject();
+	SavedReference<CapsuleCollider> capsuleCollider = _sceneEditor->GetSelectedGameobject().DeRef()->GetComponent<CapsuleCollider>();
+	CapsuleCollider* capsuleColliderPointer = capsuleCollider.DeRef().get();
+
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveBoxColliderComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(obj.DeRef()->GetComponent<CapsuleCollider>());
+		scene.RemoveComponent(capsuleCollider);
 		return;
 	}
 
 	if (isHeaderOpen)
 	{
-		CapsuleCollider* capsuleCollider = obj.DeRef()->GetComponent<CapsuleCollider>().DeRef().get();
-		ImGui::PushItemWidth(50);
-		ImGui::Text("Center: ");
-		ImGui::SameLine(_textWidth - 16.f);
-		ImGui::Text("X");
-		ImGui::SameLine();
-		ImGui::DragFloat("##XcenCap", &capsuleCollider->center.x, 0.001f);
-		ImGui::SameLine();
-		ImGui::Text("Y");
-		ImGui::SameLine();
-		ImGui::DragFloat("##YcenCap", &capsuleCollider->center.y, 0.001f);
-		ImGui::SameLine();
-		ImGui::Text("Z");
-		ImGui::SameLine();
-		ImGui::DragFloat("##ZcenCap", &capsuleCollider->center.z, 0.001f);
-
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Radius: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::DragFloat("##RadiusCap", &capsuleCollider->radius, 0.001f);
+		ImGui::DragFloat("##RadiusCap", &capsuleColliderPointer->radius, 0.001f);
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Height: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::DragFloat("##Height", &capsuleCollider->height, 0.001f);
+		ImGui::DragFloat("##Height", &capsuleColliderPointer->height, 0.001f);
 	}
 }
 
@@ -599,20 +573,6 @@ void InspectorWindow::ShowSphereColliderComponent(Scene& scene)
 	if (isHeaderOpen)
 	{
 		SphereCollider* sphereCollider = obj.DeRef()->GetComponent<SphereCollider>().DeRef().get();
-		ImGui::PushItemWidth(50);
-		ImGui::Text("Center: ");
-		ImGui::SameLine(_textWidth - 16.f);
-		ImGui::Text("X");
-		ImGui::SameLine();
-		ImGui::DragFloat("##Xcen", &sphereCollider->center.x, 0.001f);
-		ImGui::SameLine();
-		ImGui::Text("Y");
-		ImGui::SameLine();
-		ImGui::DragFloat("##Ycen", &sphereCollider->center.y, 0.001f);
-		ImGui::SameLine();
-		ImGui::Text("Z");
-		ImGui::SameLine();
-		ImGui::DragFloat("##Zcen", &sphereCollider->center.z, 0.001f);
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Radius: ");
@@ -623,27 +583,22 @@ void InspectorWindow::ShowSphereColliderComponent(Scene& scene)
 
 void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
 {
+	if (!_sceneEditor->GetSelectedGameobject())
+		return;
+	SavedReference<RigidBody> rigidBody = _sceneEditor->GetSelectedGameobject().DeRef()->GetComponent<RigidBody>();
+	if (!rigidBody)
+		return;
+	RigidBody* rigidBodyPointer = rigidBody.DeRef().get();
+
 	ImGui::Separator();
-	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_USER "  RigidBody Component",
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_USER " RigidBody Component",
 			ImGuiTreeNodeFlags_AllowItemOverlap);
-	auto obj = _sceneEditor->GetSelectedGameobject();
-	auto bulletWorldObject = _physics->GetPhysicalObject();
+
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveRigidBodyComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(obj.DeRef()->GetComponent<RigidBody>());
-		//remove the object from the bullet physics world
-		for (int i = 0; i < bulletWorldObject.size(); i++)
-		{
-			auto physicsObject = bulletWorldObject[i];
-			if (obj == physicsObject)
-			{
-				// Todo: Don't do this here
-				bulletWorldObject.erase(bulletWorldObject.begin() + i);
-			}
-		}
-
+		scene.RemoveComponent(rigidBody);
 		return;
 	}
 
@@ -652,25 +607,25 @@ void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Mass: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::DragFloat("##Mass", &obj.DeRef()->GetComponent<RigidBody>().DeRef()->mass, 0.001f);
+		ImGui::DragFloat("##Mass", &rigidBodyPointer->mass, 0.001f);
 
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("IsKinematic: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::Checkbox("##kinematic", &obj.DeRef()->GetComponent<RigidBody>().DeRef()->kinematic);
+		ImGui::Checkbox("##kinematic", &rigidBodyPointer->isKinematic);
 
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Damping: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::DragFloat("##Damping", &obj.DeRef()->GetComponent<RigidBody>().DeRef()->physicalMaterial.damping, 0.001f);
+		ImGui::DragFloat("##Damping", &rigidBodyPointer->physicalMaterial.damping, 0.001f);
 
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("AngularDamping: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::DragFloat("##AngularDamping", &obj.DeRef()->GetComponent<RigidBody>().DeRef()->physicalMaterial.angularDamping, 0.001f);
+		ImGui::DragFloat("##AngularDamping", &rigidBodyPointer->physicalMaterial.angularDamping, 0.001f);
 
 		ImGui::Separator();
 		ImGui::Text("Physical Material");
@@ -678,12 +633,12 @@ void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Friction: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::DragFloat("##Friction", &obj.DeRef()->GetComponent<RigidBody>().DeRef()->physicalMaterial.friction, 0.001f);
+		ImGui::DragFloat("##Friction", &rigidBodyPointer->physicalMaterial.friction, 0.001f);
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Bounciness: ");
 		ImGui::SameLine(_textWidth);
-		ImGui::SliderFloat("##Bounciness", &obj.DeRef()->GetComponent<RigidBody>().DeRef()->physicalMaterial.bounciness, 0.f, 1.f, "%.2f");
+		ImGui::SliderFloat("##Bounciness", &rigidBodyPointer->physicalMaterial.bounciness, 0.f, 1.f, "%.2f");
 	}
 }
 
@@ -1215,15 +1170,7 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			}
 			else if (strcmp(selectedComponent, "RigidBody Component") == 0)
 			{
-				if (obj && (obj.DeRef()->GetComponent<BoxCollider>() ||
-							obj.DeRef()->GetComponent<SphereCollider>() ||
-							obj.DeRef()->GetComponent<CapsuleCollider>()))
-				{
-					scene.AddComponent<RigidBody>(obj);
-					_physics->AddRigidBody(obj);
-				}
-				else
-					PLATINUM_WARNING("Please Add Collider First");
+				scene.AddComponent<RigidBody>(obj);
 			}
 			else if (strcmp(selectedComponent, "BoxCollider Component") == 0)
 			{

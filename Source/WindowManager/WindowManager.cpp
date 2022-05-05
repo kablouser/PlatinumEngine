@@ -37,9 +37,6 @@ namespace PlatinumEngine
 	{
 	}
 
-	/// this is a bool parameter used for disable or enable the pause and step button
-	static bool enablePauseButton = true;
-	static bool enableStepButton = false;
 	///--------------------------------------------------------------------------
 	/// this function will create a basic window when you open the Platinum Engine
 	///--------------------------------------------------------------------------
@@ -49,7 +46,7 @@ namespace PlatinumEngine
 		///ifs in main menu window list to call the function inside
 		///-----------------------------------------------------------------------
 		//window section
-		if (_showWindowGame) 			ShowWindowGame(&_showWindowGame);
+		_gameWindow->ShowGUIWindow(&_showWindowGame);
 		if (_showWindowScene) 			ShowWindowScene(&_showWindowScene);
 		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy, scene);
 		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector, scene);
@@ -121,36 +118,39 @@ namespace PlatinumEngine
 			/// This section is for main menu bar to control the game view play/pause/step
 			///------------------------------------------------------------------
 
-			if (ImGui::Button(_start ? ICON_FA_STOP "##Play###startButton" : ICON_FA_PLAY "##Stop###startButton"))
+			if (_gameWindow->GetIsStarted())
 			{
-				if(!_start)
+				if (ImGui::Button(ICON_FA_STOP "##StopGame"))
 				{
-					_start = true;
+					_gameWindow->SetIsStarted(false);
+					// isPaused is reset to false when game is stopped
 					_gameWindow->isPaused = false;
-					_scene.Start();
 				}
-				else if(_start)
-				{
-					_start = false;
+			}
+			else
+			{
+				if (ImGui::Button(ICON_FA_PLAY "##PlayGame"))
+					_gameWindow->SetIsStarted(true);
+			}
+
+			if (_gameWindow->isPaused)
+			{
+				// When paused, cause pause button to look "hovered"
+				ImGui::PushStyleColor(ImGuiCol_Button,ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered));
+				if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
+					_gameWindow->isPaused = false;
+				ImGui::PopStyleColor(1);
+			}
+			else
+			{
+				if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
 					_gameWindow->isPaused = true;
-					_scene.End();
-				}
-
-				enablePauseButton = !enablePauseButton;
 			}
 
-  			// activate or inactive pause and step button
-			ImGui::BeginDisabled(enablePauseButton);
-			if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
-			{
-				_gameWindow->isPaused = !_gameWindow->isPaused;
-			}
-
+			// Step does nothing when game is stopped. So disable it.
+			ImGui::BeginDisabled(!_gameWindow->GetIsStarted());
 			if (ImGui::Button(ICON_FA_FORWARD_STEP "##Step"))
-			{
 				_gameWindow->Step();
-			}
-
 			ImGui::EndDisabled();
 
 			ImGui::EndMainMenuBar();
@@ -191,13 +191,8 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	void WindowManager::ShowMenuFile()
 	{
-
-		if (ImGui::MenuItem("Load", "", &_showFileLoad))
-		{
-		}
-		if (ImGui::MenuItem("Save", "Ctrl+S", &_showFileSave))
-		{
-		}
+		ImGui::MenuItem("Load", "", &_showFileLoad);
+		ImGui::MenuItem("Save", "Ctrl+S", &_showFileSave);
 
 		ImGui::Separator();
 
@@ -285,32 +280,17 @@ namespace PlatinumEngine
 		}
 		ImGui::Separator();
 
-		if (ImGui::MenuItem("Animation", "", &_showWindowAnimation))
-		{}
-		if (ImGui::MenuItem(ICON_FA_GAMEPAD " Game", "", &_showWindowGame))
-		{
-			ShowWindowGame(&_showWindowGame);
-		}
-		if (ImGui::MenuItem(ICON_FA_BARS_STAGGERED " Hierarchy", "", &_showWindowHierarchy))
-		{
-			ShowWindowHierarchy(&_showWindowHierarchy, scene);
-		}
-		if (ImGui::MenuItem(ICON_FA_CIRCLE_INFO " Inspector", "", &_showWindowInspector))
-		{
-			ShowWindowInspector(&_showWindowInspector, scene);
-		}
-		if (ImGui::MenuItem("Lighting", "", &_showWindowLight))
-		{}
-		if (ImGui::MenuItem(ICON_FA_FOLDER " Project", "", &_showWindowProject))
-		{
-			ShowWindowProject(&_showWindowProject);
-		}
-		if (ImGui::MenuItem(ICON_FA_IMAGE " Scene", "", &_showWindowScene))
-		{
-			ShowWindowScene(&_showWindowScene);
-		}
-
+		// Do NOT call ShowWindowXYZ here. Do NOT call OnRenderGUI here.
+		// They are called once already in the ShowGUI.
+		ImGui::MenuItem("Animation", "", &_showWindowAnimation);
+		ImGui::MenuItem(ICON_FA_GAMEPAD " Game", "", &_showWindowGame);
+		ImGui::MenuItem(ICON_FA_BARS_STAGGERED " Hierarchy", "", &_showWindowHierarchy);
+		ImGui::MenuItem(ICON_FA_CIRCLE_INFO " Inspector", "", &_showWindowInspector);
+		ImGui::MenuItem("Lighting", "", &_showWindowLight);
+		ImGui::MenuItem(ICON_FA_FOLDER " Project", "", &_showWindowProject);
+		ImGui::MenuItem(ICON_FA_IMAGE " Scene", "", &_showWindowScene);
 	}
+
 	///--------------------------------------------------------------------------
 	///   ---                                                               ---
 	///   | Section: Please implement GUI in the corresponding function below |
@@ -341,30 +321,21 @@ namespace PlatinumEngine
 		//TODO:
 	}
 
-	//Please implement Game Window below
-	void WindowManager::ShowWindowGame(bool* outIsOpen)
-	{
-		_gameWindow->ShowGuiWindow(outIsOpen);
-	}
-
 	//Please implement Scene Window below
 	void WindowManager::ShowWindowScene(bool* outIsOpen)
 	{
-		//TODO:
 		_sceneEditor->ShowGUIWindow(outIsOpen);
 	}
 
 	//Please implement Inspector Window below
 	void WindowManager::ShowWindowInspector(bool* outIsOpen, Scene &scene)
 	{
-		//TODO:
 		_inspector->ShowGUIWindow(outIsOpen, scene);
 	}
 
 	//Please implement Hierarchy Window below
 	void WindowManager::ShowWindowHierarchy(bool* outIsOpen, Scene &scene)
 	{
-		//TODO:
 		_hierarchy->ShowGUIWindow(outIsOpen, scene);
 	}
 

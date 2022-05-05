@@ -6,30 +6,22 @@
 
 namespace PlatinumEngine
 {
-	SphereCollider::SphereCollider():radius(1.f), center(Maths::Vec3(0.f, 0.f, 0.f))
+	void SphereCollider::CreateTypeInfo(TypeDatabase& database)
 	{
+		database.BeginTypeInfo<SphereCollider>()
+				.WithInherit<Component>()
+				.WithField<float>("radius", PLATINUM_OFFSETOF(SphereCollider, radius));
 	}
 
-	void SphereCollider::OnStart(Scene& scene)
+	SphereCollider::SphereCollider() :
+			radius(1.f),
+			_sphereShape(radius)
 	{
-		_sphereShape = new btSphereShape(radius);
-	}
-
-	void SphereCollider::OnEnd(Scene& scene)
-	{
-		delete _sphereShape;
 	}
 
 	btCollisionShape* SphereCollider::GetShape()
 	{
-		return _sphereShape;
-	}
-
-	void SphereCollider::CreateTypeInfo(TypeDatabase& database)
-	{
-		database.BeginTypeInfo<SphereCollider>()
-		        .WithInherit<Component>()
-				.WithField<float>("radius", PLATINUM_OFFSETOF(SphereCollider, radius))
-				.WithField<Maths::Vec3>("center", PLATINUM_OFFSETOF(SphereCollider, center));
+		_sphereShape = btSphereShape(radius);
+		return &_sphereShape;
 	}
 }

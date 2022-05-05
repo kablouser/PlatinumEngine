@@ -54,7 +54,6 @@ namespace PlatinumEngine
 		///-----------------------------------
 		///sub menu item functions to open corresponding window
 		///-----------------------------------
-		void ShowWindowGame(bool* outIsOpen);
 		void ShowWindowHierarchy(bool* outIsOpen, Scene &scene);
 		void ShowWindowInspector(bool* outIsOpen, Scene &scene);
 		void ShowWindowScene(bool* outIsOpen);
@@ -83,8 +82,6 @@ namespace PlatinumEngine
 	    bool _showFileLoad          		 = false;
 	    bool _showFileSave                   = false;
 
-		// this is used to set up the play button
-		bool _start                          = false;
 	private:
 		///-----------------------------------------------------------------------
 		///pointers to the constructor of each window need to be shown

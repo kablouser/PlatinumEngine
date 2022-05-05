@@ -16,31 +16,33 @@ namespace PlatinumEngine
 	class RigidBody: public Component
 	{
 	public:
+		friend class Physics;
+
+		static void CreateTypeInfo(TypeDatabase& database);
+
 		//Constructor
 		RigidBody();
 
-		btTransform GetWorldTransform(); // Get the WorldTransform matrix
-		Maths::Quaternion GetBulletRotation(); // Get the Bullet RigidBody Rotation Vector
-		Maths::Vec3 GetBulletPosition(); // Get the Bullet RigidBody Translation Vector
+		// Get the WorldTransform matrix
+		btTransform GetWorldTransform() const;
 
-		static void CreateTypeInfo(TypeDatabase& database);
-	public:
-		bool  kinematic; //kinematic
-		float mass; // mass
+		// Get the Bullet RigidBody Translation and Rotation Vector
+		std::pair<Maths::Vec3, Maths::Quaternion> GetPositionRotation() const;
 
-		PhysicalMaterial physicalMaterial;
-	public:
 		// Set the rigidBody when it starts
-		void OnStart(Scene& scene) override;
-
+		void OnEnable(Scene& scene) override;
 		// Clean up all bullet pointers
-		void OnEnd(Scene& scene) override;
+		void OnDisable(Scene& scene) override;
 
-		void OnUpdate(Scene& scene, double deltaTime) override;
+		bool isKinematic; //kinematic
+		float mass; // mass
+		PlatinumEngine::PhysicsMaterial physicalMaterial;
+
 	private:
-
-		//pointer of bullet objects
-		btRigidBody* _rigidBody;
-		btDefaultMotionState* _motionState;
+		// bullet objects
+		btDefaultMotionState _motionState;
+		btRigidBody _rigidBody;
+		// dummy shape to keep Bullet happy until a real shape is detected
+		btEmptyShape _emptyShape;
 	};
 }

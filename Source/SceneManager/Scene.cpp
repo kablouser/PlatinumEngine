@@ -41,6 +41,13 @@ namespace PlatinumEngine
 	{
 	}
 
+	Scene::~Scene()
+	{
+		// Must end before destructor. Otherwise, resources leak.
+		if (_isStarted)
+			End();
+	}
+
 	void Scene::LoadFile(std::string filePath)
 	{
 		TypeDatabase* typeDatabase = TypeDatabase::Instance;

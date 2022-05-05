@@ -34,17 +34,22 @@ namespace PlatinumEngine
 		Camera::CreateTypeInfo(*this);
 		Transform::CreateTypeInfo(*this);
 		AnimationComponent::CreateTypeInfo(*this);
-//		RigidBody::CreateTypeInfo(*this);
-//		BoxCollider::CreateTypeInfo(*this);
-//		SphereCollider::CreateTypeInfo(*this);
-//		CapsuleCollider::CreateTypeInfo(*this);
 		AudioComponent::CreateTypeInfo(*this);
+		RigidBody::CreateTypeInfo(*this);
+		BoxCollider::CreateTypeInfo(*this);
+		SphereCollider::CreateTypeInfo(*this);
+		CapsuleCollider::CreateTypeInfo(*this);
 
 		//------------------------------------------------------------------------------------------------------------------
 		// Purely public objects
 		//------------------------------------------------------------------------------------------------------------------
 
 		Material::CreateTypeInfo(*this);
+		BeginTypeInfo<PhysicsMaterial>()
+		        .WithField<float>("friction", PLATINUM_OFFSETOF(PhysicsMaterial, friction))
+				.WithField<float>("bounciness", PLATINUM_OFFSETOF(PhysicsMaterial, bounciness))
+				.WithField<float>("damping", PLATINUM_OFFSETOF(PhysicsMaterial, damping))
+				.WithField<float>("angularDamping", PLATINUM_OFFSETOF(PhysicsMaterial, angularDamping));
 
 		//------------------------------------------------------------------------------------------------------------------
 		// Plain-old-data (PODS)
@@ -59,6 +64,11 @@ namespace PlatinumEngine
 				.WithField<float>("x", PLATINUM_OFFSETOF(Maths::Vec3, x))
 				.WithField<float>("y", PLATINUM_OFFSETOF(Maths::Vec3, y))
 				.WithField<float>("z", PLATINUM_OFFSETOF(Maths::Vec3, z));
+		BeginTypeInfo<Maths::Vec4>()
+				.WithField<float>("x", PLATINUM_OFFSETOF(Maths::Vec4, x))
+				.WithField<float>("y", PLATINUM_OFFSETOF(Maths::Vec4, y))
+				.WithField<float>("z", PLATINUM_OFFSETOF(Maths::Vec4, z))
+				.WithField<float>("w", PLATINUM_OFFSETOF(Maths::Vec4, w));
 		BeginTypeInfo<Maths::Quaternion>()
 				.WithField<float>("x", PLATINUM_OFFSETOF(Maths::Quaternion, x))
 				.WithField<float>("y", PLATINUM_OFFSETOF(Maths::Quaternion, y))

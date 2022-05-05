@@ -28,6 +28,8 @@ void GlfwErrorCallback(int error, const char* description)
 
 int main(int, char**)
 {
+	PLATINUM_INFO("Platinum Engine Started.");
+
 	if (SDL_Init(SDL_INIT_AUDIO) < 0)
 	{
 		PLATINUM_ERROR_STREAM << "SDL could not initialize! SDL Error: " << SDL_GetError();
@@ -108,7 +110,7 @@ int main(int, char**)
 		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer,&assetHelper, &time, &physics);
     	PlatinumEngine::HierarchyWindow hierarchyWindow(&sceneEditor, &assetHelper);
 		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper, &sceneEditor, &physics);
-		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer, &time, &physics);
+		PlatinumEngine::GameWindow gameWindow(&scene, &rasterRenderer, &time, &physics);
 		PlatinumEngine::ProjectWindow projectWindow(&scene, &assetHelper, &sceneEditor);
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger,
 				&inspectorWindow, &profiler, &projectWindow, idSystem, typeDatabase, assetDatabase, scene);
@@ -119,11 +121,10 @@ int main(int, char**)
 		// load default scene
 		scene.LoadFile("Assets/Default.scene");
 
-		physics.Initialize();
-		time.Update();
 		// Main loop
 		while (!glfwWindowShouldClose(window))
 		{
+			time.Update();
 			{
 				PlatinumEngine::Profiler::Frame frame;
 
@@ -179,9 +180,6 @@ int main(int, char**)
 
 			glfwSwapBuffers(window);
 		}
-
-		// Cleanup bullet physics
-		physics.CleanUp();
 
 		// Cleanup ImGui
 		ImGui_ImplOpenGL3_Shutdown();

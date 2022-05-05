@@ -28,6 +28,7 @@ namespace PlatinumEngine
 	public:
 
 		IDSystem& idSystem;
+		Physics& physics;
 
 		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 
@@ -36,6 +37,8 @@ namespace PlatinumEngine
 		//--------------------------------------------------------------------------------------------------------------
 
 		explicit Scene(IDSystem& idSystem, Physics& physics);
+
+		~Scene();
 
 		// Delete all these operators. Messes up data.
 
@@ -60,11 +63,6 @@ namespace PlatinumEngine
 
 		// Please call this after this object has just been deserialized
 		void AfterLoad();
-		
-		//--------------------------------------------------------------------------------------------------------------
-		// physics
-		//--------------------------------------------------------------------------------------------------------------
-		Physics& physics;
 
 		//--------------------------------------------------------------------------------------------------------------
 		// _gameObjects controls

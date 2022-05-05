@@ -259,8 +259,6 @@ set(PROJECT_LIBRARIES
 	#"BulletInverseDynamics;"
 	#"BulletSoftBody;" #shouldnt be necessary
 
-	"SDL2main;"
-	"SDL2-static;"
 	"SDL2_mixer;"
 
 	"ozz_animation;"
