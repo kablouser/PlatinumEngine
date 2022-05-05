@@ -94,6 +94,9 @@ namespace PlatinumEngine
 				// Bone For Every Vertex (Based on skeleton)
 				//---------------------------------------------
 
+				// Mapping bones' name and id
+				std::map<std::string, unsigned int> boneMapping;
+
 				// update mesh and bone data for every vertex
 				for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 				{
@@ -101,7 +104,7 @@ namespace PlatinumEngine
 					// load vertices data in current mesh
 					AddAnimationMeshData(returnMesh, scene->mMeshes[i], offset);
 					// load bone data for vertices in current mesh
-					AddBoneData(returnMesh, scene->mMeshes[i], scene->mAnimations[0], tempOffset);
+					AddBoneData(returnMesh, scene->mMeshes[i], scene->mAnimations[0], tempOffset, boneMapping);
 				}
 
 				//---------------------------------------------
@@ -263,15 +266,14 @@ namespace PlatinumEngine
 		}
 
 
-		void AddBoneData(Mesh &outMesh, aiMesh* inMesh, aiAnimation* inAnimation, unsigned int offset)
+		void AddBoneData(Mesh &outMesh, aiMesh* inMesh, aiAnimation* inAnimation, unsigned int offset, std::map<std::string, unsigned int>& boneMapping)
 		{
 			// Bond variables
 			Bone bone;
 			aiBone* inBone;
 			unsigned int boneID = outMesh.bones.size();
 
-			// Mapping bones' name and id
-			std::map<std::string, unsigned int> boneMapping;
+
 
 			if(outMesh.animationVertices.empty())
 			{
@@ -362,7 +364,6 @@ namespace PlatinumEngine
 
 			// Number of nodes
 			unsigned int numberOfJoints = outMesh.skeleton->num_joints();
-
 			// Basic info
 			ozz::animation::offline::RawAnimation rawAnimation;
 			rawAnimation.name = inAnimation->mName.C_Str();

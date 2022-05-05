@@ -44,7 +44,7 @@ namespace PlatinumEngine
 		{
 
 			// send flag to uniform
-			renderer.SetAnimationStatus(animation.DeRef()->isDisplay);
+			renderer.SetAnimationStatus(animation.DeRef()->GetIsDisplay());
 
 
 			// calculate the transform matrices for a post at a specific animation time
