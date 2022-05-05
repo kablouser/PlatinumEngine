@@ -1040,9 +1040,9 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 		// store pointer of renderComponent
 		SavedReference<AnimationComponent> animationComponent = obj.DeRef()->GetComponent<AnimationComponent>();
 
-		if (ImGui::RadioButton("Display Animation", animationComponent.DeRef()->isAnimationDisplay == true))
+		if (ImGui::RadioButton("Display Animation", animationComponent.DeRef()->isDisplay == true))
 		{
-			animationComponent.DeRef()->isAnimationDisplay = !animationComponent.DeRef()->isAnimationDisplay;
+			animationComponent.DeRef()->isDisplay = !animationComponent.DeRef()->isDisplay;
 		}
 
 
@@ -1051,31 +1051,25 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 			ImGui::OpenPopup("Select ANIMATION Mesh");
 		}
 		{
-			auto [success, asset] = _assetHelper->GetAsset<Mesh>("Select ANIMATION Mesh");
-			if (success && asset)
+			auto [success, asset] = _assetHelper->PickAssetGUIWindow<Mesh>("Select ANIMATION Mesh");
+			if (success)
 			{
 				for (auto& animation: asset.DeRef()->animations)
 				{
-					// TODO Change. This is very strange and unnessary.
-					// For a mesh asset, we know the list of animations already.
-					// Don't ask the user to select a mesh as the mesh render.
-					// The selected mesh must be the same as the mesh render anyway.
-					// animationComponent.DeRef()->AddAnimation(animation);
+					animationComponent.DeRef()->AddAnimation(animation);
 				}
 			}
 		}
 
-		std::vector<Animation*> animations = animationComponent.DeRef()->GetAnimation();
-
-		for (unsigned int i = 0; i < animations.size(); ++i)
+		for (unsigned int i = 0; i < animationComponent.DeRef()->GetAmountOfAnimations(); ++i)
 		{
 			// create check box
 			if (ImGui::RadioButton(
-					std::to_string(i).append(". ").append(animations[i]->animation->name()).c_str(),
-					animationComponent.DeRef()->selectedAnimationIndex == i))
+					std::to_string(i).append(". ").append(animationComponent.DeRef()->GetAnimationName(i)).c_str(),
+					animationComponent.DeRef()->GetCurrentAnimationID() == i))
 			{
 				// set the animation presented by this check box to be the current selected animation
-				animationComponent.DeRef()->selectedAnimationIndex = i;
+				animationComponent.DeRef()->SetCurrentAnimationByID(i);
 			}
 			ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 
@@ -1084,10 +1078,7 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 			{
 				// remove animation
 				animationComponent.DeRef()->RemoveAnimation(i);
-				if (animationComponent.DeRef()->selectedAnimationIndex == i)
-					animationComponent.DeRef()->selectedAnimationIndex = 0;
-				else if (animationComponent.DeRef()->selectedAnimationIndex > i)
-					--animationComponent.DeRef()->selectedAnimationIndex;
+
 			}
 		}
 

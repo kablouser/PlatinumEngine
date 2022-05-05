@@ -83,7 +83,7 @@ namespace PlatinumEngine
 				// Store the raw skeleton hierarchy
 				ozz::animation::offline::RawSkeleton rawSkeleton;
 				rawSkeleton.roots.resize(1);
-				AddNodeData(scene->mRootNode,  &rawSkeleton.roots[0]);
+				AddSkeletonData(scene->mRootNode,  &rawSkeleton.roots[0]);
 				// Turn skeleton hierarchy structure into runtime format
 				{
 					ozz::animation::offline::SkeletonBuilder skeletonBuilder;
@@ -270,6 +270,9 @@ namespace PlatinumEngine
 			aiBone* inBone;
 			unsigned int boneID = outMesh.bones.size();
 
+			// Mapping bones' name and id
+			std::map<std::string, unsigned int> boneMapping;
+
 			if(outMesh.animationVertices.empty())
 			{
 				PLATINUM_WARNING("There is no vertex.");
@@ -283,10 +286,10 @@ namespace PlatinumEngine
 				bone.boneName = inBone->mName.C_Str();
 
 				// Update bone mapping
-				if (outMesh.boneMapping.find(bone.boneName) == outMesh.boneMapping.end())
+				if (boneMapping.find(bone.boneName) == boneMapping.end())
 				{
 					// Update bone map
-					outMesh.boneMapping[bone.boneName] = boneID;
+					boneMapping[bone.boneName] = boneID;
 
 					// Update ids
 					boneID++;
@@ -298,7 +301,7 @@ namespace PlatinumEngine
 				}
 				else
 				{
-					bone.trackID = outMesh.bones[outMesh.boneMapping[bone.boneName]].trackID;
+					bone.trackID = outMesh.bones[boneMapping[bone.boneName]].trackID;
 				}
 
 				// Update bone info for every vertex
@@ -312,7 +315,7 @@ namespace PlatinumEngine
 			}
 		}
 
-		void AddNodeData(aiNode* inNode, ozz::animation::offline::RawSkeleton::Joint* currentJoint)
+		void AddSkeletonData(aiNode* inNode, ozz::animation::offline::RawSkeleton::Joint* currentJoint)
 		{
 			if(inNode == nullptr)
 			{
@@ -348,7 +351,7 @@ namespace PlatinumEngine
 			for (unsigned int i = 0; i < inNode->mNumChildren; ++i)
 			{
 				// add the child into read list
-				AddNodeData(inNode->mChildren[i], &currentJoint->children[i]);
+				AddSkeletonData(inNode->mChildren[i], &currentJoint->children[i]);
 			}
 		}
 
@@ -421,13 +424,11 @@ namespace PlatinumEngine
 				}
 			}
 
-			// Add new animation into animations list
-			Animation animation;
-			outMesh.animations.push_back(Animation());
-
 			// turn data into runtime format
 			ozz::animation::offline::AnimationBuilder animationBuilder;
-			outMesh.animations.back().animation = animationBuilder(rawAnimation);
+			// Add new animation into animations list
+			outMesh.animations.emplace_back();
+			outMesh.animations.back() =  animationBuilder(rawAnimation);
 		}
 
 		bool FindChanelID(const std::string& inBoneName, aiAnimation* inAnimation, unsigned int& trackID)

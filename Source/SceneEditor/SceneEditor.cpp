@@ -694,11 +694,12 @@ namespace PlatinumEngine{
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
 					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject.DeRef()->GetComponent<Transform>();
-							transformComponent)
+					if (auto meshRenderComponent = currentCheckingGameobject.DeRef()->GetComponent<MeshRender>();
+							meshRenderComponent && meshRenderComponent.DeRef()->GetMesh().DeRef()->animationVertices.size()>0)
 					{
-						Maths::Mat4 modelMatrix = transformComponent.DeRef()->GetLocalToWorldMatrix();
-						Maths::Vec4 temporaryMatrix;
+						vertex0 = mesh->animationVertices[mesh->indices[count + 0]].position;
+						vertex1 = mesh->animationVertices[mesh->indices[count + 1]].position;
+						vertex2 = mesh->animationVertices[mesh->indices[count + 2]].position;
 
 					}
 					else
