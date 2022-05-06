@@ -1058,11 +1058,11 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 		// store pointer of renderComponent
 		SavedReference<AnimationComponent> animationComponent = obj.DeRef()->GetComponent<AnimationComponent>();
 
-		if (ImGui::RadioButton("Display Animation", animationComponent.DeRef()->GetIsDisplay() == true))
+		bool isDisplayed = animationComponent.DeRef()->GetIsDisplay();
+		if (ImGui::Checkbox("Display Animation", &isDisplayed))
 		{
-			animationComponent.DeRef()->SetIsDisplay(!animationComponent.DeRef()->GetIsDisplay());
+			animationComponent.DeRef()->SetIsDisplay(isDisplayed);
 		}
-
 
 		for (unsigned int i = 0; i < animationComponent.DeRef()->GetAmountOfAnimations(); ++i)
 		{
@@ -1074,8 +1074,6 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 				// set the animation presented by this check box to be the current selected animation
 				animationComponent.DeRef()->SetCurrentAnimationByID(i);
 			}
-			ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
-
 		}
 
 	}
