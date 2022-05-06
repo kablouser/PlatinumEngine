@@ -150,7 +150,7 @@ namespace PlatinumEngine
 				}
 			}
 
-			ImGui::BeginDisabled(!_gameWindow->GetIsStarted());
+			// Pause can be useful before the game starts for debugging
 			if (_gameWindow->isPaused)
 			{
 				// When paused, cause pause button to look "hovered"
@@ -164,7 +164,9 @@ namespace PlatinumEngine
 				if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
 					_gameWindow->isPaused = true;
 			}
+
 			// Step does nothing when game is stopped. So disable it.
+			ImGui::BeginDisabled(!_gameWindow->GetIsStarted());
 			if (ImGui::Button(ICON_FA_FORWARD_STEP "##Step"))
 				_gameWindow->Step();
 			ImGui::EndDisabled();

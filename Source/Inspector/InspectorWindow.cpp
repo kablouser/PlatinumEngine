@@ -299,42 +299,48 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 	}
 	if (isHeaderOpen)
 	{
+		Transform* transformPointer = obj.DeRef()->GetComponent<Transform>().DeRef().get();
+
 		ImGui::PushItemWidth(50);
 		ImGui::Text(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT " Position: ");
 		ImGui::SameLine(_textWidth - 16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Xpos", &obj.DeRef()->GetComponent<Transform>().DeRef()->localPosition[0], 0.001f);
+		ImGui::DragFloat("##Xpos", &transformPointer->localPosition[0], 0.01f, 0.0f, 0.0f, nullptr); // NO ROUNDING PLEASE
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Ypos", &obj.DeRef()->GetComponent<Transform>().DeRef()->localPosition[1], 0.001f);
+		ImGui::DragFloat("##Ypos", &transformPointer->localPosition[1], 0.01f, 0.0f, 0.0f, nullptr); // NO ROUNDING PLEASE
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Zpos", &obj.DeRef()->GetComponent<Transform>().DeRef()->localPosition[2], 0.001f);
+		ImGui::DragFloat("##Zpos", &transformPointer->localPosition[2], 0.01f, 0.0f, 0.0f, nullptr); // NO ROUNDING PLEASE
 
-		Maths::Vec3 eulerRotation = obj.DeRef()->GetComponent<Transform>().DeRef()->localRotation.EulerAngles();
+		float before = transformPointer->localScale;
+
 		ImGui::Text(ICON_FA_ROTATE " Rotation: ");
 		ImGui::SameLine(_textWidth - 16.f);
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Xrot", &eulerRotation[0], 0.001f);
+		ImGui::DragFloat("##Xrot", &transformPointer->localRotation.x, 0.01f, 0.0f, 0.0f, nullptr); // NO ROUNDING PLEASE
 		ImGui::SameLine();
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Yrot", &eulerRotation[1], 0.001f);
+		ImGui::DragFloat("##Yrot", &transformPointer->localRotation.y, 0.01f, 0.0f, 0.0f, nullptr); // NO ROUNDING PLEASE
 		ImGui::SameLine();
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Zrpt", &eulerRotation[2], 0.001f);
-		obj.DeRef()->GetComponent<Transform>().DeRef()->localRotation = Maths::Quaternion::EulerToQuaternion(
-				Maths::Vec3(eulerRotation[0], eulerRotation[1], eulerRotation[2]));
+		ImGui::DragFloat("##Zrot", &transformPointer->localRotation.z, 0.01f, 0.0f, 0.0f, nullptr); // NO ROUNDING PLEASE
+		ImGui::SameLine();
+		ImGui::Text("W");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Wrot", &transformPointer->localRotation.w, 0.01f, 0.0f, 0.0f, nullptr); // NO ROUNDING PLEASE
+		transformPointer->localRotation = Maths::Quaternion::Normalise(transformPointer->localRotation);
 
 		ImGui::Text(ICON_FA_MAXIMIZE " Scale: ");
 		// Scale is special case and needs some extra offset applied
 		ImGui::SameLine(_textWidthTransformComponent + 16.0f);
-		ImGui::InputFloat("##scale", &obj.DeRef()->GetComponent<Transform>().DeRef()->localScale);
+		ImGui::InputFloat("##scale", &transformPointer->localScale);
 		ImGui::PopItemWidth();
 	}
 

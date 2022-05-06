@@ -259,7 +259,7 @@ namespace PlatinumEngine
 			if (outQuaternion)
 				*outQuaternion = {quaternion.w, quaternion.x, quaternion.y, quaternion.z};
 			if(outScale)
-				*outScale = std::max(std::max(scale.x, scale.y), scale.z);
+				*outScale = (scale.x + scale.y + scale.z) / 3.0f; // slightly more stable
 		}
 
 		Mat3 Mat3::operator*(float scale)
