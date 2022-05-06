@@ -60,9 +60,9 @@ namespace PlatinumEngine
 				}
 			}
 		}
-
-		renderer.LoadMaterial(material);
-		_shaderInput.Draw();
+		else
+			// send flag to uniform
+			renderer.SetAnimationStatus(false);
 
 		// load texture
 		renderer.LoadMaterial(material);

@@ -120,7 +120,7 @@ namespace PlatinumEngine
 	std::string AnimationComponent::GetAnimationName(unsigned int inID) const
 	{
 		if(CheckIfAnimationValid(inID))
-			return _mesh.DeRef()->animations[_selectedAnimationIndex]->name();
+			return _mesh.DeRef()->animations[inID]->name();
 		else
 		{
 			PLATINUM_WARNING("Animation ID exceed the total amount of animations.");
