@@ -31,7 +31,7 @@ namespace PlatinumEngine
         (size_t)&reinterpret_cast<const volatile char&>((((typeName*)0)->fieldName))
 
 	template<typename T>
-	constexpr auto TypeName()
+	auto TypeName()
 	{
 		std::string_view name, prefix, suffix;
 #ifdef __clang__
@@ -40,7 +40,7 @@ namespace PlatinumEngine
 		suffix = "]";
 #elif defined(__GNUC__)
 		name = __PRETTY_FUNCTION__;
-		prefix = "constexpr auto PlatinumEngine::TypeName() [with T = ";
+		prefix = "auto PlatinumEngine::TypeName() [with T = ";
 		suffix = "]";
 #elif defined(_MSC_VER)
 		name = __FUNCSIG__;
@@ -49,7 +49,18 @@ namespace PlatinumEngine
 #endif
 		name.remove_prefix(prefix.size());
 		name.remove_suffix(suffix.size());
-		return name;
+
+		// remove inconsistent spaces across different platforms
+		std::string standardisedName;
+		standardisedName.reserve(name.size());
+		char previousC = '\0';
+		for (char c : name)
+		{
+			if (!(previousC == '>' && c == ' '))
+				standardisedName.push_back(c);
+			previousC = c;
+		}
+		return standardisedName;
 	}
 
 	template<typename Test, template<typename...> class Ref>
