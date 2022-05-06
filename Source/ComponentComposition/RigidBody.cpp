@@ -105,15 +105,14 @@ namespace PlatinumEngine
 		_addedToPhysicsWorld = false;
 	}
 
-	void RigidBody::Reposition(Maths::Vec3 position, Maths::Quaternion rotation)
+	void RigidBody::Reposition(const Maths::Vec3& position, const Maths::Quaternion& rotation)
 	{
 		btTransform initialTransform;
 
 		initialTransform.setOrigin(Physics::ConvertVector(position));
 		initialTransform.setRotation(Physics::ConvertQuaternion(rotation));
 
-		btMotionState* motionState = new btDefaultMotionState(initialTransform);
-
+		btMotionState* motionState = new btDefaultMotionState();
 		_rigidBody.setWorldTransform(initialTransform);
 		_rigidBody.setMotionState(motionState);
 		_rigidBody.getMotionState()->setWorldTransform(initialTransform);

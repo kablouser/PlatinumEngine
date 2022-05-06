@@ -124,11 +124,11 @@ namespace PlatinumEngine
 			{
 				if (ImGui::Button(ICON_FA_STOP "##StopGame"))
 				{
-					auto physicsObjects = _scene.physics.GetRigidBodies();
+					auto& physicsObjects = scene.physics.GetRigidBodies();
 					for(auto& object: physicsObjects)
 					{
-						object.DeRef()->GetComponent<Transform>().DeRef()->localRotation = object.DeRef()->initialRotation;
-						object.DeRef()->GetComponent<Transform>().DeRef()->localPosition = object.DeRef()->initialPosition;
+						object.DeRef()->GetComponent<Transform>().DeRef()->localRotation = object.DeRef()->GetComponent<Transform>().DeRef()->initialRotation;
+						object.DeRef()->GetComponent<Transform>().DeRef()->localPosition = object.DeRef()->GetComponent<Transform>().DeRef()->initialPosition;
 					}
 					_gameWindow->SetIsStarted(false);
 					// isPaused is reset to false when game is stopped
@@ -139,14 +139,15 @@ namespace PlatinumEngine
 			{
 				if (ImGui::Button(ICON_FA_PLAY "##PlayGame"))
 				{
-					auto physicsObjects = _scene.physics.GetRigidBodies();
+					_gameWindow->SetIsStarted(true);
+					auto& physicsObjects = scene.physics.GetRigidBodies();
 					for(auto& object: physicsObjects)
 					{
-						object.DeRef()->initialRotation = object.DeRef()->GetComponent<Transform>().DeRef()->localRotation;
-						object.DeRef()->initialPosition = object.DeRef()->GetComponent<Transform>().DeRef()->localPosition;
-						object.DeRef()->Reposition(object.DeRef()->initialPosition, object.DeRef()->initialRotation);
+						object.DeRef()->GetComponent<Transform>().DeRef()->initialRotation = object.DeRef()->GetComponent<Transform>().DeRef()->localRotation;
+						object.DeRef()->GetComponent<Transform>().DeRef()->initialPosition = object.DeRef()->GetComponent<Transform>().DeRef()->localPosition;
+						object.DeRef()->Reposition(object.DeRef()->GetComponent<Transform>().DeRef()->initialPosition,
+								object.DeRef()->GetComponent<Transform>().DeRef()->initialRotation);
 					}
-					_gameWindow->SetIsStarted(true);
 				}
 			}
 

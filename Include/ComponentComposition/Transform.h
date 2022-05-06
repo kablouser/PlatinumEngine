@@ -22,6 +22,10 @@ namespace PlatinumEngine
 		Maths::Vec3 localPosition;
 		Maths::Quaternion localRotation;
 		Maths::Mat4 transformationMatrix;
+
+		//For reposition
+		Maths::Vec3 initialPosition;
+		Maths::Quaternion initialRotation;
 		// uniform scaling has nice properties
 		float localScale;
 

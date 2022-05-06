@@ -121,7 +121,7 @@ namespace PlatinumEngine
 		return ConvertVectorBack(_bulletWorld.getGravity());
 	}
 
-	std::vector<SavedReference<PlatinumEngine::RigidBody>> Physics::GetRigidBodies()
+	std::vector<SavedReference<RigidBody>>& Physics::GetRigidBodies()
 	{
 		return _allRigidBodies;
 	}
