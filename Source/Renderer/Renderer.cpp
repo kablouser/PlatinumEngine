@@ -264,16 +264,10 @@ namespace PlatinumEngine
 		_particleShader.SetUniform(name, val);
 	}
 
-	void Renderer::SetScaleFactors(const char * name, float scaleFactors[3])
+	void Renderer::SetVec3ParticleShader(const char * name, const Maths::Vec3 &scaleFactors)
 	{
 		_particleShader.Bind();
-		_particleShader.SetUniform(name, Maths::Vec3(scaleFactors[0], scaleFactors[1], scaleFactors[2]));
-	}
-
-
-	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
-	{
-		_framebuffer = *framebuffer;
+		_particleShader.SetUniform(name, scaleFactors);
 	}
 
 	void Renderer::ResizeFrameBuffer(Framebuffer &framebuffer, ImVec2 targetSize)

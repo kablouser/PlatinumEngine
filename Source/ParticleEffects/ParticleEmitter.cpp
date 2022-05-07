@@ -101,7 +101,7 @@ namespace PlatinumEngine
 					// TODO: Let user choose how to scale particle and by what factor
 //					p.scale = 0.5f * p.life;
 					p.textureIndex = Maths::Vec2(0,0);
-					float lifeAsFraction = p.life / (respawnLifetime);
+					float lifeAsFraction = (2.0f*p.life) / (respawnLifetime);
 					int currentIndex = floor(lifeAsFraction * numRowsInTexture * numColsInTexture);
 					int j = currentIndex / numColsInTexture;
 					int k = currentIndex - j * numColsInTexture;
