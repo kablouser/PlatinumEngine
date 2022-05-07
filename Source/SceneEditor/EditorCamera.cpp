@@ -30,6 +30,8 @@ namespace PlatinumEngine
 			  projectionMatrix4(1.f),
 			  isOrthogonal(false)
 	{
+		// view matrix is not correct yet...
+		UpdateViewMatrix();
 	}
 
 
@@ -110,7 +112,7 @@ namespace PlatinumEngine
 
 		rotationMatrix.SetRotationMatrix(_quaternion);
 
-		return {rotationMatrix[0][1], rotationMatrix[1][1], rotationMatrix[2][1]};
+		return {rotationMatrix[1][0], rotationMatrix[1][1], rotationMatrix[1][2]};
 	}
 
 	Maths::Vec3 EditorCamera::GetForwardDirection()
@@ -119,7 +121,7 @@ namespace PlatinumEngine
 
 		rotationMatrix.SetRotationMatrix(_quaternion);
 
-		return {rotationMatrix[0][2], rotationMatrix[1][2], rotationMatrix[2][2]};
+		return {rotationMatrix[2][0], rotationMatrix[2][1], rotationMatrix[2][2]};
 	}
 
 	Maths::Vec3 EditorCamera::GetRightDirection()
@@ -128,7 +130,7 @@ namespace PlatinumEngine
 
 		rotationMatrix.SetRotationMatrix(_quaternion);
 
-		return {rotationMatrix[0][0], rotationMatrix[1][0], rotationMatrix[2][0]};
+		return {rotationMatrix[0][0], rotationMatrix[0][1], rotationMatrix[0][2]};
 	}
 
 	void EditorCamera::UpdateViewMatrix()

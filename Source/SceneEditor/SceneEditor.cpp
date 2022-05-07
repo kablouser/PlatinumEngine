@@ -95,14 +95,18 @@ namespace PlatinumEngine{
 		//-------------------------------------------
 		if (ImGui::Begin(ICON_FA_IMAGE " Scene Editor", outIsOpen))
 		{
-			if(ImGui::IsKeyPressed(GLFW_KEY_Q))
-				_currentGizmoOperation = ImGuizmo::TRANSLATE;
-			if(ImGui::IsKeyPressed(GLFW_KEY_W))
-				_currentGizmoOperation = ImGuizmo::ROTATE;
-			if(ImGui::IsKeyPressed(GLFW_KEY_E))
-				_currentGizmoOperation = ImGuizmo::SCALE;
-			if(ImGui::IsKeyPressed(GLFW_KEY_R))
-				_currentGizmoOperation = ImGuizmo::UNIVERSAL;
+			// the render window is a child window
+			if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
+			{
+				if (ImGui::IsKeyPressed(GLFW_KEY_Q))
+					_currentGizmoOperation = ImGuizmo::TRANSLATE;
+				if (ImGui::IsKeyPressed(GLFW_KEY_W))
+					_currentGizmoOperation = ImGuizmo::ROTATE;
+				if (ImGui::IsKeyPressed(GLFW_KEY_E))
+					_currentGizmoOperation = ImGuizmo::SCALE;
+				if (ImGui::IsKeyPressed(GLFW_KEY_R))
+					_currentGizmoOperation = ImGuizmo::UNIVERSAL;
+			}
 			//-----------
 			// Widgets
 			//-----------
@@ -115,6 +119,7 @@ namespace PlatinumEngine{
 			{
 				ImGui::SetTooltip("Scene Camera");
 			}
+
 			//translate, rotate, scale button
 			ImGui::SameLine();
 			if (_currentGizmoOperation != ImGuizmo::SCALE)
@@ -137,7 +142,6 @@ namespace PlatinumEngine{
 					if(_currentGizmoMode == ImGuizmo::WORLD)
 						ImGui::SetTooltip("Global gizmo");
 				}
-
 			}
 			else if(_currentGizmoOperation == ImGuizmo::SCALE)
 			{
@@ -149,34 +153,34 @@ namespace PlatinumEngine{
 			}
 
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT "##Translate"))
+			if(ImGui::Checkbox("##turn_on_off_gizmo", &_onObjectGizmo)) {}
+			if(ImGui::IsItemHovered())
+				ImGui::SetTooltip("turn on or off the gizmo");
+
+			ImGui::SameLine();
+			if (ImGui::RadioButton(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT "##Translate", _currentGizmoOperation == ImGuizmo::TRANSLATE))
 				_currentGizmoOperation = ImGuizmo::TRANSLATE;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("Translate");
 
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_ROTATE "##Rotate"))
+			if (ImGui::RadioButton(ICON_FA_ROTATE "##Rotate", _currentGizmoOperation == ImGuizmo::ROTATE))
 				_currentGizmoOperation = ImGuizmo::ROTATE;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("Rotate");
 
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_MAXIMIZE "##Scale"))
+			if (ImGui::RadioButton(ICON_FA_MAXIMIZE "##Scale", _currentGizmoOperation == ImGuizmo::SCALE))
 				_currentGizmoOperation = ImGuizmo::SCALE;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("Scale");
 
 			ImGui::SameLine();
-			if (ImGui::Button( ICON_FA_SLIDERS "##Universal"))
+			if (ImGui::RadioButton( ICON_FA_SLIDERS "##Universal", _currentGizmoOperation == ImGuizmo::UNIVERSAL))
 				_currentGizmoOperation = ImGuizmo::UNIVERSAL;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("translate, rotate and scale");
-			ImGui::SameLine();
 
-			if(ImGui::Checkbox("##turn_on_off_gizmo", &_onObjectGizmo)) {}
-			if(ImGui::IsItemHovered())
-				ImGui::SetTooltip("turn on or off the gizmo");
-			ImGui::SameLine();
 			// grid and skybox
 			if (ImGui::BeginPopupContextItem("grid"))
 			{
@@ -198,10 +202,11 @@ namespace PlatinumEngine{
 				ImGui::Text("Opacity");
 				ImGui::SameLine();
 				ImGui::SetNextItemWidth(70.f);
-				ImGui::SliderFloat("##Opacity", &_transparency, 0.0f, 1.0f, "%.2f");
+				ImGui::SliderFloat("##Opacity", &_transparency, 0.0f, 10.0f, "%.01f");
 				ImGui::EndPopup();
 			}
 
+			ImGui::SameLine(0, ImGui::GetStyle().ItemSpacing.x * 4.0f);
 			if(ImGui::Button(_enableGrid ? ICON_FA_BORDER_ALL "##enable###gridTransparency" : ICON_FA_BORDER_NONE "##disable###gridTransparency"))
 			{
 				_enableGrid = !_enableGrid;
@@ -209,7 +214,7 @@ namespace PlatinumEngine{
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("turn on or off the grid");
 
-			ImGui::SameLine(260.f);
+			ImGui::SameLine();
 			if(ImGui::Button(ICON_FA_CARET_DOWN "##GridDetail"))
 			{
 				ImGui::OpenPopup("grid");
@@ -220,6 +225,8 @@ namespace PlatinumEngine{
 			{
 				_enableSkyBox = !_enableSkyBox;
 			}
+
+			ImGui::SameLine();
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("turn on or off the skybox");
 			ImGui::Checkbox("Bound Sizing", &_boundSizing);
@@ -330,26 +337,26 @@ namespace PlatinumEngine{
 
 	void SceneEditor::Render(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
 	{
-
-		//--------------------------------
-		// update mouse && keyboard input
-		//--------------------------------
-		_mouseButtonType = _inputManager->GetMouseDown();
-		_mouseMoveDelta  = _inputManager->GetMouseMoveVector();
-		_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue() + _inputManager->GetAxis("ControlSpeed");
-
 		//--------------------------------------
-		// check if mouse is inside the screen
+		// Check mouse input. Only when mouse is inside this render window and ImGuizmo is not being used.
 		//--------------------------------------
-
-		// Check mouse input
-		if (   _inputManager->GetMousePosition().x <= ImGui::GetWindowContentRegionMax().x
-			&& _inputManager->GetMousePosition().x >= ImGui::GetWindowContentRegionMin().x
-			&& _inputManager->GetMousePosition().y <= ImGui::GetWindowContentRegionMax().y
-			&& _inputManager->GetMousePosition().y >= ImGui::GetWindowContentRegionMin().y
-			&& ImGui::IsWindowFocused()
-			&& !ImGuizmo::IsUsing())
+		if (ImGui::IsWindowHovered() && !ImGuizmo::IsOver())
 		{
+			//--------------------------------
+			// update mouse && keyboard input
+			//--------------------------------
+			_mouseButtonType = _inputManager->GetMouseDown();
+			_mouseMoveDelta  = _inputManager->GetMouseMoveVector();
+			_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
+
+			//---------------------------------------------
+			// check if the mouse is selecting game object
+			//---------------------------------------------
+			if (_inputManager->IsMouseClicked(0))
+			{
+				SelectGameObjectFromScene();
+				ImGui::SetWindowFocus();
+			}
 
 			//---------------------
 			// update view matrix
@@ -359,37 +366,48 @@ namespace PlatinumEngine{
 			if (_mouseButtonType == 0)// translation (up down left right)
 			{
 				_camera.TranslationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
+				ImGui::SetWindowFocus();
 			}
 			else if (_mouseButtonType == 1) // for rotation
 			{
 				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
+				ImGui::SetWindowFocus();
 			}
 			// no checks, this is cheap
 			_camera.ChangeSpeedScale(_wheelValueDelta);
+
 		}
 
-		// don't check buttons, it's cheap to translate
-		if (_inputManager)
+		//---------------------------------------------
+		// Key controls require focus of parent or this window
+		//---------------------------------------------
+		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
 		{
-			// Do translation based on keyboard input
-			_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"),
-					_inputManager->GetAxis("HorizontalAxisForEditorCamera"));
-		}
-
-		// Move camera to look at the selected object
-		if (_inputManager->IsKeyPressed(GLFW_KEY_SPACE))
-		{
-			SavedReference<Transform> transformComponent = _selectedGameobject.DeRef()->GetComponent<Transform>();
-
-			Maths::Vec3 gameObjectPosition = Maths::Vec3(0.f, 0.f, 0.f);
-
-			if(transformComponent.DeRef() != nullptr)
+			// check if there is any keyboard input to move camera position
+			if (_inputManager->IsKeyDown(GLFW_KEY_UP) || _inputManager->IsKeyDown(GLFW_KEY_DOWN) ||
+				_inputManager->IsKeyDown(GLFW_KEY_LEFT) || _inputManager->IsKeyDown(GLFW_KEY_RIGHT))
 			{
-				gameObjectPosition = transformComponent.DeRef()->GetLocalToWorldMatrix().MultiplyVec3(gameObjectPosition, 1.f);
-
+				// Do translation based on keyboard input
+				_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"),
+						_inputManager->GetAxis("HorizontalAxisForEditorCamera"));
 			}
 
-			_camera.SetCameraPosition(gameObjectPosition - _camera.GetForwardDirection() * 20);
+			// Move camera to look at the selected object
+			if (_inputManager->IsKeyDown(GLFW_KEY_SPACE) && _selectedGameobject)
+			{
+				SavedReference<Transform> transformComponent = _selectedGameobject.DeRef()->GetComponent<Transform>();
+
+				Maths::Vec3 gameObjectPosition = Maths::Vec3(0.f, 0.f, 0.f);
+
+				if (transformComponent.DeRef() != nullptr)
+				{
+					gameObjectPosition = transformComponent.DeRef()->GetLocalToWorldMatrix().MultiplyVec3(
+							gameObjectPosition, 1.f);
+
+				}
+
+				_camera.SetCameraPosition(gameObjectPosition - _camera.GetForwardDirection() * 20);
+			}
 		}
 
 
@@ -418,12 +436,6 @@ namespace PlatinumEngine{
 						(float)_near, (float)_far);
 			}
 		}
-
-		//---------------------------------------------
-		// check if the mouse is selecting game object
-		//---------------------------------------------
-		if(_inputManager->IsMouseDown(0))
-			SelectGameObjectFromScene();
 
 		//--------------------
 		// Render Objects
@@ -587,12 +599,8 @@ namespace PlatinumEngine{
 		// we have to inverse the y value
 		mouseClickedPosition.y = (float)_framebufferHeight - mouseClickedPosition.y;
 
-		// check which object is clicked
-		if(SavedReference<GameObject> result = FindClickedObject(mouseClickedPosition);
-				result)
-		{
-			_selectedGameobject = result;
-		}
+		// set any result. clicking into space will unselect.
+		_selectedGameobject = FindClickedObject(mouseClickedPosition);
 	}
 
 
@@ -694,11 +702,12 @@ namespace PlatinumEngine{
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
 					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject.DeRef()->GetComponent<Transform>();
-							transformComponent)
+					if (auto meshRenderComponent = currentCheckingGameobject.DeRef()->GetComponent<MeshRender>();
+							meshRenderComponent && meshRenderComponent.DeRef()->GetMesh().DeRef()->animationVertices.size()>0)
 					{
-						Maths::Mat4 modelMatrix = transformComponent.DeRef()->GetLocalToWorldMatrix();
-						Maths::Vec4 temporaryMatrix;
+						vertex0 = mesh->animationVertices[mesh->indices[count + 0]].position;
+						vertex1 = mesh->animationVertices[mesh->indices[count + 1]].position;
+						vertex2 = mesh->animationVertices[mesh->indices[count + 2]].position;
 
 					}
 					else

@@ -6,6 +6,7 @@
 
 #include "Component.h"
 #include <TypeDatabase/TypeDatabase.h>
+#include <Animation/AnimationLocalTimer.h>
 
 
 namespace PlatinumEngine
@@ -13,33 +14,46 @@ namespace PlatinumEngine
 	class AnimationComponent: public Component
 	{
 	public:
-		static void CreateTypeInfo(TypeDatabase& typeDatabase);
+		// {  PARAMETER  }
+		std::vector<Maths::Mat4> worldTransform;
 
-		AnimationComponent();
-
-		// update Animation from mesh loader
-		void AddAnimation(Animation* animation);
-
-		// return mesh
-		std::vector<Animation*>& GetAnimation();
-
-		// remove animation
-		void RemoveAnimation(unsigned int index);
-
-
-		// override the OnRender() of the Component
-		//void OnRender(Scene& scene, Renderer& renderer) override;
+		AnimationLocalTimer timer;
 
 	public:
-		bool isAnimationDisplay;
-		unsigned int selectedAnimationIndex;
-		ozz::animation::SamplingJob::Context context;
+		// {  CONSTRUCTOR  }
+		AnimationComponent();
+
+
+		// {  FUNCTION  }
+		static void CreateTypeInfo(TypeDatabase& typeDatabase);
+
+		void UpdateWorldTransformMatrix(
+				ozz::unique_ptr<ozz::animation::Skeleton>& skeleton,
+				const std::vector<Bone>& bones,
+				Time& time);
+
+		void SetCurrentAnimationByID(unsigned int inID);
+
+		unsigned int GetCurrentAnimationID() const;
+
+		unsigned int GetAmountOfAnimations() const;
+
+		std::string GetAnimationName(unsigned int inID) const;
+
+		void SetMesh(SavedReference<Mesh> mesh);
+
+		bool CheckIfAnimationValid(unsigned int inID = 0) const;
+
+		void SetIsDisplay(bool inIsDisplay);
+
+		bool GetIsDisplay() const;
+
+		void OnIDSystemUpdate(Scene& scene) override;
 
 	private:
-
-		// TODO you shouldn't use Animation pointers.
-		// Because you should restrict the animations to the one attached to the current mesh.
-		// You can fetch the list of animations from the mesh on the MeshRender.
-		std::vector<Animation*> _animations;
+		// {  PARAMETER  }
+		SavedReference<Mesh> _mesh;
+		unsigned int _selectedAnimationIndex;
+		bool _isDisplay;
 	};
 }

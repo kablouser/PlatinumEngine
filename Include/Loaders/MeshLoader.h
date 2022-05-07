@@ -63,9 +63,9 @@ namespace PlatinumEngine
 
 		void AddAnimationMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset);
 
-		void AddBoneData(Mesh &outMesh, aiMesh *mesh, aiAnimation* inAnimation, unsigned int offset);
+		void AddBoneData(Mesh &outMesh, aiMesh *mesh, aiAnimation* inAnimation, unsigned int offset, std::map<std::string, unsigned int>& boneMapping);
 
-		void AddNodeData(aiNode* inNode, ozz::animation::offline::RawSkeleton::Joint* currentJoint);
+		void AddSkeletonData(aiNode* inNode, ozz::animation::offline::RawSkeleton::Joint* currentJoint);
 
 		void AddAnimationChannelData(Mesh &outMesh, aiAnimation* inAnimation);
 

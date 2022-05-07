@@ -15,7 +15,8 @@
 
 // Game object related
 #include <SceneManager/Scene.h>
-
+#include <ComponentComposition/AnimationComponent.h>
+#include <ComponentComposition/AnimationComponent.h>
 
 // Input manager
 #include <InputManager/InputManager.h>

@@ -142,7 +142,16 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 					//Set The mesh that we dragged to the RenderComponent
 					auto[success, meshAsset] = _assetHelper->GetAsset<Mesh>(payloadPath.string());
 					if (success)
+					{
 						obj.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(meshAsset);
+
+						if(SavedReference<AnimationComponent> animation = obj.DeRef()->GetComponent<AnimationComponent>(); animation)
+						{
+
+							animation.DeRef()->SetMesh(meshAsset);
+
+						}
+					}
 				}
 			}
 			// End DragDropTarget
@@ -159,7 +168,16 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		{
 			auto [isClicked, assetReference] = _assetHelper->PickAssetGUIWindow<Mesh>("Select Mesh");
 			if (isClicked)
+			{
 				meshRender.DeRef()->SetMesh(assetReference);
+
+				if(SavedReference<AnimationComponent> animation = obj.DeRef()->GetComponent<AnimationComponent>(); animation)
+				{
+
+					animation.DeRef()->SetMesh(assetReference);
+
+				}
+			}
 		}
 
 		if (meshRender.DeRef()->material.diffuseTexture)
@@ -1038,59 +1056,29 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 	{
 
 		// store pointer of renderComponent
-		SavedReference<AnimationComponent> animationComponent = obj.DeRef()->GetComponent<AnimationComponent>();
+		AnimationComponent* animationComponentPointer = obj.DeRef()->GetComponent<AnimationComponent>().DeRef().get();
 
-		if (ImGui::RadioButton("Display Animation", animationComponent.DeRef()->isAnimationDisplay == true))
+		bool isDisplayed = animationComponentPointer->GetIsDisplay();
+		if (ImGui::Checkbox("Display Animation", &isDisplayed))
 		{
-			animationComponent.DeRef()->isAnimationDisplay = !animationComponent.DeRef()->isAnimationDisplay;
+			animationComponentPointer->SetIsDisplay(isDisplayed);
 		}
 
-
-		if (ImGui::Button("Select Animation From Mesh"))
-		{
-			ImGui::OpenPopup("Select ANIMATION Mesh");
-		}
-		{
-			auto [success, asset] = _assetHelper->GetAsset<Mesh>("Select ANIMATION Mesh");
-			if (success && asset)
-			{
-				for (auto& animation: asset.DeRef()->animations)
-				{
-					// TODO Change. This is very strange and unnessary.
-					// For a mesh asset, we know the list of animations already.
-					// Don't ask the user to select a mesh as the mesh render.
-					// The selected mesh must be the same as the mesh render anyway.
-					// animationComponent.DeRef()->AddAnimation(animation);
-				}
-			}
-		}
-
-		std::vector<Animation*> animations = animationComponent.DeRef()->GetAnimation();
-
-		for (unsigned int i = 0; i < animations.size(); ++i)
+		for (unsigned int i = 0; i < animationComponentPointer->GetAmountOfAnimations(); ++i)
 		{
 			// create check box
 			if (ImGui::RadioButton(
-					std::to_string(i).append(". ").append(animations[i]->animation->name()).c_str(),
-					animationComponent.DeRef()->selectedAnimationIndex == i))
+					std::to_string(i).append(". ").append(animationComponentPointer->GetAnimationName(i)).c_str(),
+					animationComponentPointer->GetCurrentAnimationID() == i))
 			{
 				// set the animation presented by this check box to be the current selected animation
-				animationComponent.DeRef()->selectedAnimationIndex = i;
-			}
-			ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
-
-			// create remove button
-			if (ImGui::Button(("X##RemoveAnimation" + std::to_string(i)).c_str()))
-			{
-				// remove animation
-				animationComponent.DeRef()->RemoveAnimation(i);
-				if (animationComponent.DeRef()->selectedAnimationIndex == i)
-					animationComponent.DeRef()->selectedAnimationIndex = 0;
-				else if (animationComponent.DeRef()->selectedAnimationIndex > i)
-					--animationComponent.DeRef()->selectedAnimationIndex;
+				animationComponentPointer->SetCurrentAnimationByID(i);
 			}
 		}
 
+		ImGui::InputFloat("Time##animationTime", &animationComponentPointer->timer.animationTime);
+		ImGui::Checkbox("Is Looping##isAnimationLooping", &animationComponentPointer->timer.isAnimationLooping);
+		ImGui::Checkbox("Is Playing##isAnimationPlaying", &animationComponentPointer->timer.isAnimationPlaying);
 	}
 }
 
@@ -1189,6 +1177,11 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			else if (strcmp(selectedComponent, "Animation Component") == 0)
 			{
 				scene.AddComponent<AnimationComponent>(obj);
+
+				if(obj.DeRef()->GetComponent<MeshRender>())
+				{
+					obj.DeRef()->GetComponent<AnimationComponent>().DeRef()->SetMesh(obj.DeRef()->GetComponent<MeshRender>().DeRef()->GetMesh());
+				}
 			}
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;

@@ -83,7 +83,7 @@ namespace PlatinumEngine
 				// Store the raw skeleton hierarchy
 				ozz::animation::offline::RawSkeleton rawSkeleton;
 				rawSkeleton.roots.resize(1);
-				AddNodeData(scene->mRootNode,  &rawSkeleton.roots[0]);
+				AddSkeletonData(scene->mRootNode,  &rawSkeleton.roots[0]);
 				// Turn skeleton hierarchy structure into runtime format
 				{
 					ozz::animation::offline::SkeletonBuilder skeletonBuilder;
@@ -94,6 +94,9 @@ namespace PlatinumEngine
 				// Bone For Every Vertex (Based on skeleton)
 				//---------------------------------------------
 
+				// Mapping bones' name and id
+				std::map<std::string, unsigned int> boneMapping;
+
 				// update mesh and bone data for every vertex
 				for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 				{
@@ -101,7 +104,7 @@ namespace PlatinumEngine
 					// load vertices data in current mesh
 					AddAnimationMeshData(returnMesh, scene->mMeshes[i], offset);
 					// load bone data for vertices in current mesh
-					AddBoneData(returnMesh, scene->mMeshes[i], scene->mAnimations[0], tempOffset);
+					AddBoneData(returnMesh, scene->mMeshes[i], scene->mAnimations[0], tempOffset, boneMapping);
 				}
 
 				//---------------------------------------------
@@ -263,12 +266,14 @@ namespace PlatinumEngine
 		}
 
 
-		void AddBoneData(Mesh &outMesh, aiMesh* inMesh, aiAnimation* inAnimation, unsigned int offset)
+		void AddBoneData(Mesh &outMesh, aiMesh* inMesh, aiAnimation* inAnimation, unsigned int offset, std::map<std::string, unsigned int>& boneMapping)
 		{
 			// Bond variables
 			Bone bone;
 			aiBone* inBone;
 			unsigned int boneID = outMesh.bones.size();
+
+
 
 			if(outMesh.animationVertices.empty())
 			{
@@ -283,10 +288,10 @@ namespace PlatinumEngine
 				bone.boneName = inBone->mName.C_Str();
 
 				// Update bone mapping
-				if (outMesh.boneMapping.find(bone.boneName) == outMesh.boneMapping.end())
+				if (boneMapping.find(bone.boneName) == boneMapping.end())
 				{
 					// Update bone map
-					outMesh.boneMapping[bone.boneName] = boneID;
+					boneMapping[bone.boneName] = boneID;
 
 					// Update ids
 					boneID++;
@@ -298,7 +303,7 @@ namespace PlatinumEngine
 				}
 				else
 				{
-					bone.trackID = outMesh.bones[outMesh.boneMapping[bone.boneName]].trackID;
+					bone.trackID = outMesh.bones[boneMapping[bone.boneName]].trackID;
 				}
 
 				// Update bone info for every vertex
@@ -312,7 +317,7 @@ namespace PlatinumEngine
 			}
 		}
 
-		void AddNodeData(aiNode* inNode, ozz::animation::offline::RawSkeleton::Joint* currentJoint)
+		void AddSkeletonData(aiNode* inNode, ozz::animation::offline::RawSkeleton::Joint* currentJoint)
 		{
 			if(inNode == nullptr)
 			{
@@ -348,7 +353,7 @@ namespace PlatinumEngine
 			for (unsigned int i = 0; i < inNode->mNumChildren; ++i)
 			{
 				// add the child into read list
-				AddNodeData(inNode->mChildren[i], &currentJoint->children[i]);
+				AddSkeletonData(inNode->mChildren[i], &currentJoint->children[i]);
 			}
 		}
 
@@ -357,13 +362,15 @@ namespace PlatinumEngine
 			if(outMesh.skeleton == nullptr)
 				return;
 
+			if (inAnimation->mTicksPerSecond == 0) // 0 means undefined in file
+				inAnimation->mTicksPerSecond = 24.0f; // 24fps is most common in 3D animation
+
 			// Number of nodes
 			unsigned int numberOfJoints = outMesh.skeleton->num_joints();
-
 			// Basic info
 			ozz::animation::offline::RawAnimation rawAnimation;
 			rawAnimation.name = inAnimation->mName.C_Str();
-			rawAnimation.duration = (float)inAnimation->mDuration;
+			rawAnimation.duration = inAnimation->mDuration / inAnimation->mTicksPerSecond;
 			rawAnimation.tracks.resize(numberOfJoints);
 
 			// Channels
@@ -382,7 +389,7 @@ namespace PlatinumEngine
 				for(int j=0; j < inAnimation->mChannels[channelID]->mNumPositionKeys; ++j)
 				{
 					ozz::animation::offline::RawAnimation::TranslationKey key = {
-							(float)inAnimation->mChannels[channelID]->mPositionKeys[j].mTime,
+							(float)(inAnimation->mChannels[channelID]->mPositionKeys[j].mTime / inAnimation->mTicksPerSecond),
 							ozz::math::Float3(
 									inAnimation->mChannels[channelID]->mPositionKeys[j].mValue.x,
 									inAnimation->mChannels[channelID]->mPositionKeys[j].mValue.y,
@@ -396,7 +403,7 @@ namespace PlatinumEngine
 				{
 
 					ozz::animation::offline::RawAnimation::RotationKey key = {
-							(float)inAnimation->mChannels[channelID]->mRotationKeys[j].mTime,
+							(float)(inAnimation->mChannels[channelID]->mRotationKeys[j].mTime / inAnimation->mTicksPerSecond),
 							ozz::math::Quaternion(
 									inAnimation->mChannels[channelID]->mRotationKeys[j].mValue.x,
 									inAnimation->mChannels[channelID]->mRotationKeys[j].mValue.y,
@@ -411,23 +418,21 @@ namespace PlatinumEngine
 				{
 
 					ozz::animation::offline::RawAnimation::ScaleKey key = {
-							(float)inAnimation->mChannels[channelID]->mScalingKeys[j].mTime,
-							ozz::math::Float3(
-									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.x,
-									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.y,
-									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.z)};
-
+							(float)(inAnimation->mChannels[channelID]->mScalingKeys[j].mTime / inAnimation->mTicksPerSecond),
+							ozz::math::Float3(1.0f,1.0f,1.0f)};
+					// bone scaling is rarely useful. And it makes the model too big.
+//									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.x,
+//									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.y,
+//									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.z)};
 					rawAnimation.tracks[i].scales.push_back(key);
 				}
 			}
 
-			// Add new animation into animations list
-			Animation animation;
-			outMesh.animations.push_back(Animation());
-
 			// turn data into runtime format
 			ozz::animation::offline::AnimationBuilder animationBuilder;
-			outMesh.animations.back().animation = animationBuilder(rawAnimation);
+			// Add new animation into animations list
+			outMesh.animations.emplace_back();
+			outMesh.animations.back() = animationBuilder(rawAnimation);
 		}
 
 		bool FindChanelID(const std::string& inBoneName, aiAnimation* inAnimation, unsigned int& trackID)
