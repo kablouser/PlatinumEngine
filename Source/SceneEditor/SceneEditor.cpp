@@ -115,6 +115,7 @@ namespace PlatinumEngine{
 			{
 				ImGui::SetTooltip("Scene Camera");
 			}
+
 			//translate, rotate, scale button
 			ImGui::SameLine();
 			if (_currentGizmoOperation != ImGuizmo::SCALE)
@@ -137,7 +138,6 @@ namespace PlatinumEngine{
 					if(_currentGizmoMode == ImGuizmo::WORLD)
 						ImGui::SetTooltip("Global gizmo");
 				}
-
 			}
 			else if(_currentGizmoOperation == ImGuizmo::SCALE)
 			{
@@ -149,34 +149,34 @@ namespace PlatinumEngine{
 			}
 
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT "##Translate"))
+			if(ImGui::Checkbox("##turn_on_off_gizmo", &_onObjectGizmo)) {}
+			if(ImGui::IsItemHovered())
+				ImGui::SetTooltip("turn on or off the gizmo");
+
+			ImGui::SameLine();
+			if (ImGui::RadioButton(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT "##Translate", _currentGizmoOperation == ImGuizmo::TRANSLATE))
 				_currentGizmoOperation = ImGuizmo::TRANSLATE;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("Translate");
 
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_ROTATE "##Rotate"))
+			if (ImGui::RadioButton(ICON_FA_ROTATE "##Rotate", _currentGizmoOperation == ImGuizmo::ROTATE))
 				_currentGizmoOperation = ImGuizmo::ROTATE;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("Rotate");
 
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_MAXIMIZE "##Scale"))
+			if (ImGui::RadioButton(ICON_FA_MAXIMIZE "##Scale", _currentGizmoOperation == ImGuizmo::SCALE))
 				_currentGizmoOperation = ImGuizmo::SCALE;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("Scale");
 
 			ImGui::SameLine();
-			if (ImGui::Button( ICON_FA_SLIDERS "##Universal"))
+			if (ImGui::RadioButton( ICON_FA_SLIDERS "##Universal", _currentGizmoOperation == ImGuizmo::UNIVERSAL))
 				_currentGizmoOperation = ImGuizmo::UNIVERSAL;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("translate, rotate and scale");
-			ImGui::SameLine();
 
-			if(ImGui::Checkbox("##turn_on_off_gizmo", &_onObjectGizmo)) {}
-			if(ImGui::IsItemHovered())
-				ImGui::SetTooltip("turn on or off the gizmo");
-			ImGui::SameLine();
 			// grid and skybox
 			if (ImGui::BeginPopupContextItem("grid"))
 			{
@@ -198,10 +198,11 @@ namespace PlatinumEngine{
 				ImGui::Text("Opacity");
 				ImGui::SameLine();
 				ImGui::SetNextItemWidth(70.f);
-				ImGui::SliderFloat("##Opacity", &_transparency, 0.0f, 1.0f, "%.2f");
+				ImGui::SliderFloat("##Opacity", &_transparency, 0.0f, 10.0f, "%.01f");
 				ImGui::EndPopup();
 			}
 
+			ImGui::SameLine(0, ImGui::GetStyle().ItemSpacing.x * 4.0f);
 			if(ImGui::Button(_enableGrid ? ICON_FA_BORDER_ALL "##enable###gridTransparency" : ICON_FA_BORDER_NONE "##disable###gridTransparency"))
 			{
 				_enableGrid = !_enableGrid;
@@ -209,7 +210,7 @@ namespace PlatinumEngine{
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("turn on or off the grid");
 
-			ImGui::SameLine(260.f);
+			ImGui::SameLine();
 			if(ImGui::Button(ICON_FA_CARET_DOWN "##GridDetail"))
 			{
 				ImGui::OpenPopup("grid");
@@ -220,6 +221,8 @@ namespace PlatinumEngine{
 			{
 				_enableSkyBox = !_enableSkyBox;
 			}
+
+			ImGui::SameLine();
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("turn on or off the skybox");
 			ImGui::Checkbox("Bound Sizing", &_boundSizing);
@@ -422,7 +425,7 @@ namespace PlatinumEngine{
 		//---------------------------------------------
 		// check if the mouse is selecting game object
 		//---------------------------------------------
-		if(_inputManager->IsMouseDown(0))
+		if(_inputManager->IsMouseClicked(0))
 			SelectGameObjectFromScene();
 
 		//--------------------
@@ -587,12 +590,8 @@ namespace PlatinumEngine{
 		// we have to inverse the y value
 		mouseClickedPosition.y = (float)_framebufferHeight - mouseClickedPosition.y;
 
-		// check which object is clicked
-		if(SavedReference<GameObject> result = FindClickedObject(mouseClickedPosition);
-				result)
-		{
-			_selectedGameobject = result;
-		}
+		// set any result. clicking into space will unselect.
+		_selectedGameobject = FindClickedObject(mouseClickedPosition);
 	}
 
 
