@@ -7,49 +7,171 @@
 #include <ComponentComposition/Component.h>
 #include <Helpers/VectorHelpers.h>
 #include <Logger/Logger.h>
+#include <fstream>
 
 namespace PlatinumEngine
 {
+	//------------------------------------------------------------------------------------------------------------------
+	// Serialization stuff
+	//------------------------------------------------------------------------------------------------------------------
+
+	void Scene::CreateTypeInfo(TypeDatabase& typeDatabase)
+	{
+		/*
+		bool _isStarted;
+		std::vector<SavedReference<GameObject>> _gameObjects;
+		std::vector<SavedReference<GameObject>> _rootGameObjects;
+		std::vector<SavedReference<Component>> _components;
+		 */
+		typeDatabase.BeginTypeInfoWithoutAllocator<Scene>()
+				.WithField<bool>("_isStarted", PLATINUM_OFFSETOF(Scene, _isStarted))
+				.WithField<std::vector<SavedReference<GameObject>>>("_gameObjects",
+						PLATINUM_OFFSETOF(Scene, _gameObjects))
+				.WithField<std::vector<SavedReference<GameObject>>>("_rootGameObjects",
+						PLATINUM_OFFSETOF(Scene, _rootGameObjects))
+				.WithField<std::vector<SavedReference<Component>>>("_components",
+						PLATINUM_OFFSETOF(Scene, _components));
+	}
+
 	//--------------------------------------------------------------------------------------------------------------
 	// Constructors/destructors
 	//--------------------------------------------------------------------------------------------------------------
-	Scene::Scene(Physics& physicsRef) : _isStarted(false), physics(physicsRef)
+
+	Scene::Scene(IDSystem& inIDSystem, Physics& physicsRef) : _isStarted(false), idSystem(inIDSystem), physics(physicsRef)
 	{
 	}
 
 	Scene::~Scene()
 	{
-		// we completely manage and own this memory
-		// it's safe to delete pointers directly
-		for (auto gameObject: _gameObjects)
+		// Must end before destructor. Otherwise, resources leak.
+		if (_isStarted)
+			End();
+	}
+
+	void Scene::LoadFile(std::string filePath)
+	{
+		TypeDatabase* typeDatabase = TypeDatabase::Instance;
+		if (!typeDatabase)
 		{
-			delete gameObject;
+			PLATINUM_ERROR("No TypeDatabase");
+			return;
 		}
-		for (auto component: _components)
+
+		std::ifstream loadFile(filePath, std::ios::binary); // Windows needs binary to use seekg()
+		if (loadFile.is_open())
 		{
-			delete component;
+			// First, end before loading. Otherwise, resources leak.
+			if (_isStarted)
+				End();
+
+			// first delete existing scene data
+			idSystem.Clear();
+			Clear();
+			// then deserialize
+			TypeDatabase::DeserializeReturnCode code = typeDatabase->Deserialize(loadFile, &idSystem);
+			if (code != TypeDatabase::DeserializeReturnCode::success)
+				PLATINUM_WARNING_STREAM << "Loading ID System has return code " << (int)code;
+
+			code = typeDatabase->Deserialize(loadFile, this);
+			if (code != TypeDatabase::DeserializeReturnCode::success)
+				PLATINUM_WARNING_STREAM << "Loading ID System has return code " << (int)code;
+
+			AfterLoad();
 		}
+		else
+			PLATINUM_ERROR_STREAM << "Could not open scene file: " << filePath;
+	}
+
+	void Scene::SaveFile(std::string filePath)
+	{
+		TypeDatabase* typeDatabase = TypeDatabase::Instance;
+		if (!typeDatabase)
+		{
+			PLATINUM_ERROR("No TypeDatabase");
+			return;
+		}
+
+		std::ofstream saveFile(filePath);
+		if (saveFile.is_open())
+		{
+			typeDatabase->Serialize(saveFile, &idSystem);
+			typeDatabase->Serialize(saveFile, this);
+		}
+		else
+			PLATINUM_ERROR_STREAM << "Could not open scene file: " << filePath;
+	}
+
+	void Scene::Clear()
+	{
+		// id system is cleared separately
+		_gameObjects.clear();
+		_rootGameObjects.clear();
+		_components.clear();
+	}
+
+	void Scene::AfterLoad()
+	{
+		OnIDSystemUpdate();
+
+		// attempt to fix corrupt data
+		// relink gameobject->child pointers and gameobject->component
+		for (auto& gameObject: _gameObjects)
+		{
+			if (!gameObject)
+				continue;
+
+			for (auto& child: gameObject.DeRef()->_children)
+			{
+				if (!child)
+					continue;
+				child.DeRef()->_parent = gameObject;
+			}
+
+			for (auto& component: gameObject.DeRef()->_components)
+			{
+				if (!component)
+					continue;
+				component.DeRef()->_gameObject = gameObject;
+			}
+		}
+
+		for (auto& rootGameObject: _rootGameObjects)
+			UpdateIsEnabledInHierarchy(rootGameObject);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
 	// _gameObjects controls
 	//--------------------------------------------------------------------------------------------------------------
 
-	GameObject* Scene::AddGameObject(std::string name, GameObject* parent, bool isEnabled)
+	PlatinumEngine::SavedReference<GameObject> Scene::AddGameObject(
+			std::string name,
+			SavedReference<GameObject> parent,
+			bool isEnabled)
 	{
-		GameObject* gameObject = new GameObject(name, parent, isEnabled);
+		SavedReference<GameObject> gameObject = idSystem.Add<GameObject>();
+		{
+			// constructor basically,
+			GameObject* gameObjectPointer = gameObject.DeRef().get();
+			gameObjectPointer->name = name;
+			gameObjectPointer->_parent = parent;
+			gameObjectPointer->_isEnabled = isEnabled;
+			gameObjectPointer->_isEnabledInHierarchy = gameObjectPointer->CalculateIsEnabledInHierarchy();
+		}
 
-		if (parent == nullptr)
-			_rootGameObjects.push_back(gameObject);
+		if (parent)
+			parent.DeRef()->_children.push_back(gameObject);
 		else
-			parent->_children.push_back(gameObject);
+			_rootGameObjects.push_back(gameObject);
 
 		_gameObjects.push_back(gameObject);
 		return gameObject;
 	}
 
-	void Scene::RemoveGameObject(GameObject& gameObject)
+	void Scene::RemoveGameObject(SavedReference<GameObject>& gameObject)
 	{
+		if (!gameObject)
+			return;
+
 		// events are only called when the scene has started
 		if (_isStarted)
 		{
@@ -58,17 +180,15 @@ namespace PlatinumEngine
 			BroadcastOnEnd(gameObject);
 		}
 		// you only need to clean up the top-most parent. Because everything underneath is deleted anyway.
-		GameObject* parent = gameObject.GetParent();
-		if(parent == nullptr)
-		{
-			RemoveRootGameObject(gameObject);
-		}
+		SavedReference<GameObject>& parent = gameObject.DeRef()->GetParent();
+		if (parent)
+			parent.DeRef()->RemoveChild(gameObject);
 		else
-		{
-			parent->RemoveChild(&gameObject);
-		}
-		RemoveGameObjectRecurse(gameObject);
+			RemoveRootGameObject(gameObject);
 
+		RemoveGameObjectRecurse(gameObject);
+		// removal changes pointers in the id system
+		OnIDSystemUpdate();
 	}
 
 	size_t Scene::GetGameObjectsCount() const
@@ -85,13 +205,15 @@ namespace PlatinumEngine
 		return _rootGameObjects.size();
 	}
 
-	GameObject* Scene::GetRootGameObject(size_t index)
+	SavedReference<GameObject>& Scene::GetRootGameObject(size_t index)
 	{
 		// range checked indexing
 		return _rootGameObjects.at(index);
 	}
 
-	bool Scene::MoveRootGameObjectPositionInList(GameObject* targetObject, GameObject* movedGameObject)
+	bool Scene::MoveRootGameObjectPositionInList(
+			SavedReference<GameObject>& targetObject,
+			SavedReference<GameObject>& movedGameObject)
 	{
 		// get iterators for the selected target game object
 		auto targetGameObjectIterator = std::find(_rootGameObjects.begin(), _rootGameObjects.end(), targetObject);
@@ -100,13 +222,13 @@ namespace PlatinumEngine
 		auto movedGameObjectIterator = std::find(_rootGameObjects.begin(), _rootGameObjects.end(), movedGameObject);
 
 		// use rotate to move the item in front of the target object
-		if(targetGameObjectIterator!= _rootGameObjects.end() && movedGameObjectIterator != _rootGameObjects.end())
+		if (targetGameObjectIterator != _rootGameObjects.end() && movedGameObjectIterator != _rootGameObjects.end())
 		{
-			if(movedGameObjectIterator < targetGameObjectIterator)
-			std::rotate(movedGameObjectIterator, movedGameObjectIterator+1, targetGameObjectIterator+1);
+			if (movedGameObjectIterator < targetGameObjectIterator)
+				std::rotate(movedGameObjectIterator, movedGameObjectIterator + 1, targetGameObjectIterator + 1);
 
 			else if (movedGameObjectIterator > targetGameObjectIterator)
-			std::rotate(targetGameObjectIterator, movedGameObjectIterator, movedGameObjectIterator+1);
+				std::rotate(targetGameObjectIterator, movedGameObjectIterator, movedGameObjectIterator + 1);
 
 			// return true if moving successes
 			return true;
@@ -117,35 +239,38 @@ namespace PlatinumEngine
 	}
 
 
-//--------------------------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------------------------------
 	// _components controls
 	//--------------------------------------------------------------------------------------------------------------
 
-	void Scene::RemoveComponent(Component& component)
+	void Scene::RemoveComponentInternal(SavedReference<Component> component)
 	{
+		if (!component)
+			return;
+
 		// trigger end of life cycle events
 		if (_isStarted)
 		{
 			// OnDisable specification
-			if (component._isEnabledInHierarchy)
-			{
-				component.OnDisable(*this);
-			}
-			component.OnEnd(*this);
+			if (component.DeRef()->_isEnabledInHierarchy)
+				component.DeRef()->OnDisable(*this);
+			component.DeRef()->OnEnd(*this);
 		}
 
-		if (component._gameObject)
-		{
-			component._gameObject->RemoveComponent(&component);
-		}
+		if (component.DeRef()->_gameObject)
+			component.DeRef()->_gameObject.DeRef()->RemoveComponent(component);
 
-		if (!VectorHelpers::RemoveFirst(_components, &component))
+		if (!VectorHelpers::RemoveFirst(_components, component))
 		{
 			PLATINUM_ERROR("Hierarchy is invalid: _components is missing an element");
 			return;
 		}
 
-		delete &component;
+		// practically, delete
+		if (!idSystem.Remove(component))
+			PLATINUM_ERROR("ID System missing component");
+		// removal changes pointers in the id system
+		OnIDSystemUpdate();
 	}
 
 	size_t Scene::GetComponentsCount() const
@@ -172,15 +297,11 @@ namespace PlatinumEngine
 
 		_isStarted = true;
 
-		for (auto gameObject: _rootGameObjects)
-		{
-			BroadcastOnStart(*gameObject);
-		}
+		for (auto& gameObject: _rootGameObjects)
+			BroadcastOnStart(gameObject);
 
-		for (auto gameObject: _rootGameObjects)
-		{
-			BroadcastOnEnable(*gameObject);
-		}
+		for (auto& gameObject: _rootGameObjects)
+			BroadcastOnEnable(gameObject);
 	}
 
 	void Scene::End()
@@ -195,242 +316,225 @@ namespace PlatinumEngine
 
 		// OnDisable before OnEnd() according to specification
 
-		for (auto gameObject: _rootGameObjects)
-		{
-			BroadcastOnDisable(*gameObject);
-		}
+		for (auto& gameObject: _rootGameObjects)
+			BroadcastOnDisable(gameObject);
 
-		for (auto gameObject: _rootGameObjects)
-		{
-			BroadcastOnEnd(*gameObject);
-		}
+		for (auto& gameObject: _rootGameObjects)
+			BroadcastOnEnd(gameObject);
 	}
 
 	void Scene::Update(double deltaTime)
 	{
-		for (auto gameObject: _rootGameObjects)
+		if (!IsStarted())
 		{
-			BroadcastOnUpdate(*gameObject, deltaTime);
+			PLATINUM_WARNING("You cannot Update before Start");
+			return;
 		}
+
+		for (auto& gameObject: _rootGameObjects)
+			BroadcastOnUpdate(gameObject, deltaTime);
 	}
 
 	void Scene::Render(Renderer& renderer)
 	{
-		for (auto gameObject: _rootGameObjects)
-		{
-			BroadcastOnRender(*gameObject, renderer);
-		}
+		for (auto& gameObject: _rootGameObjects)
+			BroadcastOnRender(gameObject, renderer);
+	}
+
+	void Scene::OnIDSystemUpdate()
+	{
+		for (auto& gameObject: _gameObjects)
+			gameObject.OnIDSystemUpdate(idSystem);
+		for (auto& rootGameObject: _rootGameObjects)
+			rootGameObject.OnIDSystemUpdate(idSystem);
+		for (auto& component : _components)
+			component.OnIDSystemUpdate(idSystem);
+
+		for (auto& gameObject: _rootGameObjects)
+			BroadcastOnIDSystemUpdate(gameObject);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
 	// External controls
 	//--------------------------------------------------------------------------------------------------------------
 
-	void Scene::BroadcastOnStart(GameObject& gameObject)
+	void Scene::BroadcastOnStart(SavedReference<GameObject>& gameObject)
 	{
-		for (auto component: gameObject._components)
-		{
-			component->OnStart(*this);
-		}
-
-		for (auto child: gameObject._children)
-		{
-			BroadcastOnStart(*child);
-		}
-	}
-
-	void Scene::BroadcastOnEnd(GameObject& gameObject)
-	{
-		for (auto component: gameObject._components)
-		{
-			component->OnEnd(*this);
-		}
-
-		for (auto child: gameObject._children)
-		{
-			BroadcastOnEnd(*child);
-		}
-	}
-
-	void Scene::BroadcastOnEnable(GameObject& gameObject)
-	{
-		if (!gameObject._isEnabledInHierarchy)
+		if (!gameObject)
 			return;
 
-		for (auto component: gameObject._components)
-		{
-			if (component->_isEnabledInHierarchy)
-				component->OnEnable(*this);
-		}
+		for (auto& component: gameObject.DeRef()->_components)
+			component.DeRef()->OnStart(*this);
 
-		for (auto child: gameObject._children)
-		{
-			BroadcastOnEnable(*child);
-		}
+		for (auto& child: gameObject.DeRef()->_children)
+			BroadcastOnStart(child);
 	}
 
-	void Scene::BroadcastOnDisable(GameObject& gameObject)
+	void Scene::BroadcastOnEnd(SavedReference<GameObject>& gameObject)
 	{
-		if (!gameObject._isEnabledInHierarchy)
+		if (!gameObject)
 			return;
 
-		for (auto component: gameObject._components)
-		{
-			if (component->_isEnabledInHierarchy)
-				component->OnDisable(*this);
-		}
+		for (auto& component: gameObject.DeRef()->_components)
+			component.DeRef()->OnEnd(*this);
 
-		for (auto child: gameObject._children)
-		{
-			BroadcastOnDisable(*child);
-		}
+		for (auto& child: gameObject.DeRef()->_children)
+			BroadcastOnEnd(child);
 	}
 
-	void Scene::BroadcastOnUpdate(GameObject& gameObject, double deltaTime)
+	void Scene::BroadcastOnEnable(SavedReference<GameObject>& gameObject)
 	{
-		if (!gameObject._isEnabledInHierarchy)
+		if (!gameObject || !gameObject.DeRef()->_isEnabledInHierarchy)
 			return;
 
-		for (auto component: gameObject._components)
-		{
-			if (component->_isEnabledInHierarchy)
-				component->OnUpdate(*this, deltaTime);
-		}
+		for (auto& component: gameObject.DeRef()->_components)
+			if (component.DeRef()->_isEnabledInHierarchy)
+				component.DeRef()->OnEnable(*this);
 
-		for (auto child: gameObject._children)
-		{
-			BroadcastOnUpdate(*child, deltaTime);
-		}
+		for (auto& child: gameObject.DeRef()->_children)
+			BroadcastOnEnable(child);
 	}
 
-	void Scene::BroadcastOnRender(GameObject& gameObject, Renderer& renderer)
+	void Scene::BroadcastOnDisable(SavedReference<GameObject>& gameObject)
 	{
-		if (!gameObject._isEnabledInHierarchy)
+		if (!gameObject || !gameObject.DeRef()->_isEnabledInHierarchy)
 			return;
 
-		for (auto component: gameObject._components)
-		{
-			if (component->_isEnabledInHierarchy)
-				component->OnRender(*this, renderer);
-		}
+		for (auto& component: gameObject.DeRef()->_components)
+			if (component.DeRef()->_isEnabledInHierarchy)
+				component.DeRef()->OnDisable(*this);
 
-		for (auto child: gameObject._children)
-		{
-			BroadcastOnRender(*child, renderer);
-		}
+		for (auto& child: gameObject.DeRef()->_children)
+			BroadcastOnDisable(child);
 	}
 
-	void Scene::UpdateIsEnabledInHierarchy(GameObject& gameObject)
+	void Scene::BroadcastOnUpdate(SavedReference<GameObject>& gameObject, double deltaTime)
 	{
+		if (!gameObject || !gameObject.DeRef()->_isEnabledInHierarchy)
+			return;
+
+		for (auto& component: gameObject.DeRef()->_components)
+			if (component.DeRef()->_isEnabledInHierarchy)
+				component.DeRef()->OnUpdate(*this, deltaTime);
+
+		for (auto& child: gameObject.DeRef()->_children)
+			BroadcastOnUpdate(child, deltaTime);
+	}
+
+	void Scene::BroadcastOnRender(SavedReference<GameObject>& gameObject, Renderer& renderer)
+	{
+		if (!gameObject || !gameObject.DeRef()->_isEnabledInHierarchy)
+			return;
+
+		for (auto& component: gameObject.DeRef()->_components)
+			if (component.DeRef()->_isEnabledInHierarchy)
+				component.DeRef()->OnRender(*this, renderer);
+
+		for (auto& child: gameObject.DeRef()->_children)
+			BroadcastOnRender(child, renderer);
+	}
+
+	void Scene::UpdateIsEnabledInHierarchy(SavedReference<GameObject>& gameObject)
+	{
+		if (!gameObject)
+			return;
+
 		// recursively, broadcast the function UpdateIsEnabledInHierarchy to all it's components and children
+		for (auto& component: gameObject.DeRef()->_components)
+			component.DeRef()->UpdateIsEnabledInHierarchy(*this);
 
-		for (auto component: gameObject._components)
-		{
-			component->UpdateIsEnabledInHierarchy(*this);
-		}
-
-		for (auto child: gameObject._children)
-		{
+		for (auto& child: gameObject.DeRef()->_children)
 			// recurse
 			// UpdateIsEnabledInHierarchy could further call UpdateIsEnabledInHierarchy
-			child->UpdateIsEnabledInHierarchy(*this);
-		}
+			child.DeRef()->UpdateIsEnabledInHierarchy(*this, child);
 	}
 
-	Component* Scene::AddComponentInternal(Component& component, GameObject* gameObject, bool isEnabled)
+	void Scene::BroadcastOnIDSystemUpdate(SavedReference<GameObject>& gameObject)
 	{
-		_components.push_back(&component);
+		if (!gameObject)
+			return;
+
+		GameObject* gameObjectPointer = gameObject.DeRef().get();
+
+		for (auto& component: gameObjectPointer->_components)
+			component.OnIDSystemUpdate(idSystem);
+
+		for (auto& component: gameObjectPointer->_components)
+		{
+			if (!component)
+				continue;
+			Component* componentPointer = component.DeRef().get();
+			componentPointer->_gameObject.OnIDSystemUpdate(idSystem);
+			componentPointer->OnIDSystemUpdate(*this);
+		}
+
+		// recurse
+		for (auto& child: gameObjectPointer->_children)
+			BroadcastOnIDSystemUpdate(child);
+	}
+
+	void Scene::AddComponentInternal(
+			SavedReference<Component> component,
+			SavedReference<GameObject> gameObject,
+			bool isEnabled)
+	{
+		_components.push_back(component);
 		// basically forcing a constructor on all components, regardless of base calling
-		component._gameObject = gameObject;
-		component._isEnabled = isEnabled;
-		component._isEnabledInHierarchy = component.CalculateIsEnabledInHierarchy();
+		component.DeRef()->_gameObject = gameObject;
+		component.DeRef()->_isEnabled = isEnabled;
+		component.DeRef()->_isEnabledInHierarchy = component.DeRef()->CalculateIsEnabledInHierarchy();
 
 		if (gameObject)
-		{
-			gameObject->_components.push_back(&component);
-		}
+			gameObject.DeRef()->_components.push_back(component);
 
 		if (_isStarted)
 		{
-			component.OnStart(*this);
-			if (component._isEnabledInHierarchy)
+			component.DeRef()->OnStart(*this);
+			if (component.DeRef()->_isEnabledInHierarchy)
 			{
-				component.OnEnable(*this);
+				component.DeRef()->OnEnable(*this);
 			}
 		}
-
-		return &component;
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
 	// Internal controls
 	//--------------------------------------------------------------------------------------------------------------
 
-	void Scene::RemoveGameObjectRecurse(GameObject& gameObject)
+	void Scene::RemoveGameObjectRecurse(SavedReference<GameObject>& gameObject)
 	{
-		// recurse
-		for (auto child: gameObject._children)
-		{
-			RemoveGameObjectRecurse(*child);
-		}
+		if (!gameObject)
+			return;
 
-		for (auto component: gameObject._components)
+		// recurse
+		for (auto& child: gameObject.DeRef()->_children)
+			RemoveGameObjectRecurse(child);
+
+		for (auto& component: gameObject.DeRef()->_components)
 		{
 			if (!VectorHelpers::RemoveFirst(_components, component))
-			{
 				PLATINUM_ERROR("Hierarchy is invalid: _components is missing an element");
-			}
-			delete component;
+
+			if (!idSystem.Remove(component))
+				// Component should be in the id system, if not then component wasn't being tracked and this is very bad
+				PLATINUM_ERROR("ID System missing component");
 		}
 
-		if (!VectorHelpers::RemoveFirst(_gameObjects, &gameObject))
-		{
+		if (!VectorHelpers::RemoveFirst(_gameObjects, gameObject))
 			PLATINUM_ERROR("Hierarchy is invalid: _gameObjects is missing an element");
-    }
 
-		delete &gameObject;
+		if (!idSystem.Remove(gameObject))
+			// GameObject should be in the id system, if not then GameObject wasn't being tracked and this is very bad
+			PLATINUM_ERROR("ID System missing GameObject");
 	}
 
-	void Scene::RemoveRootGameObject(GameObject& rootGameObject)
+	void Scene::RemoveRootGameObject(SavedReference<GameObject>& rootGameObject)
 	{
-		if (!VectorHelpers::RemoveFirst(_rootGameObjects, &rootGameObject))
-		{
+		if (!rootGameObject)
+			return;
+
+		if (!VectorHelpers::RemoveFirst(_rootGameObjects, rootGameObject))
 			PLATINUM_ERROR("Hierarchy is invalid: _rootGameObjects is missing an element");
-		}
-	}
-
-	Component* Scene::FindFirstComponentInternal(
-			bool requireEnabled,
-			const std::type_info& typeInfo)
-	{
-		for (auto rootGameObject : _rootGameObjects)
-		{
-			auto first = FindFirstComponentRecurse(requireEnabled, typeInfo, *rootGameObject);
-			if (first)
-				return first;
-		}
-		return nullptr;
-	}
-
-	Component* Scene::FindFirstComponentRecurse(
-			bool requireEnabled,
-			const std::type_info& typeInfo,
-			GameObject& gameObject)
-	{
-		if (requireEnabled && !gameObject._isEnabledInHierarchy)
-			return nullptr;
-
-		auto component = gameObject.GetComponentInternal(typeInfo);
-		if (component)
-			return component;
-
-		for (auto child : gameObject._children)
-		{
-			auto first = FindFirstComponentRecurse(requireEnabled, typeInfo, *child);
-			if (first)
-				return first;
-		}
-		return nullptr;
 	}
 
 }

@@ -1,35 +1,54 @@
-
 #include <ComponentComposition/GameObject.h>
 #include <SceneManager/Scene.h>
-#include <ComponentComposition/Component.h>
-#include <Helpers/VectorHelpers.h>
 #include <Logger/Logger.h>
+#include <algorithm>
+#include "ComponentComposition/GameObjectComponentTemplates/GameObjectWithoutTemplates.h"
+
 
 namespace PlatinumEngine
 {
+	void GameObject::CreateTypeInfo(TypeDatabase& typeDatabase)
+	{
+		/*
+  		std::string name;
+		SavedReference<GameObject> _parent;
+		bool _isEnabled;
+		bool _isEnabledInHierarchy;
+		std::vector<SavedReference<GameObject>> _children;
+		std::vector<SavedReference<Component>> _components;
+		 */
+		typeDatabase.BeginTypeInfo<GameObject>()
+				.WithField<std::string>("name", PLATINUM_OFFSETOF(GameObject, name))
+				.WithField<SavedReference<GameObject>>("_parent", PLATINUM_OFFSETOF(GameObject, _parent))
+				.WithField<bool>("_isEnabled", PLATINUM_OFFSETOF(GameObject, _isEnabled))
+				.WithField<bool>("_isEnabledInHierarchy", PLATINUM_OFFSETOF(GameObject, _isEnabledInHierarchy))
+				.WithField<std::vector<SavedReference<GameObject>>>("_children", PLATINUM_OFFSETOF(GameObject, _children))
+				.WithField<std::vector<SavedReference<Component>>>("_components", PLATINUM_OFFSETOF(GameObject, _components));
+	}
+
 	//--------------------------------------------------------------------------------------------------------------
 	// Constructors/destructors
 	//--------------------------------------------------------------------------------------------------------------
 
 	GameObject::GameObject() :
-			_parent(nullptr),
 			_isEnabled(true),
 			_isEnabledInHierarchy(true)
 	{
 	}
 
-	GameObject::GameObject(std::string name, GameObject* parent, bool isEnabled) :
+	GameObject::GameObject(
+			std::string name,
+			SavedReference<GameObject> parent,
+			bool isEnabled) :
 			name(std::move(name)),
-			_parent(parent),
+			_parent(std::move(parent)),
 			_isEnabled(isEnabled),
 			_isEnabledInHierarchy(false)
 	{
 		_isEnabledInHierarchy = CalculateIsEnabledInHierarchy();
 	}
 
-	GameObject::~GameObject()
-	{
-	}
+	GameObject::~GameObject() = default;
 
 	//--------------------------------------------------------------------------------------------------------------
 	// _isEnabled control
@@ -39,14 +58,15 @@ namespace PlatinumEngine
 	{
 		return _isEnabled;
 	}
-  
+
 	void GameObject::SetEnabled(bool isEnabled, Scene& scene)
 	{
 		if (_isEnabled == isEnabled)
 			return;
 
 		_isEnabled = isEnabled;
-		UpdateIsEnabledInHierarchy(scene);
+		SavedReference<GameObject> referenceToThis = scene.idSystem.GetSavedReference(this);
+		UpdateIsEnabledInHierarchy(scene, referenceToThis);
 	}
 
 	bool GameObject::IsEnabledInHierarchy() const
@@ -58,38 +78,37 @@ namespace PlatinumEngine
 	// _parent control
 	//--------------------------------------------------------------------------------------------------------------
 
-	GameObject* GameObject::GetParent()
+	PlatinumEngine::SavedReference<GameObject>& GameObject::GetParent()
 	{
 		return _parent;
 	}
-  
-	void GameObject::SetParent(GameObject* parent, Scene& scene)
+
+	void GameObject::SetParent(SavedReference<GameObject> parent, Scene& scene)
 	{
 		if (_parent == parent)
 			return;
 
-		if (_parent)
+		SavedReference<GameObject> referenceToThis = scene.idSystem.GetSavedReference(this);
+		if (!referenceToThis)
 		{
-			_parent->RemoveChild(this);
-		}
-		else
-		{
-			// this has become NOT a root GameObject now
-			scene.RemoveRootGameObject(*this);
-		}
-    
-		if (parent)
-		{
-			parent->_children.push_back(this);
-		}
-		else
-		{
-			// this has become a root GameObject now
-			scene._rootGameObjects.push_back(this);
+			PLATINUM_WARNING("This GameObject is not in the ID System, cannot SetParent");
+			return;
 		}
 
-		_parent = parent;
-		UpdateIsEnabledInHierarchy(scene);
+		if (_parent)
+			_parent.DeRef()->RemoveChild(referenceToThis);
+		else
+			// this has become NOT a root GameObject now
+			scene.RemoveRootGameObject(referenceToThis);
+
+		if (parent)
+			parent.DeRef()->_children.push_back(referenceToThis);
+		else
+			// this has become a root GameObject now
+			scene._rootGameObjects.push_back(referenceToThis);
+
+		_parent = std::move(parent);
+		UpdateIsEnabledInHierarchy(scene, referenceToThis);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
@@ -101,22 +120,24 @@ namespace PlatinumEngine
 	{
 		return _children.size();
 	}
-  
-	GameObject* GameObject::GetChild(size_t index)
+
+	SavedReference<GameObject>& GameObject::GetChild(size_t index)
 	{
 		// range-checked indexing
 		return _children.at(index);
 	}
-  
+
 	size_t GameObject::GetChildIndex(GameObject* child) const
 	{
 		for (size_t i = 0; i < _children.size(); i++)
-			if (_children[i] == child)
+			if (_children[i].DeRef().get() == child)
 				return i;
 		return (size_t)-1;
 	}
 
-	bool GameObject::MoveChildGameObjectPositionInList(GameObject* targetObject, GameObject* movedGameObject)
+	bool GameObject::MoveChildGameObjectPositionInList(
+			SavedReference<GameObject>& targetObject,
+			SavedReference<GameObject>& movedGameObject)
 	{
 		// get iterators for the selected target game object
 		auto targetGameObjectIterator = std::find(_children.begin(), _children.end(), targetObject);
@@ -125,13 +146,13 @@ namespace PlatinumEngine
 		auto movedGameObjectIterator = std::find(_children.begin(), _children.end(), movedGameObject);
 
 		// use rotate to move the item in front of the target object
-		if(targetGameObjectIterator!= _children.end() && movedGameObjectIterator != _children.end())
+		if (targetGameObjectIterator != _children.end() && movedGameObjectIterator != _children.end())
 		{
-			if(movedGameObjectIterator < targetGameObjectIterator)
-				std::rotate(movedGameObjectIterator, movedGameObjectIterator+1, targetGameObjectIterator+1);
+			if (movedGameObjectIterator < targetGameObjectIterator)
+				std::rotate(movedGameObjectIterator, movedGameObjectIterator + 1, targetGameObjectIterator + 1);
 
 			else if (movedGameObjectIterator > targetGameObjectIterator)
-				std::rotate(targetGameObjectIterator, movedGameObjectIterator, movedGameObjectIterator+1);
+				std::rotate(targetGameObjectIterator, movedGameObjectIterator, movedGameObjectIterator + 1);
 
 			// return true if moving successes
 			return true;
@@ -140,7 +161,7 @@ namespace PlatinumEngine
 		// return false if moving fails
 		return false;
 	}
-  
+
 	//--------------------------------------------------------------------------------------------------------------
 	// _components control
 	//--------------------------------------------------------------------------------------------------------------
@@ -149,8 +170,8 @@ namespace PlatinumEngine
 	{
 		return _components.size();
 	}
-  
-	Component* GameObject::GetComponent(size_t index)
+
+	SavedReference<Component>& GameObject::GetComponent(size_t index)
 	{
 		// range-checked indexing
 		return _components.at(index);
@@ -160,47 +181,41 @@ namespace PlatinumEngine
 	// Internal controls
 	//--------------------------------------------------------------------------------------------------------------
 
-	Component* GameObject::GetComponentInternal(const std::type_info& typeInfo)
+	void GameObject::RemoveChild(SavedReference<GameObject>& child)
 	{
-		for (auto component: _components)
-			if (typeid(*component) == typeInfo)
-				return component;
-		return nullptr;
-	}
-
-	Component* GameObject::GetParentComponentInternal(const std::type_info& typeInfo)
-	{
-		GameObject* parent = GetParent();
-		if (parent)
-			return parent->GetComponentInternal(typeInfo);
-		return nullptr;
-	}
-
-	void GameObject::RemoveChild(GameObject* child)
-	{
-		if (!VectorHelpers::RemoveFirst(_children, child))
+		for (size_t i = 0; i < _children.size(); ++i)
 		{
-			PLATINUM_ERROR("Hierarchy is invalid: _children is missing an element");
+			if (_children[i] == child)
+			{
+				_children.erase(_children.begin() + i);
+				return;
+			}
 		}
+		PLATINUM_ERROR("Hierarchy is invalid: _children is missing an element");
 	}
 
-	void GameObject::RemoveComponent(Component* component)
+	void GameObject::RemoveComponent(SavedReference<Component>& component)
 	{
-		if (!VectorHelpers::RemoveFirst(_components, component))
+		for (size_t i = 0; i < _components.size(); ++i)
 		{
-			PLATINUM_ERROR("Hierarchy is invalid");
+			if (_components[i] == component)
+			{
+				_components.erase(_components.begin() + i);
+				return;
+			}
 		}
+		PLATINUM_ERROR("Hierarchy is invalid");
 	}
 
 	bool GameObject::CalculateIsEnabledInHierarchy() const
 	{
 		if (_parent)
-			return _isEnabled && _parent->_isEnabledInHierarchy;
+			return _isEnabled && _parent.DeRef()->_isEnabledInHierarchy;
 		else
 			return _isEnabled;
 	}
 
-	void GameObject::UpdateIsEnabledInHierarchy(Scene& scene)
+	void GameObject::UpdateIsEnabledInHierarchy(Scene& scene, SavedReference<GameObject>& referenceToThis)
 	{
 		bool isEnabledInHierarchyNow = CalculateIsEnabledInHierarchy();
 
@@ -209,6 +224,15 @@ namespace PlatinumEngine
 
 		_isEnabledInHierarchy = isEnabledInHierarchyNow;
 
-		scene.UpdateIsEnabledInHierarchy(*this);
+		scene.UpdateIsEnabledInHierarchy(referenceToThis);
+	}
+
+	void GameObject::OnIDSystemUpdate(IDSystem& idSystem)
+	{
+		_parent.OnIDSystemUpdate(idSystem);
+		for (auto& child : _children)
+			child.OnIDSystemUpdate(idSystem);
+		for (auto& component : _components)
+			component.OnIDSystemUpdate(idSystem);
 	}
 }

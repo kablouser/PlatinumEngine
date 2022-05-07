@@ -3,11 +3,10 @@
 //
 
 #pragma once
-#include "InputManager/InputManager.h"
-#include "OpenGL/ShaderInput.h"
-#include "SceneManager/Scene.h"
+#include <OpenGL/ShaderInput.h>
+#include <SceneManager/Scene.h>
 #include <Helpers/Time.h>
-#include "Renderer/Renderer.h"
+#include <Renderer/Renderer.h>
 #include <Physics/Physics.h>
 
 namespace PlatinumEngine
@@ -15,43 +14,49 @@ namespace PlatinumEngine
 	class GameWindow
 	{
 	public:
-		GameWindow(InputManager* inputManager, Scene* scene, Renderer* renderer, Time* time, Physics* physics);
-		GameWindow();
-		//~GameWindow();
+		GameWindow(Scene* scene, Renderer* renderer, Time* time, Physics* physics);
 
 		/**
 		 * This is a Gui
 		 * @param OutIsOpen
 		 */
-		void ShowGuiWindow(bool* OutIsOpen);
+		void ShowGUIWindow(bool* OutIsOpen);
+
+		bool GetIsStarted() const;
+		void SetIsStarted(bool isStarted);
 
 		/**
-		 * Step function for updating the scene
+		 * If game is started, pauses game and updates the scene.
+		 * Does nothing if the game is ended.
 		 */
 		void Step();
 
 		/**
-		 * Start the simulation
+		 * Game state definition:
+		 *
+		 * Game can be started or ended. Default is ended.
+		 *
+		 * A started game can be paused or resumed.
+		 * A ended game can neither be paused nor resumed.
+		 * By default, a game is resumed.
+		 *
+		 * Scene.OnStart is called when game enters started state.
+		 * Scene.OnEnd is called when game enters ended state.
+		 * So, 1 Scene.OnStart always corresponds to 1 Scene.OnEnd.
+		 *
+		 * A paused game can be paused again. (no effect)
+		 * A resumed game can be resumed again. (no effect)
+		 *
+		 * Scene.OnUpdate is called when a game is started and resumed.
+		 *
+		 * These 2 states are controlled by:
+		 * Scene._isStarted and isPaused
 		 */
-		void Play();
 
-		/**
-		 * Render the GameObject states in scene
-		 */
-		void Update(double deltaTime);
-
-		/**
-		 * Render the GameObjects in the scene
-		 * @param targetSize
-		 * @param scene
-		 */
-		void Render(ImVec2 targetSize, Scene* scene);
-
-
-		void CreateSkyBoxShaderInput();
+		bool isPaused;
 
 	private:
-		InputManager* _inputManager;
+
 		Scene* _scene;
 		Renderer* _renderer;
 		Time* _time;
@@ -64,15 +69,20 @@ namespace PlatinumEngine
 		Framebuffer _renderTexture;
 		int _framebufferWidth;
 		int _framebufferHeight;
-
-		// user event
-		ImVec2 _mouseMoveDelta;
-		int _mouseButtonType;
-		float _wheelValueDelta;
-
-		bool _isPlay;
 		bool _hasWarningBeenShown = false;
-	public:
-		bool isPaused;
+
+		/**
+		 * Update the scene and physics by current delta time in _time object.
+		 */
+		void Update();
+
+		/**
+		 * Render the GameObjects in the scene
+		 * @param targetSize
+		 * @param scene
+		 */
+		void Render(ImVec2 targetSize);
+
+		void CreateSkyBoxShaderInput();
 	};
 }

@@ -4,23 +4,17 @@
 
 #include "Loaders/MeshLoader.h"
 
-
 namespace PlatinumEngine
 {
 	namespace Loaders
 	{
-		void LoadMesh(const std::string &filePath, std::vector<glm::vec3> &outPositions, std::vector<glm::vec3> &outNormals, std::vector<glm::vec2> &outTextureCoords)
+		void LoadMesh(const std::filesystem::path& filePath, std::vector<glm::vec3> &outPositions, std::vector<glm::vec3> &outNormals, std::vector<glm::vec2> &outTextureCoords)
 		{
-			// First check if the file is okay
-			if (!ExtensionAllowed(GetExtension(filePath)))
-			{
-				PLATINUM_ERROR({"Extension for file \"" + filePath + "\" not allowed"});
-				return;
-			}
+			// no point in checking extension here, just load it if possible
 
 			// Load file
 			Assimp::Importer import;
-			const aiScene *scene = import.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs);
+			const aiScene *scene = import.ReadFile(filePath.string(), aiProcess_Triangulate | aiProcess_FlipUVs);
 			if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 			{
 				PLATINUM_ERROR(import.GetErrorString());
@@ -49,14 +43,9 @@ namespace PlatinumEngine
 			}
 		}
 
-
-		void LoadMesh(const std::string &filePath, Mesh& returnMesh, const bool JoinVertices, const bool CalcTangents)
+		std::pair<bool, Mesh> LoadMesh(const std::filesystem::path& filePath, const bool JoinVertices, const bool CalcTangents)
 		{
-			// First check if the file is okay
-			if (!ExtensionAllowed(GetExtension(filePath)))
-			{
-				PLATINUM_ERROR({"Extension for file \"" + filePath + "\" not allowed"});
-			}
+			// no point in checking extension here, just load it if possible
 
 			// Load file
 			Assimp::Importer import;
@@ -71,33 +60,35 @@ namespace PlatinumEngine
 			}
 
 			// Crate scene from file
-			const aiScene *scene = import.ReadFile(filePath, flags);
+			const aiScene *scene = import.ReadFile(filePath.string(), flags);
 			if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 			{
-				PLATINUM_ERROR(import.GetErrorString());
+				PLATINUM_ERROR_STREAM << "Failed to load mesh at path: " << filePath <<
+					". Error: " << import.GetErrorString();
+				return {false, Mesh()};
 			}
 
+			// Loop all meshes and add data
+			Mesh returnMesh;
+			returnMesh.fileName = filePath.filename().string();
 			// Keep track of offset for multiple meshes
 			unsigned int offset = 0;
 
 			if(scene->mNumAnimations > 0)
 			{
-				// if number of animations is bigger than 0, mark animation as "existed"
-				returnMesh.isAnimationExist = true;
-
 				//------------------------------
 				// SKELETON (Based on nothing)
 				//------------------------------
 
 				// Store the raw skeleton hierarchy
-				returnMesh.rawSkeleton.roots.resize(1);
-				AddNodeData(scene->mRootNode,  &returnMesh.rawSkeleton.roots[0]);
+				ozz::animation::offline::RawSkeleton rawSkeleton;
+				rawSkeleton.roots.resize(1);
+				AddNodeData(scene->mRootNode,  &rawSkeleton.roots[0]);
 				// Turn skeleton hierarchy structure into runtime format
 				{
 					ozz::animation::offline::SkeletonBuilder skeletonBuilder;
-					returnMesh.skeleton = skeletonBuilder(returnMesh.rawSkeleton);
+					returnMesh.skeleton = skeletonBuilder(rawSkeleton);
 				}
-
 
 				//---------------------------------------------
 				// Bone For Every Vertex (Based on skeleton)
@@ -126,10 +117,6 @@ namespace PlatinumEngine
 			}
 			else
 			{
-
-				// if number of animations is bigger than 0, mark animation as "existed"
-				returnMesh.isAnimationExist = false;
-
 				// load all vertices in all meshes
 				for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
 				{
@@ -137,6 +124,7 @@ namespace PlatinumEngine
 				}
 			}
 
+			return {true, std::move(returnMesh)};
 		}
 
 		void AddMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset)
@@ -366,25 +354,17 @@ namespace PlatinumEngine
 
 		void AddAnimationChannelData(Mesh &outMesh, aiAnimation* inAnimation)
 		{
+			if(outMesh.skeleton == nullptr)
+				return;
 
 			// Number of nodes
-			unsigned int numberOfJoints = 0;
-			if(outMesh.skeleton == nullptr)
-			{
-				return;
-			}
-			numberOfJoints = outMesh.skeleton->num_joints();
-
-
-			// Add new animation into animations list
-			outMesh.animations.emplace_back(new Animation());
-			Animation* animation = outMesh.animations.back();
-
+			unsigned int numberOfJoints = outMesh.skeleton->num_joints();
 
 			// Basic info
-			animation->rawAnimation.name = inAnimation->mName.C_Str();
-			animation->rawAnimation.duration = (float)inAnimation->mDuration;
-			animation->rawAnimation.tracks.resize(numberOfJoints);
+			ozz::animation::offline::RawAnimation rawAnimation;
+			rawAnimation.name = inAnimation->mName.C_Str();
+			rawAnimation.duration = (float)inAnimation->mDuration;
+			rawAnimation.tracks.resize(numberOfJoints);
 
 			// Channels
 			for(unsigned int i=0; i<numberOfJoints; ++i)
@@ -408,7 +388,7 @@ namespace PlatinumEngine
 									inAnimation->mChannels[channelID]->mPositionKeys[j].mValue.y,
 									inAnimation->mChannels[channelID]->mPositionKeys[j].mValue.z)};
 
-					animation->rawAnimation.tracks[i].translations.push_back(key);
+					rawAnimation.tracks[i].translations.push_back(key);
 				}
 
 				// rotation
@@ -423,7 +403,7 @@ namespace PlatinumEngine
 									inAnimation->mChannels[channelID]->mRotationKeys[j].mValue.z,
 									inAnimation->mChannels[channelID]->mRotationKeys[j].mValue.w)};
 
-					animation->rawAnimation.tracks[i].rotations.push_back(key);
+					rawAnimation.tracks[i].rotations.push_back(key);
 				}
 
 				// scale
@@ -437,12 +417,17 @@ namespace PlatinumEngine
 									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.y,
 									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.z)};
 
-					animation->rawAnimation.tracks[i].scales.push_back(key);
+					rawAnimation.tracks[i].scales.push_back(key);
 				}
 			}
 
+			// Add new animation into animations list
+			Animation animation;
+			outMesh.animations.push_back(Animation());
+
 			// turn data into runtime format
-			animation->BuildAnimationRuntimeData();
+			ozz::animation::offline::AnimationBuilder animationBuilder;
+			outMesh.animations.back().animation = animationBuilder(rawAnimation);
 		}
 
 		bool FindChanelID(const std::string& inBoneName, aiAnimation* inAnimation, unsigned int& trackID)

@@ -22,10 +22,9 @@
 
 #include <ParticleEffects/ParticleEmitter.h>
 
-
-#include <SceneManager/SceneManager.h>
 #include <OpenGL/Mesh.h>
 #include <SceneEditor/SceneEditor.h>
+#include <AssetDatabase/AssetHelper.h>
 
 #include <IconsFontAwesome6.h>
 namespace PlatinumEngine
@@ -61,9 +60,6 @@ namespace PlatinumEngine
     	Physics* _physics;
 
 		bool _isAddComponentWindowOpen = false;
-
-		// Have to keep track of if object enabled ourselves as isEnabled is a private member of game object
-		bool _isObjectEnabled;
 
 		//ImGui helper parameters
 		float _textWidth = 140.f;

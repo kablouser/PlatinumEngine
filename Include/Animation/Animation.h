@@ -58,9 +58,9 @@ namespace PlatinumEngine
 		// {  PARAMETER  }
 
 		// OZZ data
-		ozz::animation::offline::RawAnimation rawAnimation;
 		ozz::unique_ptr<ozz::animation::Animation> animation;
-		ozz::animation::SamplingJob::Context context;
+
+		// TODO transfer to AnimationComponent or somewhere else
 		ozz::vector<ozz::math::SoaTransform> localTransformOZZ;
 		ozz::vector<ozz::math::Float4x4> worldTransformOZZ;
 		std::vector<Maths::Mat4> worldTransform;
@@ -72,7 +72,10 @@ namespace PlatinumEngine
 		 * @param skeleton
 		 * @param bones
 		 */
-		void UpdateWorldTransformMatrix(ozz::unique_ptr<ozz::animation::Skeleton>& skeleton, const std::vector<Bone>& bones);
+		void UpdateWorldTransformMatrix(
+				ozz::unique_ptr<ozz::animation::Skeleton>& skeleton,
+				const std::vector<Bone>& bones,
+				ozz::animation::SamplingJob::Context& context);
 
 		/**
 		 * Set animation time to be a new time. (the input time will be clamped into the duration)
@@ -131,11 +134,6 @@ namespace PlatinumEngine
 		 * It will only displays once if _isAnimationLooping == false
 		 */
 		void PlayAnimationTimer();
-
-		/**
-		 * Build runtime animation data based on the raw animation data
-		 */
-		void BuildAnimationRuntimeData();
 
 
 

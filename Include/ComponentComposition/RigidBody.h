@@ -16,34 +16,54 @@ namespace PlatinumEngine
 	class RigidBody: public Component
 	{
 	public:
+		friend class Physics;
+
+		static void CreateTypeInfo(TypeDatabase& database);
+
 		//Constructor
 		RigidBody();
 
-		btTransform GetWorldTransform(); // Get the WorldTransform matrix
-		Maths::Quaternion GetBulletRotation(); // Get the Bullet RigidBody Rotation Vector
-		Maths::Vec3 GetBulletPosition(); // Get the Bullet RigidBody Translation Vector
+		//Reposition function
+		void Reposition(const Maths::Vec3& position, const Maths::Quaternion& rotation);
 
-	public:
-		bool  kinematic; //kinematic
-		float mass; // mass
+		// Get the WorldTransform matrix
+		btTransform GetWorldTransform() const;
 
-		PhysicalMaterial material;
-	public:
+		// Get the Bullet RigidBody Translation and Rotation Vector
+		std::pair<Maths::Vec3, Maths::Quaternion> GetPositionRotation() const;
+
 		// Set the rigidBody when it starts
-		void OnStart(Scene& scene) override;
-
+		void OnEnable(Scene& scene) override;
 		// Clean up all bullet pointers
-		void OnEnd(Scene& scene) override;
+		void OnDisable(Scene& scene) override;
+		// Removes btRigidBody from the physics world. Reconstructs it. Adds it back if there's a transform and collider.
+		// btRigidBody loses all velocities and some other stuff.
+		void UpdatePhysicsProperties(Physics& physics);
 
-		void OnUpdate(Scene& scene, double deltaTime) override;
+		void SetVelocity(Maths::Vec3 velocity);
+		Maths::Vec3 GetVelocity() const;
+
+		void SetAngularVelocity(Maths::Vec3 angularVelocity);
+		Maths::Vec3 GetAngularVelocity() const;
+
+		// These fields are only used to construct btRigidBody.
+		// They don't change the btRigidBody while it's simulating.
+		bool isKinematic;
+		float mass; // min=00001f, because static is not allowed
+		PlatinumEngine::PhysicsMaterial physicsMaterial;
+
+		bool isCollisionRecorded;
+
 	private:
+		// bullet objects
+		btRigidBody _rigidBody;
+		btDefaultMotionState _motionState;
+		// has btRigidBody been added to the bullet physics world?
+		bool _addedToPhysicsWorld;
+		// collisions from last frame
+		std::vector<Collision> _collisionRecords;
 
-		Maths::Vec3 _inertia;
-		Maths::Vec3 _linearVelocity;
-		Maths::Vec3 _angularVelocity;
-
-		//pointer of bullet objects
-		btRigidBody* _rigidBody;
-		btDefaultMotionState* _motionState;
+		void AddToPhysicsWorld(Physics& physics);
+		void RemoveFromPhysicsWorld(Physics& physics);
 	};
 }

@@ -2,6 +2,28 @@
 
 namespace PlatinumEngine
 {
+	void Camera::CreateTypeInfo(TypeDatabase& database)
+	{
+//		ProjectionType projectionType;
+//		ClearMode clearMode;
+//		Color backgroundColor;
+//		float fov;
+//		float nearClippingPlane;
+//		float farClippingPlane;
+//		float orthographicSize;
+		database.BeginTypeInfo<Camera>()
+				.WithInherit<Component>()
+				// enum types are created automatically in the database
+				.WithField<ProjectionType>("projectionType", PLATINUM_OFFSETOF(Camera, projectionType))
+				.WithField<ClearMode>("clearMode", PLATINUM_OFFSETOF(Camera, clearMode))
+
+				.WithField<Color>("backgroundColor", PLATINUM_OFFSETOF(Camera, backgroundColor))
+				.WithField<float>("fov", PLATINUM_OFFSETOF(Camera, fov))
+				.WithField<float>("nearClippingPlane", PLATINUM_OFFSETOF(Camera, nearClippingPlane))
+				.WithField<float>("farClippingPlane", PLATINUM_OFFSETOF(Camera, farClippingPlane))
+				.WithField<float>("orthographicSize", PLATINUM_OFFSETOF(Camera, orthographicSize));
+	}
+
 	Camera::Camera()
 	{
 		projectionType = ProjectionType::perspective;
@@ -27,7 +49,7 @@ namespace PlatinumEngine
 		glm::mat4 p = (glm::mat4)projection;
 
 		glm::vec3 result = glm::unProject(win, m, p, vp);
-		return {result.x, result.y, result.z};
+		return { result.x, result.y, result.z };
 	}
 
 	//Transform point from world to screen coordinates
@@ -44,7 +66,7 @@ namespace PlatinumEngine
 		glm::mat4 p = (glm::mat4)projection;
 
 		glm::vec3 result = glm::project(o, m, p, vp);
-		return {result.x, result.y, result.z};
+		return { result.x, result.y, result.z };
 	}
 
 	//Returns matrix that convert from world space to clip space (View*Projection matrix)
@@ -81,12 +103,12 @@ namespace PlatinumEngine
 	Maths::Mat4 Camera::GetWorldToCameraMatrix()
 	{
 		Maths::Mat4 worldToCameraMatrix;
-		Transform* tc = GetGameObject()->GetComponent<Transform>();
-		if (tc != nullptr)
+		SavedReference<Transform> tc = GetComponent<Transform>();
+		if (tc)
 		{
 			Maths::Mat4 invR, invT;
-			invR = Maths::Quaternion::QuaternionToMatrix(Maths::Quaternion::Inverse(tc->localRotation));
-			invT.SetTranslationMatrix(-tc->localPosition);
+			invR = Maths::Quaternion::QuaternionToMatrix(Maths::Quaternion::Inverse(tc.DeRef()->localRotation));
+			invT.SetTranslationMatrix(-tc.DeRef()->localPosition);
 			worldToCameraMatrix = invR * invT;
 		}
 		else
@@ -97,11 +119,11 @@ namespace PlatinumEngine
 	Maths::Mat4 Camera::GetViewMatrixRotationOnly()
 	{
 		Maths::Mat4 worldToCameraMatrix;
-		Transform* tc = GetGameObject()->GetComponent<Transform>();
-		if (tc != nullptr)
+		SavedReference<Transform> tc = GetGameObject().DeRef()->GetComponent<Transform>();
+		if (tc.DeRef() != nullptr)
 		{
 			Maths::Mat4 invR, invT;
-			invR = Maths::Quaternion::QuaternionToMatrix(Maths::Quaternion::Inverse(tc->localRotation));
+			invR = Maths::Quaternion::QuaternionToMatrix(Maths::Quaternion::Inverse(tc.DeRef()->localRotation));
 			worldToCameraMatrix = invR;
 		}
 		else
@@ -113,12 +135,12 @@ namespace PlatinumEngine
 	Maths::Mat4 Camera::GetCameraToWorldMatrix()
 	{
 		Maths::Mat4 cameraToWorldMatrix;
-		Transform* tc = GetGameObject()->GetComponent<Transform>();
-		if (tc != nullptr)
+		SavedReference<Transform> tc = GetComponent<Transform>();
+		if (tc)
 		{
 			Maths::Mat4 t, r;
-			t.SetTranslationMatrix(tc->localPosition);
-			r = Maths::Quaternion::QuaternionToMatrix(tc->localRotation);
+			t.SetTranslationMatrix(tc.DeRef()->localPosition);
+			r = Maths::Quaternion::QuaternionToMatrix(tc.DeRef()->localRotation);
 			cameraToWorldMatrix = t * r;
 		}
 		else

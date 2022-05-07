@@ -18,7 +18,11 @@ namespace PlatinumEngine
 								InspectorWindow *inspector,
 								Profiler *profiler,
 								ProjectWindow *projectWindow,
-								Scene *scene
+								IDSystem& idSystem,
+								TypeDatabase& typeDatabase,
+								AssetDatabase& assetDatabase,
+								Scene& scene,
+								AssetHelper *assetHelper
 								):
 								_gameWindow(gameWindow),
 								_sceneEditor(sceneEditor),
@@ -27,13 +31,14 @@ namespace PlatinumEngine
 								_inspector(inspector),
 								_profiler(profiler),
 								_projectWindow(projectWindow),
-								_scene(scene)
+								_idSystem(idSystem),
+								_typeDatabase(typeDatabase),
+								_assetDatabase(assetDatabase),
+								_scene(scene),
+								_assetHelper(assetHelper)
 	{
 	}
 
-	/// this is a bool parameter used for disable or enable the pause and step button
-	static bool enablePauseButton = true;
-	static bool enableStepButton = false;
 	///--------------------------------------------------------------------------
 	/// this function will create a basic window when you open the Platinum Engine
 	///--------------------------------------------------------------------------
@@ -43,7 +48,7 @@ namespace PlatinumEngine
 		///ifs in main menu window list to call the function inside
 		///-----------------------------------------------------------------------
 		//window section
-		if (_showWindowGame) 			ShowWindowGame(&_showWindowGame);
+		_gameWindow->ShowGUIWindow(&_showWindowGame);
 		if (_showWindowScene) 			ShowWindowScene(&_showWindowScene);
 		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy, scene);
 		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector, scene);
@@ -52,8 +57,8 @@ namespace PlatinumEngine
 		if (_showWindowLight) 			ShowWindowLight(&_showWindowLight);
 		if (_showWindowLogger)   		ShowWindowLogger(&_showWindowLogger);
 		if(_showWindowProfiler) 		ShowWindowProfiler(&_showWindowProfiler);
-		if (_showFileLoad) 				LoadFile();
-		if (_showFileSave) 				SaveFile();
+		if (_showFileLoad) 				LoadFile(scene, &_showFileLoad);
+		if (_showFileSave) 				SaveFile(scene, &_showFileSave);
 
 		///-------------------------------------------------------------------
 		/// set up the main menu bar
@@ -100,6 +105,13 @@ namespace PlatinumEngine
 				ShowMenuWindow(scene);
 				ImGui::EndMenu();
 			}
+			///---------------------------------------------------------------
+			/// Asset Database control
+			///---------------------------------------------------------------
+			if (ImGui::Button("Reload Asset Database"))
+			{
+				_assetDatabase.Update(_idSystem, _scene);
+			}
 
 			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 130.f);
 
@@ -108,36 +120,56 @@ namespace PlatinumEngine
 			/// This section is for main menu bar to control the game view play/pause/step
 			///------------------------------------------------------------------
 
-			if (ImGui::Button(_start ? ICON_FA_STOP "##Play###startButton" : ICON_FA_PLAY "##Stop###startButton"))
+			if (_gameWindow->GetIsStarted())
 			{
-				if(!_start)
+				if (ImGui::Button(ICON_FA_STOP "##StopGame"))
 				{
-					_start = true;
+					auto& physicsObjects = scene.physics.GetRigidBodies();
+					for(auto& object: physicsObjects)
+					{
+						object.DeRef()->GetComponent<Transform>().DeRef()->localRotation = object.DeRef()->GetComponent<Transform>().DeRef()->initialRotation;
+						object.DeRef()->GetComponent<Transform>().DeRef()->localPosition = object.DeRef()->GetComponent<Transform>().DeRef()->initialPosition;
+					}
+					_gameWindow->SetIsStarted(false);
+					// isPaused is reset to false when game is stopped
 					_gameWindow->isPaused = false;
-					_scene->Start();
 				}
-				else if(_start)
+			}
+			else
+			{
+				if (ImGui::Button(ICON_FA_PLAY "##PlayGame"))
 				{
-					_start = false;
-					_gameWindow->isPaused = true;
-					_scene->End();
+					_gameWindow->SetIsStarted(true);
+					auto& physicsObjects = scene.physics.GetRigidBodies();
+					for(auto& object: physicsObjects)
+					{
+						object.DeRef()->GetComponent<Transform>().DeRef()->initialRotation = object.DeRef()->GetComponent<Transform>().DeRef()->localRotation;
+						object.DeRef()->GetComponent<Transform>().DeRef()->initialPosition = object.DeRef()->GetComponent<Transform>().DeRef()->localPosition;
+						object.DeRef()->Reposition(object.DeRef()->GetComponent<Transform>().DeRef()->initialPosition,
+								object.DeRef()->GetComponent<Transform>().DeRef()->initialRotation);
+					}
 				}
-
-				enablePauseButton = !enablePauseButton;
 			}
 
-  			// activate or inactive pause and step button
-			ImGui::BeginDisabled(enablePauseButton);
-			if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
+			// Pause can be useful before the game starts for debugging
+			if (_gameWindow->isPaused)
 			{
-				_gameWindow->isPaused = !_gameWindow->isPaused;
+				// When paused, cause pause button to look "hovered"
+				ImGui::PushStyleColor(ImGuiCol_Button,ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered));
+				if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
+					_gameWindow->isPaused = false;
+				ImGui::PopStyleColor(1);
+			}
+			else
+			{
+				if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
+					_gameWindow->isPaused = true;
 			}
 
+			// Step does nothing when game is stopped. So disable it.
+			ImGui::BeginDisabled(!_gameWindow->GetIsStarted());
 			if (ImGui::Button(ICON_FA_FORWARD_STEP "##Step"))
-			{
 				_gameWindow->Step();
-			}
-
 			ImGui::EndDisabled();
 
 			ImGui::EndMainMenuBar();
@@ -147,17 +179,29 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	/// This section is for main menu bar "file" part file dialog showing
 	///--------------------------------------------------------------------------
-	void WindowManager::LoadFile()
+	void WindowManager::LoadFile(Scene& scene, bool* outIsOpen)
 	{
-		std::string x;
-		x = PlatinumEngine::FileDialog::LoadFile();
-		std::cout << x << std::endl;
+		auto [success, path] = PlatinumEngine::FileDialog::OpenDialog(
+				outIsOpen,
+				"LoadFile",
+				"Load File",
+				".scene",
+				"Assets",
+				"");
+		if (success)
+			scene.LoadFile(path);
 	}
-	void WindowManager::SaveFile()
+	void WindowManager::SaveFile(Scene& scene, bool* outIsOpen)
 	{
-		std::string x;
-		x = PlatinumEngine::FileDialog::SaveFile();
-		std::cout << x << std::endl;
+		auto [success, path] = PlatinumEngine::FileDialog::OpenDialog(
+				outIsOpen,
+				"SaveFile",
+				"Save File",
+				".scene",
+				"Assets",
+				"Scene");
+		if (success)
+			scene.SaveFile(path);
 	}
 
 	///--------------------------------------------------------------------------
@@ -166,15 +210,8 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	void WindowManager::ShowMenuFile()
 	{
-
-		if (ImGui::MenuItem("Load", "", &_showFileLoad))
-		{
-			ImGuiFileDialog::Instance()->OpenDialog("LoadFileKey","Load File",".*",".");
-		}
-		if (ImGui::MenuItem("Save", "Ctrl+S", &_showFileSave))
-		{
-			ImGuiFileDialog::Instance()->OpenDialog("SaveFileKey","Save File",".*",".");
-		}
+		ImGui::MenuItem("Load", "", &_showFileLoad);
+		ImGui::MenuItem("Save", "Ctrl+S", &_showFileSave);
 
 		ImGui::Separator();
 
@@ -217,13 +254,61 @@ namespace PlatinumEngine
 		if (ImGui::BeginMenu("3D Object"))
 		{
 			if (ImGui::MenuItem("Cube"))
-			{}
+			{
+				std::filesystem::path cubePath = "./Assets/Meshes/Cube.obj";
+				auto [success, asset] = _assetHelper->GetAsset<Mesh>(cubePath.string());
+				auto cube = scene.AddGameObject("Cube");
+				scene.AddComponent<Transform>(cube);
+				if(success)
+				{
+					scene.AddComponent<MeshRender>(cube);
+					cube.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(asset);
+				}
+				scene.AddComponent<BoxCollider>(cube);
+			}
+
 			if (ImGui::MenuItem("Sphere"))
-			{}
+			{
+				std::filesystem::path spherePath = "./Assets/Meshes/Sphere4.obj";
+				auto [success, asset] = _assetHelper->GetAsset<Mesh>(spherePath.string());
+				auto sphere = scene.AddGameObject("Sphere");
+				scene.AddComponent<Transform>(sphere);
+				if(success)
+				{
+					scene.AddComponent<MeshRender>(sphere);
+					sphere.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(asset);
+				}
+				scene.AddComponent<SphereCollider>(sphere);
+			}
+
 			if (ImGui::MenuItem("Capsule"))
-			{}
+			{
+				std::filesystem::path capsulePath = "./Assets/Meshes/Capsule.obj";
+				auto [success, asset] = _assetHelper->GetAsset<Mesh>(capsulePath.string());
+				auto capsule = scene.AddGameObject("Capsule");
+				scene.AddComponent<Transform>(capsule);
+				if(success)
+				{
+					scene.AddComponent<MeshRender>(capsule);
+					capsule.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(asset);
+				}
+				scene.AddComponent<CapsuleCollider>(capsule);
+			}
+
 			if (ImGui::MenuItem("Plane"))
-			{}
+			{
+				std::filesystem::path planePath = "./Assets/Meshes/Quad.obj";
+				auto [success, asset] = _assetHelper->GetAsset<Mesh>(planePath.string());
+				auto plane = scene.AddGameObject("Plane");
+				scene.AddComponent<Transform>(plane);
+				if(success)
+				{
+					scene.AddComponent<MeshRender>(plane);
+					plane.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(asset);
+				}
+
+				scene.AddComponent<BoxCollider>(plane);
+			}
 			ImGui::EndMenu();
 		}
 	}
@@ -262,32 +347,17 @@ namespace PlatinumEngine
 		}
 		ImGui::Separator();
 
-		if (ImGui::MenuItem("Animation", "", &_showWindowAnimation))
-		{}
-		if (ImGui::MenuItem(ICON_FA_GAMEPAD " Game", "", &_showWindowGame))
-		{
-			ShowWindowGame(&_showWindowGame);
-		}
-		if (ImGui::MenuItem(ICON_FA_BARS_STAGGERED " Hierarchy", "", &_showWindowHierarchy))
-		{
-			ShowWindowHierarchy(&_showWindowHierarchy, scene);
-		}
-		if (ImGui::MenuItem(ICON_FA_CIRCLE_INFO " Inspector", "", &_showWindowInspector))
-		{
-			ShowWindowInspector(&_showWindowInspector, scene);
-		}
-		if (ImGui::MenuItem("Lighting", "", &_showWindowLight))
-		{}
-		if (ImGui::MenuItem(ICON_FA_FOLDER " Project", "", &_showWindowProject))
-		{
-			ShowWindowProject(&_showWindowProject);
-		}
-		if (ImGui::MenuItem(ICON_FA_IMAGE " Scene", "", &_showWindowScene))
-		{
-			ShowWindowScene(&_showWindowScene);
-		}
-
+		// Do NOT call ShowWindowXYZ here. Do NOT call OnRenderGUI here.
+		// They are called once already in the ShowGUI.
+		ImGui::MenuItem("Animation", "", &_showWindowAnimation);
+		ImGui::MenuItem(ICON_FA_GAMEPAD " Game", "", &_showWindowGame);
+		ImGui::MenuItem(ICON_FA_BARS_STAGGERED " Hierarchy", "", &_showWindowHierarchy);
+		ImGui::MenuItem(ICON_FA_CIRCLE_INFO " Inspector", "", &_showWindowInspector);
+		ImGui::MenuItem("Lighting", "", &_showWindowLight);
+		ImGui::MenuItem(ICON_FA_FOLDER " Project", "", &_showWindowProject);
+		ImGui::MenuItem(ICON_FA_IMAGE " Scene", "", &_showWindowScene);
 	}
+
 	///--------------------------------------------------------------------------
 	///   ---                                                               ---
 	///   | Section: Please implement GUI in the corresponding function below |
@@ -318,30 +388,21 @@ namespace PlatinumEngine
 		//TODO:
 	}
 
-	//Please implement Game Window below
-	void WindowManager::ShowWindowGame(bool* outIsOpen)
-	{
-		_gameWindow->ShowGuiWindow(outIsOpen);
-	}
-
 	//Please implement Scene Window below
 	void WindowManager::ShowWindowScene(bool* outIsOpen)
 	{
-		//TODO:
 		_sceneEditor->ShowGUIWindow(outIsOpen);
 	}
 
 	//Please implement Inspector Window below
 	void WindowManager::ShowWindowInspector(bool* outIsOpen, Scene &scene)
 	{
-		//TODO:
 		_inspector->ShowGUIWindow(outIsOpen, scene);
 	}
 
 	//Please implement Hierarchy Window below
 	void WindowManager::ShowWindowHierarchy(bool* outIsOpen, Scene &scene)
 	{
-		//TODO:
 		_hierarchy->ShowGUIWindow(outIsOpen, scene);
 	}
 

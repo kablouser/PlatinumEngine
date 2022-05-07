@@ -127,6 +127,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/AssetDatabase/AssetDatabase.cpp;"
 	"Source/AssetDatabase/AssetHelper.cpp;"
 	
+	"Source/Audio/AudioClip.cpp;"
+	
 	"Source/ComponentComposition/Camera.cpp;"
 	"Source/ComponentComposition/AudioComponent.cpp;"
 	"Source/ComponentComposition/AnimationComponent.cpp;"
@@ -145,6 +147,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 
 	
 	"Source/GameWindow/GameWindow.cpp;"
+	
+	"Source/IDSystem/IDSystem.cpp;"
 	
 	"Source/InputManager/InputManager.cpp;"
 	
@@ -187,23 +191,15 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	
 	"Source/SceneManager/HierarchyWindow.cpp;"
 	"Source/SceneManager/Scene.cpp;"
-	"Source/SceneManager/SceneManager.cpp;"
+	
+	"Source/TypeDatabase/TypeDatabase.cpp;"
+	"Source/TypeDatabase/TypeDatabaseInit.cpp;"
 	
 	"Source/WindowManager/Filedialog.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
 	)
 
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
-
-target_include_directories(${PROJECT_NAME} PRIVATE
-	"${CMAKE_CURRENT_LIST_DIR}/Include"
-	"${CMAKE_CURRENT_LIST_DIR}/Fonts"
-	"${FETCHCONTENT_BASE_DIR}/imguizmo-src"
-	"${FETCHCONTENT_BASE_DIR}/stb-src"
-	"${FETCHCONTENT_BASE_DIR}/bullet3-src/src"
-  "${SDL2_INCLUDE_DIR}" 
-  "${SDL2_MIXER_INCLUDE_DIR}"
-	)
 #-----------------------------
 
 #-----------------------------
@@ -214,10 +210,31 @@ set(UNIT_TESTS
 	"Test/TestTemplate.cpp;"
 	"Test/Maths/VectorsTest.cpp;"
 	"Test/Maths/MatricesTest.cpp;"
-	"Test/SceneEditor/EditorCameraTest.cpp;")
+	"Test/SceneEditor/EditorCameraTest.cpp;"
+	"Test/TypeDatabase/TestTypeDatabase.cpp;"
+	"Test/IDSystem/TestIDSystem.cpp;"
+	)
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
+#-----------------------------
 
-target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
+
+#-----------------------------
+# IMPORTANT SECTION! Include files
+#-----------------------------
+# list of folders to include
+set(PROJECT_INCLUDES
+	"Include;"
+	"Fonts;"
+	"${FETCHCONTENT_BASE_DIR}/imguizmo-src;"
+	"${FETCHCONTENT_BASE_DIR}/stb-src;"
+	"${FETCHCONTENT_BASE_DIR}/bullet3-src/src"
+ 	"${SDL2_INCLUDE_DIR}" 
+    "${SDL2_MIXER_INCLUDE_DIR}"
+	)
+	
+# different targets
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDES})
+target_include_directories(tests PRIVATE ${PROJECT_INCLUDES})
 #-----------------------------
 
 #-----------------------------
@@ -242,8 +259,6 @@ set(PROJECT_LIBRARIES
 	#"BulletInverseDynamics;"
 	#"BulletSoftBody;" #shouldnt be necessary
 
-	"SDL2main;"
-	"SDL2-static;"
 	"SDL2_mixer;"
 
 	"ozz_animation;"

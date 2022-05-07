@@ -10,25 +10,35 @@
 #include <InputManager/InputManager.h>
 #include <Renderer/Renderer.h>
 #include <WindowManager/WindowManager.h>
+#include <TypeDatabase/TypeDatabase.h>
 
 #include <AssetDatabase/AssetHelper.h>
 
 #include <OpenGL/GLCheck.h>
 
 #define SDL_MAIN_HANDLED
-#include "SDL.h"
-#include "SDL_mixer.h"
-#include "ComponentComposition/AudioComponent.h"
+#include <SDL.h>
+#include <SDL_mixer.h>
 
-static void GlfwErrorCallback(int error, const char* description)
+void GlfwErrorCallback(int error, const char* description)
 {
-	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
+	PLATINUM_ERROR_STREAM << "Glfw Error " << error << ": " << description;
 }
 
 int main(int, char**)
 {
-	if(SDL_Init(SDL_INIT_AUDIO)<0) printf("SDL could not initialize! SDL Error: %s\n",SDL_GetError());
-	if(Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,1024)<0) printf("Failed to open audio! Mix Error: %s\n",Mix_GetError());
+	PLATINUM_INFO("Platinum Engine Started.");
+
+	if (SDL_Init(SDL_INIT_AUDIO) < 0)
+	{
+		PLATINUM_ERROR_STREAM << "SDL could not initialize! SDL Error: " << SDL_GetError();
+		return EXIT_FAILURE;
+	}
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0)
+	{
+		PLATINUM_ERROR_STREAM << "Failed to open audio! Mix Error: " << Mix_GetError();
+		return EXIT_FAILURE;
+	}
 
 	// Setup window
 	glfwSetErrorCallback(GlfwErrorCallback);
@@ -49,7 +59,6 @@ int main(int, char**)
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
 
-
 	{
 		// this scope has a valid OpenGL context initialised
 
@@ -57,9 +66,9 @@ int main(int, char**)
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImPlot::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		ImGuiIO& io = ImGui::GetIO();
 
-		const ImWchar aw_icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
+		const ImWchar aw_icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 
 		ImFontConfig config;
 		config.MergeMode = true;
@@ -88,21 +97,29 @@ int main(int, char**)
 		PlatinumEngine::Time time;
 		PlatinumEngine::Physics physics;
 		PlatinumEngine::Profiler profiler;
+		// typeDatabase before idSystem, and everything that uses type reflection
+		PlatinumEngine::TypeDatabase typeDatabase;
+		PlatinumEngine::IDSystem idSystem;
 		PlatinumEngine::AssetDatabase assetDatabase;
-		PlatinumEngine::AssetHelper assetHelper(&assetDatabase);
+		PlatinumEngine::AssetHelper assetHelper(&assetDatabase, idSystem);
 		PlatinumEngine::Logger logger;
 		PlatinumEngine::InputManager inputManager;
 		PlatinumEngine::Renderer rasterRenderer;
-
-		PlatinumEngine::Scene scene(physics);
+		PlatinumEngine::Scene scene(idSystem, physics);
 		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer,&assetHelper, &time, &physics);
     	PlatinumEngine::HierarchyWindow hierarchyWindow(&sceneEditor, &assetHelper);
 		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper, &sceneEditor, &physics);
-		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer, &time, &physics);
+		PlatinumEngine::GameWindow gameWindow(&scene, &rasterRenderer, &time, &physics);
 		PlatinumEngine::ProjectWindow projectWindow(&scene, &assetHelper, &sceneEditor);
-		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler, &projectWindow, &scene);
+		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger,
+				&inspectorWindow, &profiler, &projectWindow, idSystem, typeDatabase, assetDatabase, scene, &assetHelper);
 
-		physics.Initialize();
+		// create assets
+		assetDatabase.Update(idSystem, scene);
+
+		// load default scene
+		scene.LoadFile("Assets/Default.scene");
+
 		// Main loop
 		while (!glfwWindowShouldClose(window))
 		{
@@ -131,7 +148,7 @@ int main(int, char**)
 					PlatinumEngine::Profiler::Section dockingSection("Docking");
 					ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 				}
-				
+
 				{
 					PlatinumEngine::Profiler::Section windowManagerSection("Window Manager");
 					windowManager.ShowGUI(scene);
@@ -162,9 +179,6 @@ int main(int, char**)
 
 			glfwSwapBuffers(window);
 		}
-
-		// Cleanup bullet physics
-		physics.CleanUp();
 
 		// Cleanup ImGui
 		ImGui_ImplOpenGL3_Shutdown();

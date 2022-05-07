@@ -9,7 +9,8 @@
 namespace PlatinumEngine
 {
 	Texture::Texture() :
-			_textureHandle(0)
+			_textureHandle(0),
+			width(0), height(0)
 	{}
 
 	Texture::~Texture()
@@ -17,26 +18,67 @@ namespace PlatinumEngine
 		GL_CHECK(glDeleteTextures(1,&_textureHandle));
 	}
 
-	void Texture::Create(GLsizei _width, GLsizei _height, const void* pixelData, int nrComponents)
+	Texture::Texture(Texture&& moveFrom) noexcept :
+		fileName(std::move(moveFrom.fileName)), _textureHandle(moveFrom._textureHandle),
+		width(moveFrom.width), height(moveFrom.height)
 	{
-		width = _width;
-		height = _height;
+		moveFrom._textureHandle = 0;
+		moveFrom.width = moveFrom.height = 0;
+	}
+
+	Texture& Texture::operator=(Texture&& moveFrom) noexcept
+	{
+		fileName = std::move(moveFrom.fileName);
+		_textureHandle = moveFrom._textureHandle;
+		width = moveFrom.width;
+		height = moveFrom.height;
+		moveFrom._textureHandle = 0;
+		moveFrom.width = moveFrom.height = 0;
+		return *this;
+	}
+
+	void Texture::Create(GLsizei inWidth, GLsizei inHeight)
+	{
+		width = inWidth;
+		height = inHeight;
 		if(_textureHandle == 0)
 			GL_CHECK(glGenTextures(1, &_textureHandle));
 
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, _textureHandle));
-		if (nrComponents == 4)
+		GL_CHECK(glTexImage2D(
+				GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
+				GL_RGB, GL_UNSIGNED_BYTE, nullptr));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
+	}
+
+	void Texture::Create(const PixelData& pixelData)
+	{
+		width = pixelData.width;
+		height = pixelData.height;
+		if(_textureHandle == 0)
+			GL_CHECK(glGenTextures(1, &_textureHandle));
+
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, _textureHandle));
+
+		switch(pixelData.numberOfComponents)
 		{
+		case 4:
 			GL_CHECK(glTexImage2D(
 					GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-					GL_RGBA, GL_UNSIGNED_BYTE, pixelData));
-		}
-		else
-		{
+					GL_RGBA, GL_UNSIGNED_BYTE, pixelData.pixelData));
+			break;
+		case 3:
 			GL_CHECK(glTexImage2D(
 					GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
-					GL_RGB, GL_UNSIGNED_BYTE, pixelData));
+					GL_RGB, GL_UNSIGNED_BYTE, pixelData.pixelData));
+			break;
+		default:
+			PLATINUM_WARNING_STREAM << "Number of components not supported: " << pixelData.numberOfComponents;
+			break;
 		}
+
 		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
@@ -117,46 +159,8 @@ namespace PlatinumEngine
 	/// class PixelData
 	///-------------------------------------------------------------
 
-	void PixelData::Create(const std::string& filePath)
+	PixelData::PixelData(): pixelData(nullptr), height(0), width(0), numberOfComponents(0)
 	{
-		/*
-		if(_textureHandle == 0)
-			GL_CHECK(glGenTextures(1, &_textureHandle));
-*/
-		pixelData = stbi_load(filePath.c_str(),
-									&width, &height,
-								 &nrComponents, 0);
-
-		if(pixelData)
-		{/*
-			GLenum format;
-			if (nrComponents == 1)
-				format = GL_RED;
-			else if (nrComponents == 3)
-				format = GL_RGB;
-			else if (nrComponents == 4)
-				format = GL_RGBA;
-
-			GL_CHECK(glBindTexture(GL_TEXTURE_2D, _textureHandle));
-			GL_CHECK(glTexImage2D(
-					GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
-					format, GL_UNSIGNED_BYTE, pixelData));
-			GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-			GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-			GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
-*/
-			//stbi_image_free(pixelData);
-		}
-		else
-		{
-			PLATINUM_WARNING( "Texture failed to load at path: " + filePath );
-			//stbi_image_free(pixelData);
-		}
-	}
-
-	PixelData::PixelData():pixelData(0), height(0), width(0)
-	{
-
 	}
 
 	PixelData::~PixelData()
@@ -164,6 +168,17 @@ namespace PlatinumEngine
 		stbi_image_free(pixelData);
 	}
 
+	bool PixelData::Create(const std::string& filePath)
+	{
+		pixelData = stbi_load(filePath.c_str(), &width, &height, &numberOfComponents, 0);
 
+		if (pixelData == nullptr)
+		{
+			height = width = numberOfComponents = 0; // reset other fields
+			PLATINUM_ERROR_STREAM << "Failed to load image at path: " << filePath;
+			return false;
+		}
 
+		return true;
+	}
 }

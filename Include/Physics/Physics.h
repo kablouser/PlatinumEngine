@@ -7,82 +7,71 @@
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
 
-#include <ComponentComposition/GameObject.h>
-#include <ComponentComposition/Collider.h>
 #include <Maths/Vectors.h>
 #include <Maths/Quaternion.h>
-#include <Helpers/Time.h>
+#include <IDSystem/IDSystem.h>
 
 #include <vector>
 
 namespace PlatinumEngine
 {
-	struct PhysicalMaterial
+	struct PhysicsMaterial
 	{
-	public:
 		//between 0 and 1
 		float friction;
 		float bounciness;
-		float rollingFriction;
-		float spinningFriction;
 		float damping;
 		float angularDamping;
 
-		PhysicalMaterial(): friction(0.f),
-							bounciness(1.f),
-							rollingFriction(0.f),
-							spinningFriction(0.f),
-							damping(0.f),
-							angularDamping(0.f)
-		{
+		PhysicsMaterial();
+	};
 
-		};
-		~PhysicalMaterial() {};
+	// Can't include RigidBody because circular dependencies.
+	class RigidBody;
+
+	struct Collision
+	{
+		SavedReference<RigidBody> other;
+		Maths::Vec3 contactPointOnSelf, contactPointOnOther;
 	};
 
 	class Physics
 	{
 	public:
-		Physics();
-		~Physics();
 
-		//Update the physics world by delta time
-		void Update(double time);
+		friend class RigidBody;
 
-		void SetGravity(float gravity);
-
-		float GetGravity();
-		std::vector<GameObject*> GetPhysicalObject();
-
-		//helper function helps to convert vectors, quaternions and scalars from bullet to us or us to bullet
+		//--------------------------------------------------------------------------------------------------------------
+		// helper function helps to convert vectors, quaternions and scalars from bullet to us or us to bullet
+		//--------------------------------------------------------------------------------------------------------------
 		static btQuaternion ConvertEulerToQuaternion(const btVector3& vector);
 		static Maths::Quaternion ConvertQuaternionBack(const btQuaternion& quaternion);
 		static btQuaternion ConvertQuaternion(const Maths::Quaternion& quaternion);
 		static Maths::Vec3 ConvertVectorBack(const btVector3& vector);
 		static btVector3  ConvertVector(Maths::Vec3 vector);
 
+		Physics();
+		~Physics();
 
-		//Add rigidbody enabled gameobject to the list of updated objects
-		void AddRigidBody(GameObject* gameObject);
-		void AddBulletBody(btRigidBody* rigidBody);
-		void RemoveBulletBody(btRigidBody* rigidBody);
+		//Update the physics world by delta time
+		void Update(double time);
 
-		//initialize and cleanup the bullet physics world
-		void Initialize();
-		void CleanUp();
+		void SetGravity(Maths::Vec3 gravity = {0.f, -9.81f, 0.f});
+		Maths::Vec3 GetGravity() const;
 
-	private://paramters and objects
+		std::vector<SavedReference<PlatinumEngine::RigidBody>>& GetRigidBodies();
+
+	private:
+
+		//parameters and objects
 		//bullet init objects
-		btBroadphaseInterface* _broadPhase;
-		btDefaultCollisionConfiguration* _config;
-		btCollisionDispatcher* _dispatcher;
-		btSequentialImpulseConstraintSolver* _solver;
-		btDiscreteDynamicsWorld* _bulletWorld;
+		btDefaultCollisionConfiguration _config;
+		btCollisionDispatcher _dispatcher;
+		btDbvtBroadphase _broadPhase;
+		btSequentialImpulseConstraintSolver _solver;
+		btDiscreteDynamicsWorld _bulletWorld;
 
-		//Holds a list of gameobject pointer that need to be updated
-		std::vector<GameObject*> _physicsObjects;
-
-		//Holds the current gravity value
-		float _gravity;
+		// RigidBodies here aren't necessarily in the physics world. They are just the active rigidBodies in the scene.
+		std::vector<SavedReference<RigidBody>> _allRigidBodies;
 	};
 }
