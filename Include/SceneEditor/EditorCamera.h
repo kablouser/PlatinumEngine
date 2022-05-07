@@ -56,7 +56,7 @@ namespace PlatinumEngine
 		 * based on the mouse wheel delta value.
 		 * @param wheelDelta
 		 */
-		void TranslationByMouse(float wheelDelta);
+		void ChangeSpeedScale(float wheelDelta);
 
 		/**
 		 * Accept keyboard input and translate camera
@@ -155,6 +155,8 @@ namespace PlatinumEngine
 		// device input data
 		float _translationSpeed = 0.1;
 		float _rotationSpeed = 0.002;
+		// the translation speed multiplier
+		float _speedScale = 1.0f;
 
 	};
 
