@@ -4,13 +4,26 @@
 
 #include <ComponentComposition/ParticleEffect.h>
 #include <ParticleEffects/ParticleEmitter.h>
+#include <SceneManager/Scene.h>
 
 namespace PlatinumEngine
 {
+	void ParticleEffect::CreateTypeInfo(TypeDatabase& typeDatabase)
+	{
+		typeDatabase.BeginTypeInfo<ParticleEffect>()
+				.WithInherit<Component>()
+				.WithField<bool>("useTexture", PLATINUM_OFFSETOF(ParticleEffect, useTexture))
+				.WithField<std::string>("shadeBy", PLATINUM_OFFSETOF(ParticleEffect, shadeBy))
+				.WithField<Maths::Vec4>("startColour", PLATINUM_OFFSETOF(ParticleEffect, startColour))
+				.WithField<Maths::Vec4>("endColour", PLATINUM_OFFSETOF(ParticleEffect, endColour))
+				.WithField<float>("minShadeValue", PLATINUM_OFFSETOF(ParticleEffect, minShadeValue))
+				.WithField<float>("maxShadeValue", PLATINUM_OFFSETOF(ParticleEffect, maxShadeValue))
+				.WithField<ParticleEffects::ParticleEmitter>("particleEmitter", PLATINUM_OFFSETOF(ParticleEffect, particleEmitter));
+	}
+
 	ParticleEffect::ParticleEffect()
 	{
 		// TODO: Use OnStart/OnEnd functions
-		particleEmitter = std::make_unique<ParticleEffects::ParticleEmitter>();
 	}
 
 	void ParticleEffect::OnUpdate(Scene& scene, double deltaTime)
@@ -28,16 +41,16 @@ namespace PlatinumEngine
 			renderer.SetModelMatrix();
 
 		// Manually update here for now
-		particleEmitter->UpdateParticles(0.016, renderer.cameraPos);
-		if (particleEmitter->particles)
+		particleEmitter.UpdateParticles(0.016, renderer.cameraPos);
+		if (particleEmitter.particles)
 		{
 			// Bind shader stuff here
-			renderer.particleRenderer.SetInput(particleEmitter->particles);
+			renderer.particleRenderer.SetInput(particleEmitter.particles);
 			renderer.BeginParticleShader();
-			renderer.SetFloatParticleShader("maxLife", particleEmitter->respawnLifetime);
+			renderer.SetFloatParticleShader("maxLife", particleEmitter.respawnLifetime);
 			renderer.SetVec4ParticleShader("StartColour", startColour);
 			renderer.SetVec4ParticleShader("EndColour", endColour);
-			renderer.SetTextureParticleShader(particleEmitter->texture, useTexture, particleEmitter->numColsInTexture, particleEmitter->numRowsInTexture);
+			renderer.SetTextureParticleShader(particleEmitter.texture, useTexture, particleEmitter.numColsInTexture, particleEmitter.numRowsInTexture);
 			renderer.SetShadeByParticleShader(shadeBy);
 			renderer.SetFloatParticleShader("minVal", minShadeValue);
 			renderer.SetFloatParticleShader("maxVal", maxShadeValue);
@@ -45,5 +58,10 @@ namespace PlatinumEngine
 			renderer.particleRenderer.Render();
 			renderer.EndParticleShader();
 		}
+	}
+
+	void ParticleEffect::OnIDSystemUpdate(Scene& scene)
+	{
+		particleEmitter.texture.OnIDSystemUpdate(scene.idSystem);
 	}
 }

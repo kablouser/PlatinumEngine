@@ -29,7 +29,7 @@ namespace PlatinumEngine
 			// Make sure depth test is on and reset if needed later
 			GLboolean isUsingDepthTest;
 			GL_CHECK(glGetBooleanv(GL_DEPTH_TEST, &isUsingDepthTest));
-			glDisable(GL_DEPTH_TEST);
+//			glDisable(GL_DEPTH_TEST);
 
 			// The good stuff, instanced rendering
 			GL_CHECK(glBindVertexArray(_particleVertexVAO));

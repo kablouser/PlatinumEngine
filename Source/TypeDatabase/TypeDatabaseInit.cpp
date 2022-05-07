@@ -10,6 +10,8 @@
 #include <ComponentComposition/CapsuleCollider.h>
 #include <ComponentComposition/RigidBody.h>
 #include <ComponentComposition/AudioComponent.h>
+#include <ComponentComposition/ParticleEffect.h>
+#include <ParticleEffects/ParticleEmitter.h>
 #include <Audio/AudioClip.h>
 
 namespace PlatinumEngine
@@ -39,6 +41,8 @@ namespace PlatinumEngine
 		BoxCollider::CreateTypeInfo(*this);
 		SphereCollider::CreateTypeInfo(*this);
 		CapsuleCollider::CreateTypeInfo(*this);
+		ParticleEffects::ParticleEmitter::CreateTypeInfo(*this);
+		ParticleEffect::CreateTypeInfo(*this);
 
 		//------------------------------------------------------------------------------------------------------------------
 		// Purely public objects

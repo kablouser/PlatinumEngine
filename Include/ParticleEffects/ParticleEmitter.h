@@ -10,6 +10,7 @@
 #include <OpenGL/Texture.h>
 #include <memory>
 #include <IDSystem/IDSystem.h>
+#include <TypeDatabase/TypeDatabase.h>
 
 namespace PlatinumEngine
 {
@@ -19,6 +20,8 @@ namespace PlatinumEngine
 		class ParticleEmitter
 		{
 		public:
+			static void CreateTypeInfo(TypeDatabase& typeDatabase);
+
 			ParticleEmitter();
 			void UpdateParticles(float deltaTime, const Maths::Vec3 &cameraPos);
 		public:
@@ -30,22 +33,27 @@ namespace PlatinumEngine
 			Maths::Vec3 actingForce = {0.0f, 1.0f, 0.0f};
 
 			// Position Settings
-			Maths::Vec3 initPosition = {0.0f, 0.0f, 0.0f};
 			bool useRandomInitPositionX = false;
 			bool useRandomInitPositionY = false;
 			bool useRandomInitPositionZ = false;
-			float minMaxPositionX[2] = {-1.0f, 1.0f};
-			float minMaxPositionY[2] = {0.0f, 0.0f};
-			float minMaxPositionZ[2] = {-1.0f, 1.0f};
+			float minPositionX = -1.0f;
+			float maxPositionX = 1.0f;
+			float minPositionY = -1.0f;
+			float maxPositionY = 1.0f;
+			float minPositionZ = -1.0f;
+			float maxPositionZ = 1.0f;
 
 			// Velocity Settings
 			Maths::Vec3 initVelocity = {0.0f, 1.0f, 0.0f};
 			bool useRandomInitVelocityX = true;
 			bool useRandomInitVelocityY = false;
 			bool useRandomInitVelocityZ = true;
-			float minMaxVelocityX[2] = {-1.0f, 1.0f};
-			float minMaxVelocityY[2] = {0.0f, 1.0f};
-			float minMaxVelocityZ[2] = {-1.0f, 1.0f};
+			float minVelocityX = -1.0f;
+			float maxVelocityX = 1.0f;
+			float minVelocityY = -1.0f;
+			float maxVelocityY = 1.0f;
+			float minVelocityZ = -1.0f;
+			float maxVelocityZ = 1.0f;
 
 			// Info needed to calc texture coords appropriately
 			SavedReference<Texture> texture;
@@ -56,7 +64,7 @@ namespace PlatinumEngine
 		private:
 			unsigned int FirstDeadParticle();
 			void RespawnParticle(Particle &p);
-			float GetRandomFloat(float minMax[2]);
+			float GetRandomFloat(const float min, const float max);
 		private:
 			unsigned int _lastDeadParticle = 0;
 			float _timeSinceLastSpawn = 0.0f;
