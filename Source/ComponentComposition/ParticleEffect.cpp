@@ -40,8 +40,19 @@ namespace PlatinumEngine
 		else
 			renderer.SetModelMatrix();
 
-		// Manually update here for now
-		particleEmitter.UpdateParticles(0.016, renderer.cameraPos);
+		// only move deltaTime once each frame
+		double deltaTime;
+		if (scene.time.getFramesPassed() == lastFrame)
+		{
+			deltaTime = 0.f;
+		}
+		else
+		{
+			deltaTime = scene.time.GetDelta();
+			lastFrame = scene.time.getFramesPassed();
+		}
+
+		particleEmitter.UpdateParticles(deltaTime, renderer.cameraPos);
 		if (particleEmitter.particles)
 		{
 			// Bind shader stuff here

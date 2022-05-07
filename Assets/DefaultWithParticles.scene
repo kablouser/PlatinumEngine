@@ -181,7 +181,7 @@ IDSystem
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
 			// from PlatinumEngine::ParticleEffect
-			bool useTexture = 0;
+			bool useTexture = 1;
 			std::string shadeBy = "Life";
 			PlatinumEngine::Maths::Vec4 startColour = 
 			{
@@ -235,9 +235,9 @@ IDSystem
 				float maxVelocityY = 1;
 				float minVelocityZ = -1;
 				float maxVelocityZ = 1;
-				PlatinumEngine::SavedReference<PlatinumEngine::Texture> texture = 0;
-				int numRowsInTexture = 1;
-				int numColsInTexture = 1;
+				PlatinumEngine::SavedReference<PlatinumEngine::Texture> texture = 8317047101311621236;
+				int numRowsInTexture = 5;
+				int numColsInTexture = 5;
 			};
 		}
 	},
