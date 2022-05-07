@@ -749,50 +749,23 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 			ImGui::PushItemWidth(50);
 			ImGui::Text("X");
 			ImGui::SameLine();
-			ImGui::InputFloat("##ScaleParticleX", &(component->particleEmitter->scaleFactors[0]));
+			ImGui::InputFloat("##ScaleParticleX", &(component.DeRef()->particleEmitter.scaleFactors.x));
 			ImGui::SameLine();
 
 			ImGui::Text("Y");
 			ImGui::SameLine();
-			ImGui::InputFloat("##ScaleParticleY", &(component->particleEmitter->scaleFactors[1]));
+			ImGui::InputFloat("##ScaleParticleY", &(component.DeRef()->particleEmitter.scaleFactors.y));
 			ImGui::SameLine();
 
 			ImGui::Text("Z");
 			ImGui::SameLine();
-			ImGui::InputFloat("##ScaleParticleZ", &(component->particleEmitter->scaleFactors[2]));
+			ImGui::InputFloat("##ScaleParticleZ", &(component.DeRef()->particleEmitter.scaleFactors.z));
 		}
-
-//		ImGui::Text("Clear Mode");
-//		ImGui::SameLine(_textWidth);
-//		ImGui::SetNextItemWidth(_itemWidthMeshRenderComponent);
-//		ImGui::InputText("##Clear Mode", clearMode, sizeof(clearMode), ImGuiInputTextFlags_ReadOnly);
-//		ImGui::SameLine();
-//		if (ImGui::BeginPopupContextItem("clear mode"))
-//		{
-//			if (ImGui::Selectable("SkyBox"))
-//			{
-//				camera->clearMode = Camera::ClearMode::skybox;
-//			}
-//			if (ImGui::Selectable("None"))
-//			{
-//				camera->clearMode = Camera::ClearMode::none;
-//			}
-//			if (ImGui::Selectable("BackgroundColour"))
-//			{
-//				camera->clearMode = Camera::ClearMode::backgroundColor;
-//			}
-//			ImGui::EndPopup();
-//		}
-//
-//		if (ImGui::Button(ICON_FA_CARET_DOWN "##ClearMode"))
-//		{
-//			ImGui::OpenPopup("clear mode");
-//		}
 
 		if (ImGui::CollapsingHeader("Position Settings"))
 		{
 			ImGui::Text("Initial Position: ");
-
+			ImGui::PushItemWidth(50);
 			ImGui::Text("Random X");
 			ImGui::SameLine();
 			ImGui::Checkbox("##RandomPositionX", &(component.DeRef()->particleEmitter.useRandomInitPositionX));
@@ -907,7 +880,7 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 
 			ImGui::Text("%s", "Use Cylinder billboard");
 			ImGui::SameLine();
-			ImGui::Checkbox("##Use Cylinder billboard", &(component->particleEmitter->useCylindricalBillboard));
+			ImGui::Checkbox("##Use Cylinder billboard", &(component.DeRef()->particleEmitter.useCylindricalBillboard));
 
 			auto ColourPickerFlags =
 					ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_AlphaBar;

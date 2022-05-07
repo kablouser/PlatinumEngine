@@ -242,18 +242,30 @@ namespace PlatinumEngine
 			}
 			if (ImGui::MenuItem("Light"))
 			{}
-			if (ImGui::MenuItem(ICON_FA_FIRE " Particle Effect"))
+			if (ImGui::BeginMenu(ICON_FA_FIRE " Particle Effects"))
 			{
-				auto obj = scene.AddGameObject("Particle Effect");
-				scene.AddComponent<ParticleEffect>(obj);
-				scene.AddComponent<Transform>(obj);
-				_sceneEditor->SetSelectedGameobject(obj);
+				if (ImGui::MenuItem("Light"))
+				{
+					auto obj = scene.AddGameObject("Particle Effect");
+					scene.AddComponent<ParticleEffect>(obj);
+					scene.AddComponent<Transform>(obj);
+					_sceneEditor->SetSelectedGameobject(obj);
+				}
+				if (ImGui::MenuItem("Light"))
+				{
+					auto obj = scene.AddGameObject("Particle Effect");
+					auto component = scene.AddComponent<ParticleEffect>(obj);
+//					component.DeRef()->particleEmitter.
+					scene.AddComponent<Transform>(obj);
+					_sceneEditor->SetSelectedGameobject(obj);
+				}
+				ImGui::EndMenu();
 			}
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("3D Object"))
 		{
-			if (ImGui::MenuItem("Cube"))
+			if (ImGui::MenuItem(ICON_FA_CUBE " Cube"))
 			{
 				std::filesystem::path cubePath = "./Assets/Meshes/Cube.obj";
 				auto [success, asset] = _assetHelper->GetAsset<Mesh>(cubePath.string());
@@ -267,7 +279,7 @@ namespace PlatinumEngine
 				scene.AddComponent<BoxCollider>(cube);
 			}
 
-			if (ImGui::MenuItem("Sphere"))
+			if (ImGui::MenuItem(ICON_FA_CIRCLE " Sphere"))
 			{
 				std::filesystem::path spherePath = "./Assets/Meshes/Sphere4.obj";
 				auto [success, asset] = _assetHelper->GetAsset<Mesh>(spherePath.string());
@@ -295,7 +307,7 @@ namespace PlatinumEngine
 				scene.AddComponent<CapsuleCollider>(capsule);
 			}
 
-			if (ImGui::MenuItem("Plane"))
+			if (ImGui::MenuItem(ICON_FA_SQUARE " Plane"))
 			{
 				std::filesystem::path planePath = "./Assets/Meshes/Quad.obj";
 				auto [success, asset] = _assetHelper->GetAsset<Mesh>(planePath.string());

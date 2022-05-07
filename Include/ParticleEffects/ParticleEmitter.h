@@ -32,7 +32,7 @@ namespace PlatinumEngine
 			float spawnInterval = 0.5;
 			bool useCylindricalBillboard = false; // Switch between spherical and cylindrical bill-boarding
 			Maths::Vec3 actingForce = {0.0f, 1.0f, 0.0f};
-			float scaleFactors[3] = {1.0f, 1.0f, 1.0f};
+			Maths::Vec3 scaleFactors = {1.0f, 1.0f, 1.0f};
 
 			// Position Settings
 			bool useRandomInitPositionX = false;
