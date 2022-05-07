@@ -416,11 +416,11 @@ namespace PlatinumEngine
 
 					ozz::animation::offline::RawAnimation::ScaleKey key = {
 							(float)inAnimation->mChannels[channelID]->mScalingKeys[j].mTime,
-							ozz::math::Float3(
-									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.x,
-									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.y,
-									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.z)};
-
+							ozz::math::Float3(1.0f,1.0f,1.0f)};
+					// bone scaling is rarely useful. And it makes the model too big.
+//									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.x,
+//									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.y,
+//									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.z)};
 					rawAnimation.tracks[i].scales.push_back(key);
 				}
 			}
