@@ -40,17 +40,28 @@ namespace PlatinumEngine
 		// btRigidBody loses all velocities and some other stuff.
 		void UpdatePhysicsProperties(Physics& physics);
 
+		void SetVelocity(Maths::Vec3 velocity);
+		Maths::Vec3 GetVelocity() const;
+
+		void SetAngularVelocity(Maths::Vec3 angularVelocity);
+		Maths::Vec3 GetAngularVelocity() const;
+
 		// These fields are only used to construct btRigidBody.
 		// They don't change the btRigidBody while it's simulating.
 		bool isKinematic;
 		float mass; // min=00001f, because static is not allowed
 		PlatinumEngine::PhysicsMaterial physicsMaterial;
 
+		bool isCollisionRecorded;
+
 	private:
 		// bullet objects
 		btRigidBody _rigidBody;
+		btDefaultMotionState _motionState;
 		// has btRigidBody been added to the bullet physics world?
 		bool _addedToPhysicsWorld;
+		// collisions from last frame
+		std::vector<Collision> _collisionRecords;
 
 		void AddToPhysicsWorld(Physics& physics);
 		void RemoveFromPhysicsWorld(Physics& physics);

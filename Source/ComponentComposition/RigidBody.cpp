@@ -15,12 +15,14 @@ namespace PlatinumEngine
 				.WithInherit<Component>()
 				.WithField<PhysicsMaterial>("physicsMaterial", PLATINUM_OFFSETOF(RigidBody, physicsMaterial))
 				.WithField<float>("mass", PLATINUM_OFFSETOF(RigidBody, mass))
-				.WithField<bool>("isKinematic", PLATINUM_OFFSETOF(RigidBody, isKinematic));
+				.WithField<bool>("isKinematic", PLATINUM_OFFSETOF(RigidBody, isKinematic))
+				.WithField<bool>("isCollisionRecorded", PLATINUM_OFFSETOF(RigidBody, isCollisionRecorded));
 	}
 
 	RigidBody::RigidBody() :
 			mass(1.f),
 			isKinematic(false),
+			isCollisionRecorded(false),
 			_rigidBody(btRigidBody::btRigidBodyConstructionInfo(mass, nullptr, nullptr, {})),
 			_addedToPhysicsWorld(false)
 	{
@@ -49,7 +51,8 @@ namespace PlatinumEngine
 	void RigidBody::OnDisable(Scene& scene)
 	{
 		RemoveFromPhysicsWorld(scene.physics);
-		if (!VectorHelpers::RemoveFirst(scene.physics._allRigidBodies, scene.idSystem.GetSavedReference<RigidBody>(this)))
+		if (!VectorHelpers::RemoveFirst(scene.physics._allRigidBodies,
+				scene.idSystem.GetSavedReference<RigidBody>(this)))
 			PLATINUM_WARNING("Missing RigidBody from Physics Manager thing");
 	}
 
@@ -76,7 +79,7 @@ namespace PlatinumEngine
 		// Important, don't forget to calculate inertia from the shape.
 		btVector3 inertia;
 		btCollisionShape->calculateLocalInertia(mass, inertia);
-		btRigidBody::btRigidBodyConstructionInfo constructInfo(mass, nullptr, btCollisionShape, inertia);
+		btRigidBody::btRigidBodyConstructionInfo constructInfo(mass, &_motionState, btCollisionShape, inertia);
 		constructInfo.m_startWorldTransform = worldTransform;
 		constructInfo.m_friction = physicsMaterial.friction;
 		constructInfo.m_restitution = physicsMaterial.bounciness;
@@ -87,6 +90,28 @@ namespace PlatinumEngine
 			_rigidBody.setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
 
 		AddToPhysicsWorld(physics);
+	}
+
+	void RigidBody::SetVelocity(Maths::Vec3 velocity)
+	{
+		_rigidBody.setLinearVelocity(Physics::ConvertVector(velocity));
+		_rigidBody.activate(); // _rigidBody will not move if sleeping, activate awakens _rigidBody
+	}
+
+	Maths::Vec3 RigidBody::GetVelocity() const
+	{
+		return Physics::ConvertVectorBack(_rigidBody.getLinearVelocity());
+	}
+
+	void RigidBody::SetAngularVelocity(Maths::Vec3 angularVelocity)
+	{
+		_rigidBody.setAngularVelocity(Physics::ConvertVector(angularVelocity));
+		_rigidBody.activate(); // _rigidBody will not move if sleeping, activate awakens _rigidBody
+	}
+
+	Maths::Vec3 RigidBody::GetAngularVelocity() const
+	{
+		return Physics::ConvertVectorBack(_rigidBody.getAngularVelocity());
 	}
 
 	void RigidBody::AddToPhysicsWorld(Physics& physics)
@@ -112,9 +137,9 @@ namespace PlatinumEngine
 		initialTransform.setOrigin(Physics::ConvertVector(position));
 		initialTransform.setRotation(Physics::ConvertQuaternion(rotation));
 
-		btMotionState* motionState = new btDefaultMotionState();
+		_motionState = btDefaultMotionState();
 		_rigidBody.setWorldTransform(initialTransform);
-		_rigidBody.setMotionState(motionState);
+		_rigidBody.setMotionState(&_motionState);
 		_rigidBody.getMotionState()->setWorldTransform(initialTransform);
 	}
 }

@@ -29,6 +29,12 @@ namespace PlatinumEngine
 	// Can't include RigidBody because circular dependencies.
 	class RigidBody;
 
+	struct Collision
+	{
+		SavedReference<RigidBody> other;
+		Maths::Vec3 contactPointOnSelf, contactPointOnOther;
+	};
+
 	class Physics
 	{
 	public:
@@ -54,7 +60,6 @@ namespace PlatinumEngine
 		Maths::Vec3 GetGravity() const;
 
 		std::vector<SavedReference<PlatinumEngine::RigidBody>>& GetRigidBodies();
-
 
 	private:
 
