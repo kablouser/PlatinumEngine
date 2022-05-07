@@ -563,8 +563,6 @@ namespace PlatinumEngine{
 			// reset setting after rendering
 			glDisable(GL_DEPTH_TEST);
 			glDisable(GL_BLEND);
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
 
 
 			// display updated framebuffer

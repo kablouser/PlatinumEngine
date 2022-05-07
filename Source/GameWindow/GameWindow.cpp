@@ -97,7 +97,8 @@ namespace PlatinumEngine
 				_hasWarningBeenShown = false;
 
 				glEnable(GL_DEPTH_TEST);
-				glViewport(0, 0, _framebufferWidth, _framebufferHeight);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glViewport(0, 0, _framebufferWidth, _framebufferHeight);
 				glClearColor(0.2784f, 0.2784f, 0.2784f, 1.0f);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -158,6 +159,10 @@ namespace PlatinumEngine
 
 			// unbind framebuffer
 			_renderTexture.Unbind();
+
+			// reset setting after rendering
+			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_BLEND);
 
 			// display updated framebuffer
 			ImGui::Image(_renderTexture.GetColorTexture().GetImGuiHandle(), targetSize, ImVec2(0, 1), ImVec2(1, 0));
