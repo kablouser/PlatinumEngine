@@ -105,7 +105,7 @@ int main(int, char**)
 		PlatinumEngine::Logger logger;
 		PlatinumEngine::InputManager inputManager;
 		PlatinumEngine::Renderer rasterRenderer;
-		PlatinumEngine::Scene scene(idSystem, physics);
+		PlatinumEngine::Scene scene(idSystem, physics, time);
 		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer,&assetHelper, &time, &physics);
     	PlatinumEngine::HierarchyWindow hierarchyWindow(&sceneEditor, &assetHelper);
 		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper, &sceneEditor, &physics);

@@ -37,7 +37,11 @@ namespace PlatinumEngine
 	// Constructors/destructors
 	//--------------------------------------------------------------------------------------------------------------
 
-	Scene::Scene(IDSystem& inIDSystem, Physics& physicsRef) : _isStarted(false), idSystem(inIDSystem), physics(physicsRef)
+	Scene::Scene(IDSystem& inIDSystem, Physics& inPhysics, Time& inTime) :
+			_isStarted(false),
+			idSystem(inIDSystem),
+			physics(inPhysics),
+			time(inTime)
 	{
 	}
 

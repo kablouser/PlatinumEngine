@@ -1056,26 +1056,29 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 	{
 
 		// store pointer of renderComponent
-		SavedReference<AnimationComponent> animationComponent = obj.DeRef()->GetComponent<AnimationComponent>();
+		AnimationComponent* animationComponentPointer = obj.DeRef()->GetComponent<AnimationComponent>().DeRef().get();
 
-		bool isDisplayed = animationComponent.DeRef()->GetIsDisplay();
+		bool isDisplayed = animationComponentPointer->GetIsDisplay();
 		if (ImGui::Checkbox("Display Animation", &isDisplayed))
 		{
-			animationComponent.DeRef()->SetIsDisplay(isDisplayed);
+			animationComponentPointer->SetIsDisplay(isDisplayed);
 		}
 
-		for (unsigned int i = 0; i < animationComponent.DeRef()->GetAmountOfAnimations(); ++i)
+		for (unsigned int i = 0; i < animationComponentPointer->GetAmountOfAnimations(); ++i)
 		{
 			// create check box
 			if (ImGui::RadioButton(
-					std::to_string(i).append(". ").append(animationComponent.DeRef()->GetAnimationName(i)).c_str(),
-					animationComponent.DeRef()->GetCurrentAnimationID() == i))
+					std::to_string(i).append(". ").append(animationComponentPointer->GetAnimationName(i)).c_str(),
+					animationComponentPointer->GetCurrentAnimationID() == i))
 			{
 				// set the animation presented by this check box to be the current selected animation
-				animationComponent.DeRef()->SetCurrentAnimationByID(i);
+				animationComponentPointer->SetCurrentAnimationByID(i);
 			}
 		}
 
+		ImGui::InputFloat("Time##animationTime", &animationComponentPointer->timer.animationTime);
+		ImGui::Checkbox("Is Looping##isAnimationLooping", &animationComponentPointer->timer.isAnimationLooping);
+		ImGui::Checkbox("Is Playing##isAnimationPlaying", &animationComponentPointer->timer.isAnimationPlaying);
 	}
 }
 
