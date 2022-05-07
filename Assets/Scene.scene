@@ -61,10 +61,10 @@ IDSystem
 			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 0;
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject> > _children = 
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children =
 			{
 			};
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component> > _components = 
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components =
 			{
 				{1051339079140824038, PlatinumEngine::Camera},
 				{8649545035647055879, PlatinumEngine::Transform},
@@ -79,10 +79,10 @@ IDSystem
 			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 0;
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject> > _children = 
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children =
 			{
 			};
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component> > _components = 
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components =
 			{
 				{7428987465043416281, PlatinumEngine::MeshRender},
 				{9024192824514211433, PlatinumEngine::Transform},
@@ -98,10 +98,10 @@ IDSystem
 			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 0;
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject> > _children = 
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children =
 			{
 			};
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component> > _components = 
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components =
 			{
 				{9948769316098349950, PlatinumEngine::AudioComponent},
 			};
@@ -115,10 +115,10 @@ IDSystem
 			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 0;
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject> > _children = 
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children =
 			{
 			};
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component> > _components = 
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components =
 			{
 				{8978851154952401778, PlatinumEngine::MeshRender},
 				{11893554295648380710, PlatinumEngine::Transform},
@@ -305,21 +305,21 @@ IDSystem
 PlatinumEngine::Scene
 {
 	bool _isStarted = 0;
-	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject> > _gameObjects = 
+	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _gameObjects =
 	{
 		9385981541395253656,
 		798763187062360754,
 		5894298866251707810,
 		8003581218966239001,
 	};
-	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject> > _rootGameObjects = 
+	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _rootGameObjects =
 	{
 		9385981541395253656,
 		5894298866251707810,
 		798763187062360754,
 		8003581218966239001,
 	};
-	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component> > _components = 
+	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components =
 	{
 		{8978851154952401778, PlatinumEngine::MeshRender},
 		{11893554295648380710, PlatinumEngine::Transform},

@@ -373,12 +373,8 @@ namespace PlatinumEngine{
 				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
 				ImGui::SetWindowFocus();
 			}
-			// check this is for moving camera closer/further
-			if (_wheelValueDelta != 0)
-			{
-				_camera.TranslationByMouse(_wheelValueDelta);
-				ImGui::SetWindowFocus();
-			}
+			// no checks, this is cheap
+			_camera.ChangeSpeedScale(_wheelValueDelta);
 
 		}
 
@@ -388,8 +384,8 @@ namespace PlatinumEngine{
 		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
 		{
 			// check if there is any keyboard input to move camera position
-			if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
-				_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
+			if (_inputManager->IsKeyDown(GLFW_KEY_UP) || _inputManager->IsKeyDown(GLFW_KEY_DOWN) ||
+				_inputManager->IsKeyDown(GLFW_KEY_LEFT) || _inputManager->IsKeyDown(GLFW_KEY_RIGHT))
 			{
 				// Do translation based on keyboard input
 				_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"),
@@ -397,7 +393,7 @@ namespace PlatinumEngine{
 			}
 
 			// Move camera to look at the selected object
-			if (_inputManager->IsKeyPressed(GLFW_KEY_SPACE))
+			if (_inputManager->IsKeyDown(GLFW_KEY_SPACE) && _selectedGameobject)
 			{
 				SavedReference<Transform> transformComponent = _selectedGameobject.DeRef()->GetComponent<Transform>();
 
