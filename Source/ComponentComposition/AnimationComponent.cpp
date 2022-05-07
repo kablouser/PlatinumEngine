@@ -4,6 +4,7 @@
 
 #include <ComponentComposition/AnimationComponent.h>
 #include <ComponentComposition/MeshRender.h>
+#include <SceneManager/Scene.h>
 
 namespace PlatinumEngine
 {
@@ -24,13 +25,16 @@ namespace PlatinumEngine
 
 	void AnimationComponent::UpdateWorldTransformMatrix(
 			ozz::unique_ptr<ozz::animation::Skeleton>& skeleton,
-			const std::vector<Bone>& bones
+			const std::vector<Bone>& bones,
+			Time& time
 	)
 	{
 		if(!CheckIfAnimationValid(_selectedAnimationIndex) || skeleton == nullptr)
 			return;
 
-		timer.PlayAnimationTimer();
+		const ozz::animation::Animation* ozzAnimation = _mesh.DeRef()->animations[_selectedAnimationIndex].get();
+
+		timer.Update(time, ozzAnimation->duration());
 
 		ozz::vector<ozz::math::SoaTransform> localTransformOZZ;
 		ozz::vector<ozz::math::Float4x4> worldTransformOZZ;
@@ -43,9 +47,9 @@ namespace PlatinumEngine
 		// Samples runtime animation data
 		ozz::animation::SamplingJob samplingJob;
 
-		samplingJob.animation = _mesh.DeRef()->animations[_selectedAnimationIndex].get();
+		samplingJob.animation = ozzAnimation;
 		samplingJob.context = &context;
-		samplingJob.ratio = timer.GetAnimationTime()/_mesh.DeRef()->animations[_selectedAnimationIndex]->duration();
+		samplingJob.ratio = timer.animationTime/ozzAnimation->duration();
 		samplingJob.output = make_span(localTransformOZZ);
 
 		// sample animation
@@ -91,12 +95,11 @@ namespace PlatinumEngine
 		if (CheckIfAnimationValid(inID))
 		{
 			_selectedAnimationIndex = inID;
-			timer.SetAnimationDuration(_mesh.DeRef()->animations[_selectedAnimationIndex]->duration());
 		}
 		else
 		{
 			_selectedAnimationIndex = 0;
-			timer.SetAnimationDuration(0);
+			timer.animationTime = 0;
 		}
 	}
 
@@ -169,6 +172,11 @@ namespace PlatinumEngine
 	bool AnimationComponent::GetIsDisplay() const
 	{
 		return _isDisplay;
+	}
+
+	void AnimationComponent::OnIDSystemUpdate(Scene& scene)
+	{
+		_mesh.OnIDSystemUpdate(scene.idSystem);
 	}
 
 }

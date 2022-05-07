@@ -93,14 +93,18 @@ namespace PlatinumEngine{
 		//-------------------------------------------
 		if (ImGui::Begin(ICON_FA_IMAGE " Scene Editor", outIsOpen))
 		{
-			if(ImGui::IsKeyPressed(GLFW_KEY_Q))
-				_currentGizmoOperation = ImGuizmo::TRANSLATE;
-			if(ImGui::IsKeyPressed(GLFW_KEY_W))
-				_currentGizmoOperation = ImGuizmo::ROTATE;
-			if(ImGui::IsKeyPressed(GLFW_KEY_E))
-				_currentGizmoOperation = ImGuizmo::SCALE;
-			if(ImGui::IsKeyPressed(GLFW_KEY_R))
-				_currentGizmoOperation = ImGuizmo::UNIVERSAL;
+			// the render window is a child window
+			if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
+			{
+				if (ImGui::IsKeyPressed(GLFW_KEY_Q))
+					_currentGizmoOperation = ImGuizmo::TRANSLATE;
+				if (ImGui::IsKeyPressed(GLFW_KEY_W))
+					_currentGizmoOperation = ImGuizmo::ROTATE;
+				if (ImGui::IsKeyPressed(GLFW_KEY_E))
+					_currentGizmoOperation = ImGuizmo::SCALE;
+				if (ImGui::IsKeyPressed(GLFW_KEY_R))
+					_currentGizmoOperation = ImGuizmo::UNIVERSAL;
+			}
 			//-----------
 			// Widgets
 			//-----------
@@ -331,26 +335,26 @@ namespace PlatinumEngine{
 
 	void SceneEditor::Render(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
 	{
-
-		//--------------------------------
-		// update mouse && keyboard input
-		//--------------------------------
-		_mouseButtonType = _inputManager->GetMouseDown();
-		_mouseMoveDelta  = _inputManager->GetMouseMoveVector();
-		_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
-
 		//--------------------------------------
-		// check if mouse is inside the screen
+		// Check mouse input. Only when mouse is inside this render window and ImGuizmo is not being used.
 		//--------------------------------------
-
-		// Check mouse input
-		if (   _inputManager->GetMousePosition().x <= ImGui::GetWindowContentRegionMax().x
-			&& _inputManager->GetMousePosition().x >= ImGui::GetWindowContentRegionMin().x
-			&& _inputManager->GetMousePosition().y <= ImGui::GetWindowContentRegionMax().y
-			&& _inputManager->GetMousePosition().y >= ImGui::GetWindowContentRegionMin().y
-			&& ImGui::IsWindowFocused()
-			&& !ImGuizmo::IsUsing())
+		if (ImGui::IsWindowHovered() && !ImGuizmo::IsOver())
 		{
+			//--------------------------------
+			// update mouse && keyboard input
+			//--------------------------------
+			_mouseButtonType = _inputManager->GetMouseDown();
+			_mouseMoveDelta  = _inputManager->GetMouseMoveVector();
+			_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
+
+			//---------------------------------------------
+			// check if the mouse is selecting game object
+			//---------------------------------------------
+			if (_inputManager->IsMouseClicked(0))
+			{
+				SelectGameObjectFromScene();
+				ImGui::SetWindowFocus();
+			}
 
 			//---------------------
 			// update view matrix
@@ -360,42 +364,52 @@ namespace PlatinumEngine{
 			if (_mouseButtonType == 0)// translation (up down left right)
 			{
 				_camera.TranslationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
+				ImGui::SetWindowFocus();
 			}
 			else if (_mouseButtonType == 1) // for rotation
 			{
 				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
+				ImGui::SetWindowFocus();
 			}
 			// check this is for moving camera closer/further
 			if (_wheelValueDelta != 0)
 			{
 				_camera.TranslationByMouse(_wheelValueDelta);
+				ImGui::SetWindowFocus();
 			}
 
 		}
 
-		// check if there is any keyboard input to move camera position
-		if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
-			_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
+		//---------------------------------------------
+		// Key controls require focus of parent or this window
+		//---------------------------------------------
+		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
 		{
-			// Do translation based on keyboard input
-			_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"),
-					_inputManager->GetAxis("HorizontalAxisForEditorCamera"));
-		}
-
-		// Move camera to look at the selected object
-		if (_inputManager->IsKeyPressed(GLFW_KEY_SPACE))
-		{
-			SavedReference<Transform> transformComponent = _selectedGameobject.DeRef()->GetComponent<Transform>();
-
-			Maths::Vec3 gameObjectPosition = Maths::Vec3(0.f, 0.f, 0.f);
-
-			if(transformComponent.DeRef() != nullptr)
+			// check if there is any keyboard input to move camera position
+			if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
+				_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
 			{
-				gameObjectPosition = transformComponent.DeRef()->GetLocalToWorldMatrix().MultiplyVec3(gameObjectPosition, 1.f);
-
+				// Do translation based on keyboard input
+				_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"),
+						_inputManager->GetAxis("HorizontalAxisForEditorCamera"));
 			}
 
-			_camera.SetCameraPosition(gameObjectPosition - _camera.GetForwardDirection() * 20);
+			// Move camera to look at the selected object
+			if (_inputManager->IsKeyPressed(GLFW_KEY_SPACE))
+			{
+				SavedReference<Transform> transformComponent = _selectedGameobject.DeRef()->GetComponent<Transform>();
+
+				Maths::Vec3 gameObjectPosition = Maths::Vec3(0.f, 0.f, 0.f);
+
+				if (transformComponent.DeRef() != nullptr)
+				{
+					gameObjectPosition = transformComponent.DeRef()->GetLocalToWorldMatrix().MultiplyVec3(
+							gameObjectPosition, 1.f);
+
+				}
+
+				_camera.SetCameraPosition(gameObjectPosition - _camera.GetForwardDirection() * 20);
+			}
 		}
 
 
@@ -424,12 +438,6 @@ namespace PlatinumEngine{
 						(float)_near, (float)_far);
 			}
 		}
-
-		//---------------------------------------------
-		// check if the mouse is selecting game object
-		//---------------------------------------------
-		if(_inputManager->IsMouseClicked(0))
-			SelectGameObjectFromScene();
 
 		//--------------------
 		// Render Objects

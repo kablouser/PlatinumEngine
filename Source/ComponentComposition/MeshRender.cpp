@@ -51,7 +51,7 @@ namespace PlatinumEngine
 			if (animation.DeRef()->GetAmountOfAnimations()!=0)
 			{
 				animation.DeRef()->UpdateWorldTransformMatrix(_mesh.DeRef()->skeleton,
-						_mesh.DeRef()->bones);
+						_mesh.DeRef()->bones, scene.time);
 
 				// pass transform matrices to
 				for (unsigned int i = 0; i < animation.DeRef()->worldTransform.size(); ++i)

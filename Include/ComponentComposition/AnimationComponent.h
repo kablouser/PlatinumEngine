@@ -27,7 +27,10 @@ namespace PlatinumEngine
 		// {  FUNCTION  }
 		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 
-		void UpdateWorldTransformMatrix(ozz::unique_ptr<ozz::animation::Skeleton>& skeleton,const std::vector<Bone>& bones);
+		void UpdateWorldTransformMatrix(
+				ozz::unique_ptr<ozz::animation::Skeleton>& skeleton,
+				const std::vector<Bone>& bones,
+				Time& time);
 
 		void SetCurrentAnimationByID(unsigned int inID);
 
@@ -44,6 +47,8 @@ namespace PlatinumEngine
 		void SetIsDisplay(bool inIsDisplay);
 
 		bool GetIsDisplay() const;
+
+		void OnIDSystemUpdate(Scene& scene) override;
 
 	private:
 		// {  PARAMETER  }

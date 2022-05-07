@@ -30,6 +30,8 @@ namespace PlatinumEngine
 			  projectionMatrix4(1.f),
 			  isOrthogonal(false)
 	{
+		// view matrix is not correct yet...
+		UpdateViewMatrix();
 	}
 
 

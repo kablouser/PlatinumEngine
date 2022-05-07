@@ -3,7 +3,6 @@
 //
 
 #include <Animation/AnimationLocalTimer.h>
-#include <iostream>
 
 namespace PlatinumEngine
 {
@@ -11,106 +10,58 @@ namespace PlatinumEngine
 	void AnimationLocalTimer::CreateTypeInfo(TypeDatabase& typeDatabase)
 	{
 		typeDatabase.BeginTypeInfo<AnimationLocalTimer>()
-				.WithField<float>("_animationTime", PLATINUM_OFFSETOF(AnimationLocalTimer,_animationTime))
-				.WithField<float>("_duration", PLATINUM_OFFSETOF(AnimationLocalTimer,_duration))
-				.WithField<bool>("_isAnimationLooping", PLATINUM_OFFSETOF(AnimationLocalTimer,_isAnimationLooping))
-				.WithField<bool>("_isLastFrame", PLATINUM_OFFSETOF(AnimationLocalTimer,_isLastFrame))
-				.WithField<bool>("_isAnimationPlaying", PLATINUM_OFFSETOF(AnimationLocalTimer,_isAnimationPlaying))
-				.WithField<bool>("_isAnimationFinish", PLATINUM_OFFSETOF(AnimationLocalTimer,_isAnimationFinish));
-	}
-
-	void AnimationLocalTimer::SetAnimationDuration(float inDuration)
-	{
-		_duration = inDuration >= 0.f ? inDuration:0.f;
-	}
-
-	void AnimationLocalTimer::UpdateAnimationTime()
-	{
-		_animationTime += 0.1f;
-
-		if(_animationTime >= _duration)
-		{
-			_animationTime = 0.f;
-
-			_isLastFrame = true;
-		}
-		else
-		{
-			_isLastFrame = false;
-		}
-	}
-
-	void AnimationLocalTimer::SetAnimationTime(float newTime)
-	{
-		if(_duration == 0.f)
-			_animationTime = 0.f;
-		else
-			_animationTime = newTime - float(int(newTime/_duration)) * _duration;
+				.WithField<float>("animationTime", PLATINUM_OFFSETOF(AnimationLocalTimer,animationTime))
+				.WithField<bool>("isAnimationLooping", PLATINUM_OFFSETOF(AnimationLocalTimer,isAnimationLooping))
+				.WithField<bool>("isAnimationPlaying", PLATINUM_OFFSETOF(AnimationLocalTimer,isAnimationPlaying));
+		// _lastFrame don't need to be serialized.
 	}
 
 	void AnimationLocalTimer::RestartAnimation()
 	{
-		_animationTime = 0.f;
-		_isLastFrame = false;
-		_isAnimationPlaying = true;
+		isAnimationPlaying = true;
+		animationTime = 0.f;
 	}
 
 	void AnimationLocalTimer::StopAnimation()
 	{
-		_animationTime = 0.f;
-		_isLastFrame = false;
-		_isAnimationPlaying = false;
+		isAnimationPlaying = false;
+		animationTime = 0.f;
 	}
 
-	void AnimationLocalTimer::PauseAnimation()
+	[[nodiscard]] bool AnimationLocalTimer::IsAnimationFinish(float animationDuration) const
 	{
-		_isAnimationPlaying = false;
+		return animationDuration <= animationTime;
 	}
 
-	void AnimationLocalTimer::ContinueAnimation()
+	void AnimationLocalTimer::Update(Time& time, float animationDuration)
 	{
-		_isAnimationPlaying = true;
-	}
+		// sanitise state
+		animationTime = std::clamp(animationTime, 0.f, animationDuration);
 
-	void AnimationLocalTimer::LoopAnimation()
-	{
-		_isAnimationLooping = true;
-	}
+		if (!isAnimationPlaying)
+			return;
 
-	void AnimationLocalTimer::StopLoopingAnimation()
-	{
-		_isAnimationLooping = false;
-	}
+		int currentFrame = time.getFramesPassed();
+		if (currentFrame != _lastFrame)
+		{
+			// only add dt when frame number has changed
+			animationTime += time.GetDelta();
+			_lastFrame = currentFrame;
+		}
 
-	bool AnimationLocalTimer::CheckIfAnimationFinish() const
-	{
-		return _isAnimationFinish;
-	}
-
-	bool AnimationLocalTimer::CheckIfAnimationPlaying() const
-	{
-		return _isAnimationPlaying;
-	}
-
-	void AnimationLocalTimer::PlayAnimationTimer()
-	{
-		if(_isAnimationPlaying && !_isAnimationFinish)
-			UpdateAnimationTime();
-
-		if(_isLastFrame && !_isAnimationLooping)
-			_isAnimationFinish = true;
+		if (isAnimationLooping)
+		{
+			while (IsAnimationFinish(animationDuration))
+				animationTime -= animationDuration;
+		}
 		else
-			_isAnimationFinish = false;
+		{
+			if (IsAnimationFinish(animationDuration))
+			{
+				animationTime = animationDuration;
+			}
+		}
 	}
 
-	float AnimationLocalTimer::GetAnimationTime() const
-	{
-		return _animationTime;
-	}
-
-	AnimationLocalTimer::AnimationLocalTimer():_duration(0.f)
-	{}
-
-
-
+	AnimationLocalTimer::AnimationLocalTimer() = default;
 }

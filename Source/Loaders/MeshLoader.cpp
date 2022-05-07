@@ -362,12 +362,15 @@ namespace PlatinumEngine
 			if(outMesh.skeleton == nullptr)
 				return;
 
+			if (inAnimation->mTicksPerSecond == 0) // 0 means undefined in file
+				inAnimation->mTicksPerSecond = 24.0f; // 24fps is most common in 3D animation
+
 			// Number of nodes
 			unsigned int numberOfJoints = outMesh.skeleton->num_joints();
 			// Basic info
 			ozz::animation::offline::RawAnimation rawAnimation;
 			rawAnimation.name = inAnimation->mName.C_Str();
-			rawAnimation.duration = (float)inAnimation->mDuration;
+			rawAnimation.duration = inAnimation->mDuration / inAnimation->mTicksPerSecond;
 			rawAnimation.tracks.resize(numberOfJoints);
 
 			// Channels
@@ -386,7 +389,7 @@ namespace PlatinumEngine
 				for(int j=0; j < inAnimation->mChannels[channelID]->mNumPositionKeys; ++j)
 				{
 					ozz::animation::offline::RawAnimation::TranslationKey key = {
-							(float)inAnimation->mChannels[channelID]->mPositionKeys[j].mTime,
+							(float)(inAnimation->mChannels[channelID]->mPositionKeys[j].mTime / inAnimation->mTicksPerSecond),
 							ozz::math::Float3(
 									inAnimation->mChannels[channelID]->mPositionKeys[j].mValue.x,
 									inAnimation->mChannels[channelID]->mPositionKeys[j].mValue.y,
@@ -400,7 +403,7 @@ namespace PlatinumEngine
 				{
 
 					ozz::animation::offline::RawAnimation::RotationKey key = {
-							(float)inAnimation->mChannels[channelID]->mRotationKeys[j].mTime,
+							(float)(inAnimation->mChannels[channelID]->mRotationKeys[j].mTime / inAnimation->mTicksPerSecond),
 							ozz::math::Quaternion(
 									inAnimation->mChannels[channelID]->mRotationKeys[j].mValue.x,
 									inAnimation->mChannels[channelID]->mRotationKeys[j].mValue.y,
@@ -415,7 +418,7 @@ namespace PlatinumEngine
 				{
 
 					ozz::animation::offline::RawAnimation::ScaleKey key = {
-							(float)inAnimation->mChannels[channelID]->mScalingKeys[j].mTime,
+							(float)(inAnimation->mChannels[channelID]->mScalingKeys[j].mTime / inAnimation->mTicksPerSecond),
 							ozz::math::Float3(1.0f,1.0f,1.0f)};
 					// bone scaling is rarely useful. And it makes the model too big.
 //									inAnimation->mChannels[channelID]->mScalingKeys[j].mValue.x,
@@ -429,7 +432,7 @@ namespace PlatinumEngine
 			ozz::animation::offline::AnimationBuilder animationBuilder;
 			// Add new animation into animations list
 			outMesh.animations.emplace_back();
-			outMesh.animations.back() =  animationBuilder(rawAnimation);
+			outMesh.animations.back() = animationBuilder(rawAnimation);
 		}
 
 		bool FindChanelID(const std::string& inBoneName, aiAnimation* inAnimation, unsigned int& trackID)

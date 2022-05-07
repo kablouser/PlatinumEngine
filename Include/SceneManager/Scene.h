@@ -12,6 +12,7 @@
 
 #include <ComponentComposition/GameObject.h>
 #include <Physics/Physics.h>
+#include <Helpers/Time.h>
 
 namespace PlatinumEngine
 {
@@ -29,6 +30,7 @@ namespace PlatinumEngine
 
 		IDSystem& idSystem;
 		Physics& physics;
+		Time& time;
 
 		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 
@@ -36,7 +38,7 @@ namespace PlatinumEngine
 		// Constructors/destructors
 		//--------------------------------------------------------------------------------------------------------------
 
-		explicit Scene(IDSystem& idSystem, Physics& physics);
+		explicit Scene(IDSystem& idSystem, Physics& physics, Time& time);
 
 		~Scene();
 
