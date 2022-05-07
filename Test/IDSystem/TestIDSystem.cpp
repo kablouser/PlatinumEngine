@@ -22,11 +22,11 @@ TEST_CASE("TestIDSystem", "[IDSystem]")
 			.WithField<int>("z", PLATINUM_OFFSETOF(CustomStructure, z));
 
 	PlatinumEngine::IDSystem idSystem;
-	idSystem.Add(std::make_shared<int>(69));
-	idSystem.Add(std::make_shared<int>(420));
-	idSystem.Add(std::make_shared<float>(3.14f));
-	idSystem.Add(std::make_shared<double>(3.1414f));
-	idSystem.Add(std::make_shared<CustomStructure>(CustomStructure{ 1,1,2 }));
+	*idSystem.Add<int>().DeRef() = 69;
+	*idSystem.Add<int>().DeRef() = 420;
+	*idSystem.Add<float>().DeRef() = 3.14f;
+	*idSystem.Add<double>().DeRef() = 3.1414f;
+	*idSystem.Add<CustomStructure>().DeRef() = CustomStructure{ 1,1,2 };
 
 	std::ostringstream outputString;
 //	std::cout << "Original" << std::endl;

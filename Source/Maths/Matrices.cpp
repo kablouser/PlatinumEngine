@@ -19,12 +19,12 @@ namespace PlatinumEngine
 
 			Mat4 result;
 
-			for (int i = 0; i < 4; i++)
+			for (int x = 0; x < 4; x++)
 			{
-				for (int j = 0; j < 4; j++)
+				for (int y = 0; y < 4; y++)
 				{
 
-					result[i][j] = (*this)[i][j] * scale;
+					result[x][y] = (*this)[x][y] * scale;
 
 				}
 
@@ -95,12 +95,12 @@ namespace PlatinumEngine
 
 			Mat4 result;
 
-			for (int y = 0; y < 4; y++)
+			for (int x = 0; x < 4; x++)
 			{
-				for (int x = 0; x < 4; x++)
+				for (int y = 0; y < 4; y++)
 				{
 
-					result[y][x] = (*this)[y][x] + otherMatrix[y][x];
+					result[x][y] = (*this)[x][y] + otherMatrix[x][y];
 
 				}
 			}
@@ -114,12 +114,12 @@ namespace PlatinumEngine
 
 			Mat4 result;
 
-			for (int y = 0; y < 4; y++)
+			for (int x = 0; x < 4; x++)
 			{
-				for (int x = 0; x < 4; x++)
+				for (int y = 0; y < 4; y++)
 				{
 
-					result[y][x] = (*this)[y][x] - otherMatrix[y][x];
+					result[x][y] = (*this)[x][y] - otherMatrix[x][y];
 
 				}
 			}
@@ -267,12 +267,12 @@ namespace PlatinumEngine
 
 			Mat3 result;
 
-			for (int i = 0; i < 3; i++)
+			for (int x = 0; x < 3; x++)
 			{
-				for (int j = 0; j < 3; j++)
+				for (int y = 0; y < 3; y++)
 				{
 
-					result[i][j] = (*this)[i][j] * scale;
+					result[x][y] = (*this)[x][y] * scale;
 
 				}
 
@@ -320,12 +320,12 @@ namespace PlatinumEngine
 
 			Mat3 result;
 
-			for (int y = 0; y < 3; y++)
+			for (int x = 0; x < 3; x++)
 			{
-				for (int x = 0; x < 3; x++)
+				for (int y = 0; y < 3; y++)
 				{
 
-					result[y][x] = (*this)[y][x] + otherMatrix[y][x];
+					result[x][y] = (*this)[x][y] + otherMatrix[x][y];
 
 				}
 			}
@@ -338,12 +338,12 @@ namespace PlatinumEngine
 		{
 			Mat3 result;
 
-			for (int y = 0; y < 3; y++)
+			for (int x = 0; x < 3; x++)
 			{
-				for (int x = 0; x < 3; x++)
+				for (int y = 0; y < 3; y++)
 				{
 
-					result[y][x] = (*this)[y][x] - otherMatrix[y][x];
+					result[x][y] = (*this)[x][y] - otherMatrix[x][y];
 
 				}
 			}
