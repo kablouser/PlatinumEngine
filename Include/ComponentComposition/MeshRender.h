@@ -28,9 +28,9 @@ namespace PlatinumEngine
 		SavedReference<Mesh>& GetMesh();
 
 		// override the OnRender() of the Component
-		void OnRender(Scene& scene, Renderer& renderer) override;
+		void OnRender() override;
 
-		void OnIDSystemUpdate(Scene& scene) override;
+		void OnIDSystemUpdate() override;
 
 		Material material;
 

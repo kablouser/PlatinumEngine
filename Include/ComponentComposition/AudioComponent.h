@@ -35,6 +35,6 @@ namespace PlatinumEngine
 		// Sets whether sample will be looped
 		void SetLoop(bool loop);
 
-		void OnIDSystemUpdate(Scene& scene) override;
+		void OnIDSystemUpdate() override;
 	};
 }

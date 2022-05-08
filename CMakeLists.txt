@@ -125,7 +125,6 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/Animation/AnimationLocalTimer.cpp;"
 	
 	"Source/AssetDatabase/AssetDatabase.cpp;"
-	"Source/AssetDatabase/AssetHelper.cpp;"
 	
 	"Source/Audio/AudioClip.cpp;"
 	
@@ -197,6 +196,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	
 	"Source/WindowManager/Filedialog.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
+	
+	"Source/Application.cpp;"
 	)
 
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})

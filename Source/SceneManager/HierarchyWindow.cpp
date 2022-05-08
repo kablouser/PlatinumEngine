@@ -5,9 +5,12 @@
 // Platinum Engine library
 #include <SceneManager/HierarchyWindow.h>
 #include <Logger/Logger.h>
-#include "ComponentComposition/Transform.h"
-#include "ComponentComposition/MeshRender.h"
+#include <ComponentComposition/Transform.h>
+#include <ComponentComposition/MeshRender.h>
 #include <Application.h>
+
+#include <AssetDatabase/AssetHelper.h>
+#include <SceneManager/SceneWithTemplates.h>
 
 namespace PlatinumEngine
 {
@@ -137,7 +140,7 @@ namespace PlatinumEngine
 
 					if(!temp) // if null
 						// change the dragged object's parent
-						payloadPointer.DeRef()->SetParent(gameObject, scene);
+						payloadPointer.DeRef()->SetParent(gameObject);
 				}
 				// if the mode is to change order between game objects
 				else
@@ -152,7 +155,7 @@ namespace PlatinumEngine
 						// move the position of objects with no parent
 						if (!payloadPointer.DeRef()->GetParent())
 						{
-							if (!scene.MoveRootGameObjectPositionInList(gameObject, payloadPointer))
+							if (!Application::Instance->scene.MoveRootGameObjectPositionInList(gameObject, payloadPointer))
 								PlatinumEngine::Logger::LogInfo("Cannot move game object to the new position.");
 
 						}
@@ -180,7 +183,7 @@ namespace PlatinumEngine
 			for(int i = 0; i < gameObject.DeRef()->GetChildrenCount(); i++)
 			{
 
-				DisplayTreeNote(gameObject.DeRef()->GetChild(i), scene, modeForDraggingBehavior);
+				DisplayTreeNote(gameObject.DeRef()->GetChild(i), modeForDraggingBehavior);
 
 			}
 
@@ -239,7 +242,7 @@ namespace PlatinumEngine
 						if (_modeForDraggingBehavior == _hierarchyMode)
 						{
 							// change the dragged object's parent
-							payloadPointer->SetParent({}, Application::Instance->scene);
+							payloadPointer->SetParent({});
 						}
 					}
 				}

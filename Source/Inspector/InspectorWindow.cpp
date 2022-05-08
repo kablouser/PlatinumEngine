@@ -5,23 +5,22 @@
 #include <Inspector/InspectorWindow.h>
 #include <ComponentComposition/Camera.h>
 
-#include <ImGuizmo.h>
 #include <SceneManager/Scene.h>
 #include <Inspector/Bezier.h>
 
+#include <Application.h>
+#include <AssetDatabase/AssetHelper.h>
+#include <SceneManager/SceneWithTemplates.h>
 
 using namespace PlatinumEngine;
 
-InspectorWindow::InspectorWindow(AssetHelper* assetHelper, SceneEditor* sceneEditor, Physics* physics) :
-		_assetHelper(assetHelper), _sceneEditor(sceneEditor), _physics(physics)
-{
-}
+InspectorWindow::InspectorWindow() = default;
 
-void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
+void InspectorWindow::ShowGUIWindow(bool* isOpen)
 {
 	if (ImGui::Begin(ICON_FA_CIRCLE_INFO " Inspector Window", isOpen))
 	{
-		auto& obj = _sceneEditor->GetSelectedGameobject();
+		auto& obj = Application::Instance->sceneEditor.GetSelectedGameobject();
 		if (obj)
 		{
 			ImGui::Text("Name: ");
@@ -35,44 +34,42 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 			bool isEnabled = obj.DeRef()->IsEnabled();
 
 			if (ImGui::Checkbox("##IsEnabled", &isEnabled))
-			{
-				obj.DeRef()->SetEnabled(isEnabled, scene);
-			}
+				obj.DeRef()->SetEnabled(isEnabled);
 
 			// Now render each component gui
-			if (obj.DeRef()->GetComponent<MeshRender>())
-				ShowMeshRenderComponent(scene);
+			if (auto ref = obj.DeRef()->GetComponent<MeshRender>())
+				ShowMeshRenderComponent(ref);
 
-			if (obj.DeRef()->GetComponent<Transform>())
-				ShowTransformComponent(scene);
+			if (auto ref = obj.DeRef()->GetComponent<Transform>())
+				ShowTransformComponent(ref);
 
-			if (obj.DeRef()->GetComponent<Camera>())
-				ShowCameraComponent(scene);
+			if (auto ref = obj.DeRef()->GetComponent<Camera>())
+				ShowCameraComponent(ref);
 
-			if (obj.DeRef()->GetComponent<RigidBody>())
-				ShowRigidBodyComponent(scene);
+			if (auto ref = obj.DeRef()->GetComponent<RigidBody>())
+				ShowRigidBodyComponent(ref);
 
-			if (obj.DeRef()->GetComponent<AnimationComponent>())
-				ShowAnimationComponent(scene);
+			if (auto ref = obj.DeRef()->GetComponent<AnimationComponent>())
+				ShowAnimationComponent(ref);
 
-			if (obj.DeRef()->GetComponent<BoxCollider>())
-				ShowBoxColliderComponent(scene);
+			if (auto ref = obj.DeRef()->GetComponent<BoxCollider>())
+				ShowBoxColliderComponent(ref);
 
-			if (obj.DeRef()->GetComponent<SphereCollider>())
-				ShowSphereColliderComponent(scene);
+			if (auto ref = obj.DeRef()->GetComponent<SphereCollider>())
+				ShowSphereColliderComponent(ref);
 
-			if (obj.DeRef()->GetComponent<CapsuleCollider>())
-				ShowCapsuleColliderComponent(scene);
+			if (auto ref = obj.DeRef()->GetComponent<CapsuleCollider>())
+				ShowCapsuleColliderComponent(ref);
 
-			if (obj.DeRef()->GetComponent<ParticleEffect>())
-				ShowParticleEffectComponent(scene);
+			if (auto ref = obj.DeRef()->GetComponent<ParticleEffect>())
+				ShowParticleEffectComponent(ref);
 
-			if (obj.DeRef()->GetComponent<AudioComponent>())
-				ShowAudioComponent(scene);
+			if (auto ref = obj.DeRef()->GetComponent<AudioComponent>())
+				ShowAudioComponent(ref);
 
 			ImGui::Separator();
 			if (_isAddComponentWindowOpen)
-				ShowAddComponent(scene);
+				ShowAddComponent();
 			else
 			{
 				if (ImGui::Button("Add Component"))
@@ -83,7 +80,7 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 				ImGui::SameLine();
 				if (ImGui::Button("Remove Object"))
 				{
-					_sceneEditor->DeleteSelectedGameObject();
+					Application::Instance->sceneEditor.DeleteSelectedGameObject();
 				}
 			}
 
@@ -97,21 +94,19 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen, Scene& scene)
 	ImGui::End();
 }
 
-void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
+void InspectorWindow::ShowMeshRenderComponent(SavedReference<MeshRender>& reference)
 {
 	ImGui::Separator();
 	std::string meshBuffer, textureBuffer, normalTextureBuffer;
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_VECTOR_SQUARE "  Mesh Render Component",
 			ImGuiTreeNodeFlags_AllowItemOverlap);
-	SavedReference<GameObject>& obj = _sceneEditor->GetSelectedGameobject();
-	SavedReference<MeshRender> meshRender = obj.DeRef()->GetComponent<MeshRender>();
 
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveRenderComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(meshRender);
+		Application::Instance->scene.RemoveComponent(reference);
 		return;
 	}
 	if (isHeaderOpen)
@@ -123,8 +118,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 
 		// store the current mesh name into mesh buffer, so that we can display it in the input text box
-		if (meshRender.DeRef()->GetMesh())
-			meshBuffer = meshRender.DeRef()->GetMesh().DeRef()->fileName;
+		if (reference.DeRef()->GetMesh())
+			meshBuffer = reference.DeRef()->GetMesh().DeRef()->fileName;
 
 		// show text box (read only)--------Choose Mesh
 		ImGui::InputText("##Mesh Name", &meshBuffer[0], meshBuffer.size(), ImGuiInputTextFlags_ReadOnly);
@@ -140,12 +135,12 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 					//Maybe we SetMesh on obj
 					//obj->GetComponent<MeshRender>()->SetMesh(mesh);
 					//Set The mesh that we dragged to the RenderComponent
-					auto[success, meshAsset] = _assetHelper->GetAsset<Mesh>(payloadPath.string());
+					auto[success, meshAsset] = AssetHelper::GetAsset<Mesh>(payloadPath.string());
 					if (success)
 					{
-						obj.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(meshAsset);
+						reference.DeRef()->SetMesh(meshAsset);
 
-						if(SavedReference<AnimationComponent> animation = obj.DeRef()->GetComponent<AnimationComponent>(); animation)
+						if(SavedReference<AnimationComponent> animation = reference.DeRef()->GetComponent<AnimationComponent>(); animation)
 						{
 
 							animation.DeRef()->SetMesh(meshAsset);
@@ -166,12 +161,12 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		}
 
 		{
-			auto [isClicked, assetReference] = _assetHelper->PickAssetGUIWindow<Mesh>("Select Mesh");
+			auto [isClicked, assetReference] = AssetHelper::PickAssetGUIWindow<Mesh>("Select Mesh");
 			if (isClicked)
 			{
-				meshRender.DeRef()->SetMesh(assetReference);
+				reference.DeRef()->SetMesh(assetReference);
 
-				if(SavedReference<AnimationComponent> animation = obj.DeRef()->GetComponent<AnimationComponent>(); animation)
+				if(SavedReference<AnimationComponent> animation = reference.DeRef()->GetComponent<AnimationComponent>(); animation)
 				{
 
 					animation.DeRef()->SetMesh(assetReference);
@@ -180,11 +175,11 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			}
 		}
 
-		if (meshRender.DeRef()->material.diffuseTexture)
-			textureBuffer = meshRender.DeRef()->material.diffuseTexture.DeRef()->fileName;
+		if (reference.DeRef()->material.diffuseTexture)
+			textureBuffer = reference.DeRef()->material.diffuseTexture.DeRef()->fileName;
 
-		if (meshRender.DeRef()->material.normalTexture)
-			normalTextureBuffer = meshRender.DeRef()->material.normalTexture.DeRef()->fileName;
+		if (reference.DeRef()->material.normalTexture)
+			normalTextureBuffer = reference.DeRef()->material.normalTexture.DeRef()->fileName;
 
 		//Show text box (read only)----------Choose Material
 		ImGui::Text("%s", "Material Properties");
@@ -193,13 +188,13 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::Text("Specular Exponent");
 		ImGui::SameLine();
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
-		ImGui::SliderFloat("##shininess", &(meshRender.DeRef()->material.shininessFactor), 0.f, 100.f, "%.3f",
+		ImGui::SliderFloat("##shininess", &(reference.DeRef()->material.shininessFactor), 0.f, 100.f, "%.3f",
 				ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 
 		ImGui::Text("Blinn-Phong");
 		ImGui::SameLine();
-		ImGui::Checkbox("##Blinn-Phong", &(meshRender.DeRef()->material.useBlinnPhong));
+		ImGui::Checkbox("##Blinn-Phong", &(reference.DeRef()->material.useBlinnPhong));
 
 		ImGui::Text("Texture");
 		ImGui::SameLine(_textWidth);
@@ -217,11 +212,11 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 				if (payloadPath.extension() == ".png")
 				{
 					//Set The texture that we dragged to the RenderComponent
-					auto [success, asset] = _assetHelper->GetAsset<Texture>(payloadPath.string());
+					auto [success, asset] = AssetHelper::GetAsset<Texture>(payloadPath.string());
 					if (success)
 					{
-						obj.DeRef()->GetComponent<MeshRender>().DeRef()->SetMaterial(asset);
-						obj.DeRef()->GetComponent<MeshRender>().DeRef()->material.useTexture = true;
+						reference.DeRef()->GetComponent<MeshRender>().DeRef()->SetMaterial(asset);
+						reference.DeRef()->GetComponent<MeshRender>().DeRef()->material.useTexture = true;
 					}
 				}
 			}
@@ -235,15 +230,15 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			ImGui::OpenPopup("Select Texture");
 		}
 		{
-			auto [isClicked, assetReference] = _assetHelper->PickAssetGUIWindow<Texture>("Select Texture");
+			auto [isClicked, assetReference] = AssetHelper::PickAssetGUIWindow<Texture>("Select Texture");
 			if (isClicked)
 			{
-				meshRender.DeRef()->SetMaterial(assetReference);
-				meshRender.DeRef()->material.useTexture = true;
+				reference.DeRef()->SetMaterial(assetReference);
+				reference.DeRef()->material.useTexture = true;
 			}
 		}
 		ImGui::SameLine();
-		ImGui::Checkbox("##UseTexture", &(meshRender.DeRef()->material.useTexture));
+		ImGui::Checkbox("##UseTexture", &(reference.DeRef()->material.useTexture));
 
 		ImGui::Text("%s", "Normal Map");
 		ImGui::SameLine(_textWidth);
@@ -259,9 +254,9 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 				if (payloadPath.extension() == ".png")
 				{
 					//Set The texture that we dragged to the RenderComponent
-					auto [success, asset] = _assetHelper->GetAsset<Texture>(payloadPath.string());
+					auto [success, asset] = AssetHelper::GetAsset<Texture>(payloadPath.string());
 					if (success)
-						obj.DeRef()->GetComponent<MeshRender>().DeRef()->SetNormalMap(asset);
+						reference.DeRef()->GetComponent<MeshRender>().DeRef()->SetNormalMap(asset);
 				}
 			}
 			// End DragDropTarget
@@ -274,35 +269,33 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 			ImGui::OpenPopup("Select Normal Texture");
 		}
 		{
-			auto [isClicked, assetReference] = _assetHelper->PickAssetGUIWindow<Texture>("Select Normal Texture");
+			auto [isClicked, assetReference] = AssetHelper::PickAssetGUIWindow<Texture>("Select Normal Texture");
 			if (isClicked)
-				meshRender.DeRef()->SetNormalMap(assetReference);
+				reference.DeRef()->SetNormalMap(assetReference);
 		}
 		ImGui::SameLine();
-		ImGui::Checkbox("##UseNormalTexture", &(meshRender.DeRef()->material.useNormalTexture));
+		ImGui::Checkbox("##UseNormalTexture", &(reference.DeRef()->material.useNormalTexture));
 
 		ImGui::Text("Special Properties");
 		ImGui::Separator();
 		ImGui::Text("Reflection");
 		ImGui::SameLine(_textWidth);
-		ImGui::Checkbox("##UseRelfectionShader", &(obj.DeRef()->GetComponent<MeshRender>().DeRef()->material.useReflectionShader));
+		ImGui::Checkbox("##UseRelfectionShader", &(reference.DeRef()->material.useReflectionShader));
 		ImGui::Text("Refraction");
 		ImGui::SameLine(_textWidth);
-		ImGui::Checkbox("##UseRefracctionShader", &(obj.DeRef()->GetComponent<MeshRender>().DeRef()->material.useRefractionShader));
+		ImGui::Checkbox("##UseRefracctionShader", &(reference.DeRef()->material.useRefractionShader));
 		ImGui::Text("Refraction Index");
 		ImGui::SameLine();
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		// Setting max to 4 as you start to get unpleasing results past that
-		ImGui::SliderFloat("##refractionIndex", &(obj.DeRef()->GetComponent<MeshRender>().DeRef()->material.refractionIndex), 1.0f, 4.f,
+		ImGui::SliderFloat("##refractionIndex", &(reference.DeRef()->material.refractionIndex), 1.0f, 4.f,
 				"%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 	}
 }
 
-void InspectorWindow::ShowTransformComponent(Scene& scene)
+void InspectorWindow::ShowTransformComponent(SavedReference<Transform>& reference)
 {
-	auto& obj = _sceneEditor->GetSelectedGameobject();
-
 	// If this gui is being shown, assumption that object has transform component
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_ARROWS_TURN_TO_DOTS "  Transform Component",
@@ -312,12 +305,12 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 	if (ImGui::Button("X##RemoveTransformComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(obj.DeRef()->GetComponent<Transform>());
+		Application::Instance->scene.RemoveComponent(reference);
 		return;
 	}
 	if (isHeaderOpen)
 	{
-		Transform* transformPointer = obj.DeRef()->GetComponent<Transform>().DeRef().get();
+		Transform* transformPointer = reference.DeRef().get();
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT " Position: ");
@@ -364,11 +357,10 @@ void InspectorWindow::ShowTransformComponent(Scene& scene)
 
 }
 
-void InspectorWindow::ShowCameraComponent(Scene& scene)
+void InspectorWindow::ShowCameraComponent(SavedReference<Camera>& reference)
 {
 	char cameraType[64];
 	char clearMode[64];
-	auto& obj = _sceneEditor->GetSelectedGameobject();
 
 	// If this gui is being shown, assumption that object has transform component
 	ImGui::Separator();
@@ -379,19 +371,19 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 	if (ImGui::Button("X##RemoveCameraComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(obj.DeRef()->GetComponent<Camera>());
+		Application::Instance->scene.RemoveComponent(reference);
 		return;
 	}
 	if (isHeaderOpen)
 	{
-		auto camera = obj.DeRef()->GetComponent<Camera>();
+		Camera* cameraPointer = reference.DeRef().get();
 
 		{// the camera projection type
-			if (Camera::ProjectionType::perspective == camera.DeRef()->projectionType)
+			if (Camera::ProjectionType::perspective == cameraPointer->projectionType)
 			{
 				std::strcpy(cameraType, _temp[0].c_str());
 			}
-			if (Camera::ProjectionType::orthographic == camera.DeRef()->projectionType)
+			if (Camera::ProjectionType::orthographic == cameraPointer->projectionType)
 			{
 
 				std::strcpy(cameraType, _temp[1].c_str());
@@ -406,12 +398,12 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 			{
 				if (ImGui::Selectable("Perspective"))
 				{
-					camera.DeRef()->projectionType = Camera::ProjectionType::perspective;
+					cameraPointer->projectionType = Camera::ProjectionType::perspective;
 					//std::strcpy(cameraType, _temp[0].c_str());
 				}
 				if (ImGui::Selectable("Orthographic"))
 				{
-					camera.DeRef()->projectionType = Camera::ProjectionType::orthographic;
+					cameraPointer->projectionType = Camera::ProjectionType::orthographic;
 					//std::strcpy(cameraType, _temp[1].c_str());
 				}
 				ImGui::EndPopup();
@@ -424,15 +416,15 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 		}
 
 		{// the camera clear mode
-			if (Camera::ClearMode::backgroundColor == camera.DeRef()->clearMode)
+			if (Camera::ClearMode::backgroundColor == cameraPointer->clearMode)
 			{
 				std::strcpy(clearMode, _clearMode[2].c_str());
 			}
-			if (Camera::ClearMode::skybox == camera.DeRef()->clearMode)
+			if (Camera::ClearMode::skybox == cameraPointer->clearMode)
 			{
 				std::strcpy(clearMode, _clearMode[1].c_str());
 			}
-			if (Camera::ClearMode::none == camera.DeRef()->clearMode)
+			if (Camera::ClearMode::none == cameraPointer->clearMode)
 			{
 				std::strcpy(clearMode, _clearMode[0].c_str());
 			}
@@ -447,15 +439,15 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 			{
 				if (ImGui::Selectable("SkyBox"))
 				{
-					camera.DeRef()->clearMode = Camera::ClearMode::skybox;
+					cameraPointer->clearMode = Camera::ClearMode::skybox;
 				}
 				if (ImGui::Selectable("None"))
 				{
-					camera.DeRef()->clearMode = Camera::ClearMode::none;
+					cameraPointer->clearMode = Camera::ClearMode::none;
 				}
 				if (ImGui::Selectable("BackgroundColour"))
 				{
-					camera.DeRef()->clearMode = Camera::ClearMode::backgroundColor;
+					cameraPointer->clearMode = Camera::ClearMode::backgroundColor;
 				}
 				ImGui::EndPopup();
 			}
@@ -472,22 +464,22 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 		// To avoid making window excessively wide, start new line
 		ImGui::Text("R");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Red", &camera.DeRef()->backgroundColor.r);
+		ImGui::InputFloat("##Red", &cameraPointer->backgroundColor.r);
 		ImGui::SameLine();
 
 		ImGui::Text("G");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Green", &camera.DeRef()->backgroundColor.g);
+		ImGui::InputFloat("##Green", &cameraPointer->backgroundColor.g);
 		ImGui::SameLine();
 
 		ImGui::Text("B");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Blue", &camera.DeRef()->backgroundColor.b);
+		ImGui::InputFloat("##Blue", &cameraPointer->backgroundColor.b);
 		ImGui::SameLine();
 
 		ImGui::Text("A");
 		ImGui::SameLine();
-		ImGui::InputFloat("##Alpha", &camera.DeRef()->backgroundColor.a);
+		ImGui::InputFloat("##Alpha", &cameraPointer->backgroundColor.a);
 
 		float fov;
 		float nearClippingPlane;
@@ -496,26 +488,25 @@ void InspectorWindow::ShowCameraComponent(Scene& scene)
 
 		ImGui::Text("Field of View: ");
 		ImGui::SameLine(_textWidthCameraComponent);
-		ImGui::InputFloat("##FOV", &camera.DeRef()->fov);
+		ImGui::InputFloat("##FOV", &cameraPointer->fov);
 
 		ImGui::Text("Near Clipping Plane: ");
 		ImGui::SameLine(_textWidthCameraComponent);
-		ImGui::InputFloat("##NearClippingPlane", &camera.DeRef()->nearClippingPlane);
+		ImGui::InputFloat("##NearClippingPlane", &cameraPointer->nearClippingPlane);
 
 		ImGui::Text("Far Clipping Plane: ");
 		ImGui::SameLine(_textWidthCameraComponent);
-		ImGui::InputFloat("##FarClippingPlane", &camera.DeRef()->farClippingPlane);
+		ImGui::InputFloat("##FarClippingPlane", &cameraPointer->farClippingPlane);
 
 		ImGui::Text("Orthographic Size: ");
 		ImGui::SameLine(_textWidthCameraComponent);
-		ImGui::InputFloat("##OrthographicSize", &camera.DeRef()->orthographicSize);
+		ImGui::InputFloat("##OrthographicSize", &cameraPointer->orthographicSize);
 	}
 }
 
-void InspectorWindow::ShowBoxColliderComponent(Scene& scene)
+void InspectorWindow::ShowBoxColliderComponent(SavedReference<BoxCollider>& reference)
 {
-	SavedReference<BoxCollider> boxCollider = _sceneEditor->GetSelectedGameobject().DeRef()->GetComponent<BoxCollider>();
-	BoxCollider* boxColliderPointer = boxCollider.DeRef().get();
+	BoxCollider* boxColliderPointer = reference.DeRef().get();
 
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_BOX "  BoxCollider Component",
@@ -525,7 +516,7 @@ void InspectorWindow::ShowBoxColliderComponent(Scene& scene)
 	if (ImGui::Button("X##RemoveBoxColliderComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(boxCollider);
+		Application::Instance->scene.RemoveComponent(reference);
 		return;
 	}
 
@@ -548,21 +539,20 @@ void InspectorWindow::ShowBoxColliderComponent(Scene& scene)
 	}
 }
 
-void InspectorWindow::ShowCapsuleColliderComponent(Scene& scene)
+void InspectorWindow::ShowCapsuleColliderComponent(SavedReference<CapsuleCollider>& reference)
 {
 	char directionBuff[64];
 
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_CAPSULES "  CapsuleCollider Component",
 			ImGuiTreeNodeFlags_AllowItemOverlap);
-	SavedReference<CapsuleCollider> capsuleCollider = _sceneEditor->GetSelectedGameobject().DeRef()->GetComponent<CapsuleCollider>();
-	CapsuleCollider* capsuleColliderPointer = capsuleCollider.DeRef().get();
+	CapsuleCollider* capsuleColliderPointer = reference.DeRef().get();
 
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveBoxColliderComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(capsuleCollider);
+		Application::Instance->scene.RemoveComponent(reference);
 		return;
 	}
 
@@ -580,23 +570,23 @@ void InspectorWindow::ShowCapsuleColliderComponent(Scene& scene)
 	}
 }
 
-void InspectorWindow::ShowSphereColliderComponent(Scene& scene)
+void InspectorWindow::ShowSphereColliderComponent(SavedReference<SphereCollider>& reference)
 {
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_CIRCLE "  SphereCollider Component",
 			ImGuiTreeNodeFlags_AllowItemOverlap);
-	auto obj = _sceneEditor->GetSelectedGameobject();
+
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveBoxColliderComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(obj.DeRef()->GetComponent<SphereCollider>());
+		Application::Instance->scene.RemoveComponent(reference);
 		return;
 	}
 
 	if (isHeaderOpen)
 	{
-		SphereCollider* sphereCollider = obj.DeRef()->GetComponent<SphereCollider>().DeRef().get();
+		SphereCollider* sphereCollider = reference.DeRef().get();
 
 		ImGui::PushItemWidth(50);
 		ImGui::Text("Radius: ");
@@ -605,14 +595,9 @@ void InspectorWindow::ShowSphereColliderComponent(Scene& scene)
 	}
 }
 
-void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
+void InspectorWindow::ShowRigidBodyComponent(SavedReference<RigidBody>& reference)
 {
-	if (!_sceneEditor->GetSelectedGameobject())
-		return;
-	SavedReference<RigidBody> rigidBody = _sceneEditor->GetSelectedGameobject().DeRef()->GetComponent<RigidBody>();
-	if (!rigidBody)
-		return;
-	RigidBody* rigidBodyPointer = rigidBody.DeRef().get();
+	RigidBody* rigidBodyPointer = reference.DeRef().get();
 
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_USER " RigidBody Component",
@@ -622,7 +607,7 @@ void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
 	if (ImGui::Button("X##RemoveRigidBodyComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(rigidBody);
+		Application::Instance->scene.RemoveComponent(reference);
 		return;
 	}
 
@@ -665,14 +650,12 @@ void InspectorWindow::ShowRigidBodyComponent(Scene& scene)
 		ImGui::SliderFloat("##Bounciness", &rigidBodyPointer->physicsMaterial.bounciness, 0.f, 1.f, "%.2f");
 
 		if (ImGui::Button("Update Physics Properties"))
-			rigidBodyPointer->UpdatePhysicsProperties(*_physics);
+			rigidBodyPointer->UpdatePhysicsProperties();
 	}
 }
 
-void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
+void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>& reference)
 {
-	auto obj = _sceneEditor->GetSelectedGameobject();
-
 	// If this gui is being shown, assumption that object has component
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_FIRE "  Particle Effect Component",
@@ -682,7 +665,7 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 	if (ImGui::Button("X##RemoveParticleEffectComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(obj.DeRef()->GetComponent<ParticleEffect>());
+		Application::Instance->scene.RemoveComponent(reference);
 		return;
 	}
 
@@ -690,14 +673,14 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 
 	if (isHeaderOpen)
 	{
-		auto component = obj.DeRef()->GetComponent<ParticleEffect>();
+		ParticleEffect* particleEffectPointer = reference.DeRef().get();
 
 		if (ImGui::CollapsingHeader("Emitter Settings"))
 		{
 			ImGui::Text("Maximum Particles: ");
 			ImGui::SameLine(_textWidthParticleEffectComponent);
 			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
-			ImGui::SliderInt("##MaximumNumberOfParticles", &(component.DeRef()->particleEmitter.numberOfParticles), 0.f, 5000,
+			ImGui::SliderInt("##MaximumNumberOfParticles", &(particleEffectPointer->particleEmitter.numberOfParticles), 0.f, 5000,
 					"%d", ImGuiSliderFlags_None);
 			ImGui::PopItemWidth();
 
@@ -705,21 +688,21 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 			ImGui::SameLine(_textWidthParticleEffectComponent);
 			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
 
-			ImGui::SliderFloat("##RespawnLifetime: ", &(component.DeRef()->particleEmitter.respawnLifetime), 0.f, 10, "%.3f",
+			ImGui::SliderFloat("##RespawnLifetime: ", &(particleEffectPointer->particleEmitter.respawnLifetime), 0.f, 10, "%.3f",
 					ImGuiSliderFlags_None);
 			ImGui::PopItemWidth();
 
 			ImGui::Text("New Particles: ");
 			ImGui::SameLine(_textWidthParticleEffectComponent);
 			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
-			ImGui::SliderInt("##NumberOfNewParticles", &(component.DeRef()->particleEmitter.numberOfNewParticles), 0.f, 100,
+			ImGui::SliderInt("##NumberOfNewParticles", &(particleEffectPointer->particleEmitter.numberOfNewParticles), 0.f, 100,
 					"%d", ImGuiSliderFlags_None);
 			ImGui::PopItemWidth();
 
 			ImGui::Text("Spawn Interval: ");
 			ImGui::SameLine(_textWidthParticleEffectComponent);
 			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
-			ImGui::SliderFloat("##SpawnIntervalParticles", &(component.DeRef()->particleEmitter.spawnInterval), 0.016f, 5,
+			ImGui::SliderFloat("##SpawnIntervalParticles", &(particleEffectPointer->particleEmitter.spawnInterval), 0.016f, 5,
 					"%.3f", ImGuiSliderFlags_None);
 			ImGui::PopItemWidth();
 
@@ -730,17 +713,17 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 			ImGui::PushItemWidth(50);
 			ImGui::Text("X");
 			ImGui::SameLine();
-			ImGui::InputFloat("##ActingForceX", &(component.DeRef()->particleEmitter.actingForce[0]));
+			ImGui::InputFloat("##ActingForceX", &(particleEffectPointer->particleEmitter.actingForce[0]));
 			ImGui::SameLine();
 
 			ImGui::Text("Y");
 			ImGui::SameLine();
-			ImGui::InputFloat("##ActingForceY", &(component.DeRef()->particleEmitter.actingForce[1]));
+			ImGui::InputFloat("##ActingForceY", &(particleEffectPointer->particleEmitter.actingForce[1]));
 			ImGui::SameLine();
 
 			ImGui::Text("Z");
 			ImGui::SameLine();
-			ImGui::InputFloat("##ActingForceZ", &(component.DeRef()->particleEmitter.actingForce[2]));
+			ImGui::InputFloat("##ActingForceZ", &(particleEffectPointer->particleEmitter.actingForce[2]));
 		}
 
 		if (ImGui::CollapsingHeader("Position Settings"))
@@ -749,45 +732,45 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 
 			ImGui::Text("Random X");
 			ImGui::SameLine();
-			ImGui::Checkbox("##RandomPositionX", &(component.DeRef()->particleEmitter.useRandomInitPositionX));
+			ImGui::Checkbox("##RandomPositionX", &(particleEffectPointer->particleEmitter.useRandomInitPositionX));
 			ImGui::SameLine();
 
 			ImGui::Text("Min");
 			ImGui::SameLine();
-			ImGui::InputFloat("##MinRandomPositionX", &(component.DeRef()->particleEmitter.minPositionX));
+			ImGui::InputFloat("##MinRandomPositionX", &(particleEffectPointer->particleEmitter.minPositionX));
 			ImGui::SameLine();
 
 			ImGui::Text("Max");
 			ImGui::SameLine();
-			ImGui::InputFloat("##MaxRandomPositionX", &(component.DeRef()->particleEmitter.maxPositionX));
+			ImGui::InputFloat("##MaxRandomPositionX", &(particleEffectPointer->particleEmitter.maxPositionX));
 
 			ImGui::Text("Random Y");
 			ImGui::SameLine();
-			ImGui::Checkbox("##RandomPositionY", &(component.DeRef()->particleEmitter.useRandomInitPositionY));
+			ImGui::Checkbox("##RandomPositionY", &(particleEffectPointer->particleEmitter.useRandomInitPositionY));
 			ImGui::SameLine();
 
 			ImGui::Text("Min");
 			ImGui::SameLine();
-			ImGui::InputFloat("##MinRandomPositionY", &(component.DeRef()->particleEmitter.minPositionY));
+			ImGui::InputFloat("##MinRandomPositionY", &(particleEffectPointer->particleEmitter.minPositionY));
 			ImGui::SameLine();
 
 			ImGui::Text("Max");
 			ImGui::SameLine();
-			ImGui::InputFloat("##MaxRandomPositionY", &(component.DeRef()->particleEmitter.maxPositionY));
+			ImGui::InputFloat("##MaxRandomPositionY", &(particleEffectPointer->particleEmitter.maxPositionY));
 
 			ImGui::Text("Random Z");
 			ImGui::SameLine();
-			ImGui::Checkbox("##RandomPositionZ", &(component.DeRef()->particleEmitter.useRandomInitPositionZ));
+			ImGui::Checkbox("##RandomPositionZ", &(particleEffectPointer->particleEmitter.useRandomInitPositionZ));
 			ImGui::SameLine();
 
 			ImGui::Text("Min");
 			ImGui::SameLine();
-			ImGui::InputFloat("##MinRandomPositionZ", &(component.DeRef()->particleEmitter.minPositionZ));
+			ImGui::InputFloat("##MinRandomPositionZ", &(particleEffectPointer->particleEmitter.minPositionZ));
 			ImGui::SameLine();
 
 			ImGui::Text("Max");
 			ImGui::SameLine();
-			ImGui::InputFloat("##MaxRandomPositionZ", &(component.DeRef()->particleEmitter.maxPositionZ));
+			ImGui::InputFloat("##MaxRandomPositionZ", &(particleEffectPointer->particleEmitter.maxPositionZ));
 			ImGui::PopItemWidth();
 		}
 
@@ -799,59 +782,59 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 			ImGui::PushItemWidth(50);
 			ImGui::Text("X");
 			ImGui::SameLine();
-			ImGui::InputFloat("##VelocityX", &(component.DeRef()->particleEmitter.initVelocity[0]));
+			ImGui::InputFloat("##VelocityX", &(particleEffectPointer->particleEmitter.initVelocity[0]));
 			ImGui::SameLine();
 
 			ImGui::Text("Y");
 			ImGui::SameLine();
-			ImGui::InputFloat("##VelocityY", &(component.DeRef()->particleEmitter.initVelocity[1]));
+			ImGui::InputFloat("##VelocityY", &(particleEffectPointer->particleEmitter.initVelocity[1]));
 			ImGui::SameLine();
 
 			ImGui::Text("Z");
 			ImGui::SameLine();
-			ImGui::InputFloat("##VelocityZ", &(component.DeRef()->particleEmitter.initVelocity[2]));
+			ImGui::InputFloat("##VelocityZ", &(particleEffectPointer->particleEmitter.initVelocity[2]));
 
 			ImGui::Text("Random X");
 			ImGui::SameLine();
-			ImGui::Checkbox("##RandomVelocityX", &(component.DeRef()->particleEmitter.useRandomInitVelocityX));
+			ImGui::Checkbox("##RandomVelocityX", &(particleEffectPointer->particleEmitter.useRandomInitVelocityX));
 			ImGui::SameLine();
 
 			ImGui::Text("Min");
 			ImGui::SameLine();
-			ImGui::InputFloat("##MinRandomVelocityX", &(component.DeRef()->particleEmitter.minVelocityX));
+			ImGui::InputFloat("##MinRandomVelocityX", &(particleEffectPointer->particleEmitter.minVelocityX));
 			ImGui::SameLine();
 
 			ImGui::Text("Max");
 			ImGui::SameLine();
-			ImGui::InputFloat("##MaxRandomVelocityX", &(component.DeRef()->particleEmitter.maxVelocityX));
+			ImGui::InputFloat("##MaxRandomVelocityX", &(particleEffectPointer->particleEmitter.maxVelocityX));
 
 			ImGui::Text("Random Y");
 			ImGui::SameLine();
-			ImGui::Checkbox("##RandomVelocityY", &(component.DeRef()->particleEmitter.useRandomInitVelocityY));
+			ImGui::Checkbox("##RandomVelocityY", &(particleEffectPointer->particleEmitter.useRandomInitVelocityY));
 			ImGui::SameLine();
 
 			ImGui::Text("Min");
 			ImGui::SameLine();
-			ImGui::InputFloat("##MinRandomVelocityY", &(component.DeRef()->particleEmitter.minVelocityY));
+			ImGui::InputFloat("##MinRandomVelocityY", &(particleEffectPointer->particleEmitter.minVelocityY));
 			ImGui::SameLine();
 
 			ImGui::Text("Max");
 			ImGui::SameLine();
-			ImGui::InputFloat("##MaxRandomVelocityY", &(component.DeRef()->particleEmitter.maxVelocityY));
+			ImGui::InputFloat("##MaxRandomVelocityY", &(particleEffectPointer->particleEmitter.maxVelocityY));
 
 			ImGui::Text("Random Z");
 			ImGui::SameLine();
-			ImGui::Checkbox("##RandomVelocityZ", &(component.DeRef()->particleEmitter.useRandomInitVelocityZ));
+			ImGui::Checkbox("##RandomVelocityZ", &(particleEffectPointer->particleEmitter.useRandomInitVelocityZ));
 			ImGui::SameLine();
 
 			ImGui::Text("Min");
 			ImGui::SameLine();
-			ImGui::InputFloat("##MinRandomVelocityZ", &(component.DeRef()->particleEmitter.minVelocityZ));
+			ImGui::InputFloat("##MinRandomVelocityZ", &(particleEffectPointer->particleEmitter.minVelocityZ));
 			ImGui::SameLine();
 
 			ImGui::Text("Max");
 			ImGui::SameLine();
-			ImGui::InputFloat("##MaxRandomVelocityZ", &(component.DeRef()->particleEmitter.maxVelocityZ));
+			ImGui::InputFloat("##MaxRandomVelocityZ", &(particleEffectPointer->particleEmitter.maxVelocityZ));
 			ImGui::PopItemWidth();
 		}
 
@@ -864,10 +847,10 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 
 			ImGui::Text("Start Colour: ");
 			ImGui::SameLine();
-			ImVec4 startColour((component.DeRef()->startColour[0]),
-					(component.DeRef()->startColour[1]),
-					(component.DeRef()->startColour[2]),
-					(component.DeRef()->startColour[3]));
+			ImVec4 startColour((particleEffectPointer->startColour[0]),
+					(particleEffectPointer->startColour[1]),
+					(particleEffectPointer->startColour[2]),
+					(particleEffectPointer->startColour[3]));
 			ImGui::PushItemWidth(20);
 			if (ImGui::ColorButton("##ButtonStartColour", startColour))
 			{
@@ -877,7 +860,7 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 			if (ImGui::BeginPopup("##PickStartColour"))
 			{
 				ImGui::PushItemWidth(180.0f);
-				ImGui::ColorPicker4("##StartColour", (float*)&(component.DeRef()->startColour),
+				ImGui::ColorPicker4("##StartColour", (float*)&(particleEffectPointer->startColour),
 						ColourPickerFlags);
 				ImGui::PopItemWidth();
 				ImGui::EndPopup();
@@ -886,10 +869,10 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 			ImGui::SameLine();
 			ImGui::Text("End Colour: ");
 			ImGui::SameLine();
-			ImVec4 endColour((component.DeRef()->endColour[0]),
-					(component.DeRef()->endColour[1]),
-					(component.DeRef()->endColour[2]),
-					(component.DeRef()->endColour[3]));
+			ImVec4 endColour((particleEffectPointer->endColour[0]),
+					(particleEffectPointer->endColour[1]),
+					(particleEffectPointer->endColour[2]),
+					(particleEffectPointer->endColour[3]));
 			ImGui::PushItemWidth(20);
 			if (ImGui::ColorButton("##ButtonEndColour", endColour))
 			{
@@ -899,7 +882,7 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 			if (ImGui::BeginPopup("##PickEndColour"))
 			{
 				ImGui::PushItemWidth(180.0f);
-				ImGui::ColorPicker4("##EndColour", (float*)&(component.DeRef()->endColour), ColourPickerFlags);
+				ImGui::ColorPicker4("##EndColour", (float*)&(particleEffectPointer->endColour), ColourPickerFlags);
 				ImGui::PopItemWidth();
 				ImGui::EndPopup();
 			}
@@ -909,13 +892,13 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 			ImGui::Text("Shade by: ");
 			ImGui::SameLine(_textWidthParticleEffectComponentSmall - 30);
 			ImGui::PushItemWidth(80);
-			if (ImGui::BeginCombo("##ShadeByCombo", component.DeRef()->shadeBy.c_str()))
+			if (ImGui::BeginCombo("##ShadeByCombo", particleEffectPointer->shadeBy.c_str()))
 			{
 				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
 				{
-					bool is_selected = (component.DeRef()->shadeBy == items[n]);
+					bool is_selected = (particleEffectPointer->shadeBy == items[n]);
 					if (ImGui::Selectable(items[n].c_str(), is_selected))
-						component.DeRef()->shadeBy = items[n];
+						particleEffectPointer->shadeBy = items[n];
 					if (is_selected)
 						ImGui::SetItemDefaultFocus();
 				}
@@ -924,30 +907,30 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 			ImGui::SameLine();
 			ImGui::Text("Min");
 			float maxVal = 100.0f;
-			if (component.DeRef()->shadeBy == "Life")
+			if (particleEffectPointer->shadeBy == "Life")
 			{
-				maxVal = component.DeRef()->particleEmitter.respawnLifetime;
-				if (component.DeRef()->maxShadeValue > maxVal)
-					component.DeRef()->maxShadeValue = maxVal;
-				if (component.DeRef()->minShadeValue > maxVal)
-					component.DeRef()->minShadeValue = maxVal;
+				maxVal = particleEffectPointer->particleEmitter.respawnLifetime;
+				if (particleEffectPointer->maxShadeValue > maxVal)
+					particleEffectPointer->maxShadeValue = maxVal;
+				if (particleEffectPointer->minShadeValue > maxVal)
+					particleEffectPointer->minShadeValue = maxVal;
 			}
 			ImGui::SameLine();
 			ImGui::PushItemWidth(50);
-			ImGui::SliderFloat("##MinShadeValue", &component.DeRef()->minShadeValue, 0.f, maxVal, "%.3f",
+			ImGui::SliderFloat("##MinShadeValue", &particleEffectPointer->minShadeValue, 0.f, maxVal, "%.3f",
 					ImGuiSliderFlags_None);
 			ImGui::PopItemWidth();
 			ImGui::SameLine();
 			ImGui::Text("Max");
 			ImGui::SameLine();
 			ImGui::PushItemWidth(50);
-			ImGui::SliderFloat("##MaxShadeValue", &component.DeRef()->maxShadeValue, 0.f, maxVal, "%.3f",
+			ImGui::SliderFloat("##MaxShadeValue", &particleEffectPointer->maxShadeValue, 0.f, maxVal, "%.3f",
 					ImGuiSliderFlags_None);
 			ImGui::PopItemWidth();
 
 			char textureBuffer[64];
-			if (component.DeRef()->particleEmitter.texture.DeRef() != nullptr)
-				strcpy(textureBuffer, component.DeRef()->particleEmitter.texture.DeRef()->fileName.c_str());
+			if (particleEffectPointer->particleEmitter.texture.DeRef() != nullptr)
+				strcpy(textureBuffer, particleEffectPointer->particleEmitter.texture.DeRef()->fileName.c_str());
 			else
 				memset(textureBuffer, 0, 64 * sizeof(char));
 			ImGui::Text("%s", "Texture:");
@@ -962,30 +945,26 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 				ImGui::OpenPopup("Select Particle Effect Texture");
 			}
 			{
-				auto [success, asset] = _assetHelper->PickAssetGUIWindow<Texture>("Select Particle Effect Texture");
+				auto [success, asset] = AssetHelper::PickAssetGUIWindow<Texture>("Select Particle Effect Texture");
 				if (success)
-					component.DeRef()->particleEmitter.texture = asset;
+					particleEffectPointer->particleEmitter.texture = asset;
 			}
 			ImGui::SameLine();
-			ImGui::Checkbox("##UseParticleEffectTexture", &(component.DeRef()->useTexture));
+			ImGui::Checkbox("##UseParticleEffectTexture", &(particleEffectPointer->useTexture));
 
 			ImGui::Text("Number of Rows: ");
 			ImGui::SameLine();
-			ImGui::InputInt("##NumberOfRowsInTexture", &(component.DeRef()->particleEmitter.numRowsInTexture));
+			ImGui::InputInt("##NumberOfRowsInTexture", &(particleEffectPointer->particleEmitter.numRowsInTexture));
 			ImGui::Text("Number of Columns: ");
 			ImGui::SameLine();
-			ImGui::InputInt("##NumberOfColsInTexture", &(component.DeRef()->particleEmitter.numColsInTexture));
+			ImGui::InputInt("##NumberOfColsInTexture", &(particleEffectPointer->particleEmitter.numColsInTexture));
 		}
 	}
 }
 
-void InspectorWindow::ShowAudioComponent(Scene& scene)
+void InspectorWindow::ShowAudioComponent(SavedReference<AudioComponent>& reference)
 {
-	auto obj = _sceneEditor->GetSelectedGameobject();
-	SavedReference<AudioComponent> audioComponent = obj.DeRef()->GetComponent<AudioComponent>();
-	if (!audioComponent)
-		return;
-	AudioComponent* audioComponentPointer = audioComponent.DeRef().get();
+	AudioComponent* audioComponentPointer = reference.DeRef().get();
 
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_TABLE_CELLS "  Audio", ImGuiTreeNodeFlags_AllowItemOverlap);
@@ -994,7 +973,7 @@ void InspectorWindow::ShowAudioComponent(Scene& scene)
 	if (ImGui::Button("X##RemoveRenderComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(audioComponent);
+		Application::Instance->scene.RemoveComponent(reference);
 		return;
 	}
 	if (isHeaderOpen)
@@ -1025,38 +1004,37 @@ void InspectorWindow::ShowAudioComponent(Scene& scene)
 
 		if (ImGui::Button("Play"))
 		{
-			obj.DeRef()->GetComponent<AudioComponent>().DeRef()->Play();
+			audioComponentPointer->Play();
 		}
 
-		auto [success, asset] = _assetHelper->PickAssetGUIWindow<AudioClip>(SELECT_AUDIO_CLIP);
+		auto [success, asset] = AssetHelper::PickAssetGUIWindow<AudioClip>(SELECT_AUDIO_CLIP);
 		if (success)
 		{
-			obj.DeRef()->GetComponent<AudioComponent>().DeRef()->audioClip = asset;
+			audioComponentPointer->audioClip = asset;
 		}
 	}
 }
 
-void InspectorWindow::ShowAnimationComponent(Scene& scene)
+void InspectorWindow::ShowAnimationComponent(SavedReference<AnimationComponent>& reference)
 {
 	ImGui::Separator();
 	char meshBuffer[64];
 	char textureBuffer[64];
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_TABLE_CELLS "  Animation", ImGuiTreeNodeFlags_AllowItemOverlap);
-	auto obj = _sceneEditor->GetSelectedGameobject();
 
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveAnimationComponent"))
 	{
 		// remove component
-		scene.RemoveComponent(obj.DeRef()->GetComponent<AnimationComponent>());
+		Application::Instance->scene.RemoveComponent(reference);
 		return;
 	}
 	if (isHeaderOpen)
 	{
 
 		// store pointer of renderComponent
-		AnimationComponent* animationComponentPointer = obj.DeRef()->GetComponent<AnimationComponent>().DeRef().get();
+		AnimationComponent* animationComponentPointer = reference.DeRef().get();
 
 		bool isDisplayed = animationComponentPointer->GetIsDisplay();
 		if (ImGui::Checkbox("Display Animation", &isDisplayed))
@@ -1082,11 +1060,11 @@ void InspectorWindow::ShowAnimationComponent(Scene& scene)
 	}
 }
 
-void InspectorWindow::ShowAddComponent(Scene& scene)
+void InspectorWindow::ShowAddComponent()
 {
 	if (ImGui::BeginChild("ComponentSelector"))
 	{
-		auto& obj = _sceneEditor->GetSelectedGameobject();
+		auto& obj = Application::Instance->sceneEditor.GetSelectedGameobject();
 
 		const char* components[] = {
 				"Mesh Render Component",
@@ -1138,45 +1116,45 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 			if (strcmp(selectedComponent, "Mesh Render Component") == 0)
 			{
 				// Add Render Component
-				scene.AddComponent<MeshRender>(obj);
+				Application::Instance->scene.AddComponent<MeshRender>(obj);
 			}
 			else if (strcmp(selectedComponent, "Transform Component") == 0)
 			{
 				// Add Transform Component
-				scene.AddComponent<Transform>(obj);
+				Application::Instance->scene.AddComponent<Transform>(obj);
 			}
 			else if (strcmp(selectedComponent, "Camera Component") == 0)
 			{
-				scene.AddComponent<Camera>(obj);
+				Application::Instance->scene.AddComponent<Camera>(obj);
 			}
 			else if (strcmp(selectedComponent, "RigidBody Component") == 0)
 			{
-				scene.AddComponent<RigidBody>(obj);
+				Application::Instance->scene.AddComponent<RigidBody>(obj);
 			}
 			else if (strcmp(selectedComponent, "BoxCollider Component") == 0)
 			{
-				scene.AddComponent<BoxCollider>(obj);
+				Application::Instance->scene.AddComponent<BoxCollider>(obj);
 			}
 			else if (strcmp(selectedComponent, "SphereCollider Component") == 0)
 			{
-				scene.AddComponent<SphereCollider>(obj);
+				Application::Instance->scene.AddComponent<SphereCollider>(obj);
 			}
 			else if (strcmp(selectedComponent, "CapsuleCollider Component") == 0)
 			{
-				scene.AddComponent<CapsuleCollider>(obj);
+				Application::Instance->scene.AddComponent<CapsuleCollider>(obj);
 			}
 			else if (strcmp(selectedComponent, "Particle Effect Component") == 0)
 			{
 				// Add Particle Effect Component
-				scene.AddComponent<ParticleEffect>(obj);
+				Application::Instance->scene.AddComponent<ParticleEffect>(obj);
 			}
 			else if (strcmp(selectedComponent, "Audio Component") == 0)
 			{
-				scene.AddComponent<AudioComponent>(obj);
+				Application::Instance->scene.AddComponent<AudioComponent>(obj);
 			}
 			else if (strcmp(selectedComponent, "Animation Component") == 0)
 			{
-				scene.AddComponent<AnimationComponent>(obj);
+				Application::Instance->scene.AddComponent<AnimationComponent>(obj);
 
 				if(obj.DeRef()->GetComponent<MeshRender>())
 				{

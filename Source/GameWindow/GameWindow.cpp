@@ -3,10 +3,10 @@
 //
 
 #include <GameWindow/GameWindow.h>
-#include <ComponentComposition/MeshRender.h>
 #include <ComponentComposition/Camera.h>
 #include <IconsFontAwesome6.h>
 #include <Application.h>
+#include <SceneManager/SceneWithTemplates.h>
 
 namespace PlatinumEngine
 {
@@ -70,10 +70,9 @@ namespace PlatinumEngine
 
 	void PlatinumEngine::GameWindow::Update()
 	{
-		double deltaTime = Application::Instance->time.GetDelta();
-		Application::Instance->scene.Update(deltaTime);
+		Application::Instance->scene.Update();
 		// Physics must be after scene.
-		Application::Instance->physics.Update(deltaTime);
+		Application::Instance->physics.Update();
 	}
 
 	void GameWindow::Render(ImVec2 targetSize)
@@ -155,7 +154,7 @@ namespace PlatinumEngine
 					_hasWarningBeenShown = true;
 				}
 			}
-			Application::Instance->scene.Render(Application::Instance->renderer);
+			Application::Instance->scene.Render();
 			Application::Instance->renderer.End();
 
 			// unbind framebuffer

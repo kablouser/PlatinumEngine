@@ -28,10 +28,6 @@
 #include <Physics/Physics.h>
 
 
-//Asset Helper
-#include "AssetDatabase/AssetHelper.h"
-
-
 namespace PlatinumEngine
 {
 	class SceneEditor

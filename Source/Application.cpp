@@ -3,17 +3,24 @@
 
 namespace PlatinumEngine
 {
-	Application* Application::Instance = nullptr;
-
-	Application::Application()
+	Application::InstanceSetter::InstanceSetter(Application* newInstance)
 	{
 		assert(Instance == nullptr && "Only a single instance allowed at a time");
-		Instance = this;
+		Instance = newInstance;
+	}
+	Application::InstanceSetter::~InstanceSetter()
+	{
+		assert(Instance != nullptr);
+		Instance = nullptr;
+	}
+
+	Application* Application::Instance = nullptr;
+
+	Application::Application() : _instanceSetter(this)
+	{
 	}
 
 	Application::~Application()
 	{
-		assert(Instance == this);
-		Instance = nullptr;
 	}
 }
