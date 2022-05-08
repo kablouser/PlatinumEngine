@@ -3,21 +3,15 @@
 //
 #pragma once
 
-#include <OpenGL/Mesh.h>
-#include <OpenGL/Texture.h>
-#include <AssetDatabase/AssetDatabase.h>
-#include <IDSystem/IDSystem.h>
 #include <imgui.h>
 #include <IconsFontAwesome6.h>
 #include <tuple>
+#include <Application.h>
 
 namespace PlatinumEngine
 {
-	class AssetHelper
+	namespace AssetHelper
 	{
-	public:
-		AssetHelper(AssetDatabase* assetDatabase, IDSystem& idSystem);
-
 		/**
 		 * Shows an ImGui popup window with every asset loaded in with the select type T.
 		 * @tparam T type to show in popup list
@@ -40,7 +34,7 @@ namespace PlatinumEngine
 				{
 					isAssetSelected = true;
 				}
-				for (AssetWithType<T>& assetWithType: _assetDatabase->GetAssets<T>())
+				for (AssetWithType<T>& assetWithType: Application::Instance->assetDatabase.GetAssets<T>())
 				{
 					std::string assetPath = assetWithType.asset.path.string();
 					if (filter.PassFilter(assetPath.c_str()))
@@ -48,7 +42,7 @@ namespace PlatinumEngine
 						if (ImGui::Selectable(assetPath.c_str()))
 						{
 							isAssetSelected = true;
-							assetReference = std::move(assetWithType.GetSavedReference(_idSystem));
+							assetReference = std::move(assetWithType.GetSavedReference(Application::Instance->idSystem));
 						}
 					}
 				}
@@ -60,17 +54,12 @@ namespace PlatinumEngine
 		template<typename T>
 		std::tuple<bool, SavedReference<T>> GetAsset(std::string filePath)
 		{
-			auto [success, asset] =
-					_assetDatabase->GetAsset(filePath);
+			auto [success, asset] =	Application::Instance->assetDatabase.GetAsset(filePath);
 
 			if (success)
-				return {true ,_idSystem.GetSavedReference<T>(asset->id)};
+				return {true ,Application::Instance->idSystem.GetSavedReference<T>(asset->id)};
 			else
 				return {false, {}};
 		}
-
-	private:
-		AssetDatabase* _assetDatabase;
-		IDSystem& _idSystem;
 	};
 }

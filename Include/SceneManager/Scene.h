@@ -28,17 +28,13 @@ namespace PlatinumEngine
 
 	public:
 
-		IDSystem& idSystem;
-		Physics& physics;
-		Time& time;
-
 		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Constructors/destructors
 		//--------------------------------------------------------------------------------------------------------------
 
-		explicit Scene(IDSystem& idSystem, Physics& physics, Time& time);
+		Scene();
 
 		~Scene();
 
@@ -195,9 +191,8 @@ namespace PlatinumEngine
 		/**
 		 * Please call when you want to render the scene.
 		 * Respects hierarchy order and objects that are "enabled in hierarchy".
-		 * @param renderer target location for rendering
 		 */
-		void Render(Renderer& renderer);
+		void Render();
 
 		/**
 		 * Call after IDSystem has been deleted from
@@ -248,7 +243,7 @@ namespace PlatinumEngine
 		/**
 		 * Broadcasts OnRender event to the input gameObject and all of its' children iff "enabled in hierarchy".
 		 */
-		void BroadcastOnRender(SavedReference<GameObject>& gameObject, Renderer& renderer);
+		void BroadcastOnRender(SavedReference<GameObject>& gameObject);
 
 		/**
 		 * Broadcasts UpdateIsEnabledInHierarchy event to the input gameObject and all of its' children

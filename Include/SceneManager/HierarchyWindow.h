@@ -31,12 +31,11 @@ namespace PlatinumEngine
 		/**
 		 * Function that show Hierarchy window
 		 * @param isOpen : status of this window (open or not)
-		 * @param scene : scene object reference that carries the game object hierarchy structure
 		 */
-		void ShowGUIWindow(bool* isOpen, Scene& scene);
+		void ShowGUIWindow(bool* isOpen);
 
 		// ---> CONSTRUCTOR
-		HierarchyWindow(SceneEditor* sceneEditor, AssetHelper* assetHelper);
+		HierarchyWindow();
 
 		// ---> PARAMETER
 
@@ -53,12 +52,9 @@ namespace PlatinumEngine
 		 */
 		void DisplayTreeNote(
 				SavedReference<GameObject>& gameObject,
-				Scene& scene,
 				ModeForDraggingBehavior modeForDraggingBehavior);
 
 		// ---> PARAMETER
 		ModeForDraggingBehavior _modeForDraggingBehavior;
-		SceneEditor* _sceneEditor;
-		AssetHelper* _assetHelper;
 	};
 }
