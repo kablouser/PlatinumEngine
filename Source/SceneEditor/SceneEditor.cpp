@@ -158,25 +158,33 @@ namespace PlatinumEngine{
 				ImGui::SetTooltip("turn on or off the gizmo");
 
 			ImGui::SameLine();
-			if (ImGui::RadioButton(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT "##Translate", _currentGizmoOperation == ImGuizmo::TRANSLATE))
+			ImGui::Text(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT);
+			ImGui::SameLine();
+			if (ImGui::RadioButton("##Translate", _currentGizmoOperation == ImGuizmo::TRANSLATE))
 				_currentGizmoOperation = ImGuizmo::TRANSLATE;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("Translate");
 
 			ImGui::SameLine();
-			if (ImGui::RadioButton(ICON_FA_ROTATE "##Rotate", _currentGizmoOperation == ImGuizmo::ROTATE))
+			ImGui::Text(ICON_FA_ROTATE);
+			ImGui::SameLine();
+			if (ImGui::RadioButton("##Rotate", _currentGizmoOperation == ImGuizmo::ROTATE))
 				_currentGizmoOperation = ImGuizmo::ROTATE;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("Rotate");
 
 			ImGui::SameLine();
-			if (ImGui::RadioButton(ICON_FA_MAXIMIZE "##Scale", _currentGizmoOperation == ImGuizmo::SCALE))
+			ImGui::Text(ICON_FA_MAXIMIZE);
+			ImGui::SameLine();
+			if (ImGui::RadioButton("##Scale", _currentGizmoOperation == ImGuizmo::SCALE))
 				_currentGizmoOperation = ImGuizmo::SCALE;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("Scale");
 
 			ImGui::SameLine();
-			if (ImGui::RadioButton( ICON_FA_SLIDERS "##Universal", _currentGizmoOperation == ImGuizmo::UNIVERSAL))
+			ImGui::Text(ICON_FA_SLIDERS);
+			ImGui::SameLine();
+			if (ImGui::RadioButton("##Universal", _currentGizmoOperation == ImGuizmo::UNIVERSAL))
 				_currentGizmoOperation = ImGuizmo::UNIVERSAL;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("translate, rotate and scale");
@@ -225,11 +233,16 @@ namespace PlatinumEngine{
 			{
 				_enableSkyBox = !_enableSkyBox;
 			}
-
-			ImGui::SameLine();
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("turn on or off the skybox");
-			ImGui::Checkbox("Bound Sizing", &_boundSizing);
+
+			ImGui::SameLine();
+			ImGui::Text("Bound Sizing");
+			ImGui::SameLine();
+			ImGui::Checkbox("##BoundSizing", &_boundSizing);
+			if(ImGui::IsItemHovered())
+				ImGui::SetTooltip("Bound Sizing");
+
 			//-------------
 			// Sub window
 			//-------------
