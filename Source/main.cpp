@@ -180,6 +180,8 @@ int main(int, char**)
 			glfwSwapBuffers(window);
 		}
 
+		PLATINUM_INFO("Platinum Engine Ended.");
+
 		// Cleanup ImGui
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();

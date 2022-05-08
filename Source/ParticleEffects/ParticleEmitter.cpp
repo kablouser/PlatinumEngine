@@ -4,6 +4,7 @@
 
 #include <ParticleEffects/ParticleEmitter.h>
 #include <algorithm>
+#include <Maths/Common.h>
 
 namespace PlatinumEngine
 {
@@ -47,7 +48,6 @@ namespace PlatinumEngine
 			// Allocate enough space for all our particles, and so we can index into it straight away
 			_particleContainer = std::make_unique<std::vector<Particle>>(MaxParticles);
 			particles = std::make_unique<std::vector<Particle>>();
-			_mt = std::mt19937(_rd());
 		}
 
 		/**
@@ -158,32 +158,18 @@ namespace PlatinumEngine
 		{
 			// Respawn by resetting values
 			// Init velocity values
-			float xVelocity = (useRandomInitVelocityX) ? GetRandomFloat(minVelocityX, maxVelocityX) : initVelocity.x;
-			float yVelocity = (useRandomInitVelocityY) ? GetRandomFloat(minVelocityY, maxVelocityY) : initVelocity.y;
-			float zVelocity = (useRandomInitVelocityZ) ? GetRandomFloat(minVelocityZ, maxVelocityZ) : initVelocity.z;
+			float xVelocity = (useRandomInitVelocityX) ? Maths::Random::GetRandom(minVelocityX, maxVelocityX, !useUniformInitVelocityX) : initVelocity.x;
+			float yVelocity = (useRandomInitVelocityY) ? Maths::Random::GetRandom(minVelocityY, maxVelocityY, !useUniformInitVelocityY) : initVelocity.y;
+			float zVelocity = (useRandomInitVelocityZ) ? Maths::Random::GetRandom(minVelocityZ, maxVelocityZ, !useUniformInitVelocityZ) : initVelocity.z;
 			p.velocity = Maths::Vec3(xVelocity, yVelocity, zVelocity);
 
 			// Init position
-			float xPosition = (useRandomInitPositionX) ? GetRandomFloat(minPositionX, maxPositionX) : 0.0f;
-			float yPosition = (useRandomInitPositionY) ? GetRandomFloat(minPositionY, maxPositionY)  : 0.0f;
-			float zPosition = (useRandomInitPositionZ) ? GetRandomFloat(minPositionZ, maxPositionZ)  : 0.0f;
+			float xPosition = (useRandomInitPositionX) ? Maths::Random::GetRandom(minPositionX, maxPositionX, !useUniformRandomPositionX) : 0.0f;
+			float yPosition = (useRandomInitPositionY) ? Maths::Random::GetRandom(minPositionY, maxPositionY, !useUniformRandomPositionY)  : 0.0f;
+			float zPosition = (useRandomInitPositionZ) ? Maths::Random::GetRandom(minPositionZ, maxPositionZ, !useUniformRandomPositionZ)  : 0.0f;
 			p.position = Maths::Vec3(xPosition, yPosition, zPosition);
 
 			p.life = respawnLifetime;
-		}
-
-		/**
-		 * Simple random number generator to generate a float between two values
-		 * @param min
-		 * @param max
-		 * @return
-		 */
-		float ParticleEmitter::GetRandomFloat(const float min, const float max)
-		{
-			// Use next after so distribution is inclusive of max value, i.e.
-			// [min, max] instead of [min, max)
-			std::uniform_real_distribution<float> dist(min, std::nextafter(max, FLT_MAX));
-			return dist(_mt);
 		}
 	}
 }

@@ -48,7 +48,7 @@ namespace PlatinumEngine
 		///ifs in main menu window list to call the function inside
 		///-----------------------------------------------------------------------
 		//window section
-		_gameWindow->ShowGUIWindow(&_showWindowGame);
+		if (_showWindowGame)			_gameWindow->ShowGUIWindow(&_showWindowGame);
 		if (_showWindowScene) 			ShowWindowScene(&_showWindowScene);
 		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy, scene);
 		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector, scene);
@@ -240,22 +240,25 @@ namespace PlatinumEngine
 				scene.AddComponent<Transform>(obj);
 				_sceneEditor->SetSelectedGameobject(obj);
 			}
-			if (ImGui::MenuItem("Light"))
+			if (ImGui::MenuItem(ICON_FA_LIGHTBULB " Light"))
 			{}
-			if (ImGui::BeginMenu(ICON_FA_FIRE " Particle Effects"))
+			if (ImGui::BeginMenu("Particle Effects"))
 			{
-				if (ImGui::MenuItem("Light"))
+				if (ImGui::MenuItem(ICON_FA_FIRE " Basic Effect"))
 				{
 					auto obj = scene.AddGameObject("Particle Effect");
 					scene.AddComponent<ParticleEffect>(obj);
 					scene.AddComponent<Transform>(obj);
 					_sceneEditor->SetSelectedGameobject(obj);
 				}
-				if (ImGui::MenuItem("Light"))
+				if (ImGui::MenuItem(ICON_FA_BURST " Single Point Effect"))
 				{
 					auto obj = scene.AddGameObject("Particle Effect");
 					auto component = scene.AddComponent<ParticleEffect>(obj);
-//					component.DeRef()->particleEmitter.
+					component.DeRef()->particleEmitter.useRandomInitVelocityX = false;
+					component.DeRef()->particleEmitter.useRandomInitVelocityZ = false;
+					component.DeRef()->particleEmitter.initVelocity = {0.0f, 0.0f, 0.0f};
+					component.DeRef()->particleEmitter.actingForce = {0.0f, 0.0f, 0.0f};
 					scene.AddComponent<Transform>(obj);
 					_sceneEditor->SetSelectedGameobject(obj);
 				}
@@ -293,7 +296,7 @@ namespace PlatinumEngine
 				scene.AddComponent<SphereCollider>(sphere);
 			}
 
-			if (ImGui::MenuItem("Capsule"))
+			if (ImGui::MenuItem(ICON_FA_CAPSULES " Capsule"))
 			{
 				std::filesystem::path capsulePath = "./Assets/Meshes/Capsule.obj";
 				auto [success, asset] = _assetHelper->GetAsset<Mesh>(capsulePath.string());

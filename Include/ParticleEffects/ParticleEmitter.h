@@ -36,8 +36,11 @@ namespace PlatinumEngine
 
 			// Position Settings
 			bool useRandomInitPositionX = false;
+			bool useUniformRandomPositionX = true;
 			bool useRandomInitPositionY = false;
+			bool useUniformRandomPositionY = true;
 			bool useRandomInitPositionZ = false;
+			bool useUniformRandomPositionZ = true;
 			float minPositionX = -1.0f;
 			float maxPositionX = 1.0f;
 			float minPositionY = -1.0f;
@@ -48,8 +51,11 @@ namespace PlatinumEngine
 			// Velocity Settings
 			Maths::Vec3 initVelocity = {0.0f, 1.0f, 0.0f};
 			bool useRandomInitVelocityX = true;
+			bool useUniformInitVelocityX = true;
 			bool useRandomInitVelocityY = false;
+			bool useUniformInitVelocityY = true;
 			bool useRandomInitVelocityZ = true;
+			bool useUniformInitVelocityZ = true;
 			float minVelocityX = -1.0f;
 			float maxVelocityX = 1.0f;
 			float minVelocityY = -1.0f;
@@ -63,15 +69,14 @@ namespace PlatinumEngine
 			int numColsInTexture = 1;
 
 			std::unique_ptr<std::vector<Particle>> particles;
+
+			bool useNormalDistribution = false;
 		private:
 			unsigned int FirstDeadParticle();
 			void RespawnParticle(Particle &p);
-			float GetRandomFloat(const float min, const float max);
 		private:
 			unsigned int _lastDeadParticle = 0;
 			float _timeSinceLastSpawn = 0.0f;
-			std::random_device _rd;
-			std::mt19937 _mt;
 			std::unique_ptr<std::vector<Particle>> _particleContainer;
 		};
 	}

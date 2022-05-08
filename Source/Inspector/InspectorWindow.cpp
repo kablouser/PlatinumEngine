@@ -143,7 +143,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 					auto[success, meshAsset] = _assetHelper->GetAsset<Mesh>(payloadPath.string());
 					if (success)
 					{
-						obj.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(meshAsset);
+						meshRender.DeRef()->SetMesh(meshAsset);
 
 						if(SavedReference<AnimationComponent> animation = obj.DeRef()->GetComponent<AnimationComponent>(); animation)
 						{
@@ -220,8 +220,8 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 					auto [success, asset] = _assetHelper->GetAsset<Texture>(payloadPath.string());
 					if (success)
 					{
-						obj.DeRef()->GetComponent<MeshRender>().DeRef()->SetMaterial(asset);
-						obj.DeRef()->GetComponent<MeshRender>().DeRef()->material.useTexture = true;
+						meshRender.DeRef()->SetMaterial(asset);
+						meshRender.DeRef()->material.useTexture = true;
 					}
 				}
 			}
@@ -261,7 +261,7 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 					//Set The texture that we dragged to the RenderComponent
 					auto [success, asset] = _assetHelper->GetAsset<Texture>(payloadPath.string());
 					if (success)
-						obj.DeRef()->GetComponent<MeshRender>().DeRef()->SetNormalMap(asset);
+						meshRender.DeRef()->SetNormalMap(asset);
 				}
 			}
 			// End DragDropTarget
@@ -285,15 +285,15 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::Separator();
 		ImGui::Text("Reflection");
 		ImGui::SameLine(_textWidth);
-		ImGui::Checkbox("##UseRelfectionShader", &(obj.DeRef()->GetComponent<MeshRender>().DeRef()->material.useReflectionShader));
+		ImGui::Checkbox("##UseRelfectionShader", &(meshRender.DeRef()->material.useReflectionShader));
 		ImGui::Text("Refraction");
 		ImGui::SameLine(_textWidth);
-		ImGui::Checkbox("##UseRefracctionShader", &(obj.DeRef()->GetComponent<MeshRender>().DeRef()->material.useRefractionShader));
+		ImGui::Checkbox("##UseRefracctionShader", &(meshRender.DeRef()->material.useRefractionShader));
 		ImGui::Text("Refraction Index");
 		ImGui::SameLine();
 		ImGui::PushItemWidth(_itemWidthMeshRenderComponent);
 		// Setting max to 4 as you start to get unpleasing results past that
-		ImGui::SliderFloat("##refractionIndex", &(obj.DeRef()->GetComponent<MeshRender>().DeRef()->material.refractionIndex), 1.0f, 4.f,
+		ImGui::SliderFloat("##refractionIndex", &(meshRender.DeRef()->material.refractionIndex), 1.0f, 4.f,
 				"%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
 	}
@@ -695,37 +695,22 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 		if (ImGui::CollapsingHeader("Emitter Settings"))
 		{
 			ImGui::Text("Maximum Particles: ");
-			// ImGui::SameLine(_textWidthParticleEffectComponent);
-			// ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
 			ImGui::SliderInt("##MaximumNumberOfParticles", &(component.DeRef()->particleEmitter.numberOfParticles), 0.f, 5000,
 					"%d", ImGuiSliderFlags_None);
-			// ImGui::PopItemWidth();
 
 			ImGui::Text("Particle Lifetime: ");
-//			ImGui::SameLine(_textWidthParticleEffectComponent);
-//			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
-
 			ImGui::SliderFloat("##RespawnLifetime: ", &(component.DeRef()->particleEmitter.respawnLifetime), 0.f, 10, "%.3f",
 					ImGuiSliderFlags_None);
-			// ImGui::PopItemWidth();
 
 			ImGui::Text("New Particles: ");
-			// ImGui::SameLine(_textWidthParticleEffectComponent);
-			// ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
 			ImGui::SliderInt("##NumberOfNewParticles", &(component.DeRef()->particleEmitter.numberOfNewParticles), 0.f, 100,
 					"%d", ImGuiSliderFlags_None);
-			// ImGui::PopItemWidth();
 
 			ImGui::Text("Spawn Interval: ");
-			// ImGui::SameLine(_textWidthParticleEffectComponent);
-			// ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
 			ImGui::SliderFloat("##SpawnIntervalParticles", &(component.DeRef()->particleEmitter.spawnInterval), 0.016f, 5,
 					"%.3f", ImGuiSliderFlags_None);
-			// ImGui::PopItemWidth();
 
-			// TODO: Don't say acting force, Maybe have acceleration and calculate it properly in emitter?
 			ImGui::Text("Acting Force: ");
-			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
 
 			ImGui::PushItemWidth(50);
 			ImGui::Text("X");
@@ -745,143 +730,177 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 
 		if (ImGui::CollapsingHeader("Particle Settings"))
 		{
-			ImGui::Text("Scale");
-			ImGui::PushItemWidth(50);
-			ImGui::Text("X");
-			ImGui::SameLine();
-			ImGui::InputFloat("##ScaleParticleX", &(component.DeRef()->particleEmitter.scaleFactors.x));
-			ImGui::SameLine();
+			// Scale
+			{
+				ImGui::Text("Scale");
+				ImGui::PushItemWidth(50);
+				ImGui::Text("X");
+				ImGui::SameLine();
+				ImGui::InputFloat("##ScaleParticleX", &(component.DeRef()->particleEmitter.scaleFactors.x));
+				ImGui::SameLine();
 
-			ImGui::Text("Y");
-			ImGui::SameLine();
-			ImGui::InputFloat("##ScaleParticleY", &(component.DeRef()->particleEmitter.scaleFactors.y));
-			ImGui::SameLine();
+				ImGui::Text("Y");
+				ImGui::SameLine();
+				ImGui::InputFloat("##ScaleParticleY", &(component.DeRef()->particleEmitter.scaleFactors.y));
+				ImGui::SameLine();
 
-			ImGui::Text("Z");
-			ImGui::SameLine();
-			ImGui::InputFloat("##ScaleParticleZ", &(component.DeRef()->particleEmitter.scaleFactors.z));
-		}
+				ImGui::Text("Z");
+				ImGui::SameLine();
+				ImGui::InputFloat("##ScaleParticleZ", &(component.DeRef()->particleEmitter.scaleFactors.z));
+			}
 
-		if (ImGui::CollapsingHeader("Position Settings"))
-		{
-			ImGui::Text("Initial Position: ");
-			ImGui::PushItemWidth(50);
-			ImGui::Text("Random X");
-			ImGui::SameLine();
-			ImGui::Checkbox("##RandomPositionX", &(component.DeRef()->particleEmitter.useRandomInitPositionX));
-			ImGui::SameLine();
+			ImGui::Separator();
 
-			ImGui::Text("Min");
-			ImGui::SameLine();
-			ImGui::InputFloat("##MinRandomPositionX", &(component.DeRef()->particleEmitter.minPositionX));
-			ImGui::SameLine();
+			// Position
+			{
+				ImGui::Text("%s", "Random Position");
+				ImGui::PushItemWidth(50);
+				ImGui::Text("X");
+				ImGui::SameLine();
+				ImGui::Checkbox("##RandomPositionX", &(component.DeRef()->particleEmitter.useRandomInitPositionX));
+				ImGui::SameLine();
 
-			ImGui::Text("Max");
-			ImGui::SameLine();
-			ImGui::InputFloat("##MaxRandomPositionX", &(component.DeRef()->particleEmitter.maxPositionX));
+				ImGui::Text("Min");
+				ImGui::SameLine();
+				ImGui::InputFloat("##MinRandomPositionX", &(component.DeRef()->particleEmitter.minPositionX));
+				ImGui::SameLine();
 
-			ImGui::Text("Random Y");
-			ImGui::SameLine();
-			ImGui::Checkbox("##RandomPositionY", &(component.DeRef()->particleEmitter.useRandomInitPositionY));
-			ImGui::SameLine();
+				ImGui::Text("Max");
+				ImGui::SameLine();
+				ImGui::InputFloat("##MaxRandomPositionX", &(component.DeRef()->particleEmitter.maxPositionX));
+				ImGui::SameLine();
 
-			ImGui::Text("Min");
-			ImGui::SameLine();
-			ImGui::InputFloat("##MinRandomPositionY", &(component.DeRef()->particleEmitter.minPositionY));
-			ImGui::SameLine();
+				ImGui::Text("%s", "Uniform");
+				ImGui::SameLine();
+				ImGui::Checkbox("##UseUniformRandomPositionX", &(component.DeRef()->particleEmitter.useUniformRandomPositionX));
 
-			ImGui::Text("Max");
-			ImGui::SameLine();
-			ImGui::InputFloat("##MaxRandomPositionY", &(component.DeRef()->particleEmitter.maxPositionY));
+				ImGui::Text("Y");
+				ImGui::SameLine();
+				ImGui::Checkbox("##RandomPositionY", &(component.DeRef()->particleEmitter.useRandomInitPositionY));
+				ImGui::SameLine();
 
-			ImGui::Text("Random Z");
-			ImGui::SameLine();
-			ImGui::Checkbox("##RandomPositionZ", &(component.DeRef()->particleEmitter.useRandomInitPositionZ));
-			ImGui::SameLine();
+				ImGui::Text("Min");
+				ImGui::SameLine();
+				ImGui::InputFloat("##MinRandomPositionY", &(component.DeRef()->particleEmitter.minPositionY));
+				ImGui::SameLine();
 
-			ImGui::Text("Min");
-			ImGui::SameLine();
-			ImGui::InputFloat("##MinRandomPositionZ", &(component.DeRef()->particleEmitter.minPositionZ));
-			ImGui::SameLine();
+				ImGui::Text("Max");
+				ImGui::SameLine();
+				ImGui::InputFloat("##MaxRandomPositionY", &(component.DeRef()->particleEmitter.maxPositionY));
+				ImGui::SameLine();
 
-			ImGui::Text("Max");
-			ImGui::SameLine();
-			ImGui::InputFloat("##MaxRandomPositionZ", &(component.DeRef()->particleEmitter.maxPositionZ));
-			ImGui::PopItemWidth();
-		}
+				ImGui::Text("%s", "Uniform");
+				ImGui::SameLine();
+				ImGui::Checkbox("##UseUniformRandomPositionY", &(component.DeRef()->particleEmitter.useUniformRandomPositionY));
 
-		if (ImGui::CollapsingHeader("Velocity Settings"))
-		{
-			ImGui::Text("Initial Velocity: ");
-			ImGui::SameLine(_textWidthParticleEffectComponentSmall);
+				ImGui::Text("Z");
+				ImGui::SameLine();
+				ImGui::Checkbox("##RandomPositionZ", &(component.DeRef()->particleEmitter.useRandomInitPositionZ));
+				ImGui::SameLine();
 
-			ImGui::PushItemWidth(50);
-			ImGui::Text("X");
-			ImGui::SameLine();
-			ImGui::InputFloat("##VelocityX", &(component.DeRef()->particleEmitter.initVelocity[0]));
-			ImGui::SameLine();
+				ImGui::Text("Min");
+				ImGui::SameLine();
+				ImGui::InputFloat("##MinRandomPositionZ", &(component.DeRef()->particleEmitter.minPositionZ));
+				ImGui::SameLine();
 
-			ImGui::Text("Y");
-			ImGui::SameLine();
-			ImGui::InputFloat("##VelocityY", &(component.DeRef()->particleEmitter.initVelocity[1]));
-			ImGui::SameLine();
+				ImGui::Text("Max");
+				ImGui::SameLine();
+				ImGui::InputFloat("##MaxRandomPositionZ", &(component.DeRef()->particleEmitter.maxPositionZ));
+				ImGui::SameLine();
 
-			ImGui::Text("Z");
-			ImGui::SameLine();
-			ImGui::InputFloat("##VelocityZ", &(component.DeRef()->particleEmitter.initVelocity[2]));
+				ImGui::Text("%s", "Uniform");
+				ImGui::SameLine();
+				ImGui::Checkbox("##UseUniformRandomPositionZ", &(component.DeRef()->particleEmitter.useUniformRandomPositionZ));
 
-			ImGui::Text("Random X");
-			ImGui::SameLine();
-			ImGui::Checkbox("##RandomVelocityX", &(component.DeRef()->particleEmitter.useRandomInitVelocityX));
-			ImGui::SameLine();
+				ImGui::PopItemWidth();
+			}
 
-			ImGui::Text("Min");
-			ImGui::SameLine();
-			ImGui::InputFloat("##MinRandomVelocityX", &(component.DeRef()->particleEmitter.minVelocityX));
-			ImGui::SameLine();
+			ImGui::Separator();
 
-			ImGui::Text("Max");
-			ImGui::SameLine();
-			ImGui::InputFloat("##MaxRandomVelocityX", &(component.DeRef()->particleEmitter.maxVelocityX));
+			// Velocity
+			{
+				ImGui::Text("%s", "Default Initial Velocity");
+				ImGui::PushItemWidth(50);
+				ImGui::Text("X");
+				ImGui::SameLine();
+				ImGui::InputFloat("##VelocityX", &(component.DeRef()->particleEmitter.initVelocity[0]));
+				ImGui::SameLine();
 
-			ImGui::Text("Random Y");
-			ImGui::SameLine();
-			ImGui::Checkbox("##RandomVelocityY", &(component.DeRef()->particleEmitter.useRandomInitVelocityY));
-			ImGui::SameLine();
+				ImGui::Text("Y");
+				ImGui::SameLine();
+				ImGui::InputFloat("##VelocityY", &(component.DeRef()->particleEmitter.initVelocity[1]));
+				ImGui::SameLine();
 
-			ImGui::Text("Min");
-			ImGui::SameLine();
-			ImGui::InputFloat("##MinRandomVelocityY", &(component.DeRef()->particleEmitter.minVelocityY));
-			ImGui::SameLine();
+				ImGui::Text("Z");
+				ImGui::SameLine();
+				ImGui::InputFloat("##VelocityZ", &(component.DeRef()->particleEmitter.initVelocity[2]));
 
-			ImGui::Text("Max");
-			ImGui::SameLine();
-			ImGui::InputFloat("##MaxRandomVelocityY", &(component.DeRef()->particleEmitter.maxVelocityY));
+				ImGui::Text("%s", "Random Velocity");
 
-			ImGui::Text("Random Z");
-			ImGui::SameLine();
-			ImGui::Checkbox("##RandomVelocityZ", &(component.DeRef()->particleEmitter.useRandomInitVelocityZ));
-			ImGui::SameLine();
+				ImGui::Text("X");
+				ImGui::SameLine();
+				ImGui::Checkbox("##RandomVelocityX", &(component.DeRef()->particleEmitter.useRandomInitVelocityX));
+				ImGui::SameLine();
 
-			ImGui::Text("Min");
-			ImGui::SameLine();
-			ImGui::InputFloat("##MinRandomVelocityZ", &(component.DeRef()->particleEmitter.minVelocityZ));
-			ImGui::SameLine();
+				ImGui::Text("Min");
+				ImGui::SameLine();
+				ImGui::InputFloat("##MinRandomVelocityX", &(component.DeRef()->particleEmitter.minVelocityX));
+				ImGui::SameLine();
 
-			ImGui::Text("Max");
-			ImGui::SameLine();
-			ImGui::InputFloat("##MaxRandomVelocityZ", &(component.DeRef()->particleEmitter.maxVelocityZ));
-			ImGui::PopItemWidth();
+				ImGui::Text("Max");
+				ImGui::SameLine();
+				ImGui::InputFloat("##MaxRandomVelocityX", &(component.DeRef()->particleEmitter.maxVelocityX));
+				ImGui::SameLine();
+
+				ImGui::Text("%s", "Uniform");
+				ImGui::SameLine();
+				ImGui::Checkbox("##UseUniformInitVelocityX", &(component.DeRef()->particleEmitter.useUniformInitVelocityX));
+
+
+				ImGui::Text("Y");
+				ImGui::SameLine();
+				ImGui::Checkbox("##RandomVelocityY", &(component.DeRef()->particleEmitter.useRandomInitVelocityY));
+				ImGui::SameLine();
+
+				ImGui::Text("Min");
+				ImGui::SameLine();
+				ImGui::InputFloat("##MinRandomVelocityY", &(component.DeRef()->particleEmitter.minVelocityY));
+				ImGui::SameLine();
+
+				ImGui::Text("Max");
+				ImGui::SameLine();
+				ImGui::InputFloat("##MaxRandomVelocityY", &(component.DeRef()->particleEmitter.maxVelocityY));
+				ImGui::SameLine();
+
+				ImGui::Text("%s", "Uniform");
+				ImGui::SameLine();
+				ImGui::Checkbox("##UseUniformInitVelocityY", &(component.DeRef()->particleEmitter.useUniformInitVelocityY));
+
+				ImGui::Text("Z");
+				ImGui::SameLine();
+				ImGui::Checkbox("##RandomVelocityZ", &(component.DeRef()->particleEmitter.useRandomInitVelocityZ));
+				ImGui::SameLine();
+
+				ImGui::Text("Min");
+				ImGui::SameLine();
+				ImGui::InputFloat("##MinRandomVelocityZ", &(component.DeRef()->particleEmitter.minVelocityZ));
+				ImGui::SameLine();
+
+				ImGui::Text("Max");
+				ImGui::SameLine();
+				ImGui::InputFloat("##MaxRandomVelocityZ", &(component.DeRef()->particleEmitter.maxVelocityZ));
+				ImGui::SameLine();
+
+				ImGui::Text("%s", "Uniform");
+				ImGui::SameLine();
+				ImGui::Checkbox("##UseUniformInitVelocityZ", &(component.DeRef()->particleEmitter.useUniformInitVelocityZ));
+
+				ImGui::PopItemWidth();
+			}
 		}
 
 		if (ImGui::CollapsingHeader("Shader Settings"))
 		{
-			// TODO: Scale shading stuff
-
-			ImGui::Text("%s", "Use Cylinder billboard");
-			ImGui::SameLine();
-			ImGui::Checkbox("##Use Cylinder billboard", &(component.DeRef()->particleEmitter.useCylindricalBillboard));
-
 			auto ColourPickerFlags =
 					ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_AlphaBar;
 
@@ -998,6 +1017,10 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 			ImGui::Text("Number of Columns: ");
 			ImGui::SameLine();
 			ImGui::InputInt("##NumberOfColsInTexture", &(component.DeRef()->particleEmitter.numColsInTexture));
+
+			ImGui::Text("%s", "Use Cylinder billboard");
+			ImGui::SameLine();
+			ImGui::Checkbox("##Use Cylinder billboard", &(component.DeRef()->particleEmitter.useCylindricalBillboard));
 		}
 	}
 }
@@ -1014,7 +1037,7 @@ void InspectorWindow::ShowAudioComponent(Scene& scene)
 	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_TABLE_CELLS "  Audio", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
-	if (ImGui::Button("X##RemoveRenderComponent"))
+	if (ImGui::Button("X##RemoveAudioComponent"))
 	{
 		// remove component
 		scene.RemoveComponent(audioComponent);
