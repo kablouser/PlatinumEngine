@@ -1001,16 +1001,17 @@ void InspectorWindow::ShowAudioComponent(Scene& scene)
 		ImGui::Text("Audio");
 		ImGui::SameLine(_textWidthAudioComponent);
 		ImGui::PushItemWidth(_itemWidthAudioComponent);
-		AudioComponent* ac = obj->GetComponent<AudioComponent>();
 
 		// store the current audio name into audio buffer, so that we can display it in the input text box
-		if(ac != nullptr)
-			strcpy(sampleBuffer,  ac->fileName.c_str());
+		std::string emptyString;
+		std::string* audioClipName = nullptr;
+		if(audioComponentPointer->audioClip)
+			audioClipName = &audioComponentPointer->audioClip.DeRef()->fileName;
 		else
 			audioClipName = &emptyString;
 
 		// show text box (read only)
-		ImGui::InputText("##Sample Name",sampleBuffer,sizeof(sampleBuffer), ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputText("##Sample Name",audioClipName->data(),audioClipName->size(), ImGuiInputTextFlags_ReadOnly);
 		if (ImGui::BeginDragDropTarget())
 		{
 			//Accept any regular file (but it will check if it is texture or not)
@@ -1021,9 +1022,9 @@ void InspectorWindow::ShowAudioComponent(Scene& scene)
 				if(payloadPath.extension()==".wav")
 				{
 					//Set the sample that we dragged to the AudioComponent
-					auto asset_Helper = _assetHelper->GetAudioAsset(payloadPath.string());
+					auto asset_Helper = _assetHelper->GetAsset<AudioClip>(payloadPath.string());
 					if (std::get<0>(asset_Helper))
-						obj->GetComponent<AudioComponent>()->LoadSample(std::get<1>(asset_Helper));
+						obj.DeRef()->GetComponent<AudioComponent>().DeRef()->audioClip = (std::get<1>(asset_Helper));
 				}
 			}
 			// End DragDropTarget
@@ -1041,35 +1042,35 @@ void InspectorWindow::ShowAudioComponent(Scene& scene)
 
 		if (ImGui::Button("Play"))
 		{
-			obj.DeRef()->GetComponent<AudioComponent>().DeRef()->Play();
+			audioComponentPointer->Play();
 		}
 		ImGui::SameLine();
 		if(ImGui::Button("Pause"))
 		{
-			ac->Pause();
+			audioComponentPointer->Pause();
 		}
 		ImGui::SameLine();
 		if(ImGui::Button("Stop"))
 		{
-			ac->Stop();
+			audioComponentPointer->Stop();
 		}
 
-		if(ImGui::Checkbox("Looping",&ac->isLooping))
+		if(ImGui::Checkbox("Looping",&audioComponentPointer->isLooping))
 		{
-			if(ac->IsPlaying())
-				ac->Stop();
+			if(audioComponentPointer->IsPlaying())
+				audioComponentPointer->Stop();
 		}
 
-		int volume = ac->GetVolume();
+		int volume = audioComponentPointer->GetVolume();
 		ImGui::SliderInt("Volume", &volume, 0, 128);
-		ac->SetVolume(volume);
+		audioComponentPointer->SetVolume(volume);
 
-		int panning = ac->GetPanning();
+		int panning = audioComponentPointer->GetPanning();
 		std::string panningLabel = (panning==127)?"C":((panning>127)?"R: "+std::to_string(panning-127):"L: "+std::to_string(127-panning));
 		ImGui::SliderInt("Panning", &panning, 0, 254, panningLabel.c_str());
-		ac->SetPanning(panning);
+		audioComponentPointer->SetPanning(panning);
 
-		int channel = ac->GetChannel();
+		int channel = audioComponentPointer->GetChannel();
 		ImGui::Text("CHANNEL: %d",channel);
 
 		auto [success, asset] = _assetHelper->PickAssetGUIWindow<AudioClip>(SELECT_AUDIO_CLIP);

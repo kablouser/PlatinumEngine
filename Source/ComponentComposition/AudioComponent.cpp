@@ -1,41 +1,17 @@
 #include <ComponentComposition/AudioComponent.h>
-#include <SceneManager/Scene.h>
 
 namespace PlatinumEngine
 {
-	AudioComponent::AudioComponent(std::string sample, bool loop):
-		_sample(sample), isLooping(loop)
+	AudioComponent::AudioComponent():
+		isLooping(false), _isPaused(false), _isPlaying(false), _panning(127)
 	{
-		_sound = nullptr;
-		_isPaused = false;
-		_isPlaying = false;
-		_panning = 127;
 		if(!AllocateChannel())
 			PLATINUM_WARNING("Could not allocate a channel");
-		LoadSample(_sample);
 	}
 
 	AudioComponent::~AudioComponent()
 	{
 		_allocatedChannel[_channel] = false;
-		Mix_FreeChunk(_sound);
-	}
-
-	void AudioComponent::LoadSample(std::string sample)
-	{
-		_sample = sample;
-		fileName = std::filesystem::path(_sample).filename().string();
-		if(_sample=="")
-		{
-			PLATINUM_WARNING("Audio sample missing");
-			return;
-		}
-		_sound = Mix_LoadWAV(_sample.c_str());
-		if(_sound==nullptr)
-		{
-			std::string err = Mix_GetError();
-			PLATINUM_ERROR("Chunk load error: " + err);
-		}
 	}
 
 	void AudioComponent::Play()
@@ -95,24 +71,14 @@ namespace PlatinumEngine
 	void AudioComponent::SetVolume(int volume)
 	{
 		if(audioClip)
-			Mix_VolumeChunk(_sound, volume);
+			Mix_Volume(_channel, volume);
 	}
 
 	int AudioComponent::GetVolume()
 	{
 		if(audioClip)
-			return Mix_VolumeChunk(_sound, -1);
+			return Mix_Volume(_channel, -1);
 		return MIX_MAX_VOLUME;
-	}
-
-	void AudioComponent::CreateTypeInfo(TypeDatabase& typeDatabase)
-	{
-		typeDatabase.BeginTypeInfo<AudioComponent>()
-				.WithInherit<Component>()
-				.WithField<SavedReference<AudioClip>>("audioClip", PLATINUM_OFFSETOF(AudioComponent, audioClip))
-				.WithField<bool>("_isLooping", PLATINUM_OFFSETOF(AudioComponent, _isLooping))
-				.WithField<int>("_channel", PLATINUM_OFFSETOF(AudioComponent, _channel))
-				.WithField<int>("_volume", PLATINUM_OFFSETOF(AudioComponent, _volume));
 	}
 
 	void AudioComponent::SetPanning(int panValueRight)
@@ -134,11 +100,21 @@ namespace PlatinumEngine
 		return _channel;
 	}
 
-	bool AudioComponent::IsSampleExist()
+	void AudioComponent::OnIDSystemUpdate(Scene& scene)
 	{
-		if(_sound != nullptr)
-			return true;
-		return false;
+		audioClip.OnIDSystemUpdate(scene.idSystem);
+	}
+
+	void AudioComponent::CreateTypeInfo(TypeDatabase& typeDatabase)
+	{
+		typeDatabase.BeginTypeInfo<AudioComponent>()
+				.WithInherit<Component>()
+				.WithField<SavedReference<AudioClip>>("audioClip", PLATINUM_OFFSETOF(AudioComponent, audioClip))
+				.WithField<bool>("isLooping", PLATINUM_OFFSETOF(AudioComponent, isLooping))
+				.WithField<int>("_channel", PLATINUM_OFFSETOF(AudioComponent, _channel))
+				.WithField<int>("_panning", PLATINUM_OFFSETOF(AudioComponent, _panning))
+				.WithField<bool>("_isPlaying", PLATINUM_OFFSETOF(AudioComponent, _isPlaying))
+				.WithField<bool>("_isPaused", PLATINUM_OFFSETOF(AudioComponent, _isPaused));
 	}
 
 	bool AudioComponent::IsPlaying(int channel)
@@ -173,8 +149,5 @@ namespace PlatinumEngine
 	}
 
 	std::vector<bool> AudioComponent::_allocatedChannel = std::vector<bool>(Mix_AllocateChannels(-1));
-	void AudioComponent::OnIDSystemUpdate(Scene& scene)
-	{
-		audioClip.OnIDSystemUpdate(scene.idSystem);
-	}
+
 }

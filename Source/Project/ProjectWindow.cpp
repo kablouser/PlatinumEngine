@@ -263,23 +263,21 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 				}
 				if(dir.extension()==".wav")
 				{
-					GameObject* go = _sceneEditor->GetSelectedGameobject();
-					if(go != nullptr)
+					SavedReference<GameObject> go = _sceneEditor->GetSelectedGameobject();
+					if(go.DeRef() == nullptr)
+						ImGui::CloseCurrentPopup();
+					if (ImGui::Selectable("Add Audio"))
 					{
-						if (ImGui::Selectable("Add Audio"))
+						_assetHelper->GetAsset<AudioClip>(dir.string());
+						auto asset_Helper = _assetHelper->GetAsset<AudioClip>(dir.string());
+						if (std::get<0>(asset_Helper))
 						{
-							auto asset_Helper = _assetHelper->GetAudioAsset(dir.string());
-							if (std::get<0>(asset_Helper))
-							{
-								if(go->GetComponent<AudioComponent>() == nullptr)
-								{
-									_scene->AddComponent<AudioComponent>(go);
-								}
-								go->GetComponent<AudioComponent>()->LoadSample(dir.string());
-							}
+							if(!go.DeRef()->GetComponent<AudioComponent>())
+								_scene->AddComponent<AudioComponent>(go);
+							go.DeRef()->GetComponent<AudioComponent>().DeRef()->audioClip = std::get<1>(asset_Helper);
 						}
-						ImGui::Separator();
 					}
+					ImGui::Separator();
 				}
 
 				//General file functionalities
@@ -349,15 +347,15 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 	if(filePath.extension()==".png")
 	{
 		//Grab the texture from AssetDatabase (pre-loaded, so we don't need to load again here)
-		Texture* image = new Texture;
-		auto asset_Helper = _assetHelper->GetTextureAsset(filePath.string());
+		SavedReference<Texture> image;
+		auto asset_Helper = _assetHelper->GetAsset<Texture>(filePath.string());
 		if (std::get<0>(asset_Helper))
 			image = std::get<1>(asset_Helper);
-		ImGui::Image((void*)(intptr_t)image->GetOpenGLHandle(), ImVec2(_framebufferWidth,_framebufferHeight));
+		ImGui::Image((void*)(intptr_t)image.DeRef()->GetOpenGLHandle(), ImVec2(_framebufferWidth,_framebufferHeight));
 
 		ImGui::Text("Type: IMAGE");
 
-		std::string dim = std::to_string((int)image->width)+" x "+std::to_string((int)image->height);
+		std::string dim = std::to_string((int)image.DeRef()->width)+" x "+std::to_string((int)image.DeRef()->height);
 		ImGui::Text("Dimensions: ");
 		ImGui::SameLine();
 		ImGui::Text(dim.c_str());
@@ -380,20 +378,16 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 	{
 		//Just consider that audio files are of type clip (.wav files)
 		//Just simple play/stop button to preview
+		SavedReference<AudioClip> audioSample;
+		auto asset_Helper = _assetHelper->GetAsset<AudioClip>(filePath.string());
+		if (std::get<0>(asset_Helper))
+			audioSample = std::get<1>(asset_Helper);
+
 		if(ImGui::Button("Play"))
 		{
-			Mix_Chunk* sample = Mix_LoadWAV(filePath.string().c_str());
-			if(sample==nullptr)
-			{
-				std::string err = Mix_GetError();
-				PLATINUM_ERROR("Sample load error: " + err);
-			}
-			else
-			{
-				if(Mix_Playing(-1)>0)
-					Mix_HaltChannel(-1);
-				int channel = Mix_PlayChannel(-1, sample, 0);
-			}
+			if(Mix_Playing(-1)>0)
+				Mix_HaltChannel(-1);
+			int channel = Mix_PlayChannel(-1, audioSample.DeRef()->chunk, 0);
 		}
 		ImGui::SameLine();
 		if(ImGui::Button("Stop"))
@@ -465,17 +459,17 @@ void ProjectWindow::RenderPreview(std::filesystem::path filePath)
 	_renderer->Begin();
 
 	// Get the mesh to be rendered
-	Mesh* mesh;
-	auto asset_Helper = _assetHelper->GetMeshAsset(filePath.string());
+	SavedReference<Mesh> mesh;
+	auto asset_Helper = _assetHelper->GetAsset<Mesh>(filePath.string());
 	if (std::get<0>(asset_Helper))
 		mesh = std::get<1>(asset_Helper);
 
 	// Setup shader
 	ShaderInput _shaderInput;
-	if(mesh != nullptr)
+	if(mesh)
 	{
 		_shaderInput.Clear();
-		_shaderInput.Set(mesh->vertices, mesh->indices);
+		_shaderInput.Set(mesh.DeRef()->vertices, mesh.DeRef()->indices);
 	}
 	else
 		_shaderInput.Clear();
@@ -515,7 +509,7 @@ void ProjectWindow::RenderPreview(std::filesystem::path filePath)
 		//Mouse Wheel changes zoom
 		float wheelValue = ImGui::GetIO().MouseWheel;
 		if (wheelValue != 0)
-			_previewCamera->TranslationByMouse(wheelValue);
+			_previewCamera->TranslationByKeyBoard(wheelValue,0);
 
 		// Item's properties
 		ImVec2 itemSize = ImGui::GetItemRectSize();

@@ -8,6 +8,7 @@
 #include "SDL.h"
 #include "SDL_mixer.h"
 #include <filesystem>
+#include <SceneManager/Scene.h>
 
 namespace PlatinumEngine
 {
@@ -19,8 +20,6 @@ namespace PlatinumEngine
 		SavedReference<AudioClip> audioClip;
 
 	private:
-		Mix_Chunk* _sound;
-		std::string _sample;
 		int _channel;
 		int _panning;
 		bool _isPlaying;
@@ -28,20 +27,12 @@ namespace PlatinumEngine
 		static std::vector<bool> _allocatedChannel;
 
 	public:
-		/**
-		 * Initializes an audio component with a given sample and audio type and also specify if it should loop or not
-		 * @param sample the audio sample to be played (preferably .wav)
-		 * @param type whether the audio is wave type(clip) or music (typically .mp3)
-		 * @param loop whether the audio should loop when it is played (infinite looping)
-		 */
-		AudioComponent(std::string sample = "", bool loop = false);
+		AudioComponent();
 		~AudioComponent();
 
 
 		//PUBLIC FUNCTIONS
 
-		//Loads a sample
-		void LoadSample(std::string sample);
 		// Plays the sample (Also resumes paused sample)
 		void Play();
 		// Pauses currently played sample
@@ -60,8 +51,6 @@ namespace PlatinumEngine
 		int GetPanning();
 		// Returns the allocated channel
 		int GetChannel();
-		// Returns whether a sample has been loaded or not
-		bool IsSampleExist();
 
 		void OnIDSystemUpdate(Scene& scene) override;
 

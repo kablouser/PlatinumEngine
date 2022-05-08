@@ -89,31 +89,8 @@ namespace PlatinumEngine
 			ImGui::Selectable("Duplicate Object");
 			if (ImGui::IsItemClicked())
 			{
-				GameObject* duplicateGameObject = scene.AddGameObject(gameObject->name);;
-				MeshRender* gameObjectRC = gameObject->GetComponent<MeshRender>();
-				Transform* gameObjectTC = gameObject->GetComponent<Transform>();
+				SavedReference<GameObject> duplicateGameObject = scene.AddGameObject(gameObject.DeRef()->name);
 
-				//Manual copy of parameters
-				if(gameObjectRC != nullptr)
-				{
-					scene.AddComponent<MeshRender>(duplicateGameObject);
-					MeshRender* dupObjectRC = duplicateGameObject->GetComponent<MeshRender>();
-					dupObjectRC->material.diffuseTexture = gameObjectRC->material.diffuseTexture;
-					dupObjectRC->material.normalTexture = gameObjectRC->material.normalTexture;
-					dupObjectRC->material.useTexture = gameObjectRC->material.useTexture;
-					dupObjectRC->material.useNormalTexture = gameObjectRC->material.useNormalTexture;
-					dupObjectRC->material.useBlinnPhong = gameObjectRC->material.useBlinnPhong;
-					dupObjectRC->material.shininessFactor = gameObjectRC->material.shininessFactor;
-					dupObjectRC->SetMesh(gameObjectRC->GetMesh());
-				}
-				if(gameObjectTC != nullptr)
-				{
-					scene.AddComponent<Transform>(duplicateGameObject);
-					Transform* dupObjectTC = duplicateGameObject->GetComponent<Transform>();
-					dupObjectTC->localPosition = gameObjectTC->localPosition;
-					dupObjectTC->localRotation = gameObjectTC->localRotation;
-					dupObjectTC->localScale = gameObjectTC->localScale;
-				}
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::EndPopup();

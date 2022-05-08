@@ -165,10 +165,6 @@ namespace PlatinumEngine
 			}
 		}
 
-		//Audio
-		[[nodiscard]] std::vector<AudioAssetID> GetAudioAssetIDs(bool requireExist = true) const;
-
-		std::string operator[](AudioAssetID audioAssetID);
 
 	private:
 
