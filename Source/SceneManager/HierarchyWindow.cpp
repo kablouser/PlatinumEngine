@@ -89,9 +89,7 @@ namespace PlatinumEngine
 			ImGui::Selectable("Duplicate Object");
 			if (ImGui::IsItemClicked())
 			{
-				SavedReference<GameObject> duplicateGameObject = scene.AddGameObject(gameObject.DeRef()->name);
-
-				ImGui::CloseCurrentPopup();
+				// TODO: duplicateGameObject = gameObject (Somehow?)
 			}
 			ImGui::EndPopup();
 		}

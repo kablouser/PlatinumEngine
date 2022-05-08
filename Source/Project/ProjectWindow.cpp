@@ -242,39 +242,42 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 				if(dir.extension()==".png")
 				{
 					SavedReference<GameObject> go = _sceneEditor->GetSelectedGameobject();
-					if(go.DeRef() == nullptr)
-						ImGui::CloseCurrentPopup();
-					if (ImGui::Selectable("Add Texture"))
+					if(go.DeRef() != nullptr)
 					{
-						auto asset_Helper = _assetHelper->GetAsset<Texture>(dir.string());
-						if (std::get<0>(asset_Helper))
+						if (ImGui::Selectable("Add Texture"))
 						{
-							go.DeRef()->GetComponent<MeshRender>().DeRef()->SetMaterial(std::get<1>(asset_Helper));
-							go.DeRef()->GetComponent<MeshRender>().DeRef()->material.useTexture = true;
+							auto asset_Helper = _assetHelper->GetAsset<Texture>(dir.string());
+							if (std::get<0>(asset_Helper))
+							{
+								go.DeRef()->GetComponent<MeshRender>().DeRef()->SetMaterial(std::get<1>(asset_Helper));
+								go.DeRef()->GetComponent<MeshRender>().DeRef()->material.useTexture = true;
+							}
 						}
-					}
-					if (ImGui::Selectable("Add Normal"))
-					{
-						auto asset_Helper = _assetHelper->GetAsset<Texture>(dir.string());
-						if (std::get<0>(asset_Helper))
-							go.DeRef()->GetComponent<MeshRender>().DeRef()->SetNormalMap(std::get<1>(asset_Helper));
+						if (ImGui::Selectable("Add Normal"))
+						{
+							auto asset_Helper = _assetHelper->GetAsset<Texture>(dir.string());
+							if (std::get<0>(asset_Helper))
+								go.DeRef()->GetComponent<MeshRender>().DeRef()->SetNormalMap(std::get<1>(asset_Helper));
+						}
 					}
 					ImGui::Separator();
 				}
 				if(dir.extension()==".wav")
 				{
 					SavedReference<GameObject> go = _sceneEditor->GetSelectedGameobject();
-					if(go.DeRef() == nullptr)
-						ImGui::CloseCurrentPopup();
-					if (ImGui::Selectable("Add Audio"))
+					if(go.DeRef() != nullptr)
 					{
-						_assetHelper->GetAsset<AudioClip>(dir.string());
-						auto asset_Helper = _assetHelper->GetAsset<AudioClip>(dir.string());
-						if (std::get<0>(asset_Helper))
+						if (ImGui::Selectable("Add Audio"))
 						{
-							if(!go.DeRef()->GetComponent<AudioComponent>())
-								_scene->AddComponent<AudioComponent>(go);
-							go.DeRef()->GetComponent<AudioComponent>().DeRef()->audioClip = std::get<1>(asset_Helper);
+							_assetHelper->GetAsset<AudioClip>(dir.string());
+							auto asset_Helper = _assetHelper->GetAsset<AudioClip>(dir.string());
+							if (std::get<0>(asset_Helper))
+							{
+								if (!go.DeRef()->GetComponent<AudioComponent>())
+									_scene->AddComponent<AudioComponent>(go);
+								go.DeRef()->GetComponent<AudioComponent>().DeRef()->audioClip = std::get<1>(
+										asset_Helper);
+							}
 						}
 					}
 					ImGui::Separator();
