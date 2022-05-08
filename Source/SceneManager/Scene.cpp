@@ -7,6 +7,7 @@
 #include <ComponentComposition/Component.h>
 #include <Helpers/VectorHelpers.h>
 #include <Logger/Logger.h>
+#include <Application.h>
 #include <fstream>
 
 namespace PlatinumEngine
@@ -37,11 +38,7 @@ namespace PlatinumEngine
 	// Constructors/destructors
 	//--------------------------------------------------------------------------------------------------------------
 
-	Scene::Scene(IDSystem& inIDSystem, Physics& inPhysics, Time& inTime) :
-			_isStarted(false),
-			idSystem(inIDSystem),
-			physics(inPhysics),
-			time(inTime)
+	Scene::Scene() : _isStarted(false)
 	{
 	}
 
@@ -69,10 +66,10 @@ namespace PlatinumEngine
 				End();
 
 			// first delete existing scene data
-			idSystem.Clear();
+			Application::Instance->idSystem.Clear();
 			Clear();
 			// then deserialize
-			TypeDatabase::DeserializeReturnCode code = typeDatabase->Deserialize(loadFile, &idSystem);
+			TypeDatabase::DeserializeReturnCode code = typeDatabase->Deserialize(loadFile, &Application::Instance->idSystem);
 			if (code != TypeDatabase::DeserializeReturnCode::success)
 				PLATINUM_WARNING_STREAM << "Loading ID System has return code " << (int)code;
 
@@ -98,7 +95,7 @@ namespace PlatinumEngine
 		std::ofstream saveFile(filePath);
 		if (saveFile.is_open())
 		{
-			typeDatabase->Serialize(saveFile, &idSystem);
+			typeDatabase->Serialize(saveFile, &Application::Instance->idSystem);
 			typeDatabase->Serialize(saveFile, this);
 		}
 		else
@@ -152,7 +149,7 @@ namespace PlatinumEngine
 			SavedReference<GameObject> parent,
 			bool isEnabled)
 	{
-		SavedReference<GameObject> gameObject = idSystem.Add<GameObject>();
+		SavedReference<GameObject> gameObject = Application::Instance->idSystem.Add<GameObject>();
 		{
 			// constructor basically,
 			GameObject* gameObjectPointer = gameObject.DeRef().get();
@@ -271,7 +268,7 @@ namespace PlatinumEngine
 		}
 
 		// practically, delete
-		if (!idSystem.Remove(component))
+		if (!Application::Instance->idSystem.Remove(component))
 			PLATINUM_ERROR("ID System missing component");
 		// removal changes pointers in the id system
 		OnIDSystemUpdate();
@@ -348,11 +345,11 @@ namespace PlatinumEngine
 	void Scene::OnIDSystemUpdate()
 	{
 		for (auto& gameObject: _gameObjects)
-			gameObject.OnIDSystemUpdate(idSystem);
+			gameObject.OnIDSystemUpdate(Application::Instance->idSystem);
 		for (auto& rootGameObject: _rootGameObjects)
-			rootGameObject.OnIDSystemUpdate(idSystem);
+			rootGameObject.OnIDSystemUpdate(Application::Instance->idSystem);
 		for (auto& component : _components)
-			component.OnIDSystemUpdate(idSystem);
+			component.OnIDSystemUpdate(Application::Instance->idSystem);
 
 		for (auto& gameObject: _rootGameObjects)
 			BroadcastOnIDSystemUpdate(gameObject);
@@ -461,7 +458,7 @@ namespace PlatinumEngine
 		GameObject* gameObjectPointer = gameObject.DeRef().get();
 
 		for (auto& component: gameObjectPointer->_components)
-			component.OnIDSystemUpdate(idSystem);
+			component.OnIDSystemUpdate(Application::Instance->idSystem);
 
 		for (auto& child: gameObjectPointer->_children)
 			child.OnIDSystemUpdate(idSystem);
@@ -471,7 +468,7 @@ namespace PlatinumEngine
 			if (!component)
 				continue;
 			Component* componentPointer = component.DeRef().get();
-			componentPointer->_gameObject.OnIDSystemUpdate(idSystem);
+			componentPointer->_gameObject.OnIDSystemUpdate(Application::Instance->idSystem);
 			componentPointer->OnIDSystemUpdate(*this);
 		}
 
@@ -522,7 +519,7 @@ namespace PlatinumEngine
 			if (!VectorHelpers::RemoveFirst(_components, component))
 				PLATINUM_ERROR("Hierarchy is invalid: _components is missing an element");
 
-			if (!idSystem.Remove(component))
+			if (!Application::Instance->idSystem.Remove(component))
 				// Component should be in the id system, if not then component wasn't being tracked and this is very bad
 				PLATINUM_ERROR("ID System missing component");
 		}
@@ -530,7 +527,7 @@ namespace PlatinumEngine
 		if (!VectorHelpers::RemoveFirst(_gameObjects, gameObject))
 			PLATINUM_ERROR("Hierarchy is invalid: _gameObjects is missing an element");
 
-		if (!idSystem.Remove(gameObject))
+		if (!Application::Instance->idSystem.Remove(gameObject))
 			// GameObject should be in the id system, if not then GameObject wasn't being tracked and this is very bad
 			PLATINUM_ERROR("ID System missing GameObject");
 	}

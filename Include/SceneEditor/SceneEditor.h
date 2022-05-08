@@ -38,7 +38,7 @@ namespace PlatinumEngine
 	{
 	public:
 		// ___CONSTRUCTOR___
-		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer,AssetHelper* assetHelper, Time* time, Physics* physics);
+		SceneEditor();
 
 
 		// ___FUNCTION___
@@ -199,14 +199,6 @@ namespace PlatinumEngine
 		ImGuizmo::OPERATION _currentGizmoOperation;
 		// Flags
 		bool _ifCameraSettingWindowOpen;
-
-		// Managers
-		InputManager* _inputManager;
-		Scene* _scene;
-		Renderer* _renderer;
-		Time* _time;
-		Physics* _physics;
-		AssetHelper* _assetHelper;
 
 		// Values for Camera
 		EditorCamera _camera;

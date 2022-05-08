@@ -101,15 +101,15 @@ int main(int, char**)
 		PlatinumEngine::TypeDatabase typeDatabase;
 		PlatinumEngine::IDSystem idSystem;
 		PlatinumEngine::AssetDatabase assetDatabase;
-		PlatinumEngine::AssetHelper assetHelper(&assetDatabase, idSystem);
+//		PlatinumEngine::AssetHelper assetHelper(&assetDatabase, idSystem);
 		PlatinumEngine::Logger logger;
 		PlatinumEngine::InputManager inputManager;
 		PlatinumEngine::Renderer rasterRenderer;
-		PlatinumEngine::Scene scene(idSystem, physics, time);
-		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer,&assetHelper, &time, &physics);
+//		PlatinumEngine::Scene scene(idSystem, physics, time);
+//		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer,&assetHelper, &time, &physics);
     	PlatinumEngine::HierarchyWindow hierarchyWindow(&sceneEditor, &assetHelper);
 		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper, &sceneEditor, &physics);
-		PlatinumEngine::GameWindow gameWindow(&scene, &rasterRenderer, &time, &physics);
+//		PlatinumEngine::GameWindow gameWindow(&scene, &rasterRenderer, &time, &physics);
 		PlatinumEngine::ProjectWindow projectWindow(&scene, &assetHelper, &sceneEditor);
 		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger,
 				&inspectorWindow, &profiler, &projectWindow, idSystem, typeDatabase, assetDatabase, scene, &assetHelper);
