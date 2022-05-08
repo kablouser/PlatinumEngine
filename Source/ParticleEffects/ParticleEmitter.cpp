@@ -17,10 +17,15 @@ namespace PlatinumEngine
 					.WithField<float>("respawnLifetime", PLATINUM_OFFSETOF(ParticleEmitter, respawnLifetime))
 					.WithField<int>("numberOfNewParticles", PLATINUM_OFFSETOF(ParticleEmitter, numberOfNewParticles))
 					.WithField<float>("spawnInterval", PLATINUM_OFFSETOF(ParticleEmitter, spawnInterval))
+					.WithField<bool>("useCylindricalBillboard", PLATINUM_OFFSETOF(ParticleEmitter, useCylindricalBillboard))
 					.WithField<Maths::Vec3>("actingForce", PLATINUM_OFFSETOF(ParticleEmitter, actingForce))
+					.WithField<Maths::Vec3>("scaleFactors", PLATINUM_OFFSETOF(ParticleEmitter, scaleFactors))
 					.WithField<bool>("useRandomInitPositionX", PLATINUM_OFFSETOF(ParticleEmitter, useRandomInitPositionX))
+					.WithField<bool>("useUniformRandomPositionX", PLATINUM_OFFSETOF(ParticleEmitter, useUniformRandomPositionX))
 					.WithField<bool>("useRandomInitPositionY", PLATINUM_OFFSETOF(ParticleEmitter, useRandomInitPositionY))
+					.WithField<bool>("useUniformRandomPositionY", PLATINUM_OFFSETOF(ParticleEmitter, useUniformRandomPositionY))
 					.WithField<bool>("useRandomInitPositionZ", PLATINUM_OFFSETOF(ParticleEmitter, useRandomInitPositionZ))
+					.WithField<bool>("useUniformRandomPositionZ", PLATINUM_OFFSETOF(ParticleEmitter, useUniformRandomPositionZ))
 					.WithField<float>("minPositionX", PLATINUM_OFFSETOF(ParticleEmitter, minPositionX))
 					.WithField<float>("maxPositionX", PLATINUM_OFFSETOF(ParticleEmitter, maxPositionX))
 					.WithField<float>("minPositionY", PLATINUM_OFFSETOF(ParticleEmitter, minPositionY))
@@ -29,8 +34,11 @@ namespace PlatinumEngine
 					.WithField<float>("maxPositionZ", PLATINUM_OFFSETOF(ParticleEmitter, maxPositionZ))
 					.WithField<Maths::Vec3>("initVelocity", PLATINUM_OFFSETOF(ParticleEmitter, initVelocity))
 					.WithField<bool>("useRandomInitVelocityX", PLATINUM_OFFSETOF(ParticleEmitter, useRandomInitVelocityX))
+					.WithField<bool>("useUniformInitVelocityX", PLATINUM_OFFSETOF(ParticleEmitter, useUniformInitVelocityX))
 					.WithField<bool>("useRandomInitVelocityY", PLATINUM_OFFSETOF(ParticleEmitter, useRandomInitVelocityY))
+					.WithField<bool>("useUniformInitVelocityY", PLATINUM_OFFSETOF(ParticleEmitter, useUniformInitVelocityY))
 					.WithField<bool>("useRandomInitVelocityZ", PLATINUM_OFFSETOF(ParticleEmitter, useRandomInitVelocityZ))
+					.WithField<bool>("useUniformInitVelocityZ", PLATINUM_OFFSETOF(ParticleEmitter, useUniformInitVelocityZ))
 					.WithField<float>("minVelocityX", PLATINUM_OFFSETOF(ParticleEmitter, minVelocityX))
 					.WithField<float>("maxVelocityX", PLATINUM_OFFSETOF(ParticleEmitter, maxVelocityX))
 					.WithField<float>("minVelocityY", PLATINUM_OFFSETOF(ParticleEmitter, minVelocityY))
@@ -39,7 +47,10 @@ namespace PlatinumEngine
 					.WithField<float>("maxVelocityZ", PLATINUM_OFFSETOF(ParticleEmitter, maxVelocityZ))
 					.WithField<SavedReference<Texture>>("texture", PLATINUM_OFFSETOF(ParticleEmitter, texture))
 					.WithField<int>("numRowsInTexture", PLATINUM_OFFSETOF(ParticleEmitter, numRowsInTexture))
-					.WithField<int>("numColsInTexture", PLATINUM_OFFSETOF(ParticleEmitter, numColsInTexture));
+					.WithField<int>("numColsInTexture", PLATINUM_OFFSETOF(ParticleEmitter, numColsInTexture))
+					.WithField<bool>("isPlaying", PLATINUM_OFFSETOF(ParticleEmitter, isPlaying))
+					.WithField<std::string>("scaleBy", PLATINUM_OFFSETOF(ParticleEmitter, scaleBy))
+					.WithField<std::string>("scaleFactor", PLATINUM_OFFSETOF(ParticleEmitter, scaleFactor));
 		}
 
 
