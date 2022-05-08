@@ -1,4 +1,5 @@
-#include "ComponentComposition/AudioComponent.h"
+#include <ComponentComposition/AudioComponent.h>
+#include <SceneManager/Scene.h>
 
 namespace PlatinumEngine
 {
@@ -39,7 +40,7 @@ namespace PlatinumEngine
 
 	void AudioComponent::Play()
 	{
-		if(_sound == nullptr)
+		if (!audioClip)
 			return;
 		if(!IsPlaying(_channel))
 		{
@@ -54,16 +55,13 @@ namespace PlatinumEngine
 		{
 			_isPlaying = true;
 			_isPaused = false;
-			if (isLooping)
-				Mix_PlayChannel(_channel, _sound, -1);
-			else
-				Mix_PlayChannel(_channel, _sound, 0);
+			Mix_PlayChannel(_channel, audioClip.DeRef()->chunk, isLooping ? -1 : 0);
 		}
 	}
 
 	void AudioComponent::Pause()
 	{
-		if(_sound == nullptr)
+		if (!audioClip)
 			return;
 		if(_isPlaying)
 		{
@@ -75,7 +73,7 @@ namespace PlatinumEngine
 
 	void AudioComponent::Resume()
 	{
-		if(_sound == nullptr)
+		if (!audioClip)
 			return;
 		if(_isPaused)
 		{
@@ -87,7 +85,7 @@ namespace PlatinumEngine
 
 	void AudioComponent::Stop()
 	{
-		if(_sound == nullptr)
+		if (!audioClip)
 			return;
 		Mix_HaltChannel(_channel);
 		_isPlaying = false;
@@ -96,15 +94,25 @@ namespace PlatinumEngine
 
 	void AudioComponent::SetVolume(int volume)
 	{
-		if(_sound!= nullptr)
+		if(audioClip)
 			Mix_VolumeChunk(_sound, volume);
 	}
 
 	int AudioComponent::GetVolume()
 	{
-		if(_sound!= nullptr)
+		if(audioClip)
 			return Mix_VolumeChunk(_sound, -1);
 		return MIX_MAX_VOLUME;
+	}
+
+	void AudioComponent::CreateTypeInfo(TypeDatabase& typeDatabase)
+	{
+		typeDatabase.BeginTypeInfo<AudioComponent>()
+				.WithInherit<Component>()
+				.WithField<SavedReference<AudioClip>>("audioClip", PLATINUM_OFFSETOF(AudioComponent, audioClip))
+				.WithField<bool>("_isLooping", PLATINUM_OFFSETOF(AudioComponent, _isLooping))
+				.WithField<int>("_channel", PLATINUM_OFFSETOF(AudioComponent, _channel))
+				.WithField<int>("_volume", PLATINUM_OFFSETOF(AudioComponent, _volume));
 	}
 
 	void AudioComponent::SetPanning(int panValueRight)
@@ -165,4 +173,8 @@ namespace PlatinumEngine
 	}
 
 	std::vector<bool> AudioComponent::_allocatedChannel = std::vector<bool>(Mix_AllocateChannels(-1));
+	void AudioComponent::OnIDSystemUpdate(Scene& scene)
+	{
+		audioClip.OnIDSystemUpdate(scene.idSystem);
+	}
 }

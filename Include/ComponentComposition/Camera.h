@@ -13,6 +13,8 @@ namespace PlatinumEngine
 	{
 	public:
 
+		static void CreateTypeInfo(TypeDatabase& database);
+
 		enum class ProjectionType {perspective, orthographic};
 		enum class ClearMode {none, backgroundColor, skybox };
 

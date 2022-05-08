@@ -229,38 +229,37 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 				{
 					if (ImGui::Selectable("Add Mesh"))
 					{
-						GameObject* go = _scene->AddGameObject(dir.stem().string());
+						SavedReference<GameObject> go = _scene->AddGameObject(dir.stem().string());
 						_scene->AddComponent<Transform>(go);
 						_scene->AddComponent<MeshRender>(go);
-						auto asset_Helper = _assetHelper->GetMeshAsset(dir.string());
+						auto asset_Helper = _assetHelper->GetAsset<Mesh>(dir.string());
 						if (std::get<0>(asset_Helper))
-							go->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
+							go.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(std::get<1>(asset_Helper));
 						_sceneEditor->SetSelectedGameobject(go);
 					}
 					ImGui::Separator();
 				}
 				if(dir.extension()==".png")
 				{
-					GameObject* go = _sceneEditor->GetSelectedGameobject();
-					if(go != nullptr)
+					SavedReference<GameObject> go = _sceneEditor->GetSelectedGameobject();
+					if(go.DeRef() == nullptr)
+						ImGui::CloseCurrentPopup();
+					if (ImGui::Selectable("Add Texture"))
 					{
-						if (ImGui::Selectable("Add Texture"))
+						auto asset_Helper = _assetHelper->GetAsset<Texture>(dir.string());
+						if (std::get<0>(asset_Helper))
 						{
-							auto asset_Helper = _assetHelper->GetTextureAsset(dir.string());
-							if (std::get<0>(asset_Helper))
-							{
-								go->GetComponent<MeshRender>()->SetMaterial(std::get<1>(asset_Helper));
-								go->GetComponent<MeshRender>()->material.useTexture = true;
-							}
+							go.DeRef()->GetComponent<MeshRender>().DeRef()->SetMaterial(std::get<1>(asset_Helper));
+							go.DeRef()->GetComponent<MeshRender>().DeRef()->material.useTexture = true;
 						}
-						if (ImGui::Selectable("Add Normal"))
-						{
-							auto asset_Helper = _assetHelper->GetTextureAsset(dir.string());
-							if (std::get<0>(asset_Helper))
-								go->GetComponent<MeshRender>()->SetNormalMap(std::get<1>(asset_Helper));
-						}
-						ImGui::Separator();
 					}
+					if (ImGui::Selectable("Add Normal"))
+					{
+						auto asset_Helper = _assetHelper->GetAsset<Texture>(dir.string());
+						if (std::get<0>(asset_Helper))
+							go.DeRef()->GetComponent<MeshRender>().DeRef()->SetNormalMap(std::get<1>(asset_Helper));
+					}
+					ImGui::Separator();
 				}
 				if(dir.extension()==".wav")
 				{

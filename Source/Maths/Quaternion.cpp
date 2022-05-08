@@ -319,23 +319,15 @@ namespace PlatinumEngine
 
 		Mat4 Quaternion::QuaternionToMatrix(Quaternion q)
 		{
-			glm::mat4 matrix = glm::mat4_cast(glm::quat(q.w,q.x,q.y,q.z));
-			Mat4 m;
-			m[0][0] = matrix[0][0]; m[0][1] = matrix[0][1]; m[0][2] = matrix[0][2]; m[0][3] = matrix[0][3];
-			m[1][0] = matrix[1][0]; m[1][1] = matrix[1][1]; m[1][2] = matrix[1][2]; m[1][3] = matrix[1][3];
-			m[2][0] = matrix[2][0]; m[2][1] = matrix[2][1]; m[2][2] = matrix[2][2]; m[2][3] = matrix[2][3];
-			m[3][0] = matrix[3][0]; m[3][1] = matrix[3][1]; m[3][2] = matrix[3][2]; m[3][3] = matrix[3][3];
-			return m;
+			glm::mat4 glmMatrix = glm::mat4_cast(glm::quat(q.w,q.x,q.y,q.z));
+			Mat4 mat4;
+			mat4.ConvertFromGLM(glmMatrix);
+			return mat4;
 		}
 
 		Quaternion Quaternion::MatrixToQuaternion(Mat4 matrix)
 		{
-			glm::mat4 m;
-			m[0][0] = matrix[0][0]; m[0][1] = matrix[0][1]; m[0][2] = matrix[0][2]; m[0][3] = matrix[0][3];
-			m[1][0] = matrix[1][0]; m[1][1] = matrix[1][1]; m[1][2] = matrix[1][2]; m[1][3] = matrix[1][3];
-			m[2][0] = matrix[2][0]; m[2][1] = matrix[2][1]; m[2][2] = matrix[2][2]; m[2][3] = matrix[2][3];
-			m[3][0] = matrix[3][0]; m[3][1] = matrix[3][1]; m[3][2] = matrix[3][2]; m[3][3] = matrix[3][3];
-			glm::quat q = glm::quat_cast(m);
+			glm::quat q = glm::quat_cast((glm::mat4)matrix);
 			return Quaternion(q.w,q.x,q.y,q.z);
 		}
 
@@ -358,15 +350,8 @@ namespace PlatinumEngine
 
 		Quaternion Quaternion::LookRotation(Vec3 forward, Vec3 up)
 		{
-			Vec3 x = forward;
-			Vec3 z = Cross(forward,up);
-			Vec3 y = Cross(z,forward);
-			Mat4 m;
-			m[0][0] = x[0];	m[0][1] = x[1];	m[0][2] = x[2];	m[0][3] = 0.0f;
-			m[1][0] = y[0];	m[1][1] = y[1];	m[1][2] = y[2];	m[1][3] = 0.0f;
-			m[2][0] = z[0];	m[2][1] = z[1];	m[2][2] = z[2];	m[2][3] = 0.0f;
-			m[3][0] = 0.0f;	m[3][1] = 0.0f;	m[3][2] = 0.0f;	m[3][3] = 1.0f;
-			return MatrixToQuaternion(m);
+			glm::quat glmQuaternion = glm::quatLookAtLH(forward, up);
+			return Quaternion(glmQuaternion.w, glmQuaternion.x, glmQuaternion.y, glmQuaternion.z);
 		}
 
 		//Output operator overloading

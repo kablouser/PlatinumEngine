@@ -3,6 +3,9 @@
 #-----------------------------
 cmake_minimum_required(VERSION 3.21)
 project(PlatinumEngine VERSION 0.0.2)
+if (APPLE)
+	enable_language(OBJC)
+endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
 # static libraries please
@@ -93,6 +96,19 @@ set(SDL2_MIXER_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/sdl2mixer-src")
 FetchContent_Declare(bullet3 GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git GIT_TAG 3.22b)
 FetchContent_MakeAvailable(bullet3)
 #-----------------------------
+# ozz
+set(ozz_build_fbx OFF)
+set(ozz_build_samples OFF)
+set(ozz_build_howtos ON)
+set(ozz_build_tests OFF)
+set(ozz_build_tools ON)
+set(ozz_build_postfix OFF)
+set(ozz_build_simd_ref ON)
+FetchContent_Declare(ozz GIT_REPOSITORY https://github.com/guillaumeblanc/ozz-animation.git GIT_TAG 0.14.0)
+FetchContent_MakeAvailable(ozz)
+
+
+#-----------------------------
 # Add more libraries from git repos here:
 #-----------------------------
 
@@ -106,12 +122,17 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
 	"${CMAKE_BINARY_DIR}/_deps/imguizmo-src/ImGuizmo.cpp;"
 	
+	"Source/Animation/Animation.cpp;"
+	"Source/Animation/AnimationLocalTimer.cpp;"
+	
 	"Source/AssetDatabase/AssetDatabase.cpp;"
 	"Source/AssetDatabase/AssetHelper.cpp;"
 	
-
+	"Source/Audio/AudioClip.cpp;"
+	
 	"Source/ComponentComposition/Camera.cpp;"
 	"Source/ComponentComposition/AudioComponent.cpp;"
+	"Source/ComponentComposition/AnimationComponent.cpp;"
 	"Source/ComponentComposition/Color.cpp;"
 	"Source/ComponentComposition/Component.cpp;"
 	"Source/ComponentComposition/GameObject.cpp;"
@@ -127,6 +148,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 
 	
 	"Source/GameWindow/GameWindow.cpp;"
+	
+	"Source/IDSystem/IDSystem.cpp;"
 	
 	"Source/InputManager/InputManager.cpp;"
 	
@@ -169,23 +192,15 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	
 	"Source/SceneManager/HierarchyWindow.cpp;"
 	"Source/SceneManager/Scene.cpp;"
-	"Source/SceneManager/SceneManager.cpp;"
+	
+	"Source/TypeDatabase/TypeDatabase.cpp;"
+	"Source/TypeDatabase/TypeDatabaseInit.cpp;"
 	
 	"Source/WindowManager/Filedialog.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
 	)
 
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
-
-target_include_directories(${PROJECT_NAME} PRIVATE
-	"${CMAKE_CURRENT_LIST_DIR}/Include"
-	"${CMAKE_CURRENT_LIST_DIR}/Fonts"
-	"${FETCHCONTENT_BASE_DIR}/imguizmo-src"
-	"${FETCHCONTENT_BASE_DIR}/stb-src"
-	"${FETCHCONTENT_BASE_DIR}/bullet3-src/src"
-  	"${SDL2_INCLUDE_DIR}" 
-  	"${SDL2_MIXER_INCLUDE_DIR}"
-	)
 #-----------------------------
 
 #-----------------------------
@@ -197,11 +212,30 @@ set(UNIT_TESTS
 	"Test/Maths/VectorsTest.cpp;"
 	"Test/Maths/MatricesTest.cpp;"
 	"Test/SceneEditor/EditorCameraTest.cpp;"
-  	"Test/TestScene.cpp;"
-	)
+	"Test/TypeDatabase/TestTypeDatabase.cpp;"
+	"Test/IDSystem/TestIDSystem.cpp;"
+	Include/Animation/AnimationLocalTimer.h Source/Animation/AnimationLocalTimer.cpp)
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
+#-----------------------------
 
-target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
+
+#-----------------------------
+# IMPORTANT SECTION! Include files
+#-----------------------------
+# list of folders to include
+set(PROJECT_INCLUDES
+	"Include;"
+	"Fonts;"
+	"${FETCHCONTENT_BASE_DIR}/imguizmo-src;"
+	"${FETCHCONTENT_BASE_DIR}/stb-src;"
+	"${FETCHCONTENT_BASE_DIR}/bullet3-src/src"
+ 	"${SDL2_INCLUDE_DIR}" 
+    "${SDL2_MIXER_INCLUDE_DIR}"
+	)
+	
+# different targets
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDES})
+target_include_directories(tests PRIVATE ${PROJECT_INCLUDES})
 #-----------------------------
 
 #-----------------------------
@@ -226,10 +260,10 @@ set(PROJECT_LIBRARIES
 	#"BulletInverseDynamics;"
 	#"BulletSoftBody;" #shouldnt be necessary
 
-	"SDL2main;"
-	"SDL2-static;"
 	"SDL2_mixer;"
 
+	"ozz_animation;"
+	"ozz_animation_offline;"
   )
 
 # different targets

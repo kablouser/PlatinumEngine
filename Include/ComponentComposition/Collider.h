@@ -9,5 +9,9 @@
 
 namespace PlatinumEngine
 {
-
+	class Collider : public Component
+	{
+	public:
+		virtual btCollisionShape* GetShape() = 0;
+	};
 }

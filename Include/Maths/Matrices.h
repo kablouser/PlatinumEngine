@@ -36,7 +36,7 @@ namespace PlatinumEngine
 
 
 		// ___class Matrix___
-		// A template class for matrix classes
+		// A template class for matrix classes. Column/x major
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
 		class Matrix
 		{
@@ -47,10 +47,10 @@ namespace PlatinumEngine
 
 			/***
 			 * Overloading operator[] function. For accessing very element in the matrix.
-			 * @param row : This is the id of row (y)
+			 * @param column : This is the id of column (x)
 			 * @return    : Return object of MatrixHelper class, which contains another overloaded operator [] function
 			 */
-			MatrixHelper<numberOfRow, numberOfColumn, T> operator[](const int row);
+			MatrixHelper<numberOfRow, numberOfColumn, T> operator[](const int column);
 
 
 			/***
@@ -103,11 +103,11 @@ namespace PlatinumEngine
 
 		public:
 			/***
-			 * Return the reference of a specific value Matrix[y/row][x/column] in matrix array.
-			 * @param column
+			 * Return the reference of a specific value Matrix[x/column][y/row] in matrix array.
+			 * @param row y
 			 * @return
 			 */
-			T& operator[](unsigned int column);
+			T& operator[](unsigned int row);
 
 
 		private:
@@ -118,10 +118,10 @@ namespace PlatinumEngine
 
 			//___PARAMETERS___
 			Matrix<numberOfRow, numberOfColumn, T>& _matrix;
-			unsigned int _currentRow;
+			unsigned int _currentColumn;
 
 			//___CONSTRUCTOR___
-			MatrixHelper(Matrix<numberOfRow, numberOfColumn, T>& matrix, unsigned int currentRow);
+			MatrixHelper(Matrix<numberOfRow, numberOfColumn, T>& matrix, unsigned int column);
 		};
 
 	}
@@ -132,7 +132,7 @@ namespace PlatinumEngine
 {
 	namespace Maths
 	{
-
+		// Column major. Mat4[x][y]
 		class Mat4 : public Matrix<4, 4, float>
 		{
 		public:
@@ -143,6 +143,8 @@ namespace PlatinumEngine
 			Mat4 operator*(Mat4 anotherMat4);
 
 			Vec4 operator*(Vec4 homogeneousVector);
+
+			Vec3 MultiplyVec3(Vec3 homogeneousVector, float w);
 
 			Mat4 operator+(Mat4 otherMatrix);
 
@@ -188,7 +190,7 @@ namespace PlatinumEngine
 
 		};
 
-
+		// Column major. Mat3[x][y]
 		class Mat3 : public Matrix<3, 3, float>
 		{
 		public:
@@ -297,9 +299,9 @@ namespace PlatinumEngine
 		// ___OVERLOADING FUNCTIONS___
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
 		MatrixHelper<numberOfRow, numberOfColumn, T> Matrix<numberOfRow, numberOfColumn, T>
-		::operator[](const int row)
+		::operator[](const int column)
 		{
-			return MatrixHelper<numberOfRow, numberOfColumn, T>(*this, row);
+			return MatrixHelper<numberOfRow, numberOfColumn, T>(*this, column);
 		}
 
 
@@ -315,7 +317,7 @@ namespace PlatinumEngine
 				for (int x = 0; x < numberOfColumn; x++)
 				{
 
-					result[y][x] = (*this)[y][x] + otherMatrix[y][x];
+					result[x][y] = (*this)[x][y] + otherMatrix[x][y];
 
 				}
 			}
@@ -337,7 +339,7 @@ namespace PlatinumEngine
 				for (int x = 0; x < numberOfColumn; x++)
 				{
 
-					result[y][x] = (*this)[y][x] - otherMatrix[y][x];
+					result[x][y] = (*this)[x][y] - otherMatrix[x][y];
 
 				}
 			}
@@ -375,8 +377,8 @@ namespace PlatinumEngine
 		// ___CONSTRUCTOR___
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
 		MatrixHelper<numberOfRow, numberOfColumn, T>
-		::MatrixHelper(Matrix<numberOfRow, numberOfColumn, T>& matrix, unsigned int currentRow)
-				:_matrix(matrix), _currentRow(currentRow)
+		::MatrixHelper(Matrix<numberOfRow, numberOfColumn, T>& matrix, unsigned int currentColumn)
+				:_matrix(matrix), _currentColumn(currentColumn)
 		{
 		}
 
@@ -384,12 +386,12 @@ namespace PlatinumEngine
 		// ___OVERLOADING FUNCTION___
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
 		T& MatrixHelper<numberOfRow, numberOfColumn, T>
-		::operator[](unsigned int column)
+		::operator[](unsigned int row)
 		{
 
-			assert(numberOfRow > _currentRow || numberOfColumn > column);
+			assert(numberOfRow > row || numberOfColumn > _currentColumn);
 
-			return _matrix.matrix[column * numberOfRow + _currentRow];
+			return _matrix.matrix[_currentColumn * numberOfRow + row];
 
 		}
 
@@ -400,20 +402,16 @@ namespace PlatinumEngine
 		template<unsigned int numberOfRow, unsigned int numberOfColumn, typename T>
 		inline std::ostream& operator<<(std::ostream& out, Matrix<numberOfRow, numberOfColumn, T>& m)
 		{
-
-			std::string output;
-
-			for (int i = 0; i < numberOfRow; i++)
+			for (int j = 0; j < numberOfColumn; j++)
 			{
-				for (int j = 0; j < numberOfColumn; j++)
+				for (int i = 0; i < numberOfRow; i++)
 				{
-					output.append(std::to_string(m[i][j]) + " ");
+					out << m[i][j] << ", ";
 				}
-				output.append("\n");
+				out << std::endl;
 			}
-			output.append("\n");
 
-			return out << output;
+			return out;
 		}
 	}
 }

@@ -2,119 +2,145 @@
 // Created by shawn on 2022/4/22.
 //
 
-#include "ComponentComposition/RigidBody.h"
+#include <ComponentComposition/RigidBody.h>
 #include <ComponentComposition/Transform.h>
 #include <Logger/Logger.h>
 #include <SceneManager/Scene.h>
 
 namespace PlatinumEngine
 {
-	RigidBody::RigidBody():
-						mass(1.f),
-						kinematic(false),
-						_inertia(Maths::Vec3(0.f, 0.f, 0.f))
+	void RigidBody::CreateTypeInfo(TypeDatabase& database)
 	{
-
+		database.BeginTypeInfo<RigidBody>()
+				.WithInherit<Component>()
+				.WithField<PhysicsMaterial>("physicsMaterial", PLATINUM_OFFSETOF(RigidBody, physicsMaterial))
+				.WithField<float>("mass", PLATINUM_OFFSETOF(RigidBody, mass))
+				.WithField<bool>("isKinematic", PLATINUM_OFFSETOF(RigidBody, isKinematic))
+				.WithField<bool>("isCollisionRecorded", PLATINUM_OFFSETOF(RigidBody, isCollisionRecorded));
 	}
 
-	btTransform RigidBody::GetWorldTransform()
+	RigidBody::RigidBody() :
+			mass(1.f),
+			isKinematic(false),
+			isCollisionRecorded(false),
+			_rigidBody(btRigidBody::btRigidBodyConstructionInfo(mass, nullptr, nullptr, {})),
+			_addedToPhysicsWorld(false)
 	{
-		btTransform temp;
-		_rigidBody->getMotionState()->getWorldTransform(temp);
-		return temp;
-	}
-	Maths::Quaternion RigidBody::GetBulletRotation()
-	{
-		Maths::Quaternion temp;
-		temp = Physics::ConvertQuaternionBack(GetWorldTransform().getRotation());
-		return temp;
 	}
 
-	Maths::Vec3 RigidBody::GetBulletPosition()
+	btTransform RigidBody::GetWorldTransform() const
 	{
-		return Physics::ConvertVectorBack(GetWorldTransform().getOrigin());
+		return _rigidBody.getWorldTransform();
 	}
 
-	void RigidBody::OnStart(Scene& scene)
+	std::pair<Maths::Vec3, Maths::Quaternion> RigidBody::GetPositionRotation() const
 	{
-		// Set the btmotionState
-		{
-			auto objectTransform = GetComponent<Transform>();
-
-			_motionState = new btDefaultMotionState(
-					btTransform(Physics::ConvertQuaternion(objectTransform->localRotation),
-							Physics::ConvertVector(objectTransform->localPosition)));
-		}
-		//Set the btRigidBody based on its collider type
-		{
-			auto temp = Physics::ConvertVector(_inertia);
-
-			if (GetComponent<BoxCollider>() != nullptr)
-			{
-				GetComponent<BoxCollider>()->GetShape()->calculateLocalInertia(mass, temp);
-				btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, _motionState,
-						GetComponent<BoxCollider>()->GetShape(), temp);
-				constructionInfo.m_restitution = material.bounciness;
-				constructionInfo.m_friction = material.friction;
-				constructionInfo.m_linearDamping = material.damping;
-				constructionInfo.m_angularDamping = material.angularDamping;
-				_rigidBody = new btRigidBody(constructionInfo);
-
-			}
-			else if (GetComponent<SphereCollider>() != nullptr)
-			{
-				GetComponent<SphereCollider>()->GetShape()->calculateLocalInertia(mass, temp);
-				btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, _motionState,
-						GetComponent<SphereCollider>()->GetShape(), temp);
-				constructionInfo.m_restitution = material.bounciness;
-				constructionInfo.m_friction = material.friction;
-				constructionInfo.m_linearDamping = material.damping;
-				constructionInfo.m_angularDamping = material.angularDamping;
-				_rigidBody = new btRigidBody(constructionInfo);
-			}
-			else if (GetComponent<CapsuleCollider>() != nullptr)
-			{
-				GetComponent<CapsuleCollider>()->GetShape()->calculateLocalInertia(mass, temp);
-				btRigidBody::btRigidBodyConstructionInfo constructionInfo(mass, _motionState,
-						GetComponent<CapsuleCollider>()->GetShape(), temp);
-				constructionInfo.m_restitution = material.bounciness;
-				constructionInfo.m_friction = material.friction;
-				constructionInfo.m_linearDamping = material.damping;
-				constructionInfo.m_angularDamping = material.angularDamping;
-				_rigidBody = new btRigidBody(constructionInfo);
-			}
-		}
-
-		//Add the rigidBody to the physics world
-		scene.physics.AddBulletBody(_rigidBody);
+		btTransform worldTransform = GetWorldTransform();
+		return {
+				Physics::ConvertVectorBack(worldTransform.getOrigin()),
+				Physics::ConvertQuaternionBack(worldTransform.getRotation()) };
 	}
 
-	void RigidBody::OnEnd(Scene& scene)
+	void RigidBody::OnEnable(Scene& scene)
 	{
-		delete _motionState;
-		delete _rigidBody;
+		//Add the rigidBody to the physics manager thing
+		scene.physics._allRigidBodies.push_back(scene.idSystem.GetSavedReference<RigidBody>(this));
+		UpdatePhysicsProperties(scene.physics);
 	}
 
-	void RigidBody::SetBulletRotation(Maths::Quaternion rotation)
+	void RigidBody::OnDisable(Scene& scene)
 	{
-		btQuaternion quaternion = Physics::ConvertQuaternion(rotation);
-		GetWorldTransform().setRotation(quaternion);
+		RemoveFromPhysicsWorld(scene.physics);
+		if (!VectorHelpers::RemoveFirst(scene.physics._allRigidBodies,
+				scene.idSystem.GetSavedReference<RigidBody>(this)))
+			PLATINUM_WARNING("Missing RigidBody from Physics Manager thing");
 	}
 
-	void RigidBody::SetBulletPosition(Maths::Vec3 position)
+	void RigidBody::UpdatePhysicsProperties(Physics& physics)
 	{
-		btVector3 translation = Physics::ConvertVector(position);
-		GetWorldTransform().setOrigin(translation);
+		RemoveFromPhysicsWorld(physics);
+
+		SavedReference<Transform> transform = GetComponent<Transform>();
+		if (!transform)
+			return;
+
+		// Polymorphic. Can be BoxCollider, CapsuleCollider or SphereCollider.
+		SavedReference<Collider> collider = GetComponent<Collider>();
+		if (!collider)
+			return;
+
+		Transform* transformPointer = transform.DeRef().get();
+		btTransform worldTransform;
+		worldTransform.setOrigin(Physics::ConvertVector(transformPointer->localPosition));
+		worldTransform.setRotation(Physics::ConvertQuaternion(transformPointer->localRotation));
+
+		btCollisionShape* btCollisionShape = collider.DeRef()->GetShape();
+
+		// Important, don't forget to calculate inertia from the shape.
+		btVector3 inertia;
+		btCollisionShape->calculateLocalInertia(mass, inertia);
+		btRigidBody::btRigidBodyConstructionInfo constructInfo(mass, &_motionState, btCollisionShape, inertia);
+		constructInfo.m_startWorldTransform = worldTransform;
+		constructInfo.m_friction = physicsMaterial.friction;
+		constructInfo.m_restitution = physicsMaterial.bounciness;
+		constructInfo.m_linearDamping = physicsMaterial.damping;
+		constructInfo.m_angularDamping = physicsMaterial.angularDamping;
+		_rigidBody = btRigidBody(constructInfo);
+		if (isKinematic)
+			_rigidBody.setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
+
+		AddToPhysicsWorld(physics);
 	}
 
-	void RigidBody::OnUpdate(Scene& scene, double deltaTime)
+	void RigidBody::SetVelocity(Maths::Vec3 velocity)
 	{
-		auto transform = GetComponent<Transform>();
+		_rigidBody.setLinearVelocity(Physics::ConvertVector(velocity));
+		_rigidBody.activate(); // _rigidBody will not move if sleeping, activate awakens _rigidBody
+	}
 
-		btMotionState* tempState = new btDefaultMotionState(btTransform(Physics::ConvertQuaternion(transform->localRotation),
-				Physics::ConvertVector(transform->localPosition)));
+	Maths::Vec3 RigidBody::GetVelocity() const
+	{
+		return Physics::ConvertVectorBack(_rigidBody.getLinearVelocity());
+	}
 
-		_rigidBody->setMotionState(tempState);
+	void RigidBody::SetAngularVelocity(Maths::Vec3 angularVelocity)
+	{
+		_rigidBody.setAngularVelocity(Physics::ConvertVector(angularVelocity));
+		_rigidBody.activate(); // _rigidBody will not move if sleeping, activate awakens _rigidBody
+	}
+
+	Maths::Vec3 RigidBody::GetAngularVelocity() const
+	{
+		return Physics::ConvertVectorBack(_rigidBody.getAngularVelocity());
+	}
+
+	void RigidBody::AddToPhysicsWorld(Physics& physics)
+	{
+		if (_addedToPhysicsWorld)
+			return; // avoid repeats
+		physics._bulletWorld.addRigidBody(&_rigidBody);
+		_addedToPhysicsWorld = true;
+	}
+
+	void RigidBody::RemoveFromPhysicsWorld(Physics& physics)
+	{
+		if (!_addedToPhysicsWorld)
+			return; // avoid repeats
+		physics._bulletWorld.removeRigidBody(&_rigidBody);
+		_addedToPhysicsWorld = false;
+	}
+
+	void RigidBody::Reposition(const Maths::Vec3& position, const Maths::Quaternion& rotation)
+	{
+		btTransform initialTransform;
+
+		initialTransform.setOrigin(Physics::ConvertVector(position));
+		initialTransform.setRotation(Physics::ConvertQuaternion(rotation));
+
+		_motionState = btDefaultMotionState();
+		_rigidBody.setWorldTransform(initialTransform);
+		_rigidBody.setMotionState(&_motionState);
+		_rigidBody.getMotionState()->setWorldTransform(initialTransform);
 	}
 }
 

@@ -1,20 +1,33 @@
 #include <ComponentComposition/Component.h>
-#include <ComponentComposition/GameObject.h>
 #include <SceneManager/Scene.h>
+#include <Logger/Logger.h>
+#include "ComponentComposition/GameObjectComponentTemplates/ComponentWithoutTemplates.h"
+
 
 namespace PlatinumEngine
 {
+	void Component::CreateTypeInfo(TypeDatabase& typeDatabase)
+	{
+		/*
+		SavedReference<GameObject> _gameObject;
+		bool _isEnabled;
+		bool _isEnabledInHierarchy;
+		 */
+		typeDatabase.BeginTypeInfoWithoutAllocator<Component>()
+		        .WithField<SavedReference<GameObject>>("_gameObject", PLATINUM_OFFSETOF(Component, _gameObject))
+				.WithField<bool>("_isEnabled", PLATINUM_OFFSETOF(Component, _isEnabled))
+				.WithField<bool>("_isEnabledInHierarchy", PLATINUM_OFFSETOF(Component, _isEnabledInHierarchy));
+	}
+
 	//--------------------------------------------------------------------------------------------------------------
 	// Constructors/destructors
 	//--------------------------------------------------------------------------------------------------------------
 
-	Component::Component() : _gameObject(nullptr), _isEnabled(true), _isEnabledInHierarchy(false)
+	Component::Component() : _isEnabled(true), _isEnabledInHierarchy(false)
 	{
 	}
 
-	Component::~Component()
-	{
-	}
+	Component::~Component() = default;
 
 	//--------------------------------------------------------------------------------------------------------------
 	// _isEnabled controls
@@ -27,7 +40,6 @@ namespace PlatinumEngine
 
 	void Component::SetEnabled(bool isEnabled, Scene& scene)
 	{
-
 		// don't trigger event's if enabled state is not changed
 		if (_isEnabled == isEnabled)
 			return;
@@ -39,7 +51,7 @@ namespace PlatinumEngine
 	bool Component::IsEnabledInHierarchy() const
 	{
 		if (_gameObject)
-			return _isEnabled && _gameObject->IsEnabledInHierarchy();
+			return _isEnabled && _gameObject.DeRef()->IsEnabledInHierarchy();
 		else
 			return false;
 	}
@@ -48,23 +60,29 @@ namespace PlatinumEngine
 	// _gameObject controls
 	//--------------------------------------------------------------------------------------------------------------
 
-	GameObject* Component::GetGameObject()
+	SavedReference<GameObject>& Component::GetGameObject()
 	{
 		return _gameObject;
 	}
 
-	void Component::SetGameObject(GameObject* gameObject, Scene& scene)
+	void Component::SetGameObject(SavedReference<GameObject> gameObject, Scene& scene)
 	{
 		if (_gameObject == gameObject)
 			return;
-    
+
+		SavedReference<Component> referenceToThis = scene.idSystem.GetSavedReference(this);
+		if (!referenceToThis)
+		{
+			PLATINUM_WARNING("This Component is not in the ID System, cannot SetParent");
+			return;
+		}
+
 		if (_gameObject)
-			_gameObject->RemoveComponent(this);
-
+			_gameObject.DeRef()->RemoveComponent(referenceToThis);
 		if (gameObject)
-			gameObject->_components.push_back(this);
+			gameObject.DeRef()->_components.push_back(referenceToThis);
 
-		_gameObject = gameObject;
+		_gameObject = std::move(gameObject);
 		UpdateIsEnabledInHierarchy(scene);
 	}
 
@@ -98,34 +116,22 @@ namespace PlatinumEngine
 	{
 	}
 
+	void Component::OnIDSystemUpdate(Scene& scene)
+	{
+	}
+
 	//--------------------------------------------------------------------------------------------------------------
 	// Internal controls
 	//--------------------------------------------------------------------------------------------------------------
 
-	Component* Component::GetComponentInternal(const std::type_info& typeInfo)
-	{
-		GameObject* gameObject = GetGameObject();
-		if (gameObject)
-			return gameObject->GetComponentInternal(typeInfo);
-		return nullptr;
-	}
-
-	Component* Component::GetParentComponentInternal(const std::type_info& typeInfo)
-	{
-		GameObject* gameObject = GetGameObject();
-		if (gameObject)
-			return gameObject->GetParentComponentInternal(typeInfo);
-		return nullptr;
-	}
-
 	bool Component::CalculateIsEnabledInHierarchy() const
 	{
 		if (_gameObject)
-			return _isEnabled && _gameObject->_isEnabledInHierarchy;
+			return _isEnabled && _gameObject.DeRef()->_isEnabledInHierarchy;
 		else
 			return false;
 	}
-  
+
 	void Component::UpdateIsEnabledInHierarchy(Scene& scene)
 	{
 		bool isEnabledInHierarchyNow = CalculateIsEnabledInHierarchy();

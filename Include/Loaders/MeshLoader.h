@@ -15,6 +15,10 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <ozz/base/io/stream.h>
+#include <ozz/animation/runtime/skeleton.h>
+#include <ozz/animation/runtime/animation.h>
+#include <ozz/base/io/archive.h>
 #include <glm/glm.hpp>
 
 // Post processing options: http://assimp.sourceforge.net/lib_html/postprocess_8h.html
@@ -30,7 +34,7 @@ namespace PlatinumEngine
 		 * @param outNormals  : where normals are stored
 		 * @param outTextureCoords : where texture coords are stored
 		 */
-		void LoadMesh(const std::string &filePath, std::vector<glm::vec3> &outPositions, std::vector<glm::vec3> &outNormals, std::vector<glm::vec2> &outTextureCoords);
+		void LoadMesh(const std::filesystem::path& filePath, std::vector<glm::vec3> &outPositions, std::vector<glm::vec3> &outNormals, std::vector<glm::vec2> &outTextureCoords);
 
 		/**
 		 * Convert an assimp mesh to individual positon, normal, texture coord vectors
@@ -45,17 +49,29 @@ namespace PlatinumEngine
 		 * Loads a file into a mesh
 		 * @param filePath : Location of file
 		 * @param JoinVertices : Will join vertices so the mesh contains unique vertices only, default true
-		 * @return : Mesh data structure
+		 * @return if good: {true, Mesh data structure}, otherwise {false, empty mesh}
 		 */
-		Mesh LoadMesh(const std::string &filePath, bool JoinVertices=true, bool CalcTangents=true);
+		std::pair<bool, Mesh> LoadMesh(const std::filesystem::path& filePath, bool JoinVertices=true, bool CalcTangents=true);
 
 		/**
-		 * Add new mesh data to an existing mesh
+		 * AddInternal new mesh data to an existing mesh
 		 * @param outMesh : The mesh structure used for rendering with new vertices and indices added
 		 * @param mesh : The assimp mesh data
 		 * @param offset : This is the offset of indices for the current mesh, should start at 0
 		 */
 		void AddMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset);
+
+		void AddAnimationMeshData(Mesh &outMesh, aiMesh *mesh, unsigned int &offset);
+
+		void AddBoneData(Mesh &outMesh, aiMesh *mesh, aiAnimation* inAnimation, unsigned int offset, std::map<std::string, unsigned int>& boneMapping);
+
+		void AddSkeletonData(aiNode* inNode, ozz::animation::offline::RawSkeleton::Joint* currentJoint);
+
+		void AddAnimationChannelData(Mesh &outMesh, aiAnimation* inAnimation);
+
+		bool FindChanelID(const std::string& boneName, aiAnimation* animation, unsigned int& trackID);
+
+		bool FindChanelID(const std::string& boneName, ozz::animation::Skeleton* skeleton, unsigned int& trackID);
 	}
 }
 

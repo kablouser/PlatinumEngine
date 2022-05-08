@@ -67,9 +67,6 @@ namespace PlatinumEngine
 
 		~Renderer();
 
-		// set framebuffer from SceneEditor
-		void SetFramebuffer(Framebuffer *framebuffer);
-
 		// initialize framebuffer
 		void Begin();
 
@@ -91,7 +88,7 @@ namespace PlatinumEngine
 		// Particle shader uniforms
 		void BeginParticleShader();
 		void EndParticleShader();
-		void SetTextureParticleShader(Texture* texture, bool useTexture, int numCols, int numRows);
+		void SetTextureParticleShader(SavedReference<Texture> texture, bool useTexture, int numCols, int numRows);
 		void SetShadeByParticleShader(const std::string &shadeBy);
 		void SetVec4ParticleShader(const char* name, Maths::Vec4 vec);
 		void SetFloatParticleShader(const char* name, float val);
@@ -116,13 +113,16 @@ namespace PlatinumEngine
 
 		void SetCameraPos(const Maths::Vec3 &pos);
 
+		void SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat = Maths::Mat4(1.0));
+
+		void SetAnimationStatus(bool isAnimationOn);
+
 		// a window for renderer to test
 		void ShowGUIWindow(bool* outIsOpen);
 
 		void SetProjectionMatrixSkyBox(Maths::Mat4 mat);
 
 		void SetViewMatrixSkyBox(Maths::Mat4 mat);
-
 
 		void SetViewMatrixForGridShader(Maths::Mat4 mat);
 

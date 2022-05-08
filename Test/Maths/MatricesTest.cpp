@@ -4,6 +4,7 @@
 
 #include <catch2/catch.hpp>
 #include <Maths/Matrices.h>
+#include <Maths/Common.h>
 #include <glm/gtc/type_ptr.hpp>
 
 
@@ -30,7 +31,7 @@ TEST_CASE("MatrixConstructors", "[maths][matrices][vector]")
 			{
 				for(int x = 0 ; x < 2; x++)
 				{
-					REQUIRE(mat1[y][x] == 0);
+					REQUIRE(mat1[x][y] == 0);
 				}
 
 
@@ -42,7 +43,7 @@ TEST_CASE("MatrixConstructors", "[maths][matrices][vector]")
 			{
 				for(int x = 0 ; x < 3; x++)
 				{
-					REQUIRE(mat2[y][x] == 0);
+					REQUIRE(mat2[x][y] == 0);
 				}
 
 
@@ -54,7 +55,7 @@ TEST_CASE("MatrixConstructors", "[maths][matrices][vector]")
 			{
 				for(int x = 0 ; x < 3; x++)
 				{
-					REQUIRE(mat3[y][x] == 0);
+					REQUIRE(mat3[x][y] == 0);
 				}
 
 
@@ -66,7 +67,7 @@ TEST_CASE("MatrixConstructors", "[maths][matrices][vector]")
 			{
 				for(int x = 0 ; x < 4; x++)
 				{
-					REQUIRE(mat4[y][x] == 0);
+					REQUIRE(mat4[x][y] == 0);
 				}
 
 
@@ -79,7 +80,7 @@ TEST_CASE("MatrixConstructors", "[maths][matrices][vector]")
 			{
 				for(int x = 0 ; x < 3; x++)
 				{
-					REQUIRE(mat5[y][x] == 0);
+					REQUIRE(mat5[x][y] == 0);
 				}
 
 
@@ -92,7 +93,7 @@ TEST_CASE("MatrixConstructors", "[maths][matrices][vector]")
 			{
 				for(int x = 0 ; x < 4; x++)
 				{
-					REQUIRE(mat6[y][x] == 0);
+					REQUIRE(mat6[x][y] == 0);
 				}
 			}
 		}
@@ -104,9 +105,9 @@ TEST_CASE("MatrixConstructors", "[maths][matrices][vector]")
 						   1,3,1,1,
 						   1,2,1,1,
 						   1,1,9,1};
-			mat4 = PlatinumEngine::Maths::Matrix<4,4,int>(temp);
+			mat4.ConvertFromArray(temp, 16);
 
-			REQUIRE(mat4[2][3] == 9);
+			REQUIRE(mat4[3][2] == 9);
 
 		}
 	}
@@ -135,7 +136,7 @@ TEST_CASE("MatrixConstructors", "[maths][matrices][vector]")
 			{
 				for(int x = 0 ; x < 2; x++)
 				{
-					if(mat1[y][x] == 1)
+					if(mat1[x][y] == 1)
 					{
 
 						REQUIRE(x == y);
@@ -150,7 +151,7 @@ TEST_CASE("MatrixConstructors", "[maths][matrices][vector]")
 			{
 				for(int x = 0 ; x < 3; x++)
 				{
-					if(mat2[y][x] == 2)
+					if(mat2[x][y] == 2)
 					{
 
 						REQUIRE(x == y);
@@ -164,7 +165,7 @@ TEST_CASE("MatrixConstructors", "[maths][matrices][vector]")
 			{
 				for(int x = 0 ; x < 3; x++)
 				{
-					if(mat3[y][x] == 1.0f)
+					if(mat3[x][y] == 1.0f)
 					{
 
 						REQUIRE(x == y);
@@ -178,7 +179,7 @@ TEST_CASE("MatrixConstructors", "[maths][matrices][vector]")
 			{
 				for(int x = 0 ; x < 4; x++)
 				{
-					if(mat4[y][x] == 2.0f)
+					if(mat4[x][y] == 2.0f)
 					{
 
 						REQUIRE(x == y);
@@ -388,7 +389,7 @@ TEST_CASE("MatrixPreset", "[maths][matrices][vector]")
 			{
 				for (int j = 0; j < 3; j++)
 				{
-					REQUIRE(mat3[i][j] == temp[j][i]);
+					REQUIRE(mat3[j][i] == temp[j][i]);
 				}
 			}
 
@@ -512,7 +513,7 @@ TEST_CASE("MatrixPreset", "[maths][matrices][vector]")
 		THEN("Test if the Frustum matrix is the same as the one in glm.")
 		{
 			glm::mat4x4 temp(1.f);
-			temp = glm::perspective(60.f,1.f,1.f,100.f);
+			temp = glm::perspective(60.f * PlatinumEngine::Maths::Common::DEG2RAD,1.f,1.f,100.f);
 
 			float* tempArray = glm::value_ptr(temp);
 

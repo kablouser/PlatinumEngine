@@ -5,11 +5,14 @@
 #pragma once
 
 #include <vector>
+#include <queue>
 #include <string>
-#include <algorithm>
+#include <IDSystem/IDSystem.h>
+#include <TypeDatabase/TypeDatabase.h>
 
 #include <ComponentComposition/GameObject.h>
 #include <Physics/Physics.h>
+#include <Helpers/Time.h>
 
 namespace PlatinumEngine
 {
@@ -24,10 +27,18 @@ namespace PlatinumEngine
 		friend class GameObject;
 
 	public:
+
+		IDSystem& idSystem;
+		Physics& physics;
+		Time& time;
+
+		static void CreateTypeInfo(TypeDatabase& typeDatabase);
+
 		//--------------------------------------------------------------------------------------------------------------
 		// Constructors/destructors
 		//--------------------------------------------------------------------------------------------------------------
-		Scene(Physics& physics);
+
+		explicit Scene(IDSystem& idSystem, Physics& physics, Time& time);
 
 		~Scene();
 
@@ -42,17 +53,29 @@ namespace PlatinumEngine
 		Scene& operator=(Scene&&) noexcept = delete;
 
 		//--------------------------------------------------------------------------------------------------------------
-		// physics
+		// Load control
 		//--------------------------------------------------------------------------------------------------------------
-		Physics& physics;
+
+		void LoadFile(std::string filePath);
+
+		void SaveFile(std::string filePath);
+
+		// Clear all data stored on this scene
+		void Clear();
+
+		// Please call this after this object has just been deserialized
+		void AfterLoad();
 
 		//--------------------------------------------------------------------------------------------------------------
 		// _gameObjects controls
 		//--------------------------------------------------------------------------------------------------------------
 
-		GameObject* AddGameObject(std::string name = "GameObject", GameObject* parent = nullptr, bool isEnabled = true);
+		SavedReference<GameObject> AddGameObject(
+				std::string name = "GameObject",
+				SavedReference<GameObject> parent = {},
+				bool isEnabled = true);
 
-		void RemoveGameObject(GameObject& gameObject);
+		void RemoveGameObject(SavedReference<GameObject>& gameObject);
 
 		size_t GetGameObjectsCount() const;
 
@@ -62,12 +85,14 @@ namespace PlatinumEngine
 
 		size_t GetRootGameObjectsCount() const;
 
-		GameObject* GetRootGameObject(size_t index);
+		SavedReference<GameObject>& GetRootGameObject(size_t index);
 
 		// Returns boolean to check if moving successes or not
 		// targetObject : a target object of which the moved object wants to move in front of
 		// movedGameObject : an object that want to be moved
-		bool MoveRootGameObjectPositionInList(GameObject* targetObject, GameObject* movedGameObject);
+		bool MoveRootGameObjectPositionInList(
+				SavedReference<GameObject>& targetObject,
+				SavedReference<GameObject>& movedGameObject);
 
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -75,27 +100,70 @@ namespace PlatinumEngine
 		//--------------------------------------------------------------------------------------------------------------
 
 		/**
-		 * Adds a component to the scene
-		 * If a game object is provided, then first checks if component exists.
-		 * 	If it does, returns this instead of creating a new one
+		 * Adds a component to the scene.
+		 * @tparam T
+		 * @param gameObject
+		 * @param isEnabled
+		 * @return
 		 */
 		template<typename T>
-		T* AddComponent(GameObject* gameObject = nullptr, bool isEnabled = true)
+		SavedReference<T> AddComponent(SavedReference<GameObject> gameObject = {}, bool isEnabled = true)
 		{
-			if (gameObject)
-				if (gameObject->GetComponent<T>())
-					return gameObject->GetComponent<T>();
-			return static_cast<T*>(AddComponentInternal(*static_cast<Component*>(new T()), gameObject, isEnabled));
+			SavedReference<T> componentReference = idSystem.Add<T>();
+			AddComponentInternal(
+					(SavedReference<Component>)componentReference,
+					gameObject,
+					isEnabled);
+			return componentReference;
 		}
 
-		void RemoveComponent(Component& component);
+		template<typename T>
+		void RemoveComponent(SavedReference<T> component)
+		{
+			static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
+			// we can use UnsafeCast because Component is base of T
+			RemoveComponentInternal(std::move(component.template UnsafeCast<Component>()));
+		}
+
+		void RemoveComponentInternal(SavedReference<Component> component);
 
 		size_t GetComponentsCount() const;
 
 		template<typename T>
-		T* FindFirstComponent(bool requireEnabled = true)
+		SavedReference<T> FindFirstComponent(bool requireEnabled = true)
 		{
-			return dynamic_cast<T*>(FindFirstComponentInternal(requireEnabled, typeid(T)));
+			// cannot use recursive functions because template T needed
+			// for dynamic casting
+
+			std::queue<SavedReference<GameObject>*> gameObjectsToFind;
+			for (auto& root: _rootGameObjects)
+				gameObjectsToFind.push(&root);
+
+			while (!gameObjectsToFind.empty())
+			{
+				SavedReference<GameObject>* nextGameObject = gameObjectsToFind.front();
+				gameObjectsToFind.pop();
+
+				if (!nextGameObject->operator bool())
+					continue;
+
+				GameObject* rawPointer = nextGameObject->DeRef().get();
+				if (requireEnabled && !rawPointer->_isEnabledInHierarchy)
+					continue;
+
+				// this is the dynamic cast
+				SavedReference<T> targetComponent = rawPointer->GetComponent<T>();
+				if (targetComponent)
+				{
+					if (!requireEnabled || targetComponent.DeRef()->_isEnabledInHierarchy)
+						return targetComponent;
+				}
+
+				for (SavedReference<GameObject>& child: nextGameObject->DeRef()->_children)
+					gameObjectsToFind.push(&child);
+			}
+
+			return {};
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -131,12 +199,17 @@ namespace PlatinumEngine
 		 */
 		void Render(Renderer& renderer);
 
+		/**
+		 * Call after IDSystem has been deleted from
+		 */
+		void OnIDSystemUpdate();
+
 	private:
 
 		bool _isStarted;
-		std::vector<GameObject*> _gameObjects;
-		std::vector<GameObject*> _rootGameObjects;
-		std::vector<Component*> _components;
+		std::vector<SavedReference<GameObject>> _gameObjects;
+		std::vector<SavedReference<GameObject>> _rootGameObjects;
+		std::vector<SavedReference<Component>> _components;
 
 		//--------------------------------------------------------------------------------------------------------------
 		// External controls
@@ -145,19 +218,19 @@ namespace PlatinumEngine
 		/**
 		 * Broadcasts OnStart event to the input gameObject and all of its' children regardless of enabled/disabled.
 		 */
-		void BroadcastOnStart(GameObject& gameObject);
+		void BroadcastOnStart(SavedReference<GameObject>& gameObject);
 
 		/**
 		 * Broadcasts OnEnd event to the input gameObject and all of its' children regardless of enabled/disabled.
 		 */
-		void BroadcastOnEnd(GameObject& gameObject);
+		void BroadcastOnEnd(SavedReference<GameObject>& gameObject);
 
 		/**
 		 * Broadcasts OnEnable event to the input gameObject and all of its' children iff *enabled in hierarchy*
 		 *
 		 * Used for jump starting the scene on Start().
 		 */
-		void BroadcastOnEnable(GameObject& gameObject);
+		void BroadcastOnEnable(SavedReference<GameObject>& gameObject);
 
 		/**
 		 * THIS AFFECTS ENABLED OBJECTS ONLY (counter-intuitive)
@@ -165,40 +238,37 @@ namespace PlatinumEngine
 		 *
 		 * Used for cleaning up objects no longer in use on End()/removal.
 		 */
-		void BroadcastOnDisable(GameObject& gameObject);
+		void BroadcastOnDisable(SavedReference<GameObject>& gameObject);
 
 		/**
 		 * Broadcasts OnUpdate event to the input gameObject and all of its' children iff "enabled in hierarchy".
 		 */
-		void BroadcastOnUpdate(GameObject& gameObject, double deltaTime);
+		void BroadcastOnUpdate(SavedReference<GameObject>& gameObject, double deltaTime);
 
 		/**
 		 * Broadcasts OnRender event to the input gameObject and all of its' children iff "enabled in hierarchy".
 		 */
-		void BroadcastOnRender(GameObject& gameObject, Renderer& renderer);
+		void BroadcastOnRender(SavedReference<GameObject>& gameObject, Renderer& renderer);
 
 		/**
 		 * Broadcasts UpdateIsEnabledInHierarchy event to the input gameObject and all of its' children
 		 * regardless of enabled/disabled.
 		 */
-		void UpdateIsEnabledInHierarchy(GameObject& gameObject);
+		void UpdateIsEnabledInHierarchy(SavedReference<GameObject>& gameObject);
 
-		Component* AddComponentInternal(Component& component, GameObject* gameObject, bool isEnabled);
+		void BroadcastOnIDSystemUpdate(SavedReference<GameObject>& gameObject);
+
+		void AddComponentInternal(
+				SavedReference<Component> component,
+				SavedReference<GameObject> gameObject,
+				bool isEnabled);
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Internal controls
 		//--------------------------------------------------------------------------------------------------------------
 
-		void RemoveGameObjectRecurse(GameObject& gameObject);
+		void RemoveGameObjectRecurse(SavedReference<GameObject>& gameObject);
 
-		void RemoveRootGameObject(GameObject& gameObject);
-
-		Component* FindFirstComponentInternal(
-				bool requireEnabled,
-				const std::type_info& typeInfo);
-		Component* FindFirstComponentRecurse(
-				bool requireEnabled,
-				const std::type_info& typeInfo,
-				GameObject& gameObject);
+		void RemoveRootGameObject(SavedReference<GameObject>& gameObject);
 	};
 }

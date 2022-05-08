@@ -14,12 +14,18 @@ namespace PlatinumEngine
 	{
 	public:
 
+		static void CreateTypeInfo(TypeDatabase& database);
+
 		// A LOT OF EFFORT, WHERE MOST CASES, YOU DON'T NEED THIS
 		//enum class RelativeTo{world, local};
 
 		Maths::Vec3 localPosition;
 		Maths::Quaternion localRotation;
 		Maths::Mat4 transformationMatrix;
+
+		//For reposition
+		Maths::Vec3 initialPosition;
+		Maths::Quaternion initialRotation;
 		// uniform scaling has nice properties
 		float localScale;
 

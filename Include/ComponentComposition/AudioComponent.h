@@ -4,6 +4,7 @@
 
 #include "ComponentComposition/Component.h"
 #include "Logger/Logger.h"
+#include <Audio/AudioClip.h>
 #include "SDL.h"
 #include "SDL_mixer.h"
 #include <filesystem>
@@ -15,6 +16,7 @@ namespace PlatinumEngine
 	public:
 		std::string fileName;
 		bool isLooping;
+		SavedReference<AudioClip> audioClip;
 
 	private:
 		Mix_Chunk* _sound;
@@ -61,8 +63,12 @@ namespace PlatinumEngine
 		// Returns whether a sample has been loaded or not
 		bool IsSampleExist();
 
+		void OnIDSystemUpdate(Scene& scene) override;
+
 
 		//STATIC FUNCTIONS
+
+		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 
 		// Returns whether audio is playing or not (Can also specify a channel for audio clips otherwise it checks for all channels [value: -1])
 		static bool IsPlaying(int channel=-1);

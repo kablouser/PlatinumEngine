@@ -2,27 +2,17 @@
 // Created by Jinyuan on 05/04/2022.
 //
 #pragma once
-#include <GL/glew.h>
-#include <Maths/Vectors.h>
 #include <OpenGL/Texture.h>
+#include <IDSystem/IDSystem.h>
+#include <TypeDatabase/TypeDatabase.h>
 namespace PlatinumEngine
 {
-#define INVALID_HANDLE 0
-/*
-	struct MaterialRes
-	{
-		std::string diffuseTextureFile;
-		std::string normalTextureFile;
-		std::string specularTextureFile;
-	};
-*/
-
 	class Material
 	{
 	public:
-		Texture*			diffuseTexture;
-		Texture*			normalTexture;
-		Texture*			specularTexture;
+		SavedReference<Texture>			diffuseTexture;
+		SavedReference<Texture>			normalTexture;
+		SavedReference<Texture>			specularTexture;
 
 		float         	shininessFactor = 8.0f;
 		float refractionIndex = 1.5f;
@@ -34,9 +24,9 @@ namespace PlatinumEngine
 		bool useReflectionShader = false;
 		bool useRefractionShader = false;
 
-		Material();
-		~Material();
+		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 
+		Material();
+		void OnIDSystemUpdate(IDSystem& idSystem);
 	};
 }
-

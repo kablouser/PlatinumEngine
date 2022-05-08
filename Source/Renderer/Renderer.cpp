@@ -155,6 +155,8 @@ namespace PlatinumEngine
 		_phongShader.Bind();
 	}
 
+
+
 	void Renderer::End()
 	{
 //		glDisable(GL_DEPTH_TEST);
@@ -167,21 +169,12 @@ namespace PlatinumEngine
 
 	void Renderer::BeginSkyBoxShader()
 	{
-//		_framebuffer.Bind();
-
-//		glEnable(GL_DEPTH_TEST);
-//		GL_CHECK(glViewport(0, 0, _framebufferWidth, _framebufferHeight));
-//		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-//		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 		_skyBoxShader.Bind();
 	}
 
 	void Renderer::EndSkyBoxShader()
 	{
-//		glDisable(GL_DEPTH_TEST);
-//		_framebuffer.Unbind();
-//		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-//		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
+
 		_skyBoxShader.Unbind();
 	}
 
@@ -205,21 +198,30 @@ namespace PlatinumEngine
 		_particleShader.Unbind();
 	}
 
-	void Renderer::SetTextureParticleShader(Texture* texture, bool useTexture, int numCols, int numRows)
+	void Renderer::SetTextureParticleShader(SavedReference<Texture> texture, bool useTexture, int numCols, int numRows)
 	{
 		_particleShader.Bind();
 		_particleShader.SetUniform("useTexture", useTexture);
+		_particleShader.SetUniform("sampleTexture", (int)0);
+
 		if (texture)
 		{
-			_particleShader.SetUniform("sampleTexture", (int)0);
 			glActiveTexture(GL_TEXTURE0);
-			texture->Bind();
+			texture.DeRef()->Bind();
 
-			_particleShader.SetUniform("textureWidth", texture->width);
-			_particleShader.SetUniform("textureHeight", texture->height);
-			_particleShader.SetUniform("spriteWidth", texture->width / (float) numCols);
-			_particleShader.SetUniform("spriteHeight", texture->height / (float) numRows);
-			_particleShader.SetUniform("textureRatio", texture->height / texture->width);
+			_particleShader.SetUniform("textureWidth", (float)texture.DeRef()->width);
+			_particleShader.SetUniform("textureHeight", (float)texture.DeRef()->height);
+			_particleShader.SetUniform("spriteWidth", (float)texture.DeRef()->width / (float) numCols);
+			_particleShader.SetUniform("spriteHeight", (float)texture.DeRef()->height / (float) numRows);
+			_particleShader.SetUniform("textureRatio", (float)texture.DeRef()->height / texture.DeRef()->width);
+		}
+		else
+		{
+			_particleShader.SetUniform("textureWidth", 0.0f);
+			_particleShader.SetUniform("textureHeight", 0.0f);
+			_particleShader.SetUniform("spriteWidth", 1.0f);
+			_particleShader.SetUniform("spriteHeight", 1.0f);
+			_particleShader.SetUniform("textureRatio", 1.0f);
 		}
 	}
 
@@ -256,11 +258,6 @@ namespace PlatinumEngine
 		_particleShader.SetUniform(name, val);
 	}
 
-	void Renderer::SetFramebuffer(Framebuffer* framebuffer)
-	{
-		_framebuffer = *framebuffer;
-	}
-
 	void Renderer::ResizeFrameBuffer(Framebuffer &framebuffer, ImVec2 targetSize)
 	{
 		_framebufferWidth = (int)targetSize.x;
@@ -274,6 +271,7 @@ namespace PlatinumEngine
 
 	void Renderer::LoadMaterial(const Material& material)
 	{
+
 		if (material.useReflectionShader)
 		{
 			_reflectRefractShader.Bind();
@@ -293,11 +291,13 @@ namespace PlatinumEngine
 
 		_phongShader.Bind();
 		_phongShader.SetUniform("useTexture", material.useTexture);
+
+		// bind diffuse map
 		if (material.diffuseTexture)
 		{
 			_phongShader.SetUniform("diffuseMap", (int)0);
 			glActiveTexture(GL_TEXTURE0);
-			material.diffuseTexture->Bind();
+			material.diffuseTexture.DeRef()->Bind();
 		}
 
 		_phongShader.SetUniform("useNormalTexture", material.useNormalTexture);
@@ -305,7 +305,7 @@ namespace PlatinumEngine
 		{
 			_phongShader.SetUniform("normalMap", (int)1);
 			glActiveTexture(GL_TEXTURE1);
-			material.normalTexture->Bind();
+			material.normalTexture.DeRef()->Bind();
 		}
 
 		// Other uniforms
@@ -348,6 +348,39 @@ namespace PlatinumEngine
 		_particleShader.SetUniform("projection", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("projection", mat);
+	}
+
+	/*// update model matrix in shader
+	void Renderer::SetModelMatrixAnimation(Maths::Mat4 mat)
+	{
+		//mat.SetRotationMatrix(Maths::Vec3(0.5f * (float)glfwGetTime() * 50.0f / 180.0f * 3.14f, 1.0f, 0.0f));
+		_animationShader.SetUniform("model", mat);
+	}
+
+	// update view matrix in shader
+	void Renderer::SetViewMatrixAnimation(Maths::Mat4 mat)
+	{
+		//glm::mat4 view = GetViewMatrix();
+		_animationShader.SetUniform("view", mat);
+	}
+
+	// update perspective matrix in shader
+	void Renderer::SetProjectionMatrixAnimation(Maths::Mat4 mat)
+	{
+		_animationShader.SetUniform("projection", mat);
+	}*/
+
+	void Renderer::SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat)
+	{
+		if(transformMatrixIndex < 128)
+			_phongShader.SetUniform("tracks["+std::to_string(transformMatrixIndex)+"]", mat);
+		else
+			PLATINUM_WARNING_STREAM << "Size of transformation matrices " << transformMatrixIndex << " for animation exceeds 128.";
+	}
+
+	void Renderer::SetAnimationStatus(bool isAnimationOn)
+	{
+		_phongShader.SetUniform("isAnimationDisplay", isAnimationOn);
 	}
 
 	// update view matrix in shader
@@ -415,7 +448,9 @@ namespace PlatinumEngine
 				}
 
 				Begin();
-				Mesh mesh(vertices, indices);
+				Mesh mesh;
+				mesh.vertices = vertices;
+				mesh.indices = indices;
 //				MeshRender renderComponent(mesh);
 				LoadMesh(mesh);
 				End();
@@ -457,4 +492,5 @@ namespace PlatinumEngine
 		_particleShader.Bind();
 		_particleShader.SetUniform("cameraPos", pos);
 	}
+
 }

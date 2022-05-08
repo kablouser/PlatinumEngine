@@ -3,6 +3,22 @@
 
 namespace PlatinumEngine
 {
+	void Transform::CreateTypeInfo(TypeDatabase& database)
+	{
+		/*
+		Maths::Vec3 localPosition;
+		Maths::Quaternion localRotation;
+		Maths::Mat4 transformationMatrix;
+		float localScale;
+		 */
+		database.BeginTypeInfo<Transform>()
+		        .WithInherit<Component>()
+		        .WithField<Maths::Vec3>("localPosition", PLATINUM_OFFSETOF(Transform, localPosition))
+				.WithField<Maths::Quaternion>("localRotation", PLATINUM_OFFSETOF(Transform, localRotation))
+				.WithField<Maths::Mat4>("transformationMatrix", PLATINUM_OFFSETOF(Transform, transformationMatrix))
+				.WithField<float>("localScale", PLATINUM_OFFSETOF(Transform, localScale));
+	}
+
 	//Constructors
 
 	Transform::Transform()
@@ -51,10 +67,10 @@ namespace PlatinumEngine
 	Maths::Mat4 Transform::GetLocalToWorldMatrix()
 	{
 		Maths::Mat4 transformMatrix = GetLocalToParentMatrix();
-		Transform* transform = GetParentComponent<Transform>();
+		SavedReference<Transform> transform = GetParentComponent<Transform>();
 		if (transform)
 			// recursive, slow but oh well
-			return transform->GetLocalToWorldMatrix() * transformMatrix;
+			return transform.DeRef()->GetLocalToWorldMatrix() * transformMatrix;
 		return transformMatrix;
 	}
 
@@ -83,9 +99,9 @@ namespace PlatinumEngine
 	void Transform::SetLocalToWorldMatrix(Maths::Mat4 LocalToWorld)
 	{
 		Maths::Mat4 ParentToWorld, LocalToParent;
-		auto parent = GetParentComponent<Transform>();
+		SavedReference<Transform> parent = GetParentComponent<Transform>();
 		if (parent)
-			ParentToWorld = parent->GetLocalToWorldMatrix();
+			ParentToWorld = parent.DeRef()->GetLocalToWorldMatrix();
 		else
 			ParentToWorld.SetIdentityMatrix();
 

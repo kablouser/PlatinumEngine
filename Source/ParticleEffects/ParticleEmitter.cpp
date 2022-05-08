@@ -9,6 +9,39 @@ namespace PlatinumEngine
 {
 	namespace ParticleEffects
 	{
+		void ParticleEmitter::CreateTypeInfo(TypeDatabase& typeDatabase)
+		{
+			typeDatabase.BeginTypeInfo<ParticleEmitter>()
+			        .WithField<int>("numberOfParticles", PLATINUM_OFFSETOF(ParticleEmitter, numberOfParticles))
+					.WithField<float>("respawnLifetime", PLATINUM_OFFSETOF(ParticleEmitter, respawnLifetime))
+					.WithField<int>("numberOfNewParticles", PLATINUM_OFFSETOF(ParticleEmitter, numberOfNewParticles))
+					.WithField<float>("spawnInterval", PLATINUM_OFFSETOF(ParticleEmitter, spawnInterval))
+					.WithField<Maths::Vec3>("actingForce", PLATINUM_OFFSETOF(ParticleEmitter, actingForce))
+					.WithField<bool>("useRandomInitPositionX", PLATINUM_OFFSETOF(ParticleEmitter, useRandomInitPositionX))
+					.WithField<bool>("useRandomInitPositionY", PLATINUM_OFFSETOF(ParticleEmitter, useRandomInitPositionY))
+					.WithField<bool>("useRandomInitPositionZ", PLATINUM_OFFSETOF(ParticleEmitter, useRandomInitPositionZ))
+					.WithField<float>("minPositionX", PLATINUM_OFFSETOF(ParticleEmitter, minPositionX))
+					.WithField<float>("maxPositionX", PLATINUM_OFFSETOF(ParticleEmitter, maxPositionX))
+					.WithField<float>("minPositionY", PLATINUM_OFFSETOF(ParticleEmitter, minPositionY))
+					.WithField<float>("maxPositionY", PLATINUM_OFFSETOF(ParticleEmitter, maxPositionY))
+					.WithField<float>("minPositionZ", PLATINUM_OFFSETOF(ParticleEmitter, minPositionZ))
+					.WithField<float>("maxPositionZ", PLATINUM_OFFSETOF(ParticleEmitter, maxPositionZ))
+					.WithField<Maths::Vec3>("initVelocity", PLATINUM_OFFSETOF(ParticleEmitter, initVelocity))
+					.WithField<bool>("useRandomInitVelocityX", PLATINUM_OFFSETOF(ParticleEmitter, useRandomInitVelocityX))
+					.WithField<bool>("useRandomInitVelocityY", PLATINUM_OFFSETOF(ParticleEmitter, useRandomInitVelocityY))
+					.WithField<bool>("useRandomInitVelocityZ", PLATINUM_OFFSETOF(ParticleEmitter, useRandomInitVelocityZ))
+					.WithField<float>("minVelocityX", PLATINUM_OFFSETOF(ParticleEmitter, minVelocityX))
+					.WithField<float>("maxVelocityX", PLATINUM_OFFSETOF(ParticleEmitter, maxVelocityX))
+					.WithField<float>("minVelocityY", PLATINUM_OFFSETOF(ParticleEmitter, minVelocityY))
+					.WithField<float>("maxVelocityY", PLATINUM_OFFSETOF(ParticleEmitter, maxVelocityY))
+					.WithField<float>("minVelocityZ", PLATINUM_OFFSETOF(ParticleEmitter, minVelocityZ))
+					.WithField<float>("maxVelocityZ", PLATINUM_OFFSETOF(ParticleEmitter, maxVelocityZ))
+					.WithField<SavedReference<Texture>>("texture", PLATINUM_OFFSETOF(ParticleEmitter, texture))
+					.WithField<int>("numRowsInTexture", PLATINUM_OFFSETOF(ParticleEmitter, numRowsInTexture))
+					.WithField<int>("numColsInTexture", PLATINUM_OFFSETOF(ParticleEmitter, numColsInTexture));
+		}
+
+
 		ParticleEmitter::ParticleEmitter()
 		{
 			// Allocate enough space for all our particles, and so we can index into it straight away
@@ -125,15 +158,15 @@ namespace PlatinumEngine
 		{
 			// Respawn by resetting values
 			// Init velocity values
-			float xVelocity = (useRandomInitVelocityX) ? GetRandomFloat(minMaxVelocityX) : initVelocity.x;
-			float yVelocity = (useRandomInitVelocityY) ? GetRandomFloat(minMaxVelocityY) : initVelocity.y;
-			float zVelocity = (useRandomInitVelocityZ) ? GetRandomFloat(minMaxVelocityZ) : initVelocity.z;
+			float xVelocity = (useRandomInitVelocityX) ? GetRandomFloat(minVelocityX, maxVelocityX) : initVelocity.x;
+			float yVelocity = (useRandomInitVelocityY) ? GetRandomFloat(minVelocityY, maxVelocityY) : initVelocity.y;
+			float zVelocity = (useRandomInitVelocityZ) ? GetRandomFloat(minVelocityZ, maxVelocityZ) : initVelocity.z;
 			p.velocity = Maths::Vec3(xVelocity, yVelocity, zVelocity);
 
 			// Init position
-			float xPosition = (useRandomInitPositionX) ? GetRandomFloat(minMaxPositionX) : initPosition.x;
-			float yPosition = (useRandomInitPositionY) ? GetRandomFloat(minMaxPositionY) : initPosition.y;
-			float zPosition = (useRandomInitPositionZ) ? GetRandomFloat(minMaxPositionZ) : initPosition.z;
+			float xPosition = (useRandomInitPositionX) ? GetRandomFloat(minPositionX, maxPositionX) : 0.0f;
+			float yPosition = (useRandomInitPositionY) ? GetRandomFloat(minPositionY, maxPositionY)  : 0.0f;
+			float zPosition = (useRandomInitPositionZ) ? GetRandomFloat(minPositionZ, maxPositionZ)  : 0.0f;
 			p.position = Maths::Vec3(xPosition, yPosition, zPosition);
 
 			p.life = respawnLifetime;
@@ -141,14 +174,15 @@ namespace PlatinumEngine
 
 		/**
 		 * Simple random number generator to generate a float between two values
-		 * @param minMax
+		 * @param min
+		 * @param max
 		 * @return
 		 */
-		float ParticleEmitter::GetRandomFloat(float minMax[2])
+		float ParticleEmitter::GetRandomFloat(const float min, const float max)
 		{
 			// Use next after so distribution is inclusive of max value, i.e.
 			// [min, max] instead of [min, max)
-			std::uniform_real_distribution<float> dist(minMax[0], std::nextafter(minMax[1], FLT_MAX));
+			std::uniform_real_distribution<float> dist(min, std::nextafter(max, FLT_MAX));
 			return dist(_mt);
 		}
 	}

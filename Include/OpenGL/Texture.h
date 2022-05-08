@@ -9,15 +9,27 @@
 
 namespace PlatinumEngine
 {
+	// forward declare for Create function
+	struct PixelData;
+
 	class Texture
 	{
 	public:
 
 		Texture();
-
 		~Texture();
 
-		void Create(GLsizei _width, GLsizei _height, const void* pixelData = nullptr, int nrComponents = 3);
+		// copying not allowed. OpenGL texture properties are hard to copy. Just move it instead.
+		Texture(Texture&) = delete;
+		Texture& operator=(Texture&) = delete;
+
+		Texture(Texture&& moveFrom) noexcept;
+		Texture& operator=(Texture&& moveFrom) noexcept;
+
+		// Create no data, just dimensions
+		void Create(GLsizei width, GLsizei height);
+		// Create using some colour data
+		void Create(const PixelData& pixelData);
 
 		void CreateCubeMap(std::vector<std::string> faces);
 
@@ -30,7 +42,7 @@ namespace PlatinumEngine
 		void UnbindCubeMap() const;
 
 		std::string fileName;
-		float width, height;
+		GLsizei width, height;
 	private:
 
 		GLuint _textureHandle;
@@ -41,10 +53,15 @@ namespace PlatinumEngine
 	public:
 		PixelData();
 		~PixelData();
-		void Create(const std::string& filePath);
+		bool Create(const std::string& filePath);
 
-		int width, height, nrComponents;
+		int width, height;
+//     N=#comp     components
+//       1           grey
+//       2           grey, alpha
+//       3           red, green, blue
+//       4           red, green, blue, alpha
+		int numberOfComponents;
 		unsigned char *pixelData;
-
 	};
 }

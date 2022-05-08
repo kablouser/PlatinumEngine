@@ -15,16 +15,21 @@ namespace PlatinumEngine
 	class ParticleEffect : public Component
 	{
 	public:
-		ParticleEffect();
+		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 
+		ParticleEffect();
 		void OnUpdate(Scene& scene, double deltaTime) override;
 		void OnRender(Scene& scene, Renderer& renderer) override;
+		void OnIDSystemUpdate(Scene& scene) override;
+
 	public:
-		std::unique_ptr<ParticleEffects::ParticleEmitter> particleEmitter;
+		ParticleEffects::ParticleEmitter particleEmitter;
 
 		// Values which the particle emitter does not need to know but are user define-able options
 		bool useTexture = false;
 		std::string shadeBy = "Life";
+		// last frame number that this rendered. Used to avoid incrementing the deltaTime multiple times per frame.
+		int lastFrame = -1;
 
 		// TODO:
 		//  Adding interpolation between more than one colour

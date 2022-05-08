@@ -136,11 +136,11 @@ namespace PlatinumEngine
 
 		/**
 		 * DON't USE THIS!
-		 * Set data using
+		 * For setting buffer of animation shader only.
 		 * @param vertices
 		 * @param indices
 		 */
-		void Set(const std::vector<Maths::Vec3>& vertices, const std::vector<GLuint>& indices);
+		void Set(const std::vector<AnimationVertex>& vertices, const std::vector<GLuint>& indices);
 
 		/**
 		 * Delete data sent to the GPU

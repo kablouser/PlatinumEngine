@@ -11,19 +11,25 @@
 namespace PlatinumEngine
 {
 	// ---FUNCTION
-	void HierarchyWindow::DisplayTreeNote(GameObject* gameObject, Scene& scene, ModeForDraggingBehavior modeForDraggingBehavior)
+	void HierarchyWindow::DisplayTreeNote(
+			SavedReference<GameObject>& gameObject,
+			Scene& scene,
+			ModeForDraggingBehavior modeForDraggingBehavior)
 	{
+		if (!gameObject)
+			return;
 
 		// Store the states (is expanded or not) of the node
-		bool is_expanded = ImGui::TreeNodeEx(gameObject,
-				ImGuiTreeNodeFlags_FramePadding|(gameObject->GetChildrenCount()==0 ? ImGuiTreeNodeFlags_Leaf : 0),
+		bool is_expanded = ImGui::TreeNodeEx(gameObject.DeRef().get(),
+				ImGuiTreeNodeFlags_FramePadding|
+				(gameObject.DeRef()->GetChildrenCount()==0 ? ImGuiTreeNodeFlags_Leaf : 0),
 				"%s","");
 
 		// this is to make sure the selectable block below is on the same line
 		ImGui::SameLine();
 
 		// push id of current node
-		ImGui::PushID(gameObject);
+		ImGui::PushID(gameObject.DeRef().get());
 
 		// check if the current game object is selected
 		if(_sceneEditor->GetSelectedGameobject() == gameObject)
@@ -34,7 +40,7 @@ namespace PlatinumEngine
 		}
 
 		// create selectable block
-		ImGui::Selectable((std::string{ICON_FA_CIRCLE_NODES} + " " + gameObject->name).c_str(), false);
+		ImGui::Selectable((std::string(ICON_FA_CIRCLE_NODES) + " " + gameObject.DeRef()->name).c_str(), false);
 
 		// check if the current game object is selected
 		if(_sceneEditor->GetSelectedGameobject() == gameObject)
@@ -68,19 +74,16 @@ namespace PlatinumEngine
 				{
 					// For a safe delete, we need to check if the selected game object is a child of the selected
 					// object to delete
-					if (selectedObject)
+					auto parent = _sceneEditor->GetSelectedGameobject().DeRef()->GetParent();
+					while (parent)
 					{
-						auto parent = _sceneEditor->GetSelectedGameobject()->GetParent();
-						while (parent)
-						{
-							// Manually set nullptr as we know we will remove directly later
-							if (parent == gameObject)
-								_sceneEditor->SetSelectedGameobject(nullptr);
-							parent = parent->GetParent();
-						}
+						// Manually set nullptr as we know we will remove directly later
+						if (parent == gameObject)
+							_sceneEditor->SetSelectedGameobject({});
+						parent = parent.DeRef()->GetParent();
 					}
 
-					scene.RemoveGameObject(*gameObject);
+					scene.RemoveGameObject(gameObject);
 				}
 			}
 			ImGui::Selectable("Duplicate Object");
@@ -121,7 +124,12 @@ namespace PlatinumEngine
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 		{
 			// Set payload to carry the game object
-			ImGui::SetDragDropPayload("DragGameObject", &gameObject, sizeof(GameObject*));
+			ImGui::SetDragDropPayload(
+					"DragGameObject",
+					// pointer to SavedReference (id and pointer)
+					&gameObject,
+					// same as sizeof(SavedReference), not sizeof(SavedReference&)
+					sizeof(gameObject));
 
 			// End the DragDropSource
 			ImGui::EndDragDropSource();
@@ -137,7 +145,7 @@ namespace PlatinumEngine
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DragGameObject"))
 			{
 
-				GameObject* payloadPointer = *(GameObject**)payload->Data;
+				SavedReference<GameObject> payloadPointer = *(SavedReference<GameObject>*)payload->Data;
 
 				// check move behavior mode
 				// if the mode is to change hierarchy between game objects
@@ -145,8 +153,8 @@ namespace PlatinumEngine
 				{
 
 					// check if the dragged objects is the parent or ancestor of the target object
-					GameObject* temp = gameObject->GetParent();
-					while(temp != nullptr)
+					SavedReference<GameObject>& temp = gameObject.DeRef()->GetParent();
+					while(temp)
 					{
 						if(temp == payloadPointer)
 						{
@@ -154,12 +162,12 @@ namespace PlatinumEngine
 							break;
 						}
 
-						temp = temp->GetParent();
+						temp = temp.DeRef()->GetParent();
 					}
 
-					if(temp == nullptr)
+					if(!temp) // if null
 						// change the dragged object's parent
-						payloadPointer->SetParent(gameObject, scene);
+						payloadPointer.DeRef()->SetParent(gameObject, scene);
 				}
 				// if the mode is to change order between game objects
 				else
@@ -167,12 +175,12 @@ namespace PlatinumEngine
 					// check if the two game object have a same parent
 					// when the two game objects do not have same a parent
 					// change the parent of dragged object to be the same as the target object
-					if(payloadPointer->GetParent() == gameObject->GetParent())
+					if(payloadPointer.DeRef()->GetParent() == gameObject.DeRef()->GetParent())
 					{
-						
+
 						// move the position of the dragged objects in the list
 						// move the position of objects with no parent
-						if (payloadPointer->GetParent() == nullptr)
+						if (!payloadPointer.DeRef()->GetParent())
 						{
 							if (!scene.MoveRootGameObjectPositionInList(gameObject, payloadPointer))
 								PlatinumEngine::Logger::LogInfo("Cannot move game object to the new position.");
@@ -181,9 +189,9 @@ namespace PlatinumEngine
 						// move the position of objects with the same parent
 						else
 						{
-							if (!gameObject->GetParent()->MoveChildGameObjectPositionInList(gameObject, payloadPointer))
+							if (!gameObject.DeRef()->GetParent().DeRef()->
+								MoveChildGameObjectPositionInList(gameObject, payloadPointer))
 								PlatinumEngine::Logger::LogInfo("Cannot move game object to the new position.");
-
 						}
 					}
 				}
@@ -199,10 +207,10 @@ namespace PlatinumEngine
 		{
 
 			// Loop through the children under this node
-			for(int i = 0; i < gameObject->GetChildrenCount(); i++)
+			for(int i = 0; i < gameObject.DeRef()->GetChildrenCount(); i++)
 			{
 
-				DisplayTreeNote(gameObject->GetChild(i), scene, modeForDraggingBehavior);
+				DisplayTreeNote(gameObject.DeRef()->GetChild(i), scene, modeForDraggingBehavior);
 
 			}
 
@@ -216,7 +224,7 @@ namespace PlatinumEngine
 		// Generate the Hierarchy window
 		if(ImGui::Begin(ICON_FA_BARS_STAGGERED " Hierarchy Window", isOpen))
 		{
-			
+
 			// Gui for choosing hierarchy behaviour mode
 			if (ImGui::RadioButton("Change Hierarchy", _modeForDraggingBehavior == _hierarchyMode))
 			{
@@ -224,7 +232,7 @@ namespace PlatinumEngine
 			}
 
 			ImGui::SameLine();
-			
+
 			if (ImGui::RadioButton("Change Order", _modeForDraggingBehavior == _orderMode))
 			{
 				_modeForDraggingBehavior = _orderMode;
@@ -242,7 +250,7 @@ namespace PlatinumEngine
 
 			// Create Invisible button for achieving dragging tree node to the root game object list behavior
 			ImVec2 windowSize = ImGui::GetContentRegionAvail();
-			
+
 			ImGui::InvisibleButton(" ", ImVec2(windowSize.x,150));
 
 			// Add Drop Events
@@ -261,7 +269,7 @@ namespace PlatinumEngine
 						if (_modeForDraggingBehavior == _hierarchyMode)
 						{
 							// change the dragged object's parent
-							payloadPointer->SetParent(nullptr, scene);
+							payloadPointer->SetParent({}, scene);
 						}
 					}
 				}
@@ -270,19 +278,20 @@ namespace PlatinumEngine
 				{
 					char* payloadPointer = (char*)payload->Data;
 					int size = payload->DataSize;
-					std::string filePath = "";
+					std::string filePath;
 					for(int i=0;i<size;i++)
 						filePath+=*(payloadPointer+i);
 					std::filesystem::path payloadPath = std::filesystem::path(filePath);
 					if(payloadPath.extension()==".obj")
 					{
-						GameObject* go = scene.AddGameObject(payloadPath.stem().string());
+						std::string name = payloadPath.stem().string();
+						SavedReference<GameObject> go = scene.AddGameObject(name);
 						scene.AddComponent<Transform>(go);
 						scene.AddComponent<MeshRender>(go);
-						//Now we set the mesh
-						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
+
+						auto asset_Helper = _assetHelper->GetAsset<Mesh>(payloadPath.string());
 						if (std::get<0>(asset_Helper))
-							go->GetComponent<MeshRender>()->SetMesh(std::get<1>(asset_Helper));
+							go.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(std::get<1>(asset_Helper));
 						_sceneEditor->SetSelectedGameobject(go);
 					}
 				}
