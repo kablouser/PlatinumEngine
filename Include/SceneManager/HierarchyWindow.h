@@ -18,7 +18,6 @@
 #include <SceneManager/Scene.h>
 #include <SceneEditor/SceneEditor.h>
 #include <Logger/Logger.h>
-#include "AssetDatabase/AssetHelper.h"
 
 
 namespace PlatinumEngine

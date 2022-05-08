@@ -4,73 +4,49 @@
 //
 
 #include <WindowManager/WindowManager.h>
-#include <Physics/Physics.h>
 
 #include <imgui.h>
 #include <iostream>
 #include <ImGuiFileDialog.h>
+#include <Application.h>
+#include <AssetDatabase/AssetHelper.h>
+#include <SceneManager/SceneWithTemplates.h>
 
 namespace PlatinumEngine
 {
-	WindowManager::WindowManager(GameWindow *gameWindow,
-								SceneEditor *sceneEditor,
-								HierarchyWindow *hierarchy,
-								Logger *logger,
-								InspectorWindow *inspector,
-								Profiler *profiler,
-								ProjectWindow *projectWindow,
-								IDSystem& idSystem,
-								TypeDatabase& typeDatabase,
-								AssetDatabase& assetDatabase,
-								Scene& scene,
-								AssetHelper *assetHelper
-								):
-								_gameWindow(gameWindow),
-								_sceneEditor(sceneEditor),
-								_hierarchy(hierarchy),
-								_logger(logger),
-								_inspector(inspector),
-								_profiler(profiler),
-								_projectWindow(projectWindow),
-								_idSystem(idSystem),
-								_typeDatabase(typeDatabase),
-								_assetDatabase(assetDatabase),
-								_scene(scene),
-								_assetHelper(assetHelper)
-	{
-	}
+	WindowManager::WindowManager() = default;
 
 	///--------------------------------------------------------------------------
 	/// this function will create a basic window when you open the Platinum Engine
 	///--------------------------------------------------------------------------
-	void WindowManager::ShowGUI(Scene &scene)
+	void WindowManager::ShowGUI()
 	{
 		///-----------------------------------------------------------------------
 		///ifs in main menu window list to call the function inside
 		///-----------------------------------------------------------------------
 		//window section
-		if (_showWindowGame)			_gameWindow->ShowGUIWindow(&_showWindowGame);
+		Application::Instance->gameWindow.ShowGUIWindow(&_showWindowGame);
 		if (_showWindowScene) 			ShowWindowScene(&_showWindowScene);
-		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy, scene);
-		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector, scene);
+		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy);
+		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector);
 		if (_showWindowProject) 		ShowWindowProject(&_showWindowProject);
 		if (_showWindowAnimation) 		ShowWindowAnimation(&_showWindowAnimation);
 		if (_showWindowLight) 			ShowWindowLight(&_showWindowLight);
 		if (_showWindowLogger)   		ShowWindowLogger(&_showWindowLogger);
 		if(_showWindowProfiler) 		ShowWindowProfiler(&_showWindowProfiler);
-		if (_showFileLoad) 				LoadFile(scene, &_showFileLoad);
-		if (_showFileSave) 				SaveFile(scene, &_showFileSave);
+		if (_showFileLoad) 				LoadFile(&_showFileLoad);
+		if (_showFileSave) 				SaveFile(&_showFileSave);
 
 		///-------------------------------------------------------------------
 		/// set up the main menu bar
 		///-------------------------------------------------------------------
-		SetUpMainMenu(scene);
+		SetUpMainMenu();
 	}
 
 	///--------------------------------------------------------------------------
 	/// Set up the main menu for basic Window
 	///--------------------------------------------------------------------------
-	void WindowManager::SetUpMainMenu(Scene &scene)
+	void WindowManager::SetUpMainMenu()
 	{
 		if (ImGui::BeginMainMenuBar())
 		{
@@ -95,7 +71,7 @@ namespace PlatinumEngine
 			///---------------------------------------------------------------
 			if (ImGui::BeginMenu("GameObject"))
 			{
-				ShowMenuGameObject(scene);
+				ShowMenuGameObject();
 				ImGui::EndMenu();
 			}
 			///---------------------------------------------------------------
@@ -103,7 +79,7 @@ namespace PlatinumEngine
 			///---------------------------------------------------------------
 			if (ImGui::BeginMenu("Window"))
 			{
-				ShowMenuWindow(scene);
+				ShowMenuWindow();
 				ImGui::EndMenu();
 			}
 			///---------------------------------------------------------------
@@ -111,7 +87,7 @@ namespace PlatinumEngine
 			///---------------------------------------------------------------
 			if (ImGui::Button("Reload Asset Database"))
 			{
-				_assetDatabase.Update(_idSystem, _scene);
+				Application::Instance->assetDatabase.Update(Application::Instance->idSystem, Application::Instance->scene);
 			}
 
 			ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x - 130.f);
@@ -121,27 +97,27 @@ namespace PlatinumEngine
 			/// This section is for main menu bar to control the game view play/pause/step
 			///------------------------------------------------------------------
 
-			if (_gameWindow->GetIsStarted())
+			if (Application::Instance->gameWindow.GetIsStarted())
 			{
 				if (ImGui::Button(ICON_FA_STOP "##StopGame"))
 				{
-					auto& physicsObjects = scene.physics.GetRigidBodies();
+					auto& physicsObjects = Application::Instance->physics.GetRigidBodies();
 					for(auto& object: physicsObjects)
 					{
 						object.DeRef()->GetComponent<Transform>().DeRef()->localRotation = object.DeRef()->GetComponent<Transform>().DeRef()->initialRotation;
 						object.DeRef()->GetComponent<Transform>().DeRef()->localPosition = object.DeRef()->GetComponent<Transform>().DeRef()->initialPosition;
 					}
-					_gameWindow->SetIsStarted(false);
+					Application::Instance->gameWindow.SetIsStarted(false);
 					// isPaused is reset to false when game is stopped
-					_gameWindow->isPaused = false;
+					Application::Instance->gameWindow.isPaused = false;
 				}
 			}
 			else
 			{
 				if (ImGui::Button(ICON_FA_PLAY "##PlayGame"))
 				{
-					_gameWindow->SetIsStarted(true);
-					auto& physicsObjects = scene.physics.GetRigidBodies();
+					Application::Instance->gameWindow.SetIsStarted(true);
+					auto& physicsObjects = Application::Instance->physics.GetRigidBodies();
 					for(auto& object: physicsObjects)
 					{
 						object.DeRef()->GetComponent<Transform>().DeRef()->initialRotation = object.DeRef()->GetComponent<Transform>().DeRef()->localRotation;
@@ -153,24 +129,24 @@ namespace PlatinumEngine
 			}
 
 			// Pause can be useful before the game starts for debugging
-			if (_gameWindow->isPaused)
+			if (Application::Instance->gameWindow.isPaused)
 			{
 				// When paused, cause pause button to look "hovered"
 				ImGui::PushStyleColor(ImGuiCol_Button,ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered));
 				if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
-					_gameWindow->isPaused = false;
+					Application::Instance->gameWindow.isPaused = false;
 				ImGui::PopStyleColor(1);
 			}
 			else
 			{
 				if (ImGui::Button(ICON_FA_PAUSE "##Pause"))
-					_gameWindow->isPaused = true;
+					Application::Instance->gameWindow.isPaused = true;
 			}
 
 			// Step does nothing when game is stopped. So disable it.
-			ImGui::BeginDisabled(!_gameWindow->GetIsStarted());
+			ImGui::BeginDisabled(!Application::Instance->gameWindow.GetIsStarted());
 			if (ImGui::Button(ICON_FA_FORWARD_STEP "##Step"))
-				_gameWindow->Step();
+				Application::Instance->gameWindow.Step();
 			ImGui::EndDisabled();
 
 			ImGui::EndMainMenuBar();
@@ -180,7 +156,7 @@ namespace PlatinumEngine
 	///--------------------------------------------------------------------------
 	/// This section is for main menu bar "file" part file dialog showing
 	///--------------------------------------------------------------------------
-	void WindowManager::LoadFile(Scene& scene, bool* outIsOpen)
+	void WindowManager::LoadFile(bool* outIsOpen)
 	{
 		auto [success, path] = PlatinumEngine::FileDialog::OpenDialog(
 				outIsOpen,
@@ -190,9 +166,9 @@ namespace PlatinumEngine
 				"Assets",
 				"");
 		if (success)
-			scene.LoadFile(path);
+			Application::Instance->scene.LoadFile(path);
 	}
-	void WindowManager::SaveFile(Scene& scene, bool* outIsOpen)
+	void WindowManager::SaveFile(bool* outIsOpen)
 	{
 		auto [success, path] = PlatinumEngine::FileDialog::OpenDialog(
 				outIsOpen,
@@ -202,7 +178,7 @@ namespace PlatinumEngine
 				"Assets",
 				"Scene");
 		if (success)
-			scene.SaveFile(path);
+			Application::Instance->scene.SaveFile(path);
 	}
 
 	///--------------------------------------------------------------------------
@@ -226,20 +202,20 @@ namespace PlatinumEngine
 	/// this function helps to create a list of
 	/// operations of "GameObject" in the menu Bar
 	///--------------------------------------------------------------------------
-	void WindowManager::ShowMenuGameObject(Scene &scene)
+	void WindowManager::ShowMenuGameObject()
 	{
 		if (ImGui::MenuItem("Create Empty"))
 		{
-			scene.AddGameObject();
+			Application::Instance->scene.AddGameObject();
 		}
 		if (ImGui::BeginMenu("Create Game Object"))
 		{
 			if (ImGui::MenuItem(ICON_FA_CAMERA " Camera"))
 			{
-				auto obj = scene.AddGameObject("Camera");
-				scene.AddComponent<Camera>(obj);
-				scene.AddComponent<Transform>(obj);
-				_sceneEditor->SetSelectedGameobject(obj);
+				auto obj = Application::Instance->scene.AddGameObject("Camera");
+				Application::Instance->scene.AddComponent<Camera>(obj);
+				Application::Instance->scene.AddComponent<Transform>(obj);
+				Application::Instance->sceneEditor.SetSelectedGameobject(obj);
 			}
 			if (ImGui::MenuItem(ICON_FA_LIGHTBULB " Light"))
 			{}
@@ -247,21 +223,21 @@ namespace PlatinumEngine
 			{
 				if (ImGui::MenuItem(ICON_FA_FIRE " Basic Effect"))
 				{
-					auto obj = scene.AddGameObject("Particle Effect");
-					scene.AddComponent<ParticleEffect>(obj);
-					scene.AddComponent<Transform>(obj);
-					_sceneEditor->SetSelectedGameobject(obj);
+					auto obj = Application::Instance->scene.AddGameObject("Particle Effect");
+					Application::Instance->scene.AddComponent<ParticleEffect>(obj);
+					Application::Instance->scene.AddComponent<Transform>(obj);
+					Application::Instance->sceneEditor.SetSelectedGameobject(obj);
 				}
 				if (ImGui::MenuItem(ICON_FA_BURST " Single Point Effect"))
 				{
-					auto obj = scene.AddGameObject("Particle Effect");
-					auto component = scene.AddComponent<ParticleEffect>(obj);
+					auto obj = Application::Instance->scene.AddGameObject("Particle Effect");
+					auto component = Application::Instance->scene.AddComponent<ParticleEffect>(obj);
 					component.DeRef()->particleEmitter.useRandomInitVelocityX = false;
 					component.DeRef()->particleEmitter.useRandomInitVelocityZ = false;
 					component.DeRef()->particleEmitter.initVelocity = {0.0f, 0.0f, 0.0f};
 					component.DeRef()->particleEmitter.actingForce = {0.0f, 0.0f, 0.0f};
-					scene.AddComponent<Transform>(obj);
-					_sceneEditor->SetSelectedGameobject(obj);
+					Application::Instance->scene.AddComponent<Transform>(obj);
+					Application::Instance->sceneEditor.SetSelectedGameobject(obj);
 				}
 				ImGui::EndMenu();
 			}
@@ -272,58 +248,58 @@ namespace PlatinumEngine
 			if (ImGui::MenuItem(ICON_FA_CUBE " Cube"))
 			{
 				std::filesystem::path cubePath = "./Assets/Meshes/Cube.obj";
-				auto [success, asset] = _assetHelper->GetAsset<Mesh>(cubePath.string());
-				auto cube = scene.AddGameObject("Cube");
-				scene.AddComponent<Transform>(cube);
+				auto [success, asset] = AssetHelper::GetAsset<Mesh>(cubePath.string());
+				auto cube = Application::Instance->scene.AddGameObject("Cube");
+				Application::Instance->scene.AddComponent<Transform>(cube);
 				if(success)
 				{
-					scene.AddComponent<MeshRender>(cube);
+					Application::Instance->scene.AddComponent<MeshRender>(cube);
 					cube.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(asset);
 				}
-				scene.AddComponent<BoxCollider>(cube);
+				Application::Instance->scene.AddComponent<BoxCollider>(cube);
 			}
 
 			if (ImGui::MenuItem(ICON_FA_CIRCLE " Sphere"))
 			{
 				std::filesystem::path spherePath = "./Assets/Meshes/Sphere4.obj";
-				auto [success, asset] = _assetHelper->GetAsset<Mesh>(spherePath.string());
-				auto sphere = scene.AddGameObject("Sphere");
-				scene.AddComponent<Transform>(sphere);
+				auto [success, asset] = AssetHelper::GetAsset<Mesh>(spherePath.string());
+				auto sphere = Application::Instance->scene.AddGameObject("Sphere");
+				Application::Instance->scene.AddComponent<Transform>(sphere);
 				if(success)
 				{
-					scene.AddComponent<MeshRender>(sphere);
+					Application::Instance->scene.AddComponent<MeshRender>(sphere);
 					sphere.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(asset);
 				}
-				scene.AddComponent<SphereCollider>(sphere);
+				Application::Instance->scene.AddComponent<SphereCollider>(sphere);
 			}
 
 			if (ImGui::MenuItem(ICON_FA_CAPSULES " Capsule"))
 			{
 				std::filesystem::path capsulePath = "./Assets/Meshes/Capsule.obj";
-				auto [success, asset] = _assetHelper->GetAsset<Mesh>(capsulePath.string());
-				auto capsule = scene.AddGameObject("Capsule");
-				scene.AddComponent<Transform>(capsule);
+				auto [success, asset] = AssetHelper::GetAsset<Mesh>(capsulePath.string());
+				auto capsule = Application::Instance->scene.AddGameObject("Capsule");
+				Application::Instance->scene.AddComponent<Transform>(capsule);
 				if(success)
 				{
-					scene.AddComponent<MeshRender>(capsule);
+					Application::Instance->scene.AddComponent<MeshRender>(capsule);
 					capsule.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(asset);
 				}
-				scene.AddComponent<CapsuleCollider>(capsule);
+				Application::Instance->scene.AddComponent<CapsuleCollider>(capsule);
 			}
 
 			if (ImGui::MenuItem(ICON_FA_SQUARE " Plane"))
 			{
 				std::filesystem::path planePath = "./Assets/Meshes/Quad.obj";
-				auto [success, asset] = _assetHelper->GetAsset<Mesh>(planePath.string());
-				auto plane = scene.AddGameObject("Plane");
-				scene.AddComponent<Transform>(plane);
+				auto [success, asset] = AssetHelper::GetAsset<Mesh>(planePath.string());
+				auto plane = Application::Instance->scene.AddGameObject("Plane");
+				Application::Instance->scene.AddComponent<Transform>(plane);
 				if(success)
 				{
-					scene.AddComponent<MeshRender>(plane);
+					Application::Instance->scene.AddComponent<MeshRender>(plane);
 					plane.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(asset);
 				}
 
-				scene.AddComponent<BoxCollider>(plane);
+				Application::Instance->scene.AddComponent<BoxCollider>(plane);
 			}
 			ImGui::EndMenu();
 		}
@@ -347,7 +323,7 @@ namespace PlatinumEngine
 		{}
 	}
 
-	void WindowManager::ShowMenuWindow(Scene &scene)
+	void WindowManager::ShowMenuWindow()
 	{
 		if(ImGui::BeginMenu("Analysis"))
 		{
@@ -395,7 +371,7 @@ namespace PlatinumEngine
 	//Please implement Project Window below
 	void WindowManager::ShowWindowProject(bool* outIsOpen)
 	{
-		_projectWindow->ShowGUIWindow(outIsOpen);
+		Application::Instance->projectWindow.ShowGUIWindow(outIsOpen);
 	}
 
 	//Please implement Light Window below
@@ -407,29 +383,29 @@ namespace PlatinumEngine
 	//Please implement Scene Window below
 	void WindowManager::ShowWindowScene(bool* outIsOpen)
 	{
-		_sceneEditor->ShowGUIWindow(outIsOpen);
+		Application::Instance->sceneEditor.ShowGUIWindow(outIsOpen);
 	}
 
 	//Please implement Inspector Window below
-	void WindowManager::ShowWindowInspector(bool* outIsOpen, Scene &scene)
+	void WindowManager::ShowWindowInspector(bool* outIsOpen)
 	{
-		_inspector->ShowGUIWindow(outIsOpen, scene);
+		Application::Instance->inspectorWindow.ShowGUIWindow(outIsOpen);
 	}
 
 	//Please implement Hierarchy Window below
-	void WindowManager::ShowWindowHierarchy(bool* outIsOpen, Scene &scene)
+	void WindowManager::ShowWindowHierarchy(bool* outIsOpen)
 	{
-		_hierarchy->ShowGUIWindow(outIsOpen, scene);
+		Application::Instance->hierarchyWindow.ShowGUIWindow(outIsOpen);
 	}
 
 	void WindowManager::ShowWindowLogger(bool* outIsOpen)
 	{
-		_logger->ShowGUIWindow(outIsOpen);
+		Application::Instance->logger.ShowGUIWindow(outIsOpen);
 	}
 
 	void WindowManager::ShowWindowProfiler(bool* outIsOpen)
 	{
-		_profiler->ShowGUIWindow(outIsOpen);
+		Application::Instance->profiler.ShowGUIWindow(outIsOpen);
 	}
 
 

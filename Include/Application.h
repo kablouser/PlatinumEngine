@@ -4,11 +4,25 @@
 #include <Renderer/Renderer.h>
 #include <WindowManager/WindowManager.h>
 #include <TypeDatabase/TypeDatabase.h>
+#include <SceneEditor/SceneEditor.h>
+#include <SceneManager/HierarchyWindow.h>
 
 namespace PlatinumEngine
 {
 	class Application
 	{
+	private:
+		// sets Application::Instance. Because of constructor ordering is weird.
+		class InstanceSetter
+		{
+		public:
+			InstanceSetter(Application* newInstance);
+			~InstanceSetter();
+		};
+
+		// set the instance before other things start
+		InstanceSetter _instanceSetter;
+
 	public:
 		// singleton instance
 		static Application* Instance;

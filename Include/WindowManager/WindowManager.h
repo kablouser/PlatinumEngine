@@ -22,41 +22,29 @@ namespace PlatinumEngine
 	class WindowManager
 	{
 	public:
-		WindowManager(GameWindow *gameWindow,
-				      SceneEditor *sceneEditor,
-					  HierarchyWindow *hierarchy,
-					  Logger *logger,
-					  InspectorWindow *inspector,
-					  Profiler *profiler,
-					  ProjectWindow *projectWindow,
-					  IDSystem& idSystem,
-					  TypeDatabase& typeDatabase,
-					  AssetDatabase& assetDatabase,
-					  Scene& scene,
-					  AssetHelper *assetHelper
-					  );
+		WindowManager();
 
 		///-----------------------------------
 		///Main menu bar functions
 		///-----------------------------------
 		//window section
-		void ShowGUI(Scene &scene);
+		void ShowGUI();
 		void ShowMenuFile();
-		void ShowMenuGameObject(Scene &scene);
+		void ShowMenuGameObject();
         void ShowMenuEdit();
-		void ShowMenuWindow(Scene &scene);
-		void SetUpMainMenu(Scene &scene);
+		void ShowMenuWindow();
+		void SetUpMainMenu();
 
         //file section
-        void LoadFile(Scene& scene, bool* outIsOpen);
-		void SaveFile(Scene& scene, bool* outIsOpen);
+        void LoadFile(bool* outIsOpen);
+		void SaveFile(bool* outIsOpen);
 
         //shortcuts for main menu bars
 		///-----------------------------------
 		///sub menu item functions to open corresponding window
 		///-----------------------------------
-		void ShowWindowHierarchy(bool* outIsOpen, Scene &scene);
-		void ShowWindowInspector(bool* outIsOpen, Scene &scene);
+		void ShowWindowHierarchy(bool* outIsOpen);
+		void ShowWindowInspector(bool* outIsOpen);
 		void ShowWindowScene(bool* outIsOpen);
 		void ShowWindowProject(bool* outIsOpen);
 		void ShowWindowAnimation(bool* outIsOpen);
@@ -82,22 +70,5 @@ namespace PlatinumEngine
 		///-----------------------------------------------------------------------
 	    bool _showFileLoad          		 = false;
 	    bool _showFileSave                   = false;
-
-	private:
-		///-----------------------------------------------------------------------
-		///pointers to the constructor of each window need to be shown
-		///-----------------------------------------------------------------------
-		GameWindow *_gameWindow;
-		SceneEditor *_sceneEditor;
-		HierarchyWindow *_hierarchy;
-		Logger *_logger;
-		InspectorWindow *_inspector;
-		Profiler *_profiler;
-		ProjectWindow *_projectWindow;
-		IDSystem& _idSystem;
-		TypeDatabase& _typeDatabase;
-		AssetDatabase& _assetDatabase;
-		Scene& _scene;
-		AssetHelper *_assetHelper;
 	};
 }

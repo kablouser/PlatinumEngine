@@ -6,6 +6,7 @@
 #include <imgui.h>
 #include <IconsFontAwesome6.h>
 #include <tuple>
+#include <AssetDatabase/AssetDatabase.h>
 #include <Application.h>
 
 namespace PlatinumEngine

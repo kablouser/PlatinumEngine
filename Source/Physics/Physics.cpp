@@ -11,6 +11,8 @@
 
 #include <Logger/Logger.h>
 
+#include <Application.h>
+
 namespace PlatinumEngine
 {
 	PhysicsMaterial::PhysicsMaterial() :
@@ -64,8 +66,9 @@ namespace PlatinumEngine
 	Physics::~Physics() = default;
 
 	// Update the bulletWorld
-	void Physics::Update(double time)
+	void Physics::Update()
 	{
+		double deltaTime = Application::Instance->time.GetDelta();
 		// Write our data into bullet
 		int rigidBodyIndex = 0;
 		for (SavedReference<PlatinumEngine::RigidBody>& rigidBody: _allRigidBodies)
@@ -94,7 +97,7 @@ namespace PlatinumEngine
 			rigidBodyPointer->_collisionRecords.clear();
 		}
 
-		_bulletWorld.stepSimulation((btScalar)time, 1);
+		_bulletWorld.stepSimulation((btScalar)deltaTime, 1);
 
 		// All physics rigidBody need there updated position to reflect what bullet decides
 		// Write data from bullet back into our data

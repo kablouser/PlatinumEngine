@@ -11,7 +11,7 @@
 #include <ComponentComposition/Transform.h>
 #include <ComponentComposition/MeshRender.h>
 #include <AssetDatabase/AssetHelper.h>
-
+#include <SceneManager/SceneWithTemplates.h>
 
 namespace PlatinumEngine{
 
@@ -508,7 +508,7 @@ namespace PlatinumEngine{
 			Application::Instance->renderer.SetLightProperties();
 
 			// Render game objects
-			Application::Instance->scene.Render(Application::Instance->renderer);
+			Application::Instance->scene.Render();
 
 			// End rendering (unbind a shader)
 			Application::Instance->renderer.End();
@@ -570,7 +570,7 @@ namespace PlatinumEngine{
 			Application::Instance->renderer.SetCameraPos(_camera.GetCameraPosition());
 
 			// Render game objects
-			Application::Instance->scene.Render(Application::Instance->renderer);
+			Application::Instance->scene.Render();
 
 			// End rendering (unbind a shader)
 			Application::Instance->renderer.End();

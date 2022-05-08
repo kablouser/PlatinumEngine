@@ -56,7 +56,7 @@ namespace PlatinumEngine
 		 * @param isEnabled is component receiving updates
 		 * @param scene scene object that this component is running inside
 		 */
-		void SetEnabled(bool isEnabled, Scene& scene);
+		void SetEnabled(bool isEnabled);
 
 		/**
 		 * @return true iff this and the gameObject it's attached and all of the gameObject's parents are enabled.
@@ -84,41 +84,41 @@ namespace PlatinumEngine
 		 * If this component is in the scene before the game starts, it's triggered before the 1st frame of the game.
 		 * If this component is added in the middle of the game, it's triggered as soon as it's added.
 		 */
-		virtual void OnStart(Scene& scene);
+		virtual void OnStart();
 
 		/**
 		 * Event triggered when this component is removed while the game is running.
 		 * If this component is removed from the scene in the middle of the game, it's triggered as soon as it's removed.
 		 * If this component is in the scene when the game ends, it's triggered after the final frame of the game.
 		 */
-		virtual void OnEnd(Scene& scene);
+		virtual void OnEnd();
 
 		/**
 		 * Event triggered when _isEnabled state has changed to true while the game is running.
 		 * If this component is already enabled before the start of the game, it's triggered before the 1st frame of the game.
 		 */
-		virtual void OnEnable(Scene& scene);
+		virtual void OnEnable();
 
 		/**
 		 * Event triggered when _isEnabled state has changed to false while the game is running.
 		 * If this component is enabled when the game ends, it's triggered after the final frame of the game.
 		 */
-		virtual void OnDisable(Scene& scene);
+		virtual void OnDisable();
 
 		/**
 		 * Event triggered every frame while this component is enabled and the game is running.
 		 */
-		virtual void OnUpdate(Scene& scene, double deltaTime);
+		virtual void OnUpdate();
 
 		/**
 		 * Event triggered every render frame. Could render when the game is not running (i.e. in the scene editor).
 		 */
-		virtual void OnRender(Scene& scene, Renderer& renderer);
+		virtual void OnRender();
 
 		/**
 		 * Event triggered when SavedReference's pointers are updated.
 		 */
-		virtual void OnIDSystemUpdate(Scene& scene);
+		virtual void OnIDSystemUpdate();
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Convenience functions - forward declare only
@@ -149,6 +149,6 @@ namespace PlatinumEngine
 		 * IsEnabledInHierarchy might change if _gameObject or _isEnabled is changed
 		 * Uses scene to broadcast events when there's a change
 		 */
-		void UpdateIsEnabledInHierarchy(Scene& scene);
+		void UpdateIsEnabledInHierarchy();
 	};
 }

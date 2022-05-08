@@ -254,8 +254,8 @@ namespace PlatinumEngine
 		{
 			// OnDisable specification
 			if (component.DeRef()->_isEnabledInHierarchy)
-				component.DeRef()->OnDisable(*this);
-			component.DeRef()->OnEnd(*this);
+				component.DeRef()->OnDisable();
+			component.DeRef()->OnEnd();
 		}
 
 		if (component.DeRef()->_gameObject)
@@ -324,7 +324,7 @@ namespace PlatinumEngine
 			BroadcastOnEnd(gameObject);
 	}
 
-	void Scene::Update(double deltaTime)
+	void Scene::Update()
 	{
 		if (!IsStarted())
 		{
@@ -333,13 +333,13 @@ namespace PlatinumEngine
 		}
 
 		for (auto& gameObject: _rootGameObjects)
-			BroadcastOnUpdate(gameObject, deltaTime);
+			BroadcastOnUpdate(gameObject);
 	}
 
-	void Scene::Render(Renderer& renderer)
+	void Scene::Render()
 	{
 		for (auto& gameObject: _rootGameObjects)
-			BroadcastOnRender(gameObject, renderer);
+			BroadcastOnRender(gameObject);
 	}
 
 	void Scene::OnIDSystemUpdate()
@@ -365,7 +365,7 @@ namespace PlatinumEngine
 			return;
 
 		for (auto& component: gameObject.DeRef()->_components)
-			component.DeRef()->OnStart(*this);
+			component.DeRef()->OnStart();
 
 		for (auto& child: gameObject.DeRef()->_children)
 			BroadcastOnStart(child);
@@ -377,7 +377,7 @@ namespace PlatinumEngine
 			return;
 
 		for (auto& component: gameObject.DeRef()->_components)
-			component.DeRef()->OnEnd(*this);
+			component.DeRef()->OnEnd();
 
 		for (auto& child: gameObject.DeRef()->_children)
 			BroadcastOnEnd(child);
@@ -390,7 +390,7 @@ namespace PlatinumEngine
 
 		for (auto& component: gameObject.DeRef()->_components)
 			if (component.DeRef()->_isEnabledInHierarchy)
-				component.DeRef()->OnEnable(*this);
+				component.DeRef()->OnEnable();
 
 		for (auto& child: gameObject.DeRef()->_children)
 			BroadcastOnEnable(child);
@@ -403,36 +403,36 @@ namespace PlatinumEngine
 
 		for (auto& component: gameObject.DeRef()->_components)
 			if (component.DeRef()->_isEnabledInHierarchy)
-				component.DeRef()->OnDisable(*this);
+				component.DeRef()->OnDisable();
 
 		for (auto& child: gameObject.DeRef()->_children)
 			BroadcastOnDisable(child);
 	}
 
-	void Scene::BroadcastOnUpdate(SavedReference<GameObject>& gameObject, double deltaTime)
+	void Scene::BroadcastOnUpdate(SavedReference<GameObject>& gameObject)
 	{
 		if (!gameObject || !gameObject.DeRef()->_isEnabledInHierarchy)
 			return;
 
 		for (auto& component: gameObject.DeRef()->_components)
 			if (component.DeRef()->_isEnabledInHierarchy)
-				component.DeRef()->OnUpdate(*this, deltaTime);
+				component.DeRef()->OnUpdate();
 
 		for (auto& child: gameObject.DeRef()->_children)
-			BroadcastOnUpdate(child, deltaTime);
+			BroadcastOnUpdate(child);
 	}
 
-	void Scene::BroadcastOnRender(SavedReference<GameObject>& gameObject, Renderer& renderer)
+	void Scene::BroadcastOnRender(SavedReference<GameObject>& gameObject)
 	{
 		if (!gameObject || !gameObject.DeRef()->_isEnabledInHierarchy)
 			return;
 
 		for (auto& component: gameObject.DeRef()->_components)
 			if (component.DeRef()->_isEnabledInHierarchy)
-				component.DeRef()->OnRender(*this, renderer);
+				component.DeRef()->OnRender();
 
 		for (auto& child: gameObject.DeRef()->_children)
-			BroadcastOnRender(child, renderer);
+			BroadcastOnRender(child);
 	}
 
 	void Scene::UpdateIsEnabledInHierarchy(SavedReference<GameObject>& gameObject)
@@ -442,12 +442,12 @@ namespace PlatinumEngine
 
 		// recursively, broadcast the function UpdateIsEnabledInHierarchy to all it's components and children
 		for (auto& component: gameObject.DeRef()->_components)
-			component.DeRef()->UpdateIsEnabledInHierarchy(*this);
+			component.DeRef()->UpdateIsEnabledInHierarchy();
 
 		for (auto& child: gameObject.DeRef()->_children)
 			// recurse
 			// UpdateIsEnabledInHierarchy could further call UpdateIsEnabledInHierarchy
-			child.DeRef()->UpdateIsEnabledInHierarchy(*this, child);
+			child.DeRef()->UpdateIsEnabledInHierarchy(child);
 	}
 
 	void Scene::BroadcastOnIDSystemUpdate(SavedReference<GameObject>& gameObject)
@@ -469,7 +469,7 @@ namespace PlatinumEngine
 				continue;
 			Component* componentPointer = component.DeRef().get();
 			componentPointer->_gameObject.OnIDSystemUpdate(Application::Instance->idSystem);
-			componentPointer->OnIDSystemUpdate(*this);
+			componentPointer->OnIDSystemUpdate();
 		}
 
 		// recurse
@@ -493,10 +493,10 @@ namespace PlatinumEngine
 
 		if (_isStarted)
 		{
-			component.DeRef()->OnStart(*this);
+			component.DeRef()->OnStart();
 			if (component.DeRef()->_isEnabledInHierarchy)
 			{
-				component.DeRef()->OnEnable(*this);
+				component.DeRef()->OnEnable();
 			}
 		}
 	}
