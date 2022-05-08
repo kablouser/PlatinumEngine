@@ -99,7 +99,14 @@ namespace PlatinumEngine
 					p.distanceFromCamera = Maths::Length(vector);
 
 					// TODO: Let user choose how to scale particle and by what factor
-//					p.scale = 0.5f * p.life;
+					if (scaleBy == "Constant")
+						p.scale = scaleFactor;
+					if (scaleBy == "Life")
+						p.scale = scaleFactor * p.life;
+					if (scaleBy == "Position")
+						p.scale = scaleFactor * Maths::Length(p.position);
+					if (scaleBy == "Speed")
+						p.scale = scaleFactor * Maths::Length(p.velocity);
 					p.textureIndex = Maths::Vec2(0,0);
 					float lifeAsFraction = (2.0f*p.life) / (respawnLifetime);
 					int currentIndex = floor(lifeAsFraction * numRowsInTexture * numColsInTexture);
@@ -170,6 +177,7 @@ namespace PlatinumEngine
 			p.position = Maths::Vec3(xPosition, yPosition, zPosition);
 
 			p.life = respawnLifetime;
+			p.scale = 1.0f; // Normal scale to begin with
 		}
 	}
 }

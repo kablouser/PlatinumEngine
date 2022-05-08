@@ -23,7 +23,6 @@ namespace PlatinumEngine
 
 	ParticleEffect::ParticleEffect()
 	{
-		// TODO: Use OnStart/OnEnd functions
 	}
 
 	void ParticleEffect::OnUpdate(Scene& scene, double deltaTime)
@@ -41,18 +40,18 @@ namespace PlatinumEngine
 			renderer.SetModelMatrix();
 
 		// only move deltaTime once each frame
-		double deltaTime;
-		if (scene.time.getFramesPassed() == lastFrame)
+		if (particleEmitter.isPlaying)
 		{
-			deltaTime = 0.f;
-		}
-		else
-		{
-			deltaTime = scene.time.GetDelta();
-			lastFrame = scene.time.getFramesPassed();
+			float deltaTime = 0.0f;
+			if (scene.time.getFramesPassed() != lastFrame)
+			{
+				deltaTime = scene.time.GetDelta();
+				lastFrame = scene.time.getFramesPassed();
+			}
+
+			particleEmitter.UpdateParticles(deltaTime, renderer.cameraPos);
 		}
 
-		particleEmitter.UpdateParticles(deltaTime, renderer.cameraPos);
 		if (particleEmitter.particles)
 		{
 			// Bind shader stuff here

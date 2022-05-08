@@ -24,6 +24,7 @@ namespace PlatinumEngine
 		{
 			// Particles will want to use a nice blending function as a lof of them will be crammed into one space
 			// Creates a glow effect
+			GL_CHECK(glEnable(GL_BLEND));
 			GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE));
 
 			// Make sure depth test is on and reset if needed later

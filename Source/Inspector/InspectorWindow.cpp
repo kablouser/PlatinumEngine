@@ -692,6 +692,10 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 	{
 		auto component = obj.DeRef()->GetComponent<ParticleEffect>();
 
+		ImGui::Text("%s", "Play: ");
+		ImGui::SameLine();
+		ImGui::Checkbox("##PlayParticleEffect", &(component.DeRef()->particleEmitter.isPlaying));
+
 		if (ImGui::CollapsingHeader("Emitter Settings"))
 		{
 			ImGui::Text("Maximum Particles: ");
@@ -950,7 +954,7 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 			const std::string items[] = { "Life", "Position", "Size", "Speed" };
 			ImGui::Text("Shade by: ");
 			ImGui::SameLine(_textWidthParticleEffectComponentSmall - 30);
-			ImGui::PushItemWidth(80);
+			ImGui::PushItemWidth(90);
 			if (ImGui::BeginCombo("##ShadeByCombo", component.DeRef()->shadeBy.c_str()))
 			{
 				for (int n = 0; n < IM_ARRAYSIZE(items); n++)
@@ -986,6 +990,28 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 			ImGui::SliderFloat("##MaxShadeValue", &component.DeRef()->maxShadeValue, 0.f, maxVal, "%.3f",
 					ImGuiSliderFlags_None);
 			ImGui::PopItemWidth();
+
+			const std::string scaleByItems[] = { "Constant", "Life", "Position", "Speed" };
+			ImGui::Text("Scale by: ");
+			ImGui::SameLine(_textWidthParticleEffectComponentSmall - 30);
+			ImGui::PushItemWidth(90);
+			if (ImGui::BeginCombo("##ScaleByCombo", component.DeRef()->particleEmitter.scaleBy.c_str()))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(scaleByItems); n++)
+				{
+					bool is_selected = (component.DeRef()->particleEmitter.scaleBy == scaleByItems[n]);
+					if (ImGui::Selectable(scaleByItems[n].c_str(), is_selected))
+						component.DeRef()->particleEmitter.scaleBy = scaleByItems[n];
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::SameLine();
+			ImGui::Text("%s", "Scale Factor: ");
+			ImGui::SameLine();
+			ImGui::SliderFloat("##ScaleFactorParticles", &component.DeRef()->particleEmitter.scaleFactor, 0.f, 10.0f, "%.3f",
+					ImGuiSliderFlags_None);
 
 			char textureBuffer[64];
 			if (component.DeRef()->particleEmitter.texture.DeRef() != nullptr)

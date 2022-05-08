@@ -68,9 +68,11 @@ namespace PlatinumEngine
 			int numRowsInTexture = 1;
 			int numColsInTexture = 1;
 
+			// Other things
+			bool isPlaying = true;
+			std::string scaleBy = "Constant";
+			float scaleFactor = 1.0f;
 			std::unique_ptr<std::vector<Particle>> particles;
-
-			bool useNormalDistribution = false;
 		private:
 			unsigned int FirstDeadParticle();
 			void RespawnParticle(Particle &p);
