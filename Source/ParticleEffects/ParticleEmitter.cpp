@@ -62,21 +62,14 @@ namespace PlatinumEngine
 
 			particles->clear();
 
-			// Only spawn particles if enough time has passed
-			_timeSinceLastSpawn += deltaTime;
-			while (_timeSinceLastSpawn > spawnInterval)
+			// When emitting, always respawn particles
+			if (isEmitting)
+				RespawnParticles(deltaTime, false);
+			else if (oneShot)
 			{
-				// Spawn a set number of new particles every spawn interval
-				for (unsigned int i = 0; i < numberOfNewParticles; ++i)
-				{
-					// Find which particle to respawn in the particle container, so we don't infinitely spawn too many
-					unsigned int indexOfDeadParticle = FirstDeadParticle();
-
-					// Now respawn that particle (hopefully it was dead anyway)
-					RespawnParticle(_particleContainer->at(indexOfDeadParticle));
-				}
-
-				_timeSinceLastSpawn -= spawnInterval;
+				// When one shot, only spawn one batch of particles
+				RespawnParticles(deltaTime, true);
+				oneShot = false;
 			}
 
 			// Edit the particles in the container
@@ -108,7 +101,9 @@ namespace PlatinumEngine
 					if (scaleBy == "Speed")
 						p.scale = scaleFactor * Maths::Length(p.velocity);
 					p.textureIndex = Maths::Vec2(0,0);
-					float lifeAsFraction = (2.0f*p.life) / (respawnLifetime);
+					float lifeAsFraction = (p.life) / (respawnLifetime);
+					// Use 2*p.life to run through texture twice, note for later
+					// float lifeAsFraction = (p.life) / (respawnLifetime);
 					int currentIndex = floor(lifeAsFraction * numRowsInTexture * numColsInTexture);
 					int j = currentIndex / numColsInTexture;
 					int k = currentIndex - j * numColsInTexture;
@@ -155,6 +150,43 @@ namespace PlatinumEngine
 
 			// Just overwrite the first one it will still look nice
 			return 0;
+		}
+
+		void ParticleEmitter::RespawnParticles(const float deltaTime, const bool isOneShot)
+		{
+			// Only spawn particles if enough time has passed, or if oneShot is triggered
+			// Only update spawn times if using standard emitting method
+			if (isOneShot)
+			{
+				// Spawn a set number of new particles every spawn interval
+				for (unsigned int i = 0; i < numberOfNewParticles; ++i)
+				{
+					// Find which particle to respawn in the particle container, so we don't infinitely spawn too many
+					unsigned int indexOfDeadParticle = FirstDeadParticle();
+
+					// Now respawn that particle (hopefully it was dead anyway)
+					RespawnParticle(_particleContainer->at(indexOfDeadParticle));
+				}
+
+				// Respawning done for one shot
+				return;
+			}
+
+			// For emission, make sure we spawn enough particles
+			_timeSinceLastSpawn += deltaTime;
+			while (_timeSinceLastSpawn > spawnInterval)
+			{
+				// Spawn a set number of new particles every spawn interval
+				for (unsigned int i = 0; i < numberOfNewParticles; ++i)
+				{
+					// Find which particle to respawn in the particle container, so we don't infinitely spawn too many
+					unsigned int indexOfDeadParticle = FirstDeadParticle();
+
+					// Now respawn that particle (hopefully it was dead anyway)
+					RespawnParticle(_particleContainer->at(indexOfDeadParticle));
+				}
+				_timeSinceLastSpawn -= spawnInterval;
+			}
 		}
 
 		/**

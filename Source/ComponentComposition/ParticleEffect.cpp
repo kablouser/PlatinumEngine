@@ -40,17 +40,16 @@ namespace PlatinumEngine
 			renderer.SetModelMatrix();
 
 		// only move deltaTime once each frame
-		if (particleEmitter.isPlaying)
+		float deltaTime = 0.0f;
+		if (scene.time.getFramesPassed() != lastFrame)
 		{
-			float deltaTime = 0.0f;
-			if (scene.time.getFramesPassed() != lastFrame)
-			{
-				deltaTime = scene.time.GetDelta();
-				lastFrame = scene.time.getFramesPassed();
-			}
-
-			particleEmitter.UpdateParticles(deltaTime, renderer.cameraPos);
+			deltaTime = scene.time.GetDelta();
+			lastFrame = scene.time.getFramesPassed();
 		}
+
+		// Only update particles if playing effect
+		if (isPlaying)
+			particleEmitter.UpdateParticles(deltaTime, renderer.cameraPos);
 
 		if (particleEmitter.particles)
 		{

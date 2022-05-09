@@ -692,9 +692,16 @@ void InspectorWindow::ShowParticleEffectComponent(Scene& scene)
 	{
 		auto component = obj.DeRef()->GetComponent<ParticleEffect>();
 
-		ImGui::Text("%s", "Play: ");
+		ImGui::Text("%s", "Emitting");
 		ImGui::SameLine();
-		ImGui::Checkbox("##PlayParticleEffect", &(component.DeRef()->particleEmitter.isPlaying));
+		ImGui::Checkbox("##BeginEmittingParticleEffect", &(component.DeRef()->particleEmitter.isEmitting));
+		ImGui::SameLine();
+		if (ImGui::Button("OneShot##OneShotParticleEffect"))
+			component.DeRef()->particleEmitter.oneShot = true;
+		ImGui::SameLine();
+		ImGui::Text("%s", "Playing");
+		ImGui::SameLine();
+		ImGui::Checkbox("##PlayingParticleEffect", &(component.DeRef()->isPlaying));
 
 		if (ImGui::CollapsingHeader("Emitter Settings"))
 		{

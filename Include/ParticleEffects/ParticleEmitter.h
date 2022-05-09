@@ -69,12 +69,14 @@ namespace PlatinumEngine
 			int numColsInTexture = 1;
 
 			// Other things
-			bool isPlaying = true;
+			bool isEmitting = true;
+			bool oneShot = false;
 			std::string scaleBy = "Constant";
 			float scaleFactor = 1.0f;
 			std::unique_ptr<std::vector<Particle>> particles;
 		private:
 			unsigned int FirstDeadParticle();
+			void RespawnParticles(float deltaTime, bool isOneShot);
 			void RespawnParticle(Particle &p);
 		private:
 			unsigned int _lastDeadParticle = 0;
