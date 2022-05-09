@@ -236,6 +236,11 @@ namespace PlatinumEngine{
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("Bound Sizing");
 
+			ImGui::SameLine();
+			ImGui::Text("Move Speed: x%.2g", _camera.speedScale);
+			if(ImGui::IsItemHovered())
+				ImGui::SetTooltip("Arrow keys moves the camera. You can change the speed with mouse wheel or -/+");
+
 			//-------------
 			// Sub window
 			//-------------
@@ -380,7 +385,8 @@ namespace PlatinumEngine{
 				ImGui::SetWindowFocus();
 			}
 			// no checks, this is cheap
-			_camera.ChangeSpeedScale(_wheelValueDelta);
+			_camera.ChangeSpeedScale(_wheelValueDelta +
+				0.05f * Application::Instance->inputManager.GetAxis("ControlSpeed"));
 
 		}
 

@@ -155,8 +155,10 @@ namespace PlatinumEngine
 		// device input data
 		float _translationSpeed = 0.1;
 		float _rotationSpeed = 0.002;
+
+	public:
 		// the translation speed multiplier
-		float _speedScale = 1.0f;
+		float speedScale = 1.0f;
 
 	};
 

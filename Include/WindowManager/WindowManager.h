@@ -51,6 +51,11 @@ namespace PlatinumEngine
 		void ShowWindowLight(bool* outIsOpen);
 		void ShowWindowLogger(bool* outIsOpen);
 		void ShowWindowProfiler(bool* outIsOpen);
+
+		void ShowQuitMenu();
+
+		// First call will popup a window confirming quit, second call will close glfw window
+		void SuggestQuit();
 	private:
 		///-----------------------------------------------------------------------
 		///bools in main menu window list
@@ -70,5 +75,7 @@ namespace PlatinumEngine
 		///-----------------------------------------------------------------------
 	    bool _showFileLoad          		 = false;
 	    bool _showFileSave                   = false;
+
+		bool _isQuitting = false;
 	};
 }

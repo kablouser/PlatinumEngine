@@ -12,6 +12,7 @@
 #include <AssetDatabase/AssetHelper.h>
 #include <SceneManager/SceneWithTemplates.h>
 
+
 using namespace PlatinumEngine;
 
 InspectorWindow::InspectorWindow() = default;
@@ -66,6 +67,9 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen)
 
 			if (auto ref = obj.DeRef()->GetComponent<AudioComponent>())
 				ShowAudioComponent(ref);
+
+			if (auto ref = obj.DeRef()->GetComponent<Player>())
+				ShowPlayerComponent(ref);
 
 			ImGui::Separator();
 			if (_isAddComponentWindowOpen)
@@ -1060,6 +1064,29 @@ void InspectorWindow::ShowAnimationComponent(SavedReference<AnimationComponent>&
 	}
 }
 
+void InspectorWindow::ShowPlayerComponent(SavedReference<Player>& reference)
+{
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader("Player", ImGuiTreeNodeFlags_AllowItemOverlap);
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemovePlayerComponent"))
+	{
+		// remove component
+		Application::Instance->scene.RemoveComponent(reference);
+		return;
+	}
+	if (isHeaderOpen)
+	{
+		// store pointer of renderComponent
+		Player* player = reference.DeRef().get();
+
+		ImGui::InputFloat("Move Speed##Player", &player->moveSpeed);
+		ImGui::InputFloat("Move Acceleration##Player", &player->moveAcceleration);
+		ImGui::InputFloat("Move Deceleration##Player", &player->moveDeceleration);
+		ImGui::InputFloat("Jump Speed##Player", &player->jumpSpeed);
+	}
+}
+
 void InspectorWindow::ShowAddComponent()
 {
 	if (ImGui::BeginChild("ComponentSelector"))
@@ -1076,7 +1103,8 @@ void InspectorWindow::ShowAddComponent()
 				"CapsuleCollider Component",
 				"Particle Effect Component",
 				"Audio Component",
-				"Animation Component"
+				"Animation Component",
+				"Player",
 		};
 		static const char* selectedComponent = nullptr;
 		static char componentSelectorBuffer[128];
@@ -1161,6 +1189,11 @@ void InspectorWindow::ShowAddComponent()
 					obj.DeRef()->GetComponent<AnimationComponent>().DeRef()->SetMesh(obj.DeRef()->GetComponent<MeshRender>().DeRef()->GetMesh());
 				}
 			}
+			else if (strcmp(selectedComponent, "Player") == 0)
+			{
+				Application::Instance->scene.AddComponent<Player>(obj);
+			}
+
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;
 		}

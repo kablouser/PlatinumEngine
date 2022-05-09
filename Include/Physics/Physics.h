@@ -33,6 +33,7 @@ namespace PlatinumEngine
 	{
 		SavedReference<RigidBody> other;
 		Maths::Vec3 contactPointOnSelf, contactPointOnOther;
+		Maths::Vec3 normal;
 	};
 
 	class Physics

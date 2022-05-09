@@ -61,8 +61,8 @@ namespace PlatinumEngine
 	void EditorCamera::TranslationByMouse(Maths::Vec2 delta)
 	{
 		// update translation value
-		_translationValue += GetUpDirection() * delta.y * _translationSpeed * _speedScale;
-		_translationValue += GetRightDirection() * -delta.x * _translationSpeed * _speedScale;
+		_translationValue += GetUpDirection() * delta.y * _translationSpeed * speedScale;
+		_translationValue += GetRightDirection() * -delta.x * _translationSpeed * speedScale;
 
 		// update view matrix
 		UpdateViewMatrix();
@@ -73,9 +73,9 @@ namespace PlatinumEngine
 		// update translation value
 		constexpr float SCROLL_SPEED = 1.1f;
 		if (0 < wheelDelta)
-			_speedScale *= SCROLL_SPEED;
+			speedScale *= SCROLL_SPEED;
 		else if (wheelDelta < 0)
-			_speedScale /= SCROLL_SPEED;
+			speedScale /= SCROLL_SPEED;
 	}
 
 	void EditorCamera::TranslationByKeyBoard(float forwardDirectionValue, float rightDirectionValue)
@@ -95,10 +95,10 @@ namespace PlatinumEngine
 		}
 
 		// move along forward direction
-		_translationValue += forwardDirectionValue * GetForwardDirection() * _translationSpeed * 10.f * _speedScale;
+		_translationValue += forwardDirectionValue * GetForwardDirection() * _translationSpeed * 10.f * speedScale;
 		// * deltaClock.getElapsedTime().asSeconds();
 
-		_translationValue += rightDirectionValue * GetRightDirection() * _translationSpeed * 10.f * _speedScale;
+		_translationValue += rightDirectionValue * GetRightDirection() * _translationSpeed * 10.f * speedScale;
 		// * deltaClock.getElapsedTime().asSeconds();
 
 		// update view matrix
