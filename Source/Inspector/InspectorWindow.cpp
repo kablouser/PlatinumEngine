@@ -1167,7 +1167,7 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 	{
 		auto& obj = _sceneEditor->GetSelectedGameobject();
 
-		const char* components[] = {
+		static const char* components[] = {
 				"Mesh Render Component",
 				"Transform Component",
 				"Camera Component",
@@ -1180,29 +1180,21 @@ void InspectorWindow::ShowAddComponent(Scene& scene)
 				"Animation Component"
 		};
 		static const char* selectedComponent = nullptr;
-		static char componentSelectorBuffer[128];
-		ImGui::Text("%s", "Select a Component");
-		ImGui::InputText("##FilterComponents", componentSelectorBuffer, IM_ARRAYSIZE(componentSelectorBuffer));
+		static ImGuiTextFilter filter;
+		ImGui::Text("%s", "Search Components");
 		ImGui::SameLine();
-		ImGui::Text("%s", ICON_FA_MAGNIFYING_GLASS);
-
-		if (ImGui::BeginListBox("##ComponentSelector"))
+		filter.Draw( ICON_FA_MAGNIFYING_GLASS);
+		for (const auto component : components)
 		{
-			// Add components to list
-			for (unsigned int i = 0; i < IM_ARRAYSIZE(components); ++i)
+			// Only add components that match search string
+			if (filter.PassFilter(component))
 			{
-				// Only add components that match search string
-				if (std::string(components[i]).find(std::string(componentSelectorBuffer)) != std::string::npos)
+				// If found, display component
+				if (ImGui::Selectable(component))
 				{
-					// If found, display component
-					if (ImGui::Selectable(components[i]))
-					{
-						selectedComponent = components[i];
-					}
+					selectedComponent = component;
 				}
 			}
-
-			ImGui::EndListBox();
 		}
 
 		// Cancel button
