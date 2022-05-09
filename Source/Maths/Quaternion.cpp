@@ -7,7 +7,7 @@ namespace PlatinumEngine
 {
 	namespace Maths
 	{
-		Quaternion::Quaternion():w(0.f), x(0.f), y(0.f), z(0.f)
+		Quaternion::Quaternion():w(1.f), x(0.f), y(0.f), z(0.f)
 		{
 		}
 		Quaternion::Quaternion(float w, Maths::Vec3 xyz):w(w), x(xyz.x), y(xyz.y), z(xyz.z)

@@ -2,6 +2,8 @@
 
 #include <ComponentComposition/Component.h>
 #include <ComponentComposition/RigidBody.h>
+#include <ComponentComposition/AudioComponent.h>
+#include <ComponentComposition/Transform.h>
 
 namespace PlatinumEngine
 {
@@ -11,8 +13,6 @@ namespace PlatinumEngine
 		static void CreateTypeInfo();
 
 		void OnStart() override;
-
-		void OnEnd() override;
 
 		void OnUpdate() override;
 
@@ -25,7 +25,10 @@ namespace PlatinumEngine
 
 	private:
 		SavedReference<RigidBody> _rigidBody;
-		float _currentVelocityX;
+		SavedReference<AudioComponent> _audioComponent;
+		SavedReference<Transform> _transform;
+		float _currentVelocityX = 0.f;
+		float _nextJumpAvailable = 0.f;
 
 		bool IsGrounded(RigidBody* rigidBodyPointer) const;
 	};

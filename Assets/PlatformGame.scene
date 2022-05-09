@@ -1,6 +1,21 @@
 IDSystem
 {
 	{
+		9150876014666192880,
+		PlatinumEngine::AudioComponent 
+		{
+			// inherited from PlatinumEngine::Component
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 4368453087326970620;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			// from PlatinumEngine::AudioComponent
+			PlatinumEngine::SavedReference<PlatinumEngine::AudioClip> audioClip = 10267754693207273464;
+			bool _isLooping = 0;
+			int _channel = 0;
+			int _volume = -1163005939;
+		}
+	},
+	{
 		9948769316098349950,
 		PlatinumEngine::AudioComponent 
 		{
@@ -13,6 +28,40 @@ IDSystem
 			bool _isLooping = 0;
 			int _channel = 0;
 			int _volume = -1163005939;
+		}
+	},
+	{
+		1954358481284154259,
+		PlatinumEngine::BoxCollider 
+		{
+			// inherited from PlatinumEngine::Component
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 6165984979520871306;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			// from PlatinumEngine::BoxCollider
+			PlatinumEngine::Maths::Vec3 size = 
+			{
+				float x = 1;
+				float y = 1;
+				float z = 1;
+			};
+		}
+	},
+	{
+		2344922081862168242,
+		PlatinumEngine::BoxCollider 
+		{
+			// inherited from PlatinumEngine::Component
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 4368453087326970620;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			// from PlatinumEngine::BoxCollider
+			PlatinumEngine::Maths::Vec3 size = 
+			{
+				float x = 0.6;
+				float y = 0.6;
+				float z = 0.6;
+			};
 		}
 	},
 	{
@@ -78,7 +127,7 @@ IDSystem
 		4368453087326970620,
 		PlatinumEngine::GameObject 
 		{
-			std::string name = "CollideSphere";
+			std::string name = "Player";
 			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 0;
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
@@ -89,9 +138,30 @@ IDSystem
 			{
 				{12404451586699533251, PlatinumEngine::Transform},
 				{14974086886444776543, PlatinumEngine::MeshRender},
-				{7236043142958155967, PlatinumEngine::SphereCollider},
 				{17100572922230495750, PlatinumEngine::RigidBody},
 				{3298926593744692957, PlatinumEngine::Player},
+				{9150876014666192880, PlatinumEngine::AudioComponent},
+				{2344922081862168242, PlatinumEngine::BoxCollider},
+			};
+		}
+	},
+	{
+		6165984979520871306,
+		PlatinumEngine::GameObject 
+		{
+			std::string name = "Platform";
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 0;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children = 
+			{
+			};
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
+			{
+				{8341454696669879592, PlatinumEngine::MeshRender},
+				{6934910683500907309, PlatinumEngine::Transform},
+				{1954358481284154259, PlatinumEngine::BoxCollider},
+				{11427430785605392180, PlatinumEngine::RigidBody},
 			};
 		}
 	},
@@ -148,6 +218,28 @@ IDSystem
 				{8978851154952401778, PlatinumEngine::MeshRender},
 				{11893554295648380710, PlatinumEngine::Transform},
 			};
+		}
+	},
+	{
+		8341454696669879592,
+		PlatinumEngine::MeshRender 
+		{
+			// inherited from PlatinumEngine::Component
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 6165984979520871306;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			// from PlatinumEngine::MeshRender
+			PlatinumEngine::Material material = 
+			{
+				PlatinumEngine::SavedReference<PlatinumEngine::Texture> diffuseTexture = 0;
+				PlatinumEngine::SavedReference<PlatinumEngine::Texture> normalTexture = 0;
+				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
+				float shininessFactor = 1;
+				bool useBlinnPhong = 0;
+				bool useTexture = 0;
+				bool useNormalTexture = 0;
+			};
+			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 4345768601859909765;
 		}
 	},
 	{
@@ -213,7 +305,7 @@ IDSystem
 				bool useTexture = 0;
 				bool useNormalTexture = 0;
 			};
-			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 11157760038865534979;
+			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 4345768601859909765;
 		}
 	},
 	{
@@ -223,7 +315,28 @@ IDSystem
 			float moveSpeed = 8;
 			float moveAcceleration = 25;
 			float moveDeceleration = 70;
-			float jumpSpeed = 5;
+			float jumpSpeed = 10;
+		}
+	},
+	{
+		11427430785605392180,
+		PlatinumEngine::RigidBody 
+		{
+			// inherited from PlatinumEngine::Component
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 6165984979520871306;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			// from PlatinumEngine::RigidBody
+			PlatinumEngine::PhysicsMaterial physicsMaterial = 
+			{
+				float friction = 0;
+				float bounciness = 0;
+				float damping = 0;
+				float angularDamping = 0;
+			};
+			float mass = 0;
+			bool isKinematic = 0;
+			bool isCollisionRecorded = 0;
 		}
 	},
 	{
@@ -238,7 +351,7 @@ IDSystem
 			PlatinumEngine::PhysicsMaterial physicsMaterial = 
 			{
 				float friction = 0;
-				float bounciness = 1;
+				float bounciness = 0;
 				float damping = 0;
 				float angularDamping = 0;
 			};
@@ -269,15 +382,47 @@ IDSystem
 		}
 	},
 	{
-		7236043142958155967,
-		PlatinumEngine::SphereCollider 
+		6934910683500907309,
+		PlatinumEngine::Transform 
 		{
 			// inherited from PlatinumEngine::Component
-			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 4368453087326970620;
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 6165984979520871306;
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
-			// from PlatinumEngine::SphereCollider
-			float radius = 1;
+			// from PlatinumEngine::Transform
+			PlatinumEngine::Maths::Vec3 localPosition = 
+			{
+				float x = 7.73567;
+				float y = 4.28435;
+				float z = 0;
+			};
+			PlatinumEngine::Maths::Quaternion localRotation = 
+			{
+				float x = 0;
+				float y = 0;
+				float z = 0;
+				float w = 1;
+			};
+			PlatinumEngine::Maths::Mat4 transformationMatrix = 
+			{
+				float [0,0] = 0;
+				float [0,1] = 0;
+				float [0,2] = 0;
+				float [0,3] = 0;
+				float [1,0] = 0;
+				float [1,1] = 0;
+				float [1,2] = 0;
+				float [1,3] = 0;
+				float [2,0] = 0;
+				float [2,1] = 0;
+				float [2,2] = 0;
+				float [2,3] = 0;
+				float [3,0] = 0;
+				float [3,1] = 0;
+				float [3,2] = 0;
+				float [3,3] = 0;
+			};
+			float localScale = 1;
 		}
 	},
 	{
@@ -453,7 +598,7 @@ IDSystem
 				float [3,2] = 0;
 				float [3,3] = 0;
 			};
-			float localScale = 1;
+			float localScale = 0.6;
 		}
 	},
 };
@@ -467,6 +612,7 @@ PlatinumEngine::Scene
 		8003581218966239001,
 		7550397915049738480,
 		4368453087326970620,
+		6165984979520871306,
 	};
 	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _rootGameObjects = 
 	{
@@ -475,6 +621,7 @@ PlatinumEngine::Scene
 		8003581218966239001,
 		7550397915049738480,
 		4368453087326970620,
+		6165984979520871306,
 	};
 	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
 	{
@@ -489,8 +636,13 @@ PlatinumEngine::Scene
 		{14380647380414428344, PlatinumEngine::MeshRender},
 		{12404451586699533251, PlatinumEngine::Transform},
 		{14974086886444776543, PlatinumEngine::MeshRender},
-		{7236043142958155967, PlatinumEngine::SphereCollider},
 		{17100572922230495750, PlatinumEngine::RigidBody},
 		{3298926593744692957, PlatinumEngine::Player},
+		{8341454696669879592, PlatinumEngine::MeshRender},
+		{6934910683500907309, PlatinumEngine::Transform},
+		{1954358481284154259, PlatinumEngine::BoxCollider},
+		{11427430785605392180, PlatinumEngine::RigidBody},
+		{9150876014666192880, PlatinumEngine::AudioComponent},
+		{2344922081862168242, PlatinumEngine::BoxCollider},
 	};
 };
