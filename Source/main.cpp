@@ -111,6 +111,12 @@ int main(int, char**)
 				{
 					PlatinumEngine::Profiler::Section pollEventsSection("Poll Events");
 					glfwPollEvents();
+
+					if (glfwWindowShouldClose(window))
+					{
+						// ask for confirmation
+						application.windowManager.SuggestQuit();
+					}
 				}
 
 				{

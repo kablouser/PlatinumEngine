@@ -14,6 +14,7 @@
 #include <ComponentComposition/ParticleEffect.h>
 #include <ParticleEffects/ParticleEmitter.h>
 #include <Audio/AudioClip.h>
+#include <PlatformingGame/Player.h>
 
 namespace PlatinumEngine
 {
@@ -108,6 +109,12 @@ namespace PlatinumEngine
 		BeginTypeInfo<Mesh>();
 		BeginTypeInfo<Texture>();
 		BeginTypeInfo<AudioClip>();
+
+		//------------------------------------------------------------------------------------------------------------------
+		// Platforming game
+		//------------------------------------------------------------------------------------------------------------------
+
+		Player::CreateTypeInfo();
 
 		// this checks all fields/things are defined properly
 		FinalCheck();

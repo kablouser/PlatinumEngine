@@ -114,6 +114,11 @@ namespace PlatinumEngine
 		return Physics::ConvertVectorBack(_rigidBody.getAngularVelocity());
 	}
 
+	const std::vector<Collision>& RigidBody::GetCollisionRecords() const
+	{
+		return _collisionRecords;
+	}
+
 	void RigidBody::AddToPhysicsWorld()
 	{
 		if (_addedToPhysicsWorld)

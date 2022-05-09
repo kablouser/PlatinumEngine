@@ -46,6 +46,8 @@ namespace PlatinumEngine
 		void SetAngularVelocity(Maths::Vec3 angularVelocity);
 		Maths::Vec3 GetAngularVelocity() const;
 
+		const std::vector<Collision>& GetCollisionRecords() const;
+
 		// These fields are only used to construct btRigidBody.
 		// They don't change the btRigidBody while it's simulating.
 		bool isKinematic;

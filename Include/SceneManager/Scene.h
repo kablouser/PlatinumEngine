@@ -53,6 +53,10 @@ namespace PlatinumEngine
 
 		void SaveFile(std::string filePath);
 
+		void LoadStream(std::istream& inputStream);
+
+		void SaveStream(std::ostream& outputStream);
+
 		// Clear all data stored on this scene
 		void Clear();
 

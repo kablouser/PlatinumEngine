@@ -8,9 +8,11 @@
 #include <Application.h>
 #include <SceneManager/SceneWithTemplates.h>
 
+#include <sstream> // for saving scenes
+
 namespace PlatinumEngine
 {
-	PlatinumEngine::GameWindow::GameWindow()
+	GameWindow::GameWindow()
 			: _renderTexture(), _skyboxTexture(),
 			  _skyBoxShaderInput(), isPaused(false)
 	{
@@ -54,9 +56,26 @@ namespace PlatinumEngine
 			return; // this check is necessary
 
 		if (isStarted)
+		{
+			{	// Save Scene Before Start
+				_savedSceneOnStart.clear();
+				std::ostringstream outputStream;
+				Application::Instance->scene.SaveStream(outputStream);
+				_savedSceneOnStart = outputStream.str();
+			}
+
 			Application::Instance->scene.Start();
+		}
 		else
+		{
 			Application::Instance->scene.End();
+
+			{	// Reload Saved Scene After End
+				std::istringstream inputStream(_savedSceneOnStart);
+				Application::Instance->scene.LoadStream(inputStream);
+				_savedSceneOnStart.clear();
+			}
+		}
 	}
 
 	void GameWindow::Step()
