@@ -97,7 +97,7 @@ namespace PlatinumEngine
 			rigidBodyPointer->_collisionRecords.clear();
 		}
 
-		_bulletWorld.stepSimulation((btScalar)deltaTime, 1);
+		_bulletWorld.stepSimulation((btScalar)deltaTime, 3, 1.0f/60.0f);
 
 		// All physics rigidBody need there updated position to reflect what bullet decides
 		// Write data from bullet back into our data
