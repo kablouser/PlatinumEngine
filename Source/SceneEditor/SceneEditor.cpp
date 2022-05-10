@@ -10,22 +10,17 @@
 #include <SceneEditor/SceneEditor.h>
 #include <ComponentComposition/Transform.h>
 #include <ComponentComposition/MeshRender.h>
-
+#include <AssetDatabase/AssetHelper.h>
+#include <SceneManager/SceneWithTemplates.h>
 
 namespace PlatinumEngine{
 
 	// ___CONSTRUCTOR___
 
 
-	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer,AssetHelper* assetHelper, Time* time, Physics* physics):
+	SceneEditor::SceneEditor():
 			_ifCameraSettingWindowOpen(false),
 			_camera(), _fov(60), _near(0.1), _far(10000),
-
-			_inputManager(inputManager),
-			_scene(scene),
-			_renderer(renderer),
-			_time(time),
-			_physics(physics),
 
 			_renderTexture(),
 
@@ -51,9 +46,7 @@ namespace PlatinumEngine{
 
 			_enableGrid(true),
 			_enableSkyBox(true),
-			_xGrid(false), _yGrid(true), _zGrid(false),
-
-			_assetHelper(assetHelper)
+			_xGrid(false), _yGrid(true), _zGrid(false)
 	{
 
 		// Setup skybox texture
@@ -72,10 +65,10 @@ namespace PlatinumEngine{
 		CreateGridShaderInput();
 
 		// Setup input manager
-		_inputManager->CreateAxis(std::string ("HorizontalAxisForEditorCamera"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
-		_inputManager->CreateAxis(std::string ("VerticalAxisForEditorCamera"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
+		Application::Instance->inputManager.CreateAxis(std::string ("HorizontalAxisForEditorCamera"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
+		Application::Instance->inputManager.CreateAxis(std::string ("VerticalAxisForEditorCamera"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
 
-		_inputManager->CreateAxis(std::string ("ControlSpeed"), GLFW_KEY_EQUAL,GLFW_KEY_MINUS, InputManager::AxisType::keyboardMouseButton);
+		Application::Instance->inputManager.CreateAxis(std::string ("ControlSpeed"), GLFW_KEY_EQUAL,GLFW_KEY_MINUS, InputManager::AxisType::keyboardMouseButton);
 
 		// Setup frame buffer
 		_framebufferWidth = 1;
@@ -327,11 +320,11 @@ namespace PlatinumEngine{
 					std::filesystem::path payloadPath = std::filesystem::path(filePath);
 					if(payloadPath.extension()==".obj")
 					{
-						SavedReference<GameObject> go = _scene->AddGameObject(payloadPath.stem().string());
-						_scene->AddComponent<Transform>(go);
-						_scene->AddComponent<MeshRender>(go);
+						SavedReference<GameObject> go = Application::Instance->scene.AddGameObject(payloadPath.stem().string());
+						Application::Instance->scene.AddComponent<Transform>(go);
+						Application::Instance->scene.AddComponent<MeshRender>(go);
 						//Now we set the mesh
-						auto asset_Helper = _assetHelper->GetAsset<Mesh>(payloadPath.string());
+						auto asset_Helper = AssetHelper::GetAsset<Mesh>(payloadPath.string());
 						if (std::get<0>(asset_Helper))
 							go.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(std::get<1>(asset_Helper));
 						_selectedGameobject = go;
@@ -358,14 +351,14 @@ namespace PlatinumEngine{
 			//--------------------------------
 			// update mouse && keyboard input
 			//--------------------------------
-			_mouseButtonType = _inputManager->GetMouseDown();
-			_mouseMoveDelta  = _inputManager->GetMouseMoveVector();
-			_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
+			_mouseButtonType = Application::Instance->inputManager.GetMouseDown();
+			_mouseMoveDelta  = Application::Instance->inputManager.GetMouseMoveVector();
+			_wheelValueDelta = Application::Instance->inputManager.GetMouseWheelDeltaValue();
 
 			//---------------------------------------------
 			// check if the mouse is selecting game object
 			//---------------------------------------------
-			if (_inputManager->IsMouseClicked(0))
+			if (Application::Instance->inputManager.IsMouseClicked(0))
 			{
 				SelectGameObjectFromScene();
 				ImGui::SetWindowFocus();
@@ -397,16 +390,19 @@ namespace PlatinumEngine{
 		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
 		{
 			// check if there is any keyboard input to move camera position
-			if (_inputManager->IsKeyDown(GLFW_KEY_UP) || _inputManager->IsKeyDown(GLFW_KEY_DOWN) ||
-				_inputManager->IsKeyDown(GLFW_KEY_LEFT) || _inputManager->IsKeyDown(GLFW_KEY_RIGHT))
+			if (Application::Instance->inputManager.IsKeyDown(GLFW_KEY_UP) ||
+				Application::Instance->inputManager.IsKeyDown(GLFW_KEY_DOWN) ||
+				Application::Instance->inputManager.IsKeyDown(GLFW_KEY_LEFT) ||
+				Application::Instance->inputManager.IsKeyDown(GLFW_KEY_RIGHT))
 			{
 				// Do translation based on keyboard input
-				_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"),
-						_inputManager->GetAxis("HorizontalAxisForEditorCamera"));
+				_camera.TranslationByKeyBoard(
+						Application::Instance->inputManager.GetAxis("VerticalAxisForEditorCamera"),
+						Application::Instance->inputManager.GetAxis("HorizontalAxisForEditorCamera"));
 			}
 
 			// Move camera to look at the selected object
-			if (_inputManager->IsKeyDown(GLFW_KEY_SPACE) && _selectedGameobject)
+			if (Application::Instance->inputManager.IsKeyDown(GLFW_KEY_SPACE) && _selectedGameobject)
 			{
 				SavedReference<Transform> transformComponent = _selectedGameobject.DeRef()->GetComponent<Transform>();
 
@@ -482,18 +478,18 @@ namespace PlatinumEngine{
 			if(_enableSkyBox)
 			{
 				glDepthMask(false);
-				_renderer->BeginSkyBoxShader();
+				Application::Instance->renderer.BeginSkyBoxShader();
 
 				// matrix for rescaling the skybox based on the near panel distance
 				Maths::Mat4 scaleMatrix;
 				scaleMatrix.SetScaleMatrix(
 						Maths::Vec3(((float)_near * 2.f), ((float)_near * 2.f), ((float)_near * 2.f)));
 				// set matrix uniform
-				_renderer->SetViewMatrixSkyBox(Maths::Inverse(_camera.GetRotationOnlyViewMatrix()) * scaleMatrix);
-				_renderer->SetProjectionMatrixSkyBox(_camera.projectionMatrix4);
+				Application::Instance->renderer.SetViewMatrixSkyBox(Maths::Inverse(_camera.GetRotationOnlyViewMatrix()) * scaleMatrix);
+				Application::Instance->renderer.SetProjectionMatrixSkyBox(_camera.projectionMatrix4);
 				_skyboxTexture.BindCubeMap();
 				_skyBoxShaderInput.Draw();
-				_renderer->EndSkyBoxShader();
+				Application::Instance->renderer.EndSkyBoxShader();
 
 				// enable depth test for the later rendering
 				glDepthMask(true);
@@ -501,52 +497,52 @@ namespace PlatinumEngine{
 
 			// ------------- Render Game Objects ------------- //
 			// Start rendering (bind a shader)
-			_renderer->Begin();
+			Application::Instance->renderer.Begin();
 
 			// Update rendering information to renderer
-			_renderer->SetModelMatrix();
+			Application::Instance->renderer.SetModelMatrix();
 
 			// check if the view matrix is passed to shader
-			_renderer->SetViewMatrix(_camera.viewMatrix4);
-			_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
-			_renderer->SetLightProperties();
+			Application::Instance->renderer.SetViewMatrix(_camera.viewMatrix4);
+			Application::Instance->renderer.SetProjectionMatrix(_camera.projectionMatrix4);
+			Application::Instance->renderer.SetLightProperties();
 
 			// Render game objects
-			_scene->Render(*_renderer);
+			Application::Instance->scene.Render();
 
 			// End rendering (unbind a shader)
-			_renderer->End();
+			Application::Instance->renderer.End();
 
 			// -------------------- Render GRID ------------------ //
 			if(_enableGrid)
 			{
-				_renderer->BeginGrid();
-				_renderer->SetViewMatrixForGridShader(_camera.viewMatrix4);
-				_renderer->SetProjectionMatrixForGridShader(_camera.projectionMatrix4);
-				_renderer->SetFarValueForGridShader((float)_far);
-				_renderer->SetNearValueForGridShader((float)_near);
-				_renderer->SetTransparencyForGridShader(_transparency);
+				Application::Instance->renderer.BeginGrid();
+				Application::Instance->renderer.SetViewMatrixForGridShader(_camera.viewMatrix4);
+				Application::Instance->renderer.SetProjectionMatrixForGridShader(_camera.projectionMatrix4);
+				Application::Instance->renderer.SetFarValueForGridShader((float)_far);
+				Application::Instance->renderer.SetNearValueForGridShader((float)_near);
+				Application::Instance->renderer.SetTransparencyForGridShader(_transparency);
 
 				if (_xGrid)
 				{
-					_renderer->SetGridAxisForGridShader(0);
+					Application::Instance->renderer.SetGridAxisForGridShader(0);
 				}
 				else if (_zGrid)
 				{
-					_renderer->SetGridAxisForGridShader(2);
+					Application::Instance->renderer.SetGridAxisForGridShader(2);
 				}
 				else
 				{
-					_renderer->SetGridAxisForGridShader(1);
+					Application::Instance->renderer.SetGridAxisForGridShader(1);
 				}
 
 				_gridShaderInput.Draw();
-				_renderer->EndGrid();
+				Application::Instance->renderer.EndGrid();
 			}
 			glEnable(GL_DEPTH_TEST);
 			// ------------- Render Game Objects ------------- //
 			// Start rendering (bind a shader)
-			_renderer->Begin();
+			Application::Instance->renderer.Begin();
 
 			// Bind skybox for objects to sample from, use an unused texture
 			glActiveTexture(GL_TEXTURE7);
@@ -554,30 +550,30 @@ namespace PlatinumEngine{
 			glActiveTexture(GL_TEXTURE0);
 
 			// Update rendering information to renderer
-			_renderer->SetModelMatrix();
+			Application::Instance->renderer.SetModelMatrix();
 
 			// check if the view matrix is passed to shader
 
 			// TODO: Commneted these lines of code out to fix some bug, need to check how to do properly
 			// if(!_camera.CheckIfViewMatrixUsed())
 			{
-				_renderer->SetViewMatrix(_camera.viewMatrix4);
+				Application::Instance->renderer.SetViewMatrix(_camera.viewMatrix4);
 				_camera.MarkViewMatrixAsUsed();
 			}
 			// if(!_camera.CheckIfProjectionMatrixUsed())
 			{
-				_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
+				Application::Instance->renderer.SetProjectionMatrix(_camera.projectionMatrix4);
 				_camera.MarkProjectionMatrixAsUsed();
 			}
       
-			_renderer->SetLightProperties();
-			_renderer->SetCameraPos(_camera.GetCameraPosition());
+			Application::Instance->renderer.SetLightProperties();
+			Application::Instance->renderer.SetCameraPos(_camera.GetCameraPosition());
 
 			// Render game objects
-			_scene->Render(*_renderer);
+			Application::Instance->scene.Render();
 
 			// End rendering (unbind a shader)
-			_renderer->End();
+			Application::Instance->renderer.End();
 
 			// unbind framebuffer
 			_renderTexture.Unbind();
@@ -606,7 +602,7 @@ namespace PlatinumEngine{
 	void SceneEditor::SelectGameObjectFromScene()
 	{
 		// get mouse click position
-		ImVec2 mouseClickedPosition = _inputManager->GetMousePosition();
+		ImVec2 mouseClickedPosition = Application::Instance->inputManager.GetMousePosition();
 
 		// since the display window use coordinate system which is inverse vertically,
 		// we have to inverse the y value
@@ -647,12 +643,12 @@ namespace PlatinumEngine{
 		float closestZValue = (float)_far;
 
 		// loop through all the root game object from scene class
-		unsigned int numberOfRootGameObject = _scene->GetRootGameObjectsCount();
+		unsigned int numberOfRootGameObject = Application::Instance->scene.GetRootGameObjectsCount();
 
 		for(int gameObjectIndex =0; gameObjectIndex < numberOfRootGameObject; gameObjectIndex++)
 		{
 			// get current game object
-			SavedReference<GameObject>& currentGameobject = _scene->GetRootGameObject(gameObjectIndex);
+			SavedReference<GameObject>& currentGameobject = Application::Instance->scene.GetRootGameObject(gameObjectIndex);
 
 			// check if the object enable
 			if(currentGameobject.DeRef()->IsEnabledInHierarchy())
@@ -1100,7 +1096,7 @@ namespace PlatinumEngine{
 
 	void SceneEditor::DeleteSelectedGameObject()
 	{
-		_scene->RemoveGameObject(_selectedGameobject);
+		Application::Instance->scene.RemoveGameObject(_selectedGameobject);
 		_selectedGameobject = {};
 	}
 

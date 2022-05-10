@@ -1,6 +1,5 @@
 #include <AssetDatabase/AssetDatabase.h>
 
-#include <limits>
 #include <cassert>
 #include <fstream>
 #include <stack>

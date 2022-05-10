@@ -6,6 +6,7 @@
 #include <ComponentComposition/Transform.h>
 #include <ComponentComposition/AnimationComponent.h>
 #include <SceneManager/Scene.h>
+#include <Application.h>
 
 namespace PlatinumEngine
 {
@@ -26,16 +27,16 @@ namespace PlatinumEngine
 	{
 	}
 
-	void MeshRender::OnRender(Scene& scene, Renderer& renderer)
+	void MeshRender::OnRender()
 	{
 		if (!_mesh)
 			return;
 
 		SavedReference<Transform> transform = GetComponent<Transform>();
 		if (transform)
-			renderer.SetModelMatrix(transform.DeRef()->GetLocalToWorldMatrix());
+			Application::Instance->renderer.SetModelMatrix(transform.DeRef()->GetLocalToWorldMatrix());
 		else
-			renderer.SetModelMatrix();
+			Application::Instance->renderer.SetModelMatrix();
 
 		SavedReference<AnimationComponent> animation = GetComponent<AnimationComponent>();
 
@@ -44,35 +45,35 @@ namespace PlatinumEngine
 		{
 
 			// send flag to uniform
-			renderer.SetAnimationStatus(animation.DeRef()->GetIsDisplay());
+			Application::Instance->renderer.SetAnimationStatus(animation.DeRef()->GetIsDisplay());
 
 
 			// calculate the transform matrices for a post at a specific animation time
 			if (animation.DeRef()->GetAmountOfAnimations()!=0)
 			{
 				animation.DeRef()->UpdateWorldTransformMatrix(_mesh.DeRef()->skeleton,
-						_mesh.DeRef()->bones, scene.time);
+						_mesh.DeRef()->bones, Application::Instance->time);
 
 				// pass transform matrices to
 				for (unsigned int i = 0; i < animation.DeRef()->worldTransform.size(); ++i)
 				{
-					renderer.SetAnimationTransform(i, animation.DeRef()->worldTransform[i]);
+					Application::Instance->renderer.SetAnimationTransform(i, animation.DeRef()->worldTransform[i]);
 				}
 			}
 		}
 		else
 			// send flag to uniform
-			renderer.SetAnimationStatus(false);
+			Application::Instance->renderer.SetAnimationStatus(false);
 
 		// load texture
-		renderer.LoadMaterial(material);
+		Application::Instance->renderer.LoadMaterial(material);
 		_shaderInput.Draw();
 	}
 
-	void MeshRender::OnIDSystemUpdate(Scene& scene)
+	void MeshRender::OnIDSystemUpdate()
 	{
-		_mesh.OnIDSystemUpdate(scene.idSystem);
-		material.OnIDSystemUpdate(scene.idSystem);
+		_mesh.OnIDSystemUpdate(Application::Instance->idSystem);
+		material.OnIDSystemUpdate(Application::Instance->idSystem);
 		_shaderInput.Clear();
 		if (_mesh)
 		{

@@ -10,9 +10,6 @@
 #include <IDSystem/IDSystem.h>
 #include <TypeDatabase/TypeDatabase.h>
 
-#include <ComponentComposition/GameObject.h>
-#include <Physics/Physics.h>
-#include <Helpers/Time.h>
 
 namespace PlatinumEngine
 {
@@ -28,17 +25,13 @@ namespace PlatinumEngine
 
 	public:
 
-		IDSystem& idSystem;
-		Physics& physics;
-		Time& time;
-
 		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Constructors/destructors
 		//--------------------------------------------------------------------------------------------------------------
 
-		explicit Scene(IDSystem& idSystem, Physics& physics, Time& time);
+		Scene();
 
 		~Scene();
 
@@ -107,64 +100,17 @@ namespace PlatinumEngine
 		 * @return
 		 */
 		template<typename T>
-		SavedReference<T> AddComponent(SavedReference<GameObject> gameObject = {}, bool isEnabled = true)
-		{
-			SavedReference<T> componentReference = idSystem.Add<T>();
-			AddComponentInternal(
-					(SavedReference<Component>)componentReference,
-					gameObject,
-					isEnabled);
-			return componentReference;
-		}
+		SavedReference<T> AddComponent(SavedReference<GameObject> gameObject = {}, bool isEnabled = true);
 
 		template<typename T>
-		void RemoveComponent(SavedReference<T> component)
-		{
-			static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
-			// we can use UnsafeCast because Component is base of T
-			RemoveComponentInternal(std::move(component.template UnsafeCast<Component>()));
-		}
+		void RemoveComponent(SavedReference<T> component);
 
 		void RemoveComponentInternal(SavedReference<Component> component);
 
 		size_t GetComponentsCount() const;
 
 		template<typename T>
-		SavedReference<T> FindFirstComponent(bool requireEnabled = true)
-		{
-			// cannot use recursive functions because template T needed
-			// for dynamic casting
-
-			std::queue<SavedReference<GameObject>*> gameObjectsToFind;
-			for (auto& root: _rootGameObjects)
-				gameObjectsToFind.push(&root);
-
-			while (!gameObjectsToFind.empty())
-			{
-				SavedReference<GameObject>* nextGameObject = gameObjectsToFind.front();
-				gameObjectsToFind.pop();
-
-				if (!nextGameObject->operator bool())
-					continue;
-
-				GameObject* rawPointer = nextGameObject->DeRef().get();
-				if (requireEnabled && !rawPointer->_isEnabledInHierarchy)
-					continue;
-
-				// this is the dynamic cast
-				SavedReference<T> targetComponent = rawPointer->GetComponent<T>();
-				if (targetComponent)
-				{
-					if (!requireEnabled || targetComponent.DeRef()->_isEnabledInHierarchy)
-						return targetComponent;
-				}
-
-				for (SavedReference<GameObject>& child: nextGameObject->DeRef()->_children)
-					gameObjectsToFind.push(&child);
-			}
-
-			return {};
-		}
+		SavedReference<T> FindFirstComponent(bool requireEnabled = true);
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Event controls
@@ -188,16 +134,14 @@ namespace PlatinumEngine
 		/**
 		 * Please call when you want to update all components in the scene.
 		 * Respects hierarchy order and objects that are "enabled in hierarchy".
-		 * @param deltaTime time since last Render call
 		 */
-		void Update(double deltaTime);
+		void Update();
 
 		/**
 		 * Please call when you want to render the scene.
 		 * Respects hierarchy order and objects that are "enabled in hierarchy".
-		 * @param renderer target location for rendering
 		 */
-		void Render(Renderer& renderer);
+		void Render();
 
 		/**
 		 * Call after IDSystem has been deleted from
@@ -243,12 +187,12 @@ namespace PlatinumEngine
 		/**
 		 * Broadcasts OnUpdate event to the input gameObject and all of its' children iff "enabled in hierarchy".
 		 */
-		void BroadcastOnUpdate(SavedReference<GameObject>& gameObject, double deltaTime);
+		void BroadcastOnUpdate(SavedReference<GameObject>& gameObject);
 
 		/**
 		 * Broadcasts OnRender event to the input gameObject and all of its' children iff "enabled in hierarchy".
 		 */
-		void BroadcastOnRender(SavedReference<GameObject>& gameObject, Renderer& renderer);
+		void BroadcastOnRender(SavedReference<GameObject>& gameObject);
 
 		/**
 		 * Broadcasts UpdateIsEnabledInHierarchy event to the input gameObject and all of its' children
