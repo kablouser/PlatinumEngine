@@ -72,7 +72,7 @@ namespace PlatinumEngine
 			{
 				auto selectedObject = Application::Instance->sceneEditor.GetSelectedGameobject();
 				if (gameObject == selectedObject)
-					_sceneEditor->DeleteSelectedGameObject();
+					Application::Instance->sceneEditor.DeleteSelectedGameObject();
 			}
 
 			/*ImGui::Separator();
@@ -113,7 +113,7 @@ namespace PlatinumEngine
 
 				SavedReference<GameObject> payloadPointer;
 				payloadPointer.id = *(IDSystem::ID*)payload->Data;
-				payloadPointer.OnIDSystemUpdate(IDSystem::Inst);
+				payloadPointer.OnIDSystemUpdate(Application::Instance->idSystem);
 
 				// check move behavior mode
 				// if the mode is to change hierarchy between game objects
@@ -230,14 +230,16 @@ namespace PlatinumEngine
 				{
 					if(payload->Data != nullptr)
 					{
-						GameObject* payloadPointer = *(GameObject**)payload->Data;
+						SavedReference<GameObject> payloadPointer;
+						payloadPointer.id = *(IDSystem::ID*)payload->Data;
+						payloadPointer.OnIDSystemUpdate(Application::Instance->idSystem);
 
 						// check move behavior mode
 						// if the mode is to change hierarchy between game objects
 						if (_modeForDraggingBehavior == _hierarchyMode)
 						{
 							// change the dragged object's parent
-							payloadPointer->SetParent({});
+							payloadPointer.DeRef()->SetParent({});
 						}
 					}
 				}
