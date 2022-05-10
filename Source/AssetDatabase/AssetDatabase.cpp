@@ -289,7 +289,7 @@ namespace PlatinumEngine
 			if (!asset.doesExist || asset.id == 0)
 				continue;
 
-			PLATINUM_INFO_STREAM << "Creating asset: " << asset.path;
+//			PLATINUM_INFO_STREAM << "Creating asset: " << asset.path;
 
 			auto findExtension = Loaders::EXTENSION_TO_TYPE.find(asset.path.extension().string());
 			if (findExtension == Loaders::EXTENSION_TO_TYPE.end())
@@ -482,7 +482,7 @@ namespace PlatinumEngine
 					// good, nothing to do
 					if (debugMessages)
 					{
-						PLATINUM_INFO_STREAM << "Detected existing asset, no change " << path;
+//						PLATINUM_INFO_STREAM << "Detected existing asset, no change " << path;
 					}
 				}
 				else
