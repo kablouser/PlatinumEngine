@@ -12,7 +12,7 @@ IDSystem
 			bool _isDisplay = 1;
 			PlatinumEngine::AnimationLocalTimer timer = 
 			{
-				float animationTime = 1.0983;
+				float animationTime = 1.33146;
 				bool isAnimationLooping = 1;
 				bool isAnimationPlaying = 1;
 			};
@@ -32,7 +32,7 @@ IDSystem
 			bool _isDisplay = 1;
 			PlatinumEngine::AnimationLocalTimer timer = 
 			{
-				float animationTime = 24.2127;
+				float animationTime = 19.6125;
 				bool isAnimationLooping = 1;
 				bool isAnimationPlaying = 1;
 			};
@@ -372,6 +372,12 @@ IDSystem
 				bool useNormalTexture = 0;
 				bool useReflectionShader = 0;
 				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 1;
+					float y = 0;
+					float z = 0;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 4345768601859909765;
 		}
@@ -397,6 +403,12 @@ IDSystem
 				bool useNormalTexture = 0;
 				bool useReflectionShader = 0;
 				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 1;
+					float y = 0;
+					float z = 0;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 11371575641787277452;
 		}
@@ -422,6 +434,12 @@ IDSystem
 				bool useNormalTexture = 0;
 				bool useReflectionShader = 1;
 				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 1;
+					float y = 0;
+					float z = 0;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 4345768601859909765;
 		}
@@ -447,6 +465,12 @@ IDSystem
 				bool useNormalTexture = 0;
 				bool useReflectionShader = 0;
 				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 1;
+					float y = 0;
+					float z = 0;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 15170823758925330500;
 		}
@@ -472,6 +496,12 @@ IDSystem
 				bool useNormalTexture = 0;
 				bool useReflectionShader = 0;
 				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 1;
+					float y = 0;
+					float z = 0;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 4345768601859909765;
 		}
@@ -483,7 +513,7 @@ IDSystem
 			float moveSpeed = 8;
 			float moveAcceleration = 25;
 			float moveDeceleration = 70;
-			float jumpSpeed = 10;
+			float jumpSpeed = 15;
 		}
 	},
 	{
