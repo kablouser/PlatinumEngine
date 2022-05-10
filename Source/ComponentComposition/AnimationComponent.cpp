@@ -3,8 +3,8 @@
 //
 
 #include <ComponentComposition/AnimationComponent.h>
-#include <ComponentComposition/MeshRender.h>
 #include <SceneManager/Scene.h>
+#include <Application.h>
 
 namespace PlatinumEngine
 {
@@ -174,9 +174,9 @@ namespace PlatinumEngine
 		return _isDisplay;
 	}
 
-	void AnimationComponent::OnIDSystemUpdate(Scene& scene)
+	void AnimationComponent::OnIDSystemUpdate()
 	{
-		_mesh.OnIDSystemUpdate(scene.idSystem);
+		_mesh.OnIDSystemUpdate(Application::Instance->idSystem);
 	}
 
 }

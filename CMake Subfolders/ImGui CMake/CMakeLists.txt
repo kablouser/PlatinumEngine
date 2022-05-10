@@ -6,7 +6,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(imgui)
 
-set(IMGUI_SRC_DIR ${CMAKE_BINARY_DIR}/_deps/imgui-src)
+set(IMGUI_SRC_DIR ${FETCHCONTENT_BASE_DIR}/imgui-src)
 
 add_library(imgui STATIC
 	${IMGUI_SRC_DIR}/imgui.cpp

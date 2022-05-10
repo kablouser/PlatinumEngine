@@ -1,7 +1,5 @@
 #include <ComponentComposition/Component.h>
-#include <SceneManager/Scene.h>
-#include <Logger/Logger.h>
-#include "ComponentComposition/GameObjectComponentTemplates/ComponentWithoutTemplates.h"
+#include <Application.h>
 
 
 namespace PlatinumEngine
@@ -38,14 +36,14 @@ namespace PlatinumEngine
 		return _isEnabled;
 	}
 
-	void Component::SetEnabled(bool isEnabled, Scene& scene)
+	void Component::SetEnabled(bool isEnabled)
 	{
 		// don't trigger event's if enabled state is not changed
 		if (_isEnabled == isEnabled)
 			return;
 
 		_isEnabled = isEnabled;
-		UpdateIsEnabledInHierarchy(scene);
+		UpdateIsEnabledInHierarchy();
 	}
 
 	bool Component::IsEnabledInHierarchy() const
@@ -70,7 +68,7 @@ namespace PlatinumEngine
 		if (_gameObject == gameObject)
 			return;
 
-		SavedReference<Component> referenceToThis = scene.idSystem.GetSavedReference(this);
+		SavedReference<Component> referenceToThis = Application::Instance->idSystem.GetSavedReference(this);
 		if (!referenceToThis)
 		{
 			PLATINUM_WARNING("This Component is not in the ID System, cannot SetParent");
@@ -83,7 +81,7 @@ namespace PlatinumEngine
 			gameObject.DeRef()->_components.push_back(referenceToThis);
 
 		_gameObject = std::move(gameObject);
-		UpdateIsEnabledInHierarchy(scene);
+		UpdateIsEnabledInHierarchy();
 	}
 
 
@@ -92,31 +90,31 @@ namespace PlatinumEngine
 	// Default empty implementations of events.
 	//------------------------------------------------------------------------------------------------------------------
 
-	void Component::OnStart(Scene& scene)
+	void Component::OnStart()
 	{
 	}
 
-	void Component::OnEnd(Scene& scene)
+	void Component::OnEnd()
 	{
 	}
 
-	void Component::OnEnable(Scene& scene)
+	void Component::OnEnable()
 	{
 	}
 
-	void Component::OnDisable(Scene& scene)
+	void Component::OnDisable()
 	{
 	}
 
-	void Component::OnUpdate(Scene& scene, double deltaTime)
+	void Component::OnUpdate()
 	{
 	}
 
-	void Component::OnRender(Scene& scene, Renderer& renderer)
+	void Component::OnRender()
 	{
 	}
 
-	void Component::OnIDSystemUpdate(Scene& scene)
+	void Component::OnIDSystemUpdate()
 	{
 	}
 
@@ -132,7 +130,7 @@ namespace PlatinumEngine
 			return false;
 	}
 
-	void Component::UpdateIsEnabledInHierarchy(Scene& scene)
+	void Component::UpdateIsEnabledInHierarchy()
 	{
 		bool isEnabledInHierarchyNow = CalculateIsEnabledInHierarchy();
 
@@ -142,12 +140,12 @@ namespace PlatinumEngine
 		_isEnabledInHierarchy = isEnabledInHierarchyNow;
 
 		// only trigger events when Scene is started
-		if (scene.IsStarted())
+		if (Application::Instance->scene.IsStarted())
 		{
 			if (_isEnabledInHierarchy)
-				OnEnable(scene);
+				OnEnable();
 			else
-				OnDisable(scene);
+				OnDisable();
 		}
 	}
 }

@@ -48,7 +48,7 @@ namespace PlatinumEngine
 
 		bool GetIsDisplay() const;
 
-		void OnIDSystemUpdate(Scene& scene) override;
+		void OnIDSystemUpdate() override;
 
 	private:
 		// {  PARAMETER  }

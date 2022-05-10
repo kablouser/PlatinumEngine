@@ -2,7 +2,7 @@
 #include <SceneManager/Scene.h>
 #include <Logger/Logger.h>
 #include <algorithm>
-#include "ComponentComposition/GameObjectComponentTemplates/GameObjectWithoutTemplates.h"
+#include <Application.h>
 
 
 namespace PlatinumEngine
@@ -59,14 +59,14 @@ namespace PlatinumEngine
 		return _isEnabled;
 	}
 
-	void GameObject::SetEnabled(bool isEnabled, Scene& scene)
+	void GameObject::SetEnabled(bool isEnabled)
 	{
 		if (_isEnabled == isEnabled)
 			return;
 
 		_isEnabled = isEnabled;
-		SavedReference<GameObject> referenceToThis = scene.idSystem.GetSavedReference(this);
-		UpdateIsEnabledInHierarchy(scene, referenceToThis);
+		SavedReference<GameObject> referenceToThis = Application::Instance->idSystem.GetSavedReference(this);
+		UpdateIsEnabledInHierarchy(referenceToThis);
 	}
 
 	bool GameObject::IsEnabledInHierarchy() const
@@ -83,12 +83,12 @@ namespace PlatinumEngine
 		return _parent;
 	}
 
-	void GameObject::SetParent(SavedReference<GameObject> parent, Scene& scene)
+	void GameObject::SetParent(SavedReference<GameObject> parent)
 	{
 		if (_parent == parent)
 			return;
 
-		SavedReference<GameObject> referenceToThis = scene.idSystem.GetSavedReference(this);
+		SavedReference<GameObject> referenceToThis = Application::Instance->idSystem.GetSavedReference(this);
 		if (!referenceToThis)
 		{
 			PLATINUM_WARNING("This GameObject is not in the ID System, cannot SetParent");
@@ -99,16 +99,16 @@ namespace PlatinumEngine
 			_parent.DeRef()->RemoveChild(referenceToThis);
 		else
 			// this has become NOT a root GameObject now
-			scene.RemoveRootGameObject(referenceToThis);
+			Application::Instance->scene.RemoveRootGameObject(referenceToThis);
 
 		if (parent)
 			parent.DeRef()->_children.push_back(referenceToThis);
 		else
 			// this has become a root GameObject now
-			scene._rootGameObjects.push_back(referenceToThis);
+			Application::Instance->scene._rootGameObjects.push_back(referenceToThis);
 
 		_parent = std::move(parent);
-		UpdateIsEnabledInHierarchy(scene, referenceToThis);
+		UpdateIsEnabledInHierarchy(referenceToThis);
 	}
 
 	//--------------------------------------------------------------------------------------------------------------
@@ -215,7 +215,7 @@ namespace PlatinumEngine
 			return _isEnabled;
 	}
 
-	void GameObject::UpdateIsEnabledInHierarchy(Scene& scene, SavedReference<GameObject>& referenceToThis)
+	void GameObject::UpdateIsEnabledInHierarchy(SavedReference<GameObject>& referenceToThis)
 	{
 		bool isEnabledInHierarchyNow = CalculateIsEnabledInHierarchy();
 
@@ -224,15 +224,15 @@ namespace PlatinumEngine
 
 		_isEnabledInHierarchy = isEnabledInHierarchyNow;
 
-		scene.UpdateIsEnabledInHierarchy(referenceToThis);
+		Application::Instance->scene.UpdateIsEnabledInHierarchy(referenceToThis);
 	}
 
-	void GameObject::OnIDSystemUpdate(IDSystem& idSystem)
+	void GameObject::OnIDSystemUpdate()
 	{
-		_parent.OnIDSystemUpdate(idSystem);
+		_parent.OnIDSystemUpdate(Application::Instance->idSystem);
 		for (auto& child : _children)
-			child.OnIDSystemUpdate(idSystem);
+			child.OnIDSystemUpdate(Application::Instance->idSystem);
 		for (auto& component : _components)
-			component.OnIDSystemUpdate(idSystem);
+			component.OnIDSystemUpdate(Application::Instance->idSystem);
 	}
 }

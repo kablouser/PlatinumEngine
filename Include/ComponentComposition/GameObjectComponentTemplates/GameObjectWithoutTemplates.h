@@ -58,7 +58,7 @@ namespace PlatinumEngine
 		// Inconsiderate of hierarchy
 		bool IsEnabled() const;
 
-		void SetEnabled(bool isEnabled, Scene& scene);
+		void SetEnabled(bool isEnabled);
 
 		/**
 		 * @return true iff this and all its' parents are enabled, false otherwise
@@ -74,7 +74,7 @@ namespace PlatinumEngine
 
 		// Sets the parent of the current GameObject
 		// Removes it from old parent, updates the parent and then add to new parent
-		void SetParent(SavedReference<GameObject> parent, Scene& scene);
+		void SetParent(SavedReference<GameObject> parent);
 
 		//--------------------------------------------------------------------------------------------------------------
 		// _children control
@@ -145,8 +145,8 @@ namespace PlatinumEngine
 		// Must be called everytime IsEnabledInHierarchy might be changed
 		// IsEnabledInHierarchy might change if _parent or _isEnabled is changed
 		// Uses scene to broadcast events when there's a change
-		void UpdateIsEnabledInHierarchy(Scene& scene, SavedReference<GameObject>& referenceToThis);
+		void UpdateIsEnabledInHierarchy(SavedReference<GameObject>& referenceToThis);
 
-		void OnIDSystemUpdate(IDSystem& idSystem);
+		void OnIDSystemUpdate();
 	};
 }
