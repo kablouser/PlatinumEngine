@@ -18,7 +18,7 @@ namespace PlatinumEngine
 		}
 		Quaternion::Quaternion(float pitch, float yaw, float roll)
 		{
-			Quaternion q = EulerToQuaternion(Vec3(pitch,yaw,roll)*Common::DEG2RAD);
+			Quaternion q = EulerToQuaternion(Vec3(pitch,yaw,roll));
 			x = q.x;
 			y = q.y;
 			z = q.z;
@@ -26,7 +26,7 @@ namespace PlatinumEngine
 		}
 		Quaternion::Quaternion(Vec3 euler)
 		{
-			Quaternion q = EulerToQuaternion(euler*Common::DEG2RAD);
+			Quaternion q = EulerToQuaternion(euler);
 			x = q.x;
 			y = q.y;
 			z = q.z;

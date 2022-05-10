@@ -20,6 +20,15 @@ namespace PlatinumEngine
 			_rigidBody.DeRef()->isCollisionRecorded = true;
 		_audioComponent = GetComponent<AudioComponent>();
 		_transform = GetComponent<Transform>();
+
+		if (0 < GetGameObject().DeRef()->GetChildrenCount())
+		{
+			_animationComponent =
+					GetGameObject().DeRef()->GetChild(0).DeRef()->GetComponent<AnimationComponent>();
+			_animationTransform = _animationComponent.DeRef()->GetComponent<Transform>();
+			if (_animationTransform)
+				_animationTransform.DeRef()->localRotation = Maths::Quaternion(Maths::Vec3(0, 110, 0));
+		}
 	}
 
 	void Player::OnUpdate()
@@ -55,12 +64,14 @@ namespace PlatinumEngine
 		_currentVelocityX = std::clamp(_currentVelocityX, velocityXMin, velocityXMax);
 
 		float time = Application::Instance->time.getTime();
-		if (0.1f < y && _nextJumpAvailable < time && IsGrounded(rigidBodyPointer))
+		bool isGrounded = IsGrounded(rigidBodyPointer);
+		if (0.1f < y && _nextJumpAvailable < time && isGrounded)
 		{
 			// jump up
 			velocity.y = jumpSpeed;
 			// disallow jumps for a short period
 			_nextJumpAvailable = time + 0.2f;
+			isGrounded = false;
 
 			if (_audioComponent)
 				_audioComponent.DeRef()->Play();
@@ -70,6 +81,32 @@ namespace PlatinumEngine
 		rigidBodyPointer->SetAngularVelocity({});
 		if (_transform)
 			_transform.DeRef()->localRotation = Maths::Quaternion();
+
+		if (_animationComponent && _animationTransform)
+		{
+			AnimationComponent* animationPointer = _animationComponent.DeRef().get();
+			Transform* animationTransformPointer = _animationTransform.DeRef().get();
+			if (std::abs(_currentVelocityX) < 0.01f)
+			{
+				animationPointer->SetCurrentAnimationByID(3);
+				if (y < 0.f)
+					animationPointer->SetCurrentAnimationByID(1);
+			}
+			else if (0 < _currentVelocityX)
+			{
+				animationPointer->SetCurrentAnimationByID(4);
+				animationTransformPointer->localRotation = Maths::Quaternion(Maths::Vec3(0, 110, 0));
+			}
+			else
+			{
+				animationPointer->SetCurrentAnimationByID(4);
+				animationTransformPointer->localRotation = Maths::Quaternion(Maths::Vec3(0, -110, 0));
+			}
+
+			if (isGrounded == false)
+				// fly animation
+				animationPointer->SetCurrentAnimationByID(2);
+		}
 	}
 
 	void Player::OnIDSystemUpdate()

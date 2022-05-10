@@ -1,6 +1,26 @@
 IDSystem
 {
 	{
+		4709758812821872588,
+		PlatinumEngine::AnimationComponent 
+		{
+			// inherited from PlatinumEngine::Component
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 5574285215842028330;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			// from PlatinumEngine::AnimationComponent
+			bool isDisplay = 1;
+			PlatinumEngine::AnimationLocalTimer _timer = 
+			{
+				float animationTime = 1.15192;
+				bool isAnimationLooping = 1;
+				bool isAnimationPlaying = 1;
+			};
+			unsigned int _selectedAnimationIndex = 3;
+			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 11371575641787277452;
+		}
+	},
+	{
 		9150876014666192880,
 		PlatinumEngine::AudioComponent 
 		{
@@ -133,15 +153,34 @@ IDSystem
 			bool _isEnabledInHierarchy = 1;
 			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children = 
 			{
+				5574285215842028330,
 			};
 			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
 			{
 				{12404451586699533251, PlatinumEngine::Transform},
-				{14974086886444776543, PlatinumEngine::MeshRender},
 				{17100572922230495750, PlatinumEngine::RigidBody},
 				{3298926593744692957, PlatinumEngine::Player},
 				{9150876014666192880, PlatinumEngine::AudioComponent},
 				{2344922081862168242, PlatinumEngine::BoxCollider},
+			};
+		}
+	},
+	{
+		5574285215842028330,
+		PlatinumEngine::GameObject 
+		{
+			std::string name = "Chicken";
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 4368453087326970620;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children = 
+			{
+			};
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
+			{
+				{9006028242767655941, PlatinumEngine::MeshRender},
+				{4709758812821872588, PlatinumEngine::AnimationComponent},
+				{2983234556648078349, PlatinumEngine::Transform},
 			};
 		}
 	},
@@ -265,6 +304,28 @@ IDSystem
 		}
 	},
 	{
+		9006028242767655941,
+		PlatinumEngine::MeshRender 
+		{
+			// inherited from PlatinumEngine::Component
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 5574285215842028330;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			// from PlatinumEngine::MeshRender
+			PlatinumEngine::Material material = 
+			{
+				PlatinumEngine::SavedReference<PlatinumEngine::Texture> diffuseTexture = 9601049685532700697;
+				PlatinumEngine::SavedReference<PlatinumEngine::Texture> normalTexture = 0;
+				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
+				float shininessFactor = 1;
+				bool useBlinnPhong = 0;
+				bool useTexture = 1;
+				bool useNormalTexture = 0;
+			};
+			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 11371575641787277452;
+		}
+	},
+	{
 		14380647380414428344,
 		PlatinumEngine::MeshRender 
 		{
@@ -281,28 +342,6 @@ IDSystem
 				float shininessFactor = 1;
 				bool useBlinnPhong = 0;
 				bool useTexture = 1;
-				bool useNormalTexture = 0;
-			};
-			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 4345768601859909765;
-		}
-	},
-	{
-		14974086886444776543,
-		PlatinumEngine::MeshRender 
-		{
-			// inherited from PlatinumEngine::Component
-			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 4368453087326970620;
-			bool _isEnabled = 1;
-			bool _isEnabledInHierarchy = 1;
-			// from PlatinumEngine::MeshRender
-			PlatinumEngine::Material material = 
-			{
-				PlatinumEngine::SavedReference<PlatinumEngine::Texture> diffuseTexture = 0;
-				PlatinumEngine::SavedReference<PlatinumEngine::Texture> normalTexture = 0;
-				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
-				float shininessFactor = 1;
-				bool useBlinnPhong = 0;
-				bool useTexture = 0;
 				bool useNormalTexture = 0;
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 4345768601859909765;
@@ -379,6 +418,50 @@ IDSystem
 			float mass = 1;
 			bool isKinematic = 0;
 			bool isCollisionRecorded = 0;
+		}
+	},
+	{
+		2983234556648078349,
+		PlatinumEngine::Transform 
+		{
+			// inherited from PlatinumEngine::Component
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 5574285215842028330;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			// from PlatinumEngine::Transform
+			PlatinumEngine::Maths::Vec3 localPosition = 
+			{
+				float x = 0.0888098;
+				float y = -1.07793;
+				float z = 0.060852;
+			};
+			PlatinumEngine::Maths::Quaternion localRotation = 
+			{
+				float x = -0.0281926;
+				float y = 0;
+				float z = 0;
+				float w = 0.999602;
+			};
+			PlatinumEngine::Maths::Mat4 transformationMatrix = 
+			{
+				float [0,0] = 0;
+				float [0,1] = 0;
+				float [0,2] = 0;
+				float [0,3] = 0;
+				float [1,0] = 0;
+				float [1,1] = 0;
+				float [1,2] = 0;
+				float [1,3] = 0;
+				float [2,0] = 0;
+				float [2,1] = 0;
+				float [2,2] = 0;
+				float [2,3] = 0;
+				float [3,0] = 0;
+				float [3,1] = 0;
+				float [3,2] = 0;
+				float [3,3] = 0;
+			};
+			float localScale = 0.0615979;
 		}
 	},
 	{
@@ -524,7 +607,7 @@ IDSystem
 			// from PlatinumEngine::Transform
 			PlatinumEngine::Maths::Vec3 localPosition = 
 			{
-				float x = -2.91;
+				float x = -4.98929;
 				float y = 1;
 				float z = 15;
 			};
@@ -613,6 +696,7 @@ PlatinumEngine::Scene
 		7550397915049738480,
 		4368453087326970620,
 		6165984979520871306,
+		5574285215842028330,
 	};
 	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _rootGameObjects = 
 	{
@@ -635,7 +719,6 @@ PlatinumEngine::Scene
 		{15016197372779484319, PlatinumEngine::RigidBody},
 		{14380647380414428344, PlatinumEngine::MeshRender},
 		{12404451586699533251, PlatinumEngine::Transform},
-		{14974086886444776543, PlatinumEngine::MeshRender},
 		{17100572922230495750, PlatinumEngine::RigidBody},
 		{3298926593744692957, PlatinumEngine::Player},
 		{8341454696669879592, PlatinumEngine::MeshRender},
@@ -644,5 +727,8 @@ PlatinumEngine::Scene
 		{11427430785605392180, PlatinumEngine::RigidBody},
 		{9150876014666192880, PlatinumEngine::AudioComponent},
 		{2344922081862168242, PlatinumEngine::BoxCollider},
+		{9006028242767655941, PlatinumEngine::MeshRender},
+		{4709758812821872588, PlatinumEngine::AnimationComponent},
+		{2983234556648078349, PlatinumEngine::Transform},
 	};
 };
