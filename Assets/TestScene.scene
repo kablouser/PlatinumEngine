@@ -94,6 +94,24 @@ IDSystem
 		}
 	},
 	{
+		5355463339223982939,
+		PlatinumEngine::GameObject 
+		{
+			std::string name = "Explosion3";
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 0;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children = 
+			{
+			};
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
+			{
+				{18387351665692410151, PlatinumEngine::ParticleEffect},
+				{3596158477415347815, PlatinumEngine::Transform},
+			};
+		}
+	},
+	{
 		6813319182755800983,
 		PlatinumEngine::GameObject 
 		{
@@ -204,7 +222,7 @@ IDSystem
 		13345764356276298188,
 		PlatinumEngine::GameObject 
 		{
-			std::string name = "Explosion";
+			std::string name = "Explosion1";
 			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 0;
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
@@ -258,7 +276,7 @@ IDSystem
 		18361259754949628544,
 		PlatinumEngine::GameObject 
 		{
-			std::string name = "Particle Effect";
+			std::string name = "Explosion2";
 			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 0;
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
@@ -786,6 +804,75 @@ IDSystem
 		}
 	},
 	{
+		18387351665692410151,
+		PlatinumEngine::ParticleEffect 
+		{
+			// inherited from PlatinumEngine::Component
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 5355463339223982939;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			// from PlatinumEngine::ParticleEffect
+			bool useTexture = 1;
+			std::string shadeBy = "Life";
+			PlatinumEngine::Maths::Vec4 startColour = 
+			{
+				float x = 1;
+				float y = 1;
+				float z = 1;
+				float w = 1;
+			};
+			PlatinumEngine::Maths::Vec4 endColour = 
+			{
+				float x = 1;
+				float y = 1;
+				float z = 1;
+				float w = 0;
+			};
+			float minShadeValue = 0;
+			float maxShadeValue = 0.933;
+			PlatinumEngine::ParticleEffects::ParticleEmitter particleEmitter = 
+			{
+				int numberOfParticles = 500;
+				float respawnLifetime = 0.933;
+				int numberOfNewParticles = 3;
+				float spawnInterval = 0.5;
+				PlatinumEngine::Maths::Vec3 actingForce = 
+				{
+					float x = 0;
+					float y = 0;
+					float z = 0;
+				};
+				bool useRandomInitPositionX = 0;
+				bool useRandomInitPositionY = 0;
+				bool useRandomInitPositionZ = 0;
+				float minPositionX = -1;
+				float maxPositionX = 1;
+				float minPositionY = -1;
+				float maxPositionY = 1;
+				float minPositionZ = -1;
+				float maxPositionZ = 1;
+				PlatinumEngine::Maths::Vec3 initVelocity = 
+				{
+					float x = 0;
+					float y = 0;
+					float z = 0;
+				};
+				bool useRandomInitVelocityX = 0;
+				bool useRandomInitVelocityY = 0;
+				bool useRandomInitVelocityZ = 0;
+				float minVelocityX = -1;
+				float maxVelocityX = 1;
+				float minVelocityY = -1;
+				float maxVelocityY = 1;
+				float minVelocityZ = -1;
+				float maxVelocityZ = 1;
+				PlatinumEngine::SavedReference<PlatinumEngine::Texture> texture = 8317047101311621236;
+				int numRowsInTexture = 5;
+				int numColsInTexture = 5;
+			};
+		}
+	},
+	{
 		856322013527144788,
 		PlatinumEngine::Transform 
 		{
@@ -827,6 +914,50 @@ IDSystem
 				float [3,3] = 0;
 			};
 			float localScale = 0.00500008;
+		}
+	},
+	{
+		3596158477415347815,
+		PlatinumEngine::Transform 
+		{
+			// inherited from PlatinumEngine::Component
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 5355463339223982939;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			// from PlatinumEngine::Transform
+			PlatinumEngine::Maths::Vec3 localPosition = 
+			{
+				float x = -15.3718;
+				float y = -8.1003;
+				float z = 0;
+			};
+			PlatinumEngine::Maths::Quaternion localRotation = 
+			{
+				float x = 0;
+				float y = 0;
+				float z = 0;
+				float w = 1;
+			};
+			PlatinumEngine::Maths::Mat4 transformationMatrix = 
+			{
+				float [0,0] = 0;
+				float [0,1] = 0;
+				float [0,2] = 0;
+				float [0,3] = 0;
+				float [1,0] = 0;
+				float [1,1] = 0;
+				float [1,2] = 0;
+				float [1,3] = 0;
+				float [2,0] = 0;
+				float [2,1] = 0;
+				float [2,2] = 0;
+				float [2,3] = 0;
+				float [3,0] = 0;
+				float [3,1] = 0;
+				float [3,2] = 0;
+				float [3,3] = 0;
+			};
+			float localScale = 1;
 		}
 	},
 	{
@@ -1060,8 +1191,8 @@ IDSystem
 			// from PlatinumEngine::Transform
 			PlatinumEngine::Maths::Vec3 localPosition = 
 			{
-				float x = -31.8435;
-				float y = -8;
+				float x = -30.745;
+				float y = -8.54796;
 				float z = -1.49595;
 			};
 			PlatinumEngine::Maths::Quaternion localRotation = 
@@ -1148,7 +1279,7 @@ IDSystem
 			// from PlatinumEngine::Transform
 			PlatinumEngine::Maths::Vec3 localPosition = 
 			{
-				float x = -29.6987;
+				float x = -40.4213;
 				float y = -8.3606;
 				float z = -5.6801;
 			};
@@ -1332,6 +1463,7 @@ PlatinumEngine::Scene
 		13345764356276298188,
 		14932494690325779207,
 		18361259754949628544,
+		5355463339223982939,
 	};
 	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _rootGameObjects = 
 	{
@@ -1339,6 +1471,9 @@ PlatinumEngine::Scene
 		8003581218966239001,
 		6813319182755800983,
 		480572951053959598,
+		13345764356276298188,
+		5355463339223982939,
+		18361259754949628544,
 		182040922107772954,
 		7446914266180976740,
 		18330385969151217158,
@@ -1346,8 +1481,6 @@ PlatinumEngine::Scene
 		8578519642562163503,
 		11298885138334686679,
 		14932494690325779207,
-		13345764356276298188,
-		18361259754949628544,
 	};
 	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
 	{
@@ -1376,5 +1509,7 @@ PlatinumEngine::Scene
 		{11135416216189940902, PlatinumEngine::Transform},
 		{7910596564746186565, PlatinumEngine::ParticleEffect},
 		{10272249598587479545, PlatinumEngine::Transform},
+		{18387351665692410151, PlatinumEngine::ParticleEffect},
+		{3596158477415347815, PlatinumEngine::Transform},
 	};
 };
