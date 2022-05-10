@@ -52,7 +52,7 @@ namespace PlatinumEngine
 		}
 
 		// Check if this node is clicked
-		if(ImGui::IsItemClicked())
+		if(ImGui::IsItemClicked()||ImGui::IsItemClicked(1))
 		{
 			_sceneEditor->SetSelectedGameobject(gameObject);
 		}
@@ -70,22 +70,15 @@ namespace PlatinumEngine
 				auto selectedObject = _sceneEditor->GetSelectedGameobject();
 				if (gameObject == selectedObject)
 					_sceneEditor->DeleteSelectedGameObject();
-				else
-				{
-					// For a safe delete, we need to check if the selected game object is a child of the selected
-					// object to delete
-					auto parent = _sceneEditor->GetSelectedGameobject().DeRef()->GetParent();
-					while (parent)
-					{
-						// Manually set nullptr as we know we will remove directly later
-						if (parent == gameObject)
-							_sceneEditor->SetSelectedGameobject({});
-						parent = parent.DeRef()->GetParent();
-					}
-
-					scene.RemoveGameObject(gameObject);
-				}
 			}
+
+			/*ImGui::Separator();
+			ImGui::Text("Copy Object");
+			if (ImGui::IsItemClicked())
+			{
+
+			}*/
+
 			ImGui::EndPopup();
 		}
 
@@ -97,9 +90,9 @@ namespace PlatinumEngine
 			ImGui::SetDragDropPayload(
 					"DragGameObject",
 					// pointer to SavedReference (id and pointer)
-					&gameObject,
+					&gameObject.id,
 					// same as sizeof(SavedReference), not sizeof(SavedReference&)
-					sizeof(gameObject));
+					sizeof(gameObject.id));
 
 			// End the DragDropSource
 			ImGui::EndDragDropSource();
@@ -115,7 +108,9 @@ namespace PlatinumEngine
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DragGameObject"))
 			{
 
-				SavedReference<GameObject> payloadPointer = *(SavedReference<GameObject>*)payload->Data;
+				SavedReference<GameObject> payloadPointer;
+				payloadPointer.id = *(IDSystem::ID*)payload->Data;
+				payloadPointer.OnIDSystemUpdate(IDSystem::Inst);
 
 				// check move behavior mode
 				// if the mode is to change hierarchy between game objects
