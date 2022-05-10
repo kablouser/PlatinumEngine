@@ -296,6 +296,28 @@ void InspectorWindow::ShowMeshRenderComponent(Scene& scene)
 		ImGui::SliderFloat("##refractionIndex", &(meshRender.DeRef()->material.refractionIndex), 1.0f, 4.f,
 				"%.3f", ImGuiSliderFlags_None);
 		ImGui::PopItemWidth();
+
+		auto ColourPickerFlags =
+				ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_AlphaBar;
+		ImGui::Text("Colour: ");
+		ImGui::SameLine();
+		ImVec4 startColour((meshRender.DeRef()->material.colour[0]),
+				(meshRender.DeRef()->material.colour[1]),
+				(meshRender.DeRef()->material.colour[2]), 1.0f);
+		ImGui::PushItemWidth(20);
+		if (ImGui::ColorButton("##ButtonDiffuseColour", startColour))
+		{
+			ImGui::OpenPopup("##PickDiffuseColour");
+		}
+		ImGui::PopItemWidth();
+		if (ImGui::BeginPopup("##PickDiffuseColour"))
+		{
+			ImGui::PushItemWidth(180.0f);
+			ImGui::ColorPicker4("##MaterialColour", (float*)&(meshRender.DeRef()->material.colour),
+					ColourPickerFlags);
+			ImGui::PopItemWidth();
+			ImGui::EndPopup();
+		}
 	}
 }
 

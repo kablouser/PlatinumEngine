@@ -302,6 +302,7 @@ namespace PlatinumEngine
 		}
 
 		_phongShader.Bind();
+		_phongShader.SetUniform("diffuseColour", material.colour);
 		_phongShader.SetUniform("useTexture", material.useTexture);
 
 		// bind diffuse map
@@ -480,10 +481,10 @@ namespace PlatinumEngine
 	void Renderer::SetLightProperties()
 	{
 		// Normal shader light properties
-		auto lightPos = Maths::Vec3(5.0f, 5.0f, -5.0f);
+		auto lightPos = Maths::Vec3(188.0f, 151.0f, -52.0f);
 		auto isPointLight = true;
-		auto lightAmbient = Maths::Vec3(0.2f, 0.2f, 0.2f);
-		auto lightDiffuse = Maths::Vec3(0.5f, 0.5f, 0.5f);
+		auto lightAmbient = Maths::Vec3(1.0f, 0.9408f, 0.7794f);
+		auto lightDiffuse = Maths::Vec3(1.0f, 0.9408f, 0.7794f);
 		auto lightSpecular = Maths::Vec3(1.0f, 1.0f, 1.0f);
 
 		// Phong shader light properties

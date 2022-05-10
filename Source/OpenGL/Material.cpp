@@ -25,7 +25,8 @@ namespace PlatinumEngine
 
 				.WithField<bool>("useBlinnPhong", PLATINUM_OFFSETOF(Material, useBlinnPhong))
 				.WithField<bool>("useTexture", PLATINUM_OFFSETOF(Material, useTexture))
-				.WithField<bool>("useNormalTexture", PLATINUM_OFFSETOF(Material, useNormalTexture));
+				.WithField<bool>("useNormalTexture", PLATINUM_OFFSETOF(Material, useNormalTexture))
+				.WithField<Maths::Vec3>("colour", PLATINUM_OFFSETOF(Material, colour));
 	}
 
 	Material::Material() : shininessFactor(1.0f), useBlinnPhong(false), useTexture(false), useNormalTexture(false)

@@ -22,6 +22,9 @@ uniform vec3 lightAmbient;
 uniform vec3 lightDiffuse;
 uniform vec3 lightSpecular;
 
+// Matieral colour
+uniform vec3 diffuseColour;
+
 // If false, use lightPos as lightDirection
 uniform bool isPointLight;
 
@@ -31,7 +34,7 @@ uniform bool useBlinnPhong;
 
 void main()
 {
-    vec3 colour = vec3(0.4f, 0.4f, 0.4f);
+    vec3 colour = diffuseColour;
     if (useTexture)
     {
         colour = texture(diffuseMap, vertexTextureCoordinate).rgb;
