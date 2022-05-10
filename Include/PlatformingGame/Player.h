@@ -27,13 +27,15 @@ namespace PlatinumEngine
 
 	private:
 		SavedReference<RigidBody> _rigidBody;
-		SavedReference<AudioComponent> _audioComponent;
+		SavedReference<AudioComponent> _jumpAudio;
+		SavedReference<AudioComponent> _footStepAudio;
 		SavedReference<Transform> _transform;
 		SavedReference<AnimationComponent> _animationComponent;
 		SavedReference<Transform> _animationTransform;
 		SavedReference<Transform> _cameraTransform;
 		float _currentVelocityX = 0.f;
 		float _nextJumpAvailable = 0.f;
+		float _nextFootStep = 0.f;
 
 		bool IsGrounded(RigidBody* rigidBodyPointer) const;
 	};

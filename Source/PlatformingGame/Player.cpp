@@ -18,7 +18,7 @@ namespace PlatinumEngine
 		if (_rigidBody)
 			// movement requires collision recorded
 			_rigidBody.DeRef()->isCollisionRecorded = true;
-		_audioComponent = GetComponent<AudioComponent>();
+		_jumpAudio = GetComponent<AudioComponent>();
 		_transform = GetComponent<Transform>();
 
 		if (0 < GetGameObject().DeRef()->GetChildrenCount())
@@ -28,6 +28,9 @@ namespace PlatinumEngine
 			_animationTransform = _animationComponent.DeRef()->GetComponent<Transform>();
 			if (_animationTransform)
 				_animationTransform.DeRef()->localRotation = Maths::Quaternion(Maths::Vec3(0, 110, 0));
+
+			_footStepAudio =
+					GetGameObject().DeRef()->GetChild(0).DeRef()->GetComponent<AudioComponent>();
 		}
 
 		SavedReference<Camera> camera = Application::Instance->scene.FindFirstComponent<Camera>();
@@ -77,8 +80,8 @@ namespace PlatinumEngine
 			_nextJumpAvailable = time + 0.2f;
 			isGrounded = false;
 
-			if (_audioComponent)
-				_audioComponent.DeRef()->Play();
+			if (_jumpAudio)
+				_jumpAudio.DeRef()->Play();
 		}
 
 		rigidBodyPointer->SetVelocity({ _currentVelocityX, velocity.y, 0 });
@@ -90,21 +93,34 @@ namespace PlatinumEngine
 		{
 			AnimationComponent* animationPointer = _animationComponent.DeRef().get();
 			Transform* animationTransformPointer = _animationTransform.DeRef().get();
+
+			bool isWalking = false;
 			if (std::abs(_currentVelocityX) < 0.01f)
 			{
-				animationPointer->SetCurrentAnimationByID(3);
 				if (y < 0.f)
 					animationPointer->SetCurrentAnimationByID(1);
+				else
+					animationPointer->SetCurrentAnimationByID(3);
 			}
 			else if (0 < _currentVelocityX)
 			{
-				animationPointer->SetCurrentAnimationByID(4);
+				isWalking = true;
 				animationTransformPointer->localRotation = Maths::Quaternion(Maths::Vec3(0, 110, 0));
 			}
 			else
 			{
-				animationPointer->SetCurrentAnimationByID(4);
+				isWalking = true;
 				animationTransformPointer->localRotation = Maths::Quaternion(Maths::Vec3(0, -110, 0));
+			}
+
+			if (isWalking)
+			{
+				animationPointer->SetCurrentAnimationByID(4);
+				if (_footStepAudio && _nextFootStep < Application::Instance->time.getSeconds() && isGrounded)
+				{
+					_footStepAudio.DeRef()->Play();
+					_nextFootStep = Application::Instance->time.getSeconds() + 0.2f;
+				}
 			}
 
 			if (isGrounded == false)
