@@ -7,7 +7,7 @@
 #include "Component.h"
 #include <TypeDatabase/TypeDatabase.h>
 #include <Animation/AnimationLocalTimer.h>
-
+#include <SceneManager/Scene.h>
 
 namespace PlatinumEngine
 {
@@ -27,6 +27,11 @@ namespace PlatinumEngine
 		// {  FUNCTION  }
 		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 
+		/**
+		 *
+		 * @param skeleton : skeleton for the animation
+		 * @param bones : bones that store the offset matrices (matrix that transform local coordinate to be "bone" coordinate) for calculation
+		 */
 		void UpdateWorldTransformMatrix(ozz::unique_ptr<ozz::animation::Skeleton>& skeleton,const std::vector<Bone>& bones);
 
 		void SetCurrentAnimationByID(unsigned int inID);
@@ -44,6 +49,8 @@ namespace PlatinumEngine
 		void SetIsDisplay(bool inIsDisplay);
 
 		bool GetIsDisplay() const;
+
+		void OnIDSystemUpdate(Scene& scene);
 
 	private:
 		// {  PARAMETER  }
