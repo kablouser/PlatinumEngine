@@ -29,6 +29,10 @@ namespace PlatinumEngine
 			if (_animationTransform)
 				_animationTransform.DeRef()->localRotation = Maths::Quaternion(Maths::Vec3(0, 110, 0));
 		}
+
+		SavedReference<Camera> camera = Application::Instance->scene.FindFirstComponent<Camera>();
+		if (camera)
+			_cameraTransform = camera.DeRef()->GetComponent<Transform>();
 	}
 
 	void Player::OnUpdate()
@@ -106,6 +110,17 @@ namespace PlatinumEngine
 			if (isGrounded == false)
 				// fly animation
 				animationPointer->SetCurrentAnimationByID(2);
+		}
+
+		if (_cameraTransform)
+		{
+			Maths::Vec3 targetCameraPosition = _transform.DeRef()->localPosition;
+			targetCameraPosition += Maths::Vec3(0.f, 2.f, -15.f);
+
+			float lerpParameter = Application::Instance->time.GetDelta() * 2.0f;
+			_cameraTransform.DeRef()->localPosition =
+					_cameraTransform.DeRef()->localPosition * (1.f - lerpParameter) +
+					targetCameraPosition * lerpParameter;
 		}
 	}
 

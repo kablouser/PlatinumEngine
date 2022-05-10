@@ -5,6 +5,7 @@
 #include <ComponentComposition/AudioComponent.h>
 #include <ComponentComposition/Transform.h>
 #include <ComponentComposition/AnimationComponent.h>
+#include <ComponentComposition/Camera.h>
 
 namespace PlatinumEngine
 {
@@ -30,6 +31,7 @@ namespace PlatinumEngine
 		SavedReference<Transform> _transform;
 		SavedReference<AnimationComponent> _animationComponent;
 		SavedReference<Transform> _animationTransform;
+		SavedReference<Transform> _cameraTransform;
 		float _currentVelocityX = 0.f;
 		float _nextJumpAvailable = 0.f;
 
