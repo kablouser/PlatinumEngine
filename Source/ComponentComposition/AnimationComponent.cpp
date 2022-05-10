@@ -14,7 +14,7 @@ namespace PlatinumEngine
 		typeDatabase.BeginTypeInfo<AnimationComponent>()
 					.WithInherit<Component>()
 					.WithField<bool>("_isDisplay", PLATINUM_OFFSETOF(AnimationComponent,_isDisplay))
-					.WithField<AnimationLocalTimer>("_timer", PLATINUM_OFFSETOF(AnimationComponent, timer))
+					.WithField<AnimationLocalTimer>("timer", PLATINUM_OFFSETOF(AnimationComponent, timer))
 					.WithField<unsigned int>("_selectedAnimationIndex", PLATINUM_OFFSETOF(AnimationComponent, _selectedAnimationIndex))
 					.WithField<SavedReference<Mesh>>("_mesh", PLATINUM_OFFSETOF(AnimationComponent, _mesh));
 	}
