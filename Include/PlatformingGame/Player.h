@@ -4,6 +4,7 @@
 #include <ComponentComposition/RigidBody.h>
 #include <ComponentComposition/AudioComponent.h>
 #include <ComponentComposition/Transform.h>
+#include <ComponentComposition/AnimationComponent.h>
 
 namespace PlatinumEngine
 {
@@ -27,6 +28,8 @@ namespace PlatinumEngine
 		SavedReference<RigidBody> _rigidBody;
 		SavedReference<AudioComponent> _audioComponent;
 		SavedReference<Transform> _transform;
+		SavedReference<AnimationComponent> _animationComponent;
+		SavedReference<Transform> _animationTransform;
 		float _currentVelocityX = 0.f;
 		float _nextJumpAvailable = 0.f;
 
