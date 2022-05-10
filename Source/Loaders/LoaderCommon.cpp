@@ -18,6 +18,7 @@ namespace PlatinumEngine
 				{ ".FBX", std::type_index(typeid(Mesh)) },
 
 				{ ".png", std::type_index(typeid(Texture)) },
+				{ ".jpeg", std::type_index(typeid(Texture)) },
 				// .jpg? .jpeg?
 
 				{ ".wav", std::type_index(typeid(AudioClip)) },
