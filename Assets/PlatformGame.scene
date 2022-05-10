@@ -9,7 +9,7 @@ IDSystem
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
 			// from PlatinumEngine::AnimationComponent
-			bool isDisplay = 1;
+			bool _isDisplay = 1;
 			PlatinumEngine::AnimationLocalTimer _timer = 
 			{
 				float animationTime = 1.15192;

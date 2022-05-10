@@ -55,7 +55,7 @@ namespace PlatinumEngine
 		}
 
 		// Check if this node is clicked
-		if(ImGui::IsItemClicked())
+		if(ImGui::IsItemClicked()||ImGui::IsItemClicked(1))
 		{
 			Application::Instance->sceneEditor.SetSelectedGameobject(gameObject);
 		}
@@ -73,22 +73,15 @@ namespace PlatinumEngine
 				auto selectedObject = Application::Instance->sceneEditor.GetSelectedGameobject();
 				if (gameObject == selectedObject)
 					Application::Instance->sceneEditor.DeleteSelectedGameObject();
-				else
-				{
-					// For a safe delete, we need to check if the selected game object is a child of the selected
-					// object to delete
-					auto parent = Application::Instance->sceneEditor.GetSelectedGameobject().DeRef()->GetParent();
-					while (parent)
-					{
-						// Manually set nullptr as we know we will remove directly later
-						if (parent == gameObject)
-							Application::Instance->sceneEditor.SetSelectedGameobject({});
-						parent = parent.DeRef()->GetParent();
-					}
-
-					Application::Instance->scene.RemoveGameObject(gameObject);
-				}
 			}
+
+			/*ImGui::Separator();
+			ImGui::Text("Copy Object");
+			if (ImGui::IsItemClicked())
+			{
+
+			}*/
+
 			ImGui::EndPopup();
 		}
 
@@ -100,9 +93,9 @@ namespace PlatinumEngine
 			ImGui::SetDragDropPayload(
 					"DragGameObject",
 					// pointer to SavedReference (id and pointer)
-					&gameObject,
+					&gameObject.id,
 					// same as sizeof(SavedReference), not sizeof(SavedReference&)
-					sizeof(gameObject));
+					sizeof(gameObject.id));
 
 			// End the DragDropSource
 			ImGui::EndDragDropSource();
@@ -118,7 +111,9 @@ namespace PlatinumEngine
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DragGameObject"))
 			{
 
-				SavedReference<GameObject> payloadPointer = *(SavedReference<GameObject>*)payload->Data;
+				SavedReference<GameObject> payloadPointer;
+				payloadPointer.id = *(IDSystem::ID*)payload->Data;
+				payloadPointer.OnIDSystemUpdate(Application::Instance->idSystem);
 
 				// check move behavior mode
 				// if the mode is to change hierarchy between game objects

@@ -300,9 +300,9 @@ void InspectorWindow::ShowMeshRenderComponent(SavedReference<MeshRender>& refere
 				ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_AlphaBar;
 		ImGui::Text("Colour: ");
 		ImGui::SameLine();
-		ImVec4 startColour((meshRender.DeRef()->material.colour[0]),
-				(meshRender.DeRef()->material.colour[1]),
-				(meshRender.DeRef()->material.colour[2]), 1.0f);
+		ImVec4 startColour((reference.DeRef()->material.colour[0]),
+				(reference.DeRef()->material.colour[1]),
+				(reference.DeRef()->material.colour[2]), 1.0f);
 		ImGui::PushItemWidth(20);
 		if (ImGui::ColorButton("##ButtonDiffuseColour", startColour))
 		{
@@ -312,7 +312,7 @@ void InspectorWindow::ShowMeshRenderComponent(SavedReference<MeshRender>& refere
 		if (ImGui::BeginPopup("##PickDiffuseColour"))
 		{
 			ImGui::PushItemWidth(180.0f);
-			ImGui::ColorPicker4("##MaterialColour", (float*)&(meshRender.DeRef()->material.colour),
+			ImGui::ColorPicker4("##MaterialColour", (float*)&(reference.DeRef()->material.colour),
 					ColourPickerFlags);
 			ImGui::PopItemWidth();
 			ImGui::EndPopup();
