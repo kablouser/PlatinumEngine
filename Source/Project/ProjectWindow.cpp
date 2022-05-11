@@ -434,6 +434,7 @@ std::string ProjectWindow::FormatFileSize(uintmax_t size, int precision)
  */
 void ProjectWindow::RenderPreview(std::filesystem::path filePath)
 {
+	_scene.Clear();
 	// Create the texture of fixed size (No need for checks since we know that framebuffer will be of sufficient size)
 	_renderTexture.Create(_framebufferWidth, _framebufferHeight);
 
@@ -449,7 +450,7 @@ void ProjectWindow::RenderPreview(std::filesystem::path filePath)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	// Start rendering (bind a shader)
-	Application::Instance->renderer.Begin();
+	_renderer.Begin();
 
 	// Get the mesh to be rendered
 	SavedReference<Mesh> mesh;
@@ -476,13 +477,19 @@ void ProjectWindow::RenderPreview(std::filesystem::path filePath)
 	modelRotationMat.SetRotationMatrix(_modelRotation);
 
 	// Setup renderer's settings
-	Application::Instance->renderer.SetModelMatrix(modelRotationMat);
-	Application::Instance->renderer.SetViewMatrix(_previewCamera.viewMatrix4);
-	Application::Instance->renderer.SetProjectionMatrix(_previewCamera.projectionMatrix4);
-	Application::Instance->scene.LoadLights();
+	_renderer.SetModelMatrix(modelRotationMat);
+	_renderer.SetViewMatrix(_previewCamera.viewMatrix4);
+	_renderer.SetProjectionMatrix(_previewCamera.projectionMatrix4);
+
+	SavedReference<GameObject> go = _scene.AddGameObject("Temporary");
+	_scene.AddComponent<LightComponent>(go);
+	_scene.AddComponent<Transform>(go);
+	std::vector<SavedReference<LightComponent>> lights;
+	lights.push_back(go.DeRef()->GetComponent<LightComponent>());
+	_renderer.SetupLights(lights);
 
 	// End rendering (unbind a shader)
-	Application::Instance->renderer.End();
+	_renderer.End();
 
 	// unbind framebuffer
 	_renderTexture.Unbind();

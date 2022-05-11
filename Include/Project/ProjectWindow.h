@@ -39,6 +39,8 @@ namespace PlatinumEngine
 		int _framebufferHeight = 256;
 		EditorCamera _previewCamera;
 		Maths::Vec3 _modelRotation;
+		Renderer _renderer;
+		Scene _scene;
 
 		//Filesystem related
 		enum class MoveType {copy, cut, none};
