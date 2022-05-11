@@ -67,13 +67,19 @@ namespace PlatinumEngine
 		}
 		if (ImGui::BeginPopup("RightClickGameObject"))
 		{
-			ImGui::Text("Remove Object");
+			ImGui::Selectable("Remove Object");
 			if (ImGui::IsItemClicked())
 			{
 				auto selectedObject = Application::Instance->sceneEditor.GetSelectedGameobject();
 				if (gameObject == selectedObject)
 					Application::Instance->sceneEditor.DeleteSelectedGameObject();
 			}
+			
+			// ImGui::Selectable("Duplicate Object");
+			// if (ImGui::IsItemClicked())
+			// {
+			// 	// TODO: duplicateGameObject = gameObject (Somehow?)
+			// }
 
 			/*ImGui::Separator();
 			ImGui::Text("Copy Object");

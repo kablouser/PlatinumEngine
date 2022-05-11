@@ -7,6 +7,7 @@
 #include "WindowManager/Filedialog.h"
 
 #include <ComponentComposition/Component.h>
+#include <ComponentComposition/AudioComponent.h>
 #include <ComponentComposition/Light.h>
 #include <ComponentComposition/MeshRender.h>
 #include <ComponentComposition/Transform.h>
@@ -65,6 +66,10 @@ namespace PlatinumEngine
 
 		float _textWidthTransformComponent = 90.f;
 		float _textWidthCameraComponent = 135.0f;
+		
+		float _textWidthAudioComponent = 90.0f;
+		float _itemWidthAudioComponent = 160.f;
+
 		float _textWidthParticleEffectComponent = 135.0f;
 		float _textWidthParticleEffectComponentSmall = 100.0f;
 		float _itemWidthParticleEffectComponent = 180.0f;

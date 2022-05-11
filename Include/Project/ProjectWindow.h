@@ -23,13 +23,29 @@ namespace PlatinumEngine
 		ProjectWindow();
 		void ShowGUIWindow(bool* isOpen);
 
-
-
 	private:
 		void ShowTreeNode(std::filesystem::path dir);
 		void DragDropMoveRegularFile(std::filesystem::path dir, const ImGuiPayload* payload);
+		void ShowProjectWindowPreview(std::filesystem::path filePath);
+		std::string FormatFileSize(uintmax_t size, int precision=2);
+		void RenderPreview(std::filesystem::path filePath);
 
-	private:
+		//Preview related
+		std::filesystem::path _previewFilePath;
+		int _childWindowCount = 1;
+		bool _isPreviewEnabled = false;
+		Framebuffer _renderTexture;
+		int _framebufferWidth = 256;
+		int _framebufferHeight = 256;
+		EditorCamera _previewCamera;
+		Maths::Vec3 _modelRotation;
+
+		//Filesystem related
+		enum class MoveType {copy, cut, none};
+		MoveType _moveType = MoveType::none;
+		std::filesystem::path _moveFilePath;
+
+		//Misc parameters
 		std::string _parentFolder = "./Assets";
 		std::string _ignoreDatabaseName = "AssetDatabase.csv";
 		// Mac has this file called .DS_Store which should also be ignored
