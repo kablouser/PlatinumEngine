@@ -26,10 +26,9 @@ namespace PlatinumEngine
 	void AnimationComponent::UpdateWorldTransformMatrix(
 			ozz::unique_ptr<ozz::animation::Skeleton>& skeleton,
 			const std::vector<Bone>& bones,
-			Time& time
-	)
+			Time& time)
 	{
-		if(!CheckIfAnimationValid(_selectedAnimationIndex) || skeleton == nullptr)
+		if(!CheckIfAnimationValid(_selectedAnimationIndex) || skeleton == nullptr || !_isDisplay)
 			return;
 
 		const ozz::animation::Animation* ozzAnimation = _mesh.DeRef()->animations[_selectedAnimationIndex].get();
@@ -178,6 +177,7 @@ namespace PlatinumEngine
 	{
 		_mesh.OnIDSystemUpdate(Application::Instance->idSystem);
 	}
+
 
 }
 

@@ -9,15 +9,13 @@ IDSystem
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
 			// from PlatinumEngine::AnimationComponent
-			bool _isDisplay = 0;
-
+			bool _isDisplay = 1;
 			PlatinumEngine::AnimationLocalTimer timer = 
 			{
-				float animationTime = 9.53843;
+				float animationTime = 5.35078;
 				bool isAnimationLooping = 1;
 				bool isAnimationPlaying = 1;
 			};
-
 			unsigned int _selectedAnimationIndex = 0;
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 15170823758925330500;
 		}
@@ -89,6 +87,7 @@ IDSystem
 			bool _isEnabledInHierarchy = 1;
 			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children = 
 			{
+				9385981541395253656,
 			};
 			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
 			{
@@ -120,7 +119,7 @@ IDSystem
 		PlatinumEngine::GameObject 
 		{
 			std::string name = "4Cubes";
-			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 0;
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 5894298866251707810;
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
 			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children = 
@@ -130,6 +129,7 @@ IDSystem
 			{
 				{8978851154952401778, PlatinumEngine::MeshRender},
 				{11893554295648380710, PlatinumEngine::Transform},
+				{8111090619765781135, ?},
 			};
 		}
 	},
@@ -276,9 +276,9 @@ IDSystem
 			// from PlatinumEngine::Transform
 			PlatinumEngine::Maths::Vec3 localPosition = 
 			{
-				float x = 4.77129e-12;
-				float y = 0.00026679;
-				float z = -0.000427246;
+				float x = 1.83711e-11;
+				float y = 0.00114441;
+				float z = -0.00183558;
 			};
 			PlatinumEngine::Maths::Quaternion localRotation = 
 			{
@@ -325,7 +325,6 @@ PlatinumEngine::Scene
 		5894298866251707810,
 		798763187062360754,
 		8003581218966239001,
-		9385981541395253656,
 	};
 	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
 	{
@@ -337,5 +336,6 @@ PlatinumEngine::Scene
 		{9024192824514211433, PlatinumEngine::Transform},
 		{9948769316098349950, PlatinumEngine::AudioComponent},
 		{15321147376714511576, PlatinumEngine::AnimationComponent},
+		{8111090619765781135, ?},
 	};
 };
