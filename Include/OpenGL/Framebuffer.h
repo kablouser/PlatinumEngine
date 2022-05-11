@@ -2,8 +2,6 @@
 
 // framebuffer needs color-attachment, which is a texture
 #include <OpenGL/Texture.h>
-// OpenGL types
-#include <GL/glew.h>
 
 namespace PlatinumEngine
 {

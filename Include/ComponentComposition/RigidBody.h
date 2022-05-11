@@ -33,12 +33,12 @@ namespace PlatinumEngine
 		std::pair<Maths::Vec3, Maths::Quaternion> GetPositionRotation() const;
 
 		// Set the rigidBody when it starts
-		void OnEnable(Scene& scene) override;
+		void OnEnable() override;
 		// Clean up all bullet pointers
-		void OnDisable(Scene& scene) override;
+		void OnDisable() override;
 		// Removes btRigidBody from the physics world. Reconstructs it. Adds it back if there's a transform and collider.
 		// btRigidBody loses all velocities and some other stuff.
-		void UpdatePhysicsProperties(Physics& physics);
+		void UpdatePhysicsProperties();
 
 		void SetVelocity(Maths::Vec3 velocity);
 		Maths::Vec3 GetVelocity() const;
@@ -63,7 +63,7 @@ namespace PlatinumEngine
 		// collisions from last frame
 		std::vector<Collision> _collisionRecords;
 
-		void AddToPhysicsWorld(Physics& physics);
-		void RemoveFromPhysicsWorld(Physics& physics);
+		void AddToPhysicsWorld();
+		void RemoveFromPhysicsWorld();
 	};
 }

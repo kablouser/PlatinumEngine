@@ -6,13 +6,13 @@
 #include <glm/gtc/type_ptr.hpp>
 
 // PlatinumEngine lib
-#include <OpenGL/ShaderInput.h>
-#include <OpenGL/ShaderProgram.h>
+#include <ComponentComposition/GameObject.h>
 #include <OpenGL/Framebuffer.h>
+#include <OpenGL/ShaderProgram.h>
+#include <OpenGL/Material.h>
 #include <OpenGL/Mesh.h>
-#include <GLFW/glfw3.h>
-#include "OpenGL/Material.h"
 #include <ParticleEffects/ParticleRenderer.h>
+#include <ComponentComposition/Light.h>
 
 namespace PlatinumEngine
 {
@@ -20,48 +20,6 @@ namespace PlatinumEngine
 	{
 
 	public:
-		// temporary light struct for light test
-		struct PointLight
-		{
-			Maths::Vec3 lightPos;
-
-			Maths::Vec3 ambientStrength;
-			Maths::Vec3 diffuseStrength;
-			Maths::Vec3 specularStrength;
-
-			// coefficient
-			float constant;
-			float linear;
-			float quadratic;
-		};
-
-		struct DirectLight
-		{
-			Maths::Vec3 lightDir;
-
-			Maths::Vec3 ambientStrength;
-			Maths::Vec3 diffuseStrength;
-			Maths::Vec3 specularStrength;
-		};
-
-		struct SpotLight
-		{
-			Maths::Vec3 lightPos;
-			Maths::Vec3 lightDir;
-
-			float cutOff;
-			float outerCutOff;
-
-			Maths::Vec3 ambientStrength;
-			Maths::Vec3 diffuseStrength;
-			Maths::Vec3 specularStrength;
-
-			// coefficient
-			float constant;
-			float linear;
-			float quadratic;
-		};
-
 		// Constructors
 		Renderer(bool printOpenGLInfo = true);
 
@@ -111,8 +69,6 @@ namespace PlatinumEngine
 		// update projection matrix in shader
 		void SetProjectionMatrix(Maths::Mat4 mat = Maths::Mat4(1.0));
 
-		void SetLightProperties();
-
 		void SetCameraPos(const Maths::Vec3 &pos);
 
 		void SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat = Maths::Mat4(1.0));
@@ -120,7 +76,6 @@ namespace PlatinumEngine
 		void SetAnimationStatus(bool isAnimationOn);
 
 		// a window for renderer to test
-		void ShowGUIWindow(bool* outIsOpen);
 
 		void SetProjectionMatrixSkyBox(Maths::Mat4 mat);
 
@@ -150,14 +105,20 @@ namespace PlatinumEngine
 		 * @param material
 		 */
 		void LoadMaterial(const Material& material);
-		//TODO: LoadLight
+
 		/**
 		 * light component can call this function to input light data into shader
 		 * @param light
 		 */
 		// void LoadLight(const Light &light);
-		void LoadLight();
+		void SetupLights(std::vector<SavedReference<LightComponent>> &lights);
 
+		/**
+		 * draw light
+		 * @param model matrix
+		 */
+		void DrawLight(Maths::Mat4 matrix = Maths::Mat4(0.1f));
+		
 	public:
 		Maths::Vec3 cameraPos;
 		ParticleEffects::ParticleRenderer particleRenderer;
@@ -172,6 +133,7 @@ namespace PlatinumEngine
 		ShaderProgram _gridShader;
 		ShaderProgram _phongShader;
 		ShaderProgram _reflectRefractShader;
+		ShaderProgram _lightShader;
 		ShaderProgram _particleShader;
 
 		// ShaderInput _meshShaderInput, _lightShaderInput;
@@ -179,83 +141,5 @@ namespace PlatinumEngine
 		Framebuffer _framebuffer;
 		int _framebufferWidth;
 		int _framebufferHeight;
-
-		PointLight pointLight;
-
-		// vertics
-		std::vector<Vertex> vertices = {{{ -0.5f, -0.5f, -0.5f  }, {  0.0f,  0.0f, -1.0f }, { 0, 0 }},
-										{{ 0.5f, -0.5f, -0.5f   }, { 0.0f,  0.0f, -1.0f  }, { 0, 0 }},
-										{{ 0.5f,  0.5f, -0.5f   }, { 0.0f,  0.0f, -1.0f  }, { 0, 0 }},
-										{{ 0.5f,  0.5f, -0.5f   }, { 0.0f,  0.0f, -1.0f  }, { 0, 0 }},
-										{{ -0.5f,  0.5f, -0.5f  }, {  0.0f,  0.0f, -1.0f }, { 0, 0 }},
-										{{ -0.5f, -0.5f, -0.5f  }, {  0.0f,  0.0f, -1.0f }, { 0, 0 }},
-										{{ -0.5f, -0.5f,  0.5f  }, {  0.0f,  0.0f,  1.0f }, { 0, 0 }},
-										{{ 0.5f, -0.5f,  0.5f   }, { 0.0f,  0.0f,  1.0f  }, { 0, 0 }},
-										{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  0.0f,  1.0f  }, { 0, 0 }},
-										{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  0.0f,  1.0f  }, { 0, 0 }},
-										{{ -0.5f,  0.5f,  0.5f  }, {  0.0f,  0.0f,  1.0f }, { 0, 0 }},
-										{{ -0.5f, -0.5f,  0.5f  }, {  0.0f,  0.0f,  1.0f }, { 0, 0 }},
-										{{ -0.5f,  0.5f,  0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
-										{{ -0.5f,  0.5f, -0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
-										{{ -0.5f, -0.5f, -0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
-										{{ -0.5f, -0.5f, -0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
-										{{ -0.5f, -0.5f,  0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
-										{{ -0.5f,  0.5f,  0.5f  }, { -1.0f,  0.0f,  0.0f }, { 0, 0 }},
-										{{ 0.5f,  0.5f,  0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
-										{{ 0.5f,  0.5f, -0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
-										{{ 0.5f, -0.5f, -0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
-										{{ 0.5f, -0.5f, -0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
-										{{ 0.5f, -0.5f,  0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
-										{{ 0.5f,  0.5f,  0.5f   }, { 1.0f,  0.0f,  0.0f  }, { 0, 0 }},
-										{{ -0.5f, -0.5f, -0.5f  }, {  0.0f, -1.0f,  0.0f }, { 0, 0 }},
-										{{ 0.5f, -0.5f, -0.5f   }, { 0.0f, -1.0f,  0.0f  }, { 0, 0 }},
-										{{ 0.5f, -0.5f,  0.5f   }, { 0.0f, -1.0f,  0.0f  }, { 0, 0 }},
-										{{ 0.5f, -0.5f,  0.5f   }, { 0.0f, -1.0f,  0.0f  }, { 0, 0 }},
-										{{ -0.5f, -0.5f,  0.5f  }, {  0.0f, -1.0f,  0.0f }, { 0, 0 }},
-										{{ -0.5f, -0.5f, -0.5f  }, {  0.0f, -1.0f,  0.0f }, { 0, 0 }},
-										{{ -0.5f,  0.5f, -0.5f  }, {  0.0f,  1.0f,  0.0f }, { 0, 0 }},
-										{{ 0.5f,  0.5f, -0.5f   }, { 0.0f,  1.0f,  0.0f  }, { 0, 0 }},
-										{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  1.0f,  0.0f  }, { 0, 0 }},
-										{{ 0.5f,  0.5f,  0.5f   }, { 0.0f,  1.0f,  0.0f  }, { 0, 0 }},
-										{{ -0.5f,  0.5f,  0.5f  }, {  0.0f,  1.0f,  0.0f }, { 0, 0 }},
-										{{ -0.5f,  0.5f, -0.5f  }, {  0.0f,  1.0f,  0.0  }, { 0, 0 }}};
-		std::vector<unsigned int> indices = {
-				0,   1,   2,
-				3,   4,   5,
-				6,   7,   8,
-				9,   10,  11,
-				12,  13,  14,
-				15,  16,  17,
-				18,  19,  20,
-				21,  22,  23,
-				24,  25,  26,
-				27,  28,  29,
-				30,  31,  32,
-				33,  34,  35,
-				36,  37,  38,
-				39,  40,  41,
-				42,  43,  44,
-				45,  46,  47,
-				48,  49,  50,
-				51,  52,  53,
-				54,  55,  56,
-				57,  59,  59,
-				60,  61,  62,
-				63,  64,  65,
-				66,  67,  68,
-				69,  70,  71,
-				72,  73,  74,
-				75,  76,  77,
-				78,  79,  80,
-				81,  82,  83,
-				84,  85,  86,
-				87,  88,  89,
-				90,  91,  92,
-				93,  94,  95,
-				96,  97,  98,
-				99,  100, 101,
-				102, 103, 104,
-				105, 106, 107
-		};
 	};
 }

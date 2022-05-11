@@ -13,14 +13,14 @@
 
 namespace PlatinumEngine
 {
-	//#define PI 3.14159265358979323846264338327950288f
+    #define PI_F 3.14159265358979323846264338327950288f
 	struct MeshData
 	{
 		std::vector<Vertex> vertices;
 		std::vector<unsigned int> indices;
 	};
 
-
+	Mesh ArrowMesh(float rbase, float rtip, float height);
 	Mesh CubeMesh(float xSize, float ySize, float zSize);
 	Mesh CapsuleMesh(float h, float r);
 	Mesh SphereMesh(float r, int subdivsions);
@@ -34,6 +34,8 @@ namespace PlatinumEngine
 	MeshData IconSphere(float radius, int level);
 	MeshData Quad(float x, float y);
 
+
+	Mesh Merge(MeshData&& l, MeshData&& r);
 	Mesh Dedup(MeshData&& d);
 }
 

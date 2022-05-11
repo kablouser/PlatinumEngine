@@ -18,9 +18,9 @@ namespace PlatinumEngine
 		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 
 		ParticleEffect();
-		void OnUpdate(Scene& scene, double deltaTime) override;
-		void OnRender(Scene& scene, Renderer& renderer) override;
-		void OnIDSystemUpdate(Scene& scene) override;
+		void OnUpdate() override;
+		void OnRender() override;
+		void OnIDSystemUpdate() override;
 
 	public:
 		ParticleEffects::ParticleEmitter particleEmitter;

@@ -1,5 +1,6 @@
 #include <ComponentComposition/AudioComponent.h>
 #include <SceneManager/Scene.h>
+#include <Application.h>
 
 namespace PlatinumEngine
 {
@@ -57,8 +58,8 @@ namespace PlatinumEngine
 		_isLooping = loop;
 	}
 
-	void AudioComponent::OnIDSystemUpdate(Scene& scene)
+	void AudioComponent::OnIDSystemUpdate()
 	{
-		audioClip.OnIDSystemUpdate(scene.idSystem);
+		audioClip.OnIDSystemUpdate(Application::Instance->idSystem);
 	}
 }

@@ -5,6 +5,7 @@
 #include <ComponentComposition/ParticleEffect.h>
 #include <ParticleEffects/ParticleEmitter.h>
 #include <SceneManager/Scene.h>
+#include <Application.h>
 
 namespace PlatinumEngine
 {
@@ -25,53 +26,55 @@ namespace PlatinumEngine
 	{
 	}
 
-	void ParticleEffect::OnUpdate(Scene& scene, double deltaTime)
+	void ParticleEffect::OnUpdate()
 	{
 		// TODO: Update Particles here
 	}
 
-	void ParticleEffect::OnRender(Scene& scene, Renderer& renderer)
+	void ParticleEffect::OnRender()
 	{
 		// Render all particles
 		SavedReference<Transform> transform = GetComponent<Transform>();
 		if (transform)
-			renderer.SetModelMatrix(transform.DeRef()->GetLocalToWorldMatrix());
+			Application::Instance->renderer.SetModelMatrix(transform.DeRef()->GetLocalToWorldMatrix());
 		else
-			renderer.SetModelMatrix();
+			Application::Instance->renderer.SetModelMatrix();
 
 		// only move deltaTime once each frame
 		float deltaTime = 0.0f;
-		if (scene.time.getFramesPassed() != lastFrame)
+		if (Application::Instance->time.getFramesPassed() != lastFrame)
 		{
-			deltaTime = scene.time.GetDelta();
-			lastFrame = scene.time.getFramesPassed();
+			deltaTime = Application::Instance->time.GetDelta();
+			lastFrame = Application::Instance->time.getFramesPassed();
 		}
 
 		// Only update particles if playing effect
 		if (isPlaying)
-			particleEmitter.UpdateParticles(deltaTime, renderer.cameraPos);
+			particleEmitter.UpdateParticles(deltaTime, Application::Instance->renderer.cameraPos);
 
 		if (particleEmitter.particles)
 		{
 			// Bind shader stuff here
-			renderer.particleRenderer.SetInput(particleEmitter.particles);
-			renderer.BeginParticleShader();
-			renderer.SetFloatParticleShader("maxLife", particleEmitter.respawnLifetime);
-			renderer.SetVec4ParticleShader("StartColour", startColour);
-			renderer.SetVec4ParticleShader("EndColour", endColour);
-			renderer.SetTextureParticleShader(particleEmitter.texture, useTexture, particleEmitter.numColsInTexture, particleEmitter.numRowsInTexture);
-			renderer.SetShadeByParticleShader(shadeBy);
-			renderer.SetFloatParticleShader("minVal", minShadeValue);
-			renderer.SetFloatParticleShader("maxVal", maxShadeValue);
-			renderer.SetBoolParticleShader("isSpherical", !particleEmitter.useCylindricalBillboard);
-			renderer.SetVec3ParticleShader("scaleFactors", particleEmitter.scaleFactors);
-			renderer.particleRenderer.Render();
-			renderer.EndParticleShader();
+			Application::Instance->renderer.particleRenderer.SetInput(particleEmitter.particles);
+			Application::Instance->renderer.BeginParticleShader();
+			Application::Instance->renderer.SetFloatParticleShader("maxLife", particleEmitter.respawnLifetime);
+			Application::Instance->renderer.SetVec4ParticleShader("StartColour", startColour);
+			Application::Instance->renderer.SetVec4ParticleShader("EndColour", endColour);
+			Application::Instance->renderer.SetTextureParticleShader(particleEmitter.texture, useTexture,
+					particleEmitter.numColsInTexture, particleEmitter.numRowsInTexture);
+			Application::Instance->renderer.SetShadeByParticleShader(shadeBy);
+			Application::Instance->renderer.SetFloatParticleShader("minVal", minShadeValue);
+			Application::Instance->renderer.SetFloatParticleShader("maxVal", maxShadeValue);
+			Application::Instance->renderer.SetBoolParticleShader("isSpherical",
+					!particleEmitter.useCylindricalBillboard);
+			Application::Instance->renderer.SetVec3ParticleShader("scaleFactors", particleEmitter.scaleFactors);
+			Application::Instance->renderer.particleRenderer.Render();
+			Application::Instance->renderer.EndParticleShader();
 		}
 	}
 
-	void ParticleEffect::OnIDSystemUpdate(Scene& scene)
+	void ParticleEffect::OnIDSystemUpdate()
 	{
-		particleEmitter.texture.OnIDSystemUpdate(scene.idSystem);
+		particleEmitter.texture.OnIDSystemUpdate(Application::Instance->idSystem);
 	}
 }

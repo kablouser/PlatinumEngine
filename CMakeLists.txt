@@ -31,18 +31,18 @@ FetchContent_MakeAvailable(glfw)
 # Dear ImGui
 FetchContent_Declare(imgui GIT_REPOSITORY https://github.com/ocornut/imgui.git GIT_TAG origin/docking)
 FetchContent_MakeAvailable(imgui)
-add_subdirectory("ImGui CMake")
+add_subdirectory("CMake Subfolders/ImGui CMake")
 #-----------------------------
 # ImGuiFileDialog
 add_compile_definitions(USE_BOOKMARK)
 FetchContent_Declare(imguifiledialog GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog.git GIT_TAG v0.6.4)
 FetchContent_MakeAvailable(imguifiledialog)
-include_directories(${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src)
+include_directories(${FETCHCONTENT_BASE_DIR}/imguifiledialog-src)
 #-----------------------------
 # Immediate Mode Plotting (implot)
 FetchContent_Declare(implot GIT_REPOSITORY https://github.com/epezent/implot.git GIT_TAG v0.13)
 FetchContent_MakeAvailable(implot)
-add_subdirectory("ImPlot CMake")
+add_subdirectory("CMake Subfolders/ImPlot CMake")
 #-----------------------------
 # GLM
 FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git GIT_TAG 0.9.9.8)
@@ -75,13 +75,13 @@ set(SDL_SHARED OFF)
 set(SDL_STATIC ON)
 FetchContent_Declare(sdl GIT_REPOSITORY https://github.com/libsdl-org/SDL.git GIT_TAG 2.0.22-RC1)
 FetchContent_MakeAvailable(sdl)
-set(SDL2_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/sdl-src/include")
+set(SDL2_INCLUDE_DIR "${FETCHCONTENT_BASE_DIR}/sdl-src/include")
 #-----------------------------
 # SDL2 Mixer
 FetchContent_Declare(sdl2mixer GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git GIT_TAG release-2.0.4)
 FetchContent_MakeAvailable(sdl2mixer)
-add_subdirectory("SDL2Mixer CMake")
-set(SDL2_MIXER_INCLUDE_DIR "${CMAKE_BINARY_DIR}/_deps/sdl2mixer-src")
+add_subdirectory("CMake Subfolders/SDL2Mixer CMake")
+set(SDL2_MIXER_INCLUDE_DIR "${FETCHCONTENT_BASE_DIR}/sdl2mixer-src")
 #-----------------------------
 # imguizmo
 FetchContent_Declare(imguizmo GIT_REPOSITORY https://github.com/CedricGuillemet/ImGuizmo.git GIT_TAG origin/master)
@@ -90,7 +90,6 @@ FetchContent_MakeAvailable(imguizmo)
 # stb_image
 FetchContent_Declare(stb GIT_REPOSITORY https://github.com/nothings/stb.git GIT_TAG origin/master)
 FetchContent_MakeAvailable(stb)
-add_subdirectory("stb CMake")
 #----------------------------
 # bullet3 physics library
 FetchContent_Declare(bullet3 GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git GIT_TAG 3.22b)
@@ -119,14 +118,13 @@ FetchContent_MakeAvailable(ozz)
 set(PROJECT_SOURCES_WITHOUT_MAIN
 	# order by folder structure
 
-	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
-	"${CMAKE_BINARY_DIR}/_deps/imguizmo-src/ImGuizmo.cpp;"
+	"${FETCHCONTENT_BASE_DIR}/imguifiledialog-src/ImGuiFileDialog.cpp;"
+	"${FETCHCONTENT_BASE_DIR}/imguizmo-src/ImGuizmo.cpp;"
 	
 	"Source/Animation/Animation.cpp;"
 	"Source/Animation/AnimationLocalTimer.cpp;"
 	
 	"Source/AssetDatabase/AssetDatabase.cpp;"
-	"Source/AssetDatabase/AssetHelper.cpp;"
 	
 	"Source/Audio/AudioClip.cpp;"
 	
@@ -137,8 +135,9 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/ComponentComposition/Component.cpp;"
 	"Source/ComponentComposition/GameObject.cpp;"
 	"Source/ComponentComposition/MeshRender.cpp;"
-	"Source/ComponentComposition/Transform.cpp;"
-#	"Source/ComponentComposition/Light.cpp;"
+	"Source/ComponentComposition/Transform.cpp;"	
+	"Source/ComponentComposition/Light.cpp;"
+	"Source/ComponentComposition/Objects.cpp;"
 	"Source/ComponentComposition/RigidBody.cpp;"
 	"Source/ComponentComposition/BoxCollider.cpp;"
 	"Source/ComponentComposition/CapsuleCollider.cpp;"
@@ -198,6 +197,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	
 	"Source/WindowManager/Filedialog.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
+	
+	"Source/Application.cpp;"
 	)
 
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
