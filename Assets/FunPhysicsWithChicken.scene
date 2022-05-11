@@ -31,7 +31,6 @@ IDSystem
 			// from PlatinumEngine::AudioComponent
 			PlatinumEngine::SavedReference<PlatinumEngine::AudioClip> audioClip = 11773441398197364654;
 			bool isLooping = 0;
-			int _channel = 0;
 		}
 	},
 	{
@@ -45,7 +44,6 @@ IDSystem
 			// from PlatinumEngine::AudioComponent
 			PlatinumEngine::SavedReference<PlatinumEngine::AudioClip> audioClip = 10675867293643544076;
 			bool isLooping = 0;
-			int _channel = 0;
 		}
 	},
 	{

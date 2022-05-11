@@ -1786,7 +1786,7 @@ IDSystem
 };
 PlatinumEngine::Scene
 {
-	bool _isStarted = 1;
+	bool _isStarted = 0;
 	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _gameObjects = 
 	{
 		798763187062360754,

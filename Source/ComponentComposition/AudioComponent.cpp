@@ -113,6 +113,8 @@ namespace PlatinumEngine
 				.WithInherit<Component>()
 				.WithField<SavedReference<AudioClip>>("audioClip", PLATINUM_OFFSETOF(AudioComponent, audioClip))
 				.WithField<bool>("isLooping", PLATINUM_OFFSETOF(AudioComponent, isLooping))
+				// don't serialize _channel
+				// otherwise the AllocateChannel on constructor will be overwritten with 0
 				.WithField<int>("_channel", PLATINUM_OFFSETOF(AudioComponent, _channel))
 				.WithField<int>("_panning", PLATINUM_OFFSETOF(AudioComponent, _panning))
 				.WithField<bool>("_isPlaying", PLATINUM_OFFSETOF(AudioComponent, _isPlaying))
