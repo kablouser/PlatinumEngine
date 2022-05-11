@@ -259,7 +259,6 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 					{
 						if (ImGui::Selectable("Add Audio"))
 						{
-							AssetHelper::GetAsset<AudioClip>(dir.string());
 							auto asset_Helper = AssetHelper::GetAsset<AudioClip>(dir.string());
 							if (std::get<0>(asset_Helper))
 							{
@@ -343,8 +342,11 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 		SavedReference<Texture> image;
 		auto asset_Helper = AssetHelper::GetAsset<Texture>(filePath.string());
 		if (std::get<0>(asset_Helper))
+		{
 			image = std::get<1>(asset_Helper);
-		ImGui::Image((void*)(intptr_t)image.DeRef()->GetOpenGLHandle(), ImVec2(_framebufferWidth,_framebufferHeight));
+			ImGui::Image((void*)(intptr_t)image.DeRef()->GetOpenGLHandle(),
+					ImVec2(_framebufferWidth, _framebufferHeight));
+		}
 
 		ImGui::Text("Type: IMAGE");
 
@@ -374,19 +376,21 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 		SavedReference<AudioClip> audioSample;
 		auto asset_Helper = AssetHelper::GetAsset<AudioClip>(filePath.string());
 		if (std::get<0>(asset_Helper))
+		{
 			audioSample = std::get<1>(asset_Helper);
 
-		if(ImGui::Button("Play"))
-		{
-			if(Mix_Playing(-1)>0)
-				Mix_HaltChannel(-1);
-			int channel = Mix_PlayChannel(-1, audioSample.DeRef()->chunk, 0);
-		}
-		ImGui::SameLine();
-		if(ImGui::Button("Stop"))
-		{
-			if(Mix_Playing(-1)>0)
-				Mix_HaltChannel(-1);
+			if (ImGui::Button("Play"))
+			{
+				if (Mix_Playing(-1) > 0)
+					Mix_HaltChannel(-1);
+				int channel = Mix_PlayChannel(-1, audioSample.DeRef()->chunk, 0);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Stop"))
+			{
+				if (Mix_Playing(-1) > 0)
+					Mix_HaltChannel(-1);
+			}
 		}
 
 		ImGui::Text("Type: AUDIO");
@@ -456,18 +460,20 @@ void ProjectWindow::RenderPreview(std::filesystem::path filePath)
 	SavedReference<Mesh> mesh;
 	auto asset_Helper = AssetHelper::GetAsset<Mesh>(filePath.string());
 	if (std::get<0>(asset_Helper))
+	{
 		mesh = std::get<1>(asset_Helper);
 
-	// Setup shader
-	ShaderInput _shaderInput;
-	if(mesh)
-	{
-		_shaderInput.Clear();
-		_shaderInput.Set(mesh.DeRef()->vertices, mesh.DeRef()->indices);
+		// Setup shader
+		ShaderInput _shaderInput;
+		if (mesh)
+		{
+			_shaderInput.Clear();
+			_shaderInput.Set(mesh.DeRef()->vertices, mesh.DeRef()->indices);
+		}
+		else
+			_shaderInput.Clear();
+		_shaderInput.Draw();
 	}
-	else
-		_shaderInput.Clear();
-	_shaderInput.Draw();
 
 	// Using a perspective camera
 	_previewCamera.SetPerspectiveMatrix(60.f, _framebufferWidth/_framebufferHeight, 0.1f, 1000.f);
