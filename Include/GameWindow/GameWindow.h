@@ -14,7 +14,7 @@ namespace PlatinumEngine
 	class GameWindow
 	{
 	public:
-		GameWindow(Scene* scene, Renderer* renderer, Time* time, Physics* physics);
+		GameWindow();
 
 		/**
 		 * This is a Gui
@@ -57,10 +57,6 @@ namespace PlatinumEngine
 
 	private:
 
-		Scene* _scene;
-		Renderer* _renderer;
-		Time* _time;
-		Physics* _physics;
 		// Skybox
 		Texture _skyboxTexture;
 		ShaderInput _skyBoxShaderInput;

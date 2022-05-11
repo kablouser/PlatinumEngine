@@ -8,6 +8,7 @@
 
 #include <ComponentComposition/Component.h>
 #include <ComponentComposition/AudioComponent.h>
+#include <ComponentComposition/Light.h>
 #include <ComponentComposition/MeshRender.h>
 #include <ComponentComposition/Transform.h>
 #include <ComponentComposition/Camera.h>
@@ -24,7 +25,6 @@
 
 #include <OpenGL/Mesh.h>
 #include <SceneEditor/SceneEditor.h>
-#include <AssetDatabase/AssetHelper.h>
 
 #include <IconsFontAwesome6.h>
 namespace PlatinumEngine
@@ -32,32 +32,31 @@ namespace PlatinumEngine
 	class InspectorWindow
 	{
 	public:
-		InspectorWindow(AssetHelper* assetHelper, SceneEditor* sceneEditor, Physics* physics);
-		void ShowGUIWindow(bool* isOpen, Scene& scene);
+		InspectorWindow();
+		void ShowGUIWindow(bool* isOpen);
 	private:
 		// TODO: Add specific component guis as components are created
-		void ShowMeshRenderComponent(Scene& scene);
-		void ShowTransformComponent(Scene& scene);
-		void ShowCameraComponent(Scene& scene);
-		void ShowRigidBodyComponent(Scene& scene);
-		void ShowBoxColliderComponent(Scene& scene);
-		void ShowSphereColliderComponent(Scene& scene);
-		void ShowCapsuleColliderComponent(Scene& scene);
-		void ShowParticleEffectComponent(Scene &scene);
-		void ShowAudioComponent(Scene& scene);
-		void ShowAnimationComponent(Scene& scene);
+		void ShowLightComponent(SavedReference<LightComponent>& reference);
+		void ShowMeshRenderComponent(SavedReference<MeshRender>& reference);
+		void ShowTransformComponent(SavedReference<Transform>& reference);
+		void ShowCameraComponent(SavedReference<Camera>& reference);
+		void ShowRigidBodyComponent(SavedReference<RigidBody>& reference);
+		void ShowBoxColliderComponent(SavedReference<BoxCollider>& reference);
+		void ShowSphereColliderComponent(SavedReference<SphereCollider>& reference);
+		void ShowCapsuleColliderComponent(SavedReference<CapsuleCollider>& reference);
+		void ShowParticleEffectComponent(SavedReference<ParticleEffect>& reference);
+		void ShowAudioComponent(SavedReference<AudioComponent>& reference);
+		void ShowAnimationComponent(SavedReference<AnimationComponent>& reference);
 
 
 		// Shown when add component button pressed
-		void ShowAddComponent(Scene& scene);
+		void ShowAddComponent();
 
     	void cameraComponentHelper(char* cameraType[]);
     
 		std::filesystem::path GetPayloadPath(const ImGuiPayload* payload);
+
 	private:
-		AssetHelper* _assetHelper;
-		SceneEditor* _sceneEditor;
-    	Physics* _physics;
 
 		bool _isAddComponentWindowOpen = false;
 

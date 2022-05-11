@@ -4,8 +4,7 @@
 
 #include <ComponentComposition/RigidBody.h>
 #include <ComponentComposition/Transform.h>
-#include <Logger/Logger.h>
-#include <SceneManager/Scene.h>
+#include <Application.h>
 
 namespace PlatinumEngine
 {
@@ -41,24 +40,25 @@ namespace PlatinumEngine
 				Physics::ConvertQuaternionBack(worldTransform.getRotation()) };
 	}
 
-	void RigidBody::OnEnable(Scene& scene)
+	void RigidBody::OnEnable()
 	{
 		//Add the rigidBody to the physics manager thing
-		scene.physics._allRigidBodies.push_back(scene.idSystem.GetSavedReference<RigidBody>(this));
-		UpdatePhysicsProperties(scene.physics);
+		Application::Instance->physics._allRigidBodies.push_back(
+				Application::Instance->idSystem.GetSavedReference<RigidBody>(this));
+		UpdatePhysicsProperties();
 	}
 
-	void RigidBody::OnDisable(Scene& scene)
+	void RigidBody::OnDisable()
 	{
-		RemoveFromPhysicsWorld(scene.physics);
-		if (!VectorHelpers::RemoveFirst(scene.physics._allRigidBodies,
-				scene.idSystem.GetSavedReference<RigidBody>(this)))
+		RemoveFromPhysicsWorld();
+		if (!VectorHelpers::RemoveFirst(Application::Instance->physics._allRigidBodies,
+				Application::Instance->idSystem.GetSavedReference<RigidBody>(this)))
 			PLATINUM_WARNING("Missing RigidBody from Physics Manager thing");
 	}
 
-	void RigidBody::UpdatePhysicsProperties(Physics& physics)
+	void RigidBody::UpdatePhysicsProperties()
 	{
-		RemoveFromPhysicsWorld(physics);
+		RemoveFromPhysicsWorld();
 
 		SavedReference<Transform> transform = GetComponent<Transform>();
 		if (!transform)
@@ -89,7 +89,7 @@ namespace PlatinumEngine
 		if (isKinematic)
 			_rigidBody.setCollisionFlags(btCollisionObject::CF_KINEMATIC_OBJECT);
 
-		AddToPhysicsWorld(physics);
+		AddToPhysicsWorld();
 	}
 
 	void RigidBody::SetVelocity(Maths::Vec3 velocity)
@@ -114,19 +114,19 @@ namespace PlatinumEngine
 		return Physics::ConvertVectorBack(_rigidBody.getAngularVelocity());
 	}
 
-	void RigidBody::AddToPhysicsWorld(Physics& physics)
+	void RigidBody::AddToPhysicsWorld()
 	{
 		if (_addedToPhysicsWorld)
 			return; // avoid repeats
-		physics._bulletWorld.addRigidBody(&_rigidBody);
+		Application::Instance->physics._bulletWorld.addRigidBody(&_rigidBody);
 		_addedToPhysicsWorld = true;
 	}
 
-	void RigidBody::RemoveFromPhysicsWorld(Physics& physics)
+	void RigidBody::RemoveFromPhysicsWorld()
 	{
 		if (!_addedToPhysicsWorld)
 			return; // avoid repeats
-		physics._bulletWorld.removeRigidBody(&_rigidBody);
+		Application::Instance->physics._bulletWorld.removeRigidBody(&_rigidBody);
 		_addedToPhysicsWorld = false;
 	}
 

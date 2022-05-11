@@ -52,7 +52,7 @@ namespace PlatinumEngine
 		// Returns the allocated channel
 		int GetChannel();
 
-		void OnIDSystemUpdate(Scene& scene) override;
+		void OnIDSystemUpdate() override;
 
 
 		//STATIC FUNCTIONS

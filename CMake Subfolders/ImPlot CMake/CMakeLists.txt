@@ -6,7 +6,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(implot)
 
-set(IMPLOT_SRC_DIR ${CMAKE_BINARY_DIR}/_deps/implot-src)
+set(IMPLOT_SRC_DIR ${FETCHCONTENT_BASE_DIR}/implot-src)
 
 add_library(implot STATIC
 	${IMPLOT_SRC_DIR}/implot.cpp

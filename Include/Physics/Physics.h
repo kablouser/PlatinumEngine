@@ -54,7 +54,7 @@ namespace PlatinumEngine
 		~Physics();
 
 		//Update the physics world by delta time
-		void Update(double time);
+		void Update();
 
 		void SetGravity(Maths::Vec3 gravity = {0.f, -9.81f, 0.f});
 		Maths::Vec3 GetGravity() const;

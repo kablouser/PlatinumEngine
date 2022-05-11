@@ -8,10 +8,9 @@
 #include <filesystem>
 #include <string>
 #include <IconsFontAwesome6.h>
-#include "Logger/Logger.h"
-#include "AssetDatabase/AssetHelper.h"
-#include "SceneManager/Scene.h"
-#include "Inspector/InspectorWindow.h"
+#include <Logger/Logger.h>
+#include <SceneManager/Scene.h>
+#include <Inspector/InspectorWindow.h>
 
 namespace PlatinumEngine
 {
@@ -21,7 +20,7 @@ namespace PlatinumEngine
 	class ProjectWindow
 	{
 	public:
-		ProjectWindow(Scene* scene, AssetHelper* assetHelper, SceneEditor* sceneEditor);
+		ProjectWindow();
 		void ShowGUIWindow(bool* isOpen);
 
 	private:
@@ -31,27 +30,20 @@ namespace PlatinumEngine
 		std::string FormatFileSize(uintmax_t size, int precision=2);
 		void RenderPreview(std::filesystem::path filePath);
 
-	private:
 		//Preview related
 		std::filesystem::path _previewFilePath;
-		int _childWindowCount;
-		bool _isPreviewEnabled;
-		Renderer* _renderer;
+		int _childWindowCount = 1;
+		bool _isPreviewEnabled = false;
 		Framebuffer _renderTexture;
-		int _framebufferWidth;
-		int _framebufferHeight;
-		EditorCamera* _previewCamera;
+		int _framebufferWidth = 256;
+		int _framebufferHeight = 256;
+		EditorCamera _previewCamera;
 		Maths::Vec3 _modelRotation;
 
 		//Filesystem related
 		enum class MoveType {copy, cut, none};
 		MoveType _moveType = MoveType::none;
 		std::filesystem::path _moveFilePath;
-
-		//Assets and Scene
-		Scene* _scene;
-		SceneEditor* _sceneEditor;
-		AssetHelper* _assetHelper;
 
 		//Misc parameters
 		std::string _parentFolder = "./Assets";

@@ -3,14 +3,15 @@
 //
 
 #include <GameWindow/GameWindow.h>
-#include <ComponentComposition/MeshRender.h>
 #include <ComponentComposition/Camera.h>
 #include <IconsFontAwesome6.h>
+#include <Application.h>
+#include <SceneManager/SceneWithTemplates.h>
 
 namespace PlatinumEngine
 {
-	PlatinumEngine::GameWindow::GameWindow(Scene* scene, Renderer* renderer, Time* time, Physics* physics)
-			: _renderer(renderer), _scene(scene), _time(time), _physics(physics), _renderTexture(), _skyboxTexture(),
+	PlatinumEngine::GameWindow::GameWindow()
+			: _renderTexture(), _skyboxTexture(),
 			  _skyBoxShaderInput(), isPaused(false)
 	{
 		// Setup skybox texture
@@ -31,7 +32,7 @@ namespace PlatinumEngine
 
 	void GameWindow::ShowGUIWindow(bool* outIsOpen)
 	{
-		if (_scene->IsStarted() && !isPaused)
+		if (Application::Instance->scene.IsStarted() && !isPaused)
 			Update();
 
 		if (ImGui::Begin(ICON_FA_GAMEPAD " Game View", outIsOpen))
@@ -44,23 +45,23 @@ namespace PlatinumEngine
 
 	bool GameWindow::GetIsStarted() const
 	{
-		return _scene->IsStarted();
+		return Application::Instance->scene.IsStarted();
 	}
 
 	void GameWindow::SetIsStarted(bool isStarted)
 	{
-		if (_scene->IsStarted() == isStarted)
+		if (Application::Instance->scene.IsStarted() == isStarted)
 			return; // this check is necessary
 
 		if (isStarted)
-			_scene->Start();
+			Application::Instance->scene.Start();
 		else
-			_scene->End();
+			Application::Instance->scene.End();
 	}
 
 	void GameWindow::Step()
 	{
-		if (!_scene->IsStarted())
+		if (!Application::Instance->scene.IsStarted())
 			return;
 
 		isPaused = true;
@@ -69,10 +70,9 @@ namespace PlatinumEngine
 
 	void PlatinumEngine::GameWindow::Update()
 	{
-		double deltaTime = _time->GetDelta();
-		_scene->Update(deltaTime);
+		Application::Instance->scene.Update();
 		// Physics must be after scene.
-		_physics->Update(deltaTime);
+		Application::Instance->physics.Update();
 	}
 
 	void GameWindow::Render(ImVec2 targetSize)
@@ -89,8 +89,8 @@ namespace PlatinumEngine
 
 			_renderTexture.Bind();
 			// must begin renderer before matrices are set
-			_renderer->Begin();
-			auto camera = _scene->FindFirstComponent<Camera>();
+			Application::Instance->renderer.Begin();
+			auto camera = Application::Instance->scene.FindFirstComponent<Camera>();
 			if (camera)
 			{
 				// success so allow warning to be shown for next time
@@ -111,21 +111,21 @@ namespace PlatinumEngine
 					// discard the depth of the skybox
 					glDisable(GL_DEPTH_TEST);
 					glDepthMask(false);
-					_renderer->BeginSkyBoxShader();
+					Application::Instance->renderer.BeginSkyBoxShader();
 					// matrix for rescaling the skybox based on the near panel distance
 					scaleMatrix.SetScaleMatrix(
 							Maths::Vec3(((float)camera.DeRef()->nearClippingPlane * 2.f),
 									((float)camera.DeRef()->nearClippingPlane * 2.f),
 									((float)camera.DeRef()->nearClippingPlane * 2.f)));
 					// set matrix uniform
-					_renderer->SetViewMatrixSkyBox(camera.DeRef()->GetViewMatrixRotationOnly() * scaleMatrix);
-					_renderer->SetProjectionMatrixSkyBox(camera.DeRef()->GetProjectionMatrix(
+					Application::Instance->renderer.SetViewMatrixSkyBox(camera.DeRef()->GetViewMatrixRotationOnly() * scaleMatrix);
+					Application::Instance->renderer.SetProjectionMatrixSkyBox(camera.DeRef()->GetProjectionMatrix(
 							Maths::Vec2((float)_framebufferWidth, (float)_framebufferHeight)));
 					_skyboxTexture.BindCubeMap();
 					_skyBoxShaderInput.Draw();
-					_renderer->EndSkyBoxShader();
+					Application::Instance->renderer.EndSkyBoxShader();
 					_skyboxTexture.UnbindCubeMap();
-					_renderer->Begin();
+					Application::Instance->renderer.Begin();
 					// enable depth test for the later rendering
 					glDepthMask(true);
 					glEnable(GL_DEPTH_TEST);
@@ -142,8 +142,8 @@ namespace PlatinumEngine
 					break;
 				}
 
-				_renderer->SetViewMatrix(camera.DeRef()->GetViewMatrix());
-				_renderer->SetProjectionMatrix(camera.DeRef()->GetProjectionMatrix(
+				Application::Instance->renderer.SetViewMatrix(camera.DeRef()->GetViewMatrix());
+				Application::Instance->renderer.SetProjectionMatrix(camera.DeRef()->GetProjectionMatrix(
 						{ (float)_framebufferWidth, (float)_framebufferHeight }));
 			}
 			else
@@ -154,8 +154,8 @@ namespace PlatinumEngine
 					_hasWarningBeenShown = true;
 				}
 			}
-			_scene->Render(*_renderer);
-			_renderer->End();
+			Application::Instance->scene.Render();
+			Application::Instance->renderer.End();
 
 			// unbind framebuffer
 			_renderTexture.Unbind();

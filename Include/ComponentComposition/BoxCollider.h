@@ -5,6 +5,7 @@
 #pragma once
 
 #include <ComponentComposition/Collider.h>
+#include <Maths/Vectors.h>
 
 namespace PlatinumEngine
 {

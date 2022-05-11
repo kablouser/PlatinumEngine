@@ -9,7 +9,7 @@ IDSystem
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
 			// from PlatinumEngine::AnimationComponent
-			bool isDisplay = 0;
+			bool _isDisplay = 0;
 			unsigned int _selectedAnimationIndex = 0;
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 15170823758925330500;
 		}
@@ -75,7 +75,7 @@ IDSystem
 		5894298866251707810,
 		PlatinumEngine::GameObject 
 		{
-			std::string name = "Cow";
+			std::string name = "Astronaut";
 			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 0;
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;

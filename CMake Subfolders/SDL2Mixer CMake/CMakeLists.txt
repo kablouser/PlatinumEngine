@@ -5,7 +5,7 @@ project(SDL2_mixer C)
 # We don't need other formats apart from .wav
 # Also, we 'trust' that SDL2main and SDL2-static are present
 
-set(SDL2_MIXER_SRC_DIR ${CMAKE_BINARY_DIR}/_deps/sdl2mixer-src)
+set(SDL2_MIXER_SRC_DIR ${FETCHCONTENT_BASE_DIR}/sdl2mixer-src)
 
 include_directories(include ${SDL2_MIXER_SRC_DIR})
 

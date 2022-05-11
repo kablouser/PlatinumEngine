@@ -1,4 +1,6 @@
 #include <ComponentComposition/AudioComponent.h>
+#include <SceneManager/Scene.h>
+#include <Application.h>
 
 namespace PlatinumEngine
 {
@@ -100,9 +102,9 @@ namespace PlatinumEngine
 		return _channel;
 	}
 
-	void AudioComponent::OnIDSystemUpdate(Scene& scene)
+	void AudioComponent::OnIDSystemUpdate()
 	{
-		audioClip.OnIDSystemUpdate(scene.idSystem);
+		audioClip.OnIDSystemUpdate(Application::Instance->idSystem);
 	}
 
 	void AudioComponent::CreateTypeInfo(TypeDatabase& typeDatabase)
