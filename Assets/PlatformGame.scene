@@ -50,9 +50,8 @@ IDSystem
 			bool _isEnabledInHierarchy = 1;
 			// from PlatinumEngine::AudioComponent
 			PlatinumEngine::SavedReference<PlatinumEngine::AudioClip> audioClip = 10675867293643544076;
-			bool _isLooping = 0;
+			bool isLooping = 0;
 			int _channel = 0;
-			int _volume = -1163005939;
 		}
 	},
 	{
@@ -65,9 +64,8 @@ IDSystem
 			bool _isEnabledInHierarchy = 1;
 			// from PlatinumEngine::AudioComponent
 			PlatinumEngine::SavedReference<PlatinumEngine::AudioClip> audioClip = 11773441398197364654;
-			bool _isLooping = 0;
+			bool isLooping = 0;
 			int _channel = 0;
-			int _volume = -1163005939;
 		}
 	},
 	{
@@ -80,9 +78,8 @@ IDSystem
 			bool _isEnabledInHierarchy = 1;
 			// from PlatinumEngine::AudioComponent
 			PlatinumEngine::SavedReference<PlatinumEngine::AudioClip> audioClip = 10267754693207273464;
-			bool _isLooping = 0;
+			bool isLooping = 0;
 			int _channel = 0;
-			int _volume = -1163005939;
 		}
 	},
 	{

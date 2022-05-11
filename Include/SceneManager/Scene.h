@@ -223,5 +223,8 @@ namespace PlatinumEngine
 		void RemoveGameObjectRecurse(SavedReference<GameObject>& gameObject);
 
 		void RemoveRootGameObject(SavedReference<GameObject>& gameObject);
+
+		template<typename T>
+		bool OnIDSystemUpdateVector(std::vector<SavedReference<T>>& vector);
 	};
 }

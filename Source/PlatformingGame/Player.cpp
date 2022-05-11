@@ -1,5 +1,5 @@
-#include <PlatformingGame/Player.h>
 #include <Application.h>
+#include <PlatformingGame/Player.h>
 
 namespace PlatinumEngine
 {

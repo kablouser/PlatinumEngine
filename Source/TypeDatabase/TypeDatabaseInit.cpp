@@ -13,6 +13,7 @@
 #include <ComponentComposition/AudioComponent.h>
 #include <ComponentComposition/ParticleEffect.h>
 #include <ParticleEffects/ParticleEmitter.h>
+#include <ComponentComposition/Light.h>
 #include <Audio/AudioClip.h>
 #include <PlatformingGame/Player.h>
 
@@ -46,6 +47,7 @@ namespace PlatinumEngine
 		ParticleEffects::ParticleEmitter::CreateTypeInfo(*this);
 		ParticleEffect::CreateTypeInfo(*this);
 		AnimationLocalTimer::CreateTypeInfo(*this);
+		LightComponent::CreateTypeInfo(*this);
 
 		//------------------------------------------------------------------------------------------------------------------
 		// Purely public objects
@@ -101,6 +103,10 @@ namespace PlatinumEngine
 				.WithField<float>("[3,1]", PLATINUM_OFFSETOF(Maths::Mat4, matrix[12+1]))
 				.WithField<float>("[3,2]", PLATINUM_OFFSETOF(Maths::Mat4, matrix[12+2]))
 				.WithField<float>("[3,3]", PLATINUM_OFFSETOF(Maths::Mat4, matrix[12+3]));
+		BeginTypeInfo<Spectrum>()
+		        .WithField<float>("r", PLATINUM_OFFSETOF(Spectrum, r))
+				.WithField<float>("g", PLATINUM_OFFSETOF(Spectrum, g))
+				.WithField<float>("b", PLATINUM_OFFSETOF(Spectrum, b));
 
 		//------------------------------------------------------------------------------------------------------------------
 		// Asset data types. You don't need to describe their fields, just that they exist.

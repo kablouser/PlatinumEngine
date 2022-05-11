@@ -12,6 +12,8 @@ namespace PlatinumEngine
 	class LightComponent : public Component
 	{
 	public:
+		static void CreateTypeInfo(TypeDatabase& typeDatabase);
+
 		enum class LightType : int
 		{
 			Directional = 0,

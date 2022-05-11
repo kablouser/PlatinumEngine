@@ -8,12 +8,39 @@
 #include <Helpers/VectorHelpers.h>
 #include <Logger/Logger.h>
 #include <ComponentComposition/Light.h>
-#include <ComponentComposition/Transform.h>
 #include <Application.h>
 #include <fstream>
+#include <stack>
+
 
 namespace PlatinumEngine
 {
+	//------------------------------------------------------------------------------------------------------------------
+	// Super private template
+	//------------------------------------------------------------------------------------------------------------------
+
+	// Updates SavedReferences in a vector. Then erases them if they are null.
+	// returns true if something was erased, otherwise false.
+	template<typename T>
+	bool Scene::OnIDSystemUpdateVector(std::vector<SavedReference<T>>& vector)
+	{
+		std::stack<size_t> eraseIndices;
+		for (size_t i = 0; i < vector.size(); ++i)
+		{
+			vector[i].OnIDSystemUpdate(Application::Instance->idSystem);
+			if (!vector[i])
+				eraseIndices.push(i);
+		}
+
+		bool isErasing = !eraseIndices.empty();
+		while (!eraseIndices.empty())
+		{
+			vector.erase(vector.begin() + eraseIndices.top());
+			eraseIndices.pop();
+		}
+		return isErasing;
+	}
+
 	//------------------------------------------------------------------------------------------------------------------
 	// Serialization stuff
 	//------------------------------------------------------------------------------------------------------------------
@@ -340,12 +367,11 @@ namespace PlatinumEngine
 
 	void Scene::OnIDSystemUpdate()
 	{
-		for (auto& gameObject: _gameObjects)
-			gameObject.OnIDSystemUpdate(Application::Instance->idSystem);
-		for (auto& rootGameObject: _rootGameObjects)
-			rootGameObject.OnIDSystemUpdate(Application::Instance->idSystem);
-		for (auto& component : _components)
-			component.OnIDSystemUpdate(Application::Instance->idSystem);
+		if (OnIDSystemUpdateVector(_gameObjects) ||
+			OnIDSystemUpdateVector(_rootGameObjects) ||
+			OnIDSystemUpdateVector(_components))
+			PLATINUM_WARNING("Scene removed some references because they were null. "
+							 "Did you remember to serialize all your components?");
 
 		for (auto& gameObject: _rootGameObjects)
 			BroadcastOnIDSystemUpdate(gameObject);
@@ -470,20 +496,16 @@ namespace PlatinumEngine
 
 		GameObject* gameObjectPointer = gameObject.DeRef().get();
 
-		for (auto& component: gameObjectPointer->_components)
-			component.OnIDSystemUpdate(Application::Instance->idSystem);
-		for (auto& child: gameObjectPointer->_children)
-			child.OnIDSystemUpdate(Application::Instance->idSystem);
-
-		for (auto& child: gameObjectPointer->_children)
-			child.OnIDSystemUpdate(Application::Instance->idSystem);
+		if (OnIDSystemUpdateVector(gameObjectPointer->_components) ||
+			OnIDSystemUpdateVector(gameObjectPointer->_children) ||
+			OnIDSystemUpdateVector(gameObjectPointer->_components))
+			PLATINUM_WARNING("Scene removed some references because they were null. "
+							 "Did you remember to serialize all your components?");
 
 		for (auto& component: gameObjectPointer->_components)
 		{
-			if (!component)
-				continue;
+			// guaranteed to be not null
 			Component* componentPointer = component.DeRef().get();
-			componentPointer->_gameObject.OnIDSystemUpdate(Application::Instance->idSystem);
 			componentPointer->OnIDSystemUpdate();
 		}
 
