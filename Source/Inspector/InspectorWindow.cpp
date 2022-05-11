@@ -12,6 +12,7 @@
 #include <AssetDatabase/AssetHelper.h>
 #include <SceneManager/SceneWithTemplates.h>
 
+
 using namespace PlatinumEngine;
 
 InspectorWindow::InspectorWindow() = default;
@@ -69,6 +70,9 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen)
 
 			if (auto ref = obj.DeRef()->GetComponent<AudioComponent>())
 				ShowAudioComponent(ref);
+
+			if (auto ref = obj.DeRef()->GetComponent<Player>())
+				ShowPlayerComponent(ref);
 
 			ImGui::Separator();
 			if (_isAddComponentWindowOpen)
@@ -218,8 +222,8 @@ void InspectorWindow::ShowMeshRenderComponent(SavedReference<MeshRender>& refere
 					auto [success, asset] = AssetHelper::GetAsset<Texture>(payloadPath.string());
 					if (success)
 					{
-						reference.DeRef()->GetComponent<MeshRender>().DeRef()->SetMaterial(asset);
-						reference.DeRef()->GetComponent<MeshRender>().DeRef()->material.useTexture = true;
+						reference.DeRef()->SetMaterial(asset);
+						reference.DeRef()->material.useTexture = true;
 					}
 				}
 			}
@@ -259,7 +263,7 @@ void InspectorWindow::ShowMeshRenderComponent(SavedReference<MeshRender>& refere
 					//Set The texture that we dragged to the RenderComponent
 					auto [success, asset] = AssetHelper::GetAsset<Texture>(payloadPath.string());
 					if (success)
-						reference.DeRef()->GetComponent<MeshRender>().DeRef()->SetNormalMap(asset);
+						reference.DeRef()->SetNormalMap(asset);
 				}
 			}
 			// End DragDropTarget
@@ -766,6 +770,8 @@ void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>
 				ImGui::Text("Z");
 				ImGui::SameLine();
 				ImGui::InputFloat("##ScaleParticleZ", &(particleEffectPointer->particleEmitter.scaleFactors.z));
+
+				ImGui::PopItemWidth();
 			}
 
 			ImGui::Separator();
@@ -982,6 +988,7 @@ void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>
 				}
 				ImGui::EndCombo();
 			}
+			ImGui::PopItemWidth();
 			ImGui::SameLine();
 			ImGui::Text("Min");
 			float maxVal = 100.0f;
@@ -1022,6 +1029,7 @@ void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>
 				}
 				ImGui::EndCombo();
 			}
+			ImGui::PopItemWidth();
 			ImGui::SameLine();
 			ImGui::Text("%s", "Scale Factor: ");
 			ImGui::SameLine();
@@ -1210,6 +1218,29 @@ void InspectorWindow::ShowAnimationComponent(SavedReference<AnimationComponent>&
 	}
 }
 
+void InspectorWindow::ShowPlayerComponent(SavedReference<Player>& reference)
+{
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader("Player", ImGuiTreeNodeFlags_AllowItemOverlap);
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemovePlayerComponent"))
+	{
+		// remove component
+		Application::Instance->scene.RemoveComponent(reference);
+		return;
+	}
+	if (isHeaderOpen)
+	{
+		// store pointer of renderComponent
+		Player* player = reference.DeRef().get();
+
+		ImGui::InputFloat("Move Speed##Player", &player->moveSpeed);
+		ImGui::InputFloat("Move Acceleration##Player", &player->moveAcceleration);
+		ImGui::InputFloat("Move Deceleration##Player", &player->moveDeceleration);
+		ImGui::InputFloat("Jump Speed##Player", &player->jumpSpeed);
+	}
+}
+
 void InspectorWindow::ShowAddComponent()
 {
 	if (ImGui::BeginChild("ComponentSelector"))
@@ -1227,7 +1258,8 @@ void InspectorWindow::ShowAddComponent()
 				"CapsuleCollider Component",
 				"Particle Effect Component",
 				"Audio Component",
-				"Animation Component"
+				"Animation Component",
+				"Player",
 		};
 		static const char* selectedComponent = nullptr;
 		static ImGuiTextFilter filter;
@@ -1308,6 +1340,11 @@ void InspectorWindow::ShowAddComponent()
 			{
 				Application::Instance->scene.AddComponent<LightComponent>(obj);
 			}
+			else if (strcmp(selectedComponent, "Player") == 0)
+			{
+				Application::Instance->scene.AddComponent<Player>(obj);
+			}
+
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;
 		}

@@ -25,7 +25,7 @@ namespace PlatinumEngine
 		///ifs in main menu window list to call the function inside
 		///-----------------------------------------------------------------------
 		//window section
-		if (_showWindowGame)			Application::Instance->gameWindow.ShowGUIWindow(&_showWindowGame);
+		Application::Instance->gameWindow.ShowGUIWindow(&_showWindowGame);
 		if (_showWindowScene) 			ShowWindowScene(&_showWindowScene);
 		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy);
 		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector);
@@ -41,6 +41,9 @@ namespace PlatinumEngine
 		/// set up the main menu bar
 		///-------------------------------------------------------------------
 		SetUpMainMenu();
+
+		// if necessary, shows quit menu
+		ShowQuitMenu();
 	}
 
 	///--------------------------------------------------------------------------
@@ -417,61 +420,46 @@ namespace PlatinumEngine
 		Application::Instance->profiler.ShowGUIWindow(outIsOpen);
 	}
 
+	void WindowManager::ShowQuitMenu()
+	{
+		if (_isQuitting)
+		{
+			ImGui::OpenPopup(ICON_FA_BED " Quit?");
 
-	///--------------------------------------------------------------------------
-	/// This section implements the short cuts for main menu bar
-	///--------------------------------------------------------------------------
-	// sfml event trigger for shortcuts
-//	void WindowManager::DoShortCut(GLFWwindow* window)
-//	{
-//		switch (event.type)
-//		{
-//		case sf::Event::KeyPressed:
-//            if(event.key.control && event.key.code == sf::Keyboard::S)
-//            {
-//				showFileSave = true;
-//                break;
-//            }
-//            else if(event.key.control && event.key.code == sf::Keyboard::Num1)
-//            {
-//				_showWindowGame = true;
-//                break;
-//            }
-//            else if(event.key.control && event.key.code == sf::Keyboard::Num2)
-//            {
-//				_showWindowHierarchy = true;
-//                break;
-//            }
-//            else if(event.key.control && event.key.code == sf::Keyboard::Num3)
-//            {
-//				_showWindowInspector = true;
-//                break;
-//            }
-//            else if(event.key.control && event.key.code == sf::Keyboard::Num4)
-//            {
-//				_showWindowProject = true;
-//                break;
-//            }
-//            else if(event.key.control && event.key.code == sf::Keyboard::Num5)
-//            {
-//				_showWindowScene = true;
-//                break;
-//            }
-//            else if(event.key.control && event.key.code == sf::Keyboard::Num6)
-//            {
-//				_showWindowAnimation = true;
-//            break;
-//            }
-//            else if(event.key.control && event.key.code == sf::Keyboard::Num7)
-//            {
-//				_showWindowAudio = true;
-//                break;
-//            }
-//            else if(event.key.control && event.key.code == sf::Keyboard::Num8)
-//            {
-//				_showWindowLight = true;
-//                break;
-//            }
-//		}
-//	}
+			if (ImGui::BeginPopupModal(ICON_FA_BED " Quit?", nullptr,
+					ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				ImGui::Text("Are you sure you want to quit?\nHave you saved your scene?");
+				if (ImGui::Button("Quit"))
+				{
+					SuggestQuit();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Save Scene"))
+				{
+					_showFileSave = true;
+					_isQuitting = false;
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Cancel"))
+				{
+					_isQuitting = false;
+				}
+
+				ImGui::EndPopup();
+			}
+		}
+	}
+
+	void WindowManager::SuggestQuit()
+	{
+		if (_isQuitting)
+			glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
+		else
+		{
+			// don't quit yet, get confirmation
+			glfwSetWindowShouldClose(glfwGetCurrentContext(), false);
+			_isQuitting = true;
+		}
+	}
 }

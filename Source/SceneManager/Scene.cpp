@@ -53,55 +53,49 @@ namespace PlatinumEngine
 
 	void Scene::LoadFile(std::string filePath)
 	{
-		TypeDatabase* typeDatabase = TypeDatabase::Instance;
-		if (!typeDatabase)
-		{
-			PLATINUM_ERROR("No TypeDatabase");
-			return;
-		}
-
 		std::ifstream loadFile(filePath, std::ios::binary); // Windows needs binary to use seekg()
 		if (loadFile.is_open())
-		{
-			// First, end before loading. Otherwise, resources leak.
-			if (_isStarted)
-				End();
-
-			// first delete existing scene data
-			Application::Instance->idSystem.Clear();
-			Clear();
-			// then deserialize
-			TypeDatabase::DeserializeReturnCode code = typeDatabase->Deserialize(loadFile, &Application::Instance->idSystem);
-			if (code != TypeDatabase::DeserializeReturnCode::success)
-				PLATINUM_WARNING_STREAM << "Loading ID System has return code " << (int)code;
-
-			code = typeDatabase->Deserialize(loadFile, this);
-			if (code != TypeDatabase::DeserializeReturnCode::success)
-				PLATINUM_WARNING_STREAM << "Loading ID System has return code " << (int)code;
-
-			AfterLoad();
-		}
+			LoadStream(loadFile);
 		else
 			PLATINUM_ERROR_STREAM << "Could not open scene file: " << filePath;
 	}
 
 	void Scene::SaveFile(std::string filePath)
 	{
-		TypeDatabase* typeDatabase = TypeDatabase::Instance;
-		if (!typeDatabase)
-		{
-			PLATINUM_ERROR("No TypeDatabase");
-			return;
-		}
-
 		std::ofstream saveFile(filePath);
 		if (saveFile.is_open())
-		{
-			typeDatabase->Serialize(saveFile, &Application::Instance->idSystem);
-			typeDatabase->Serialize(saveFile, this);
-		}
+			SaveStream(saveFile);
 		else
 			PLATINUM_ERROR_STREAM << "Could not open scene file: " << filePath;
+	}
+
+	void Scene::LoadStream(std::istream& inputStream)
+	{
+		// First, end before loading. Otherwise, resources leak.
+		if (_isStarted)
+			End();
+
+		// first delete existing scene data
+		Application::Instance->idSystem.Clear();
+		Clear();
+		// then deserialize
+		auto code = Application::Instance->typeDatabase.Deserialize(inputStream, &Application::Instance->idSystem);
+		if (code != TypeDatabase::DeserializeReturnCode::success)
+			PLATINUM_WARNING_STREAM << "Loading ID System has return code " << (int)code;
+
+		code = Application::Instance->typeDatabase.Deserialize(inputStream, this);
+		if (code != TypeDatabase::DeserializeReturnCode::success)
+			PLATINUM_WARNING_STREAM << "Loading ID System has return code " << (int)code;
+
+		AfterLoad();
+	}
+
+	void Scene::SaveStream(std::ostream& outputStream)
+	{
+		// maybe end first? I cannot see any consequences
+
+		Application::Instance->typeDatabase.Serialize(outputStream, &Application::Instance->idSystem);
+		Application::Instance->typeDatabase.Serialize(outputStream, this);
 	}
 
 	void Scene::Clear()
@@ -478,6 +472,8 @@ namespace PlatinumEngine
 
 		for (auto& component: gameObjectPointer->_components)
 			component.OnIDSystemUpdate(Application::Instance->idSystem);
+		for (auto& child: gameObjectPointer->_children)
+			child.OnIDSystemUpdate(Application::Instance->idSystem);
 
 		for (auto& child: gameObjectPointer->_children)
 			child.OnIDSystemUpdate(Application::Instance->idSystem);

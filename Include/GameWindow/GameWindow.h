@@ -67,6 +67,8 @@ namespace PlatinumEngine
 		int _framebufferHeight;
 		bool _hasWarningBeenShown = false;
 
+		std::string _savedSceneOnStart;
+
 		/**
 		 * Update the scene and physics by current delta time in _time object.
 		 */

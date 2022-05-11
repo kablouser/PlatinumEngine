@@ -34,12 +34,10 @@ int main(int, char**)
 	if (SDL_Init(SDL_INIT_AUDIO) < 0)
 	{
 		PLATINUM_ERROR_STREAM << "SDL could not initialize! SDL Error: " << SDL_GetError();
-		return EXIT_FAILURE;
 	}
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0)
 	{
 		PLATINUM_ERROR_STREAM << "Failed to open audio! Mix Error: " << Mix_GetError();
-		return EXIT_FAILURE;
 	}
 	//Is also equivalent to the number of audio components we want to have
 	Mix_AllocateChannels(32);
@@ -115,6 +113,12 @@ int main(int, char**)
 				{
 					PlatinumEngine::Profiler::Section pollEventsSection("Poll Events");
 					glfwPollEvents();
+
+					if (glfwWindowShouldClose(window))
+					{
+						// ask for confirmation
+						application.windowManager.SuggestQuit();
+					}
 				}
 
 				{

@@ -41,17 +41,18 @@ namespace PlatinumEngine
 			Application::Instance->renderer.SetModelMatrix();
 
 		// only move deltaTime once each frame
-		float deltaTime = 0.0f;
-		if (Application::Instance->time.getFramesPassed() != lastFrame)
+		double deltaTime;
+		if (Application::Instance->time.getFramesPassed() == lastFrame)
+		{
+			deltaTime = 0.f;
+		}
+		else
 		{
 			deltaTime = Application::Instance->time.GetDelta();
 			lastFrame = Application::Instance->time.getFramesPassed();
 		}
 
-		// Only update particles if playing effect
-		if (isPlaying)
-			particleEmitter.UpdateParticles(deltaTime, Application::Instance->renderer.cameraPos);
-
+		particleEmitter.UpdateParticles(deltaTime, Application::Instance->renderer.cameraPos);
 		if (particleEmitter.particles)
 		{
 			// Bind shader stuff here

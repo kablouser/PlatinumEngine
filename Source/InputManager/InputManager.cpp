@@ -139,18 +139,24 @@ namespace PlatinumEngine
 	//Checks for Key Press Action
 	bool InputManager::IsKeyPressed(int key)
 	{
+		if (key == GLFW_KEY_UNKNOWN)
+			return false;
 		return ImGui::IsKeyPressed(key);
 	}
 
 	//Checks for Key Hold Action
 	bool InputManager::IsKeyDown(int key)
 	{
+		if (key == GLFW_KEY_UNKNOWN)
+			return false;
 		return ImGui::IsKeyDown(key);
 	}
 
 	//Checks for Key Release Action
 	bool InputManager::IsKeyReleased(int key)
 	{
+		if (key == GLFW_KEY_UNKNOWN)
+			return false;
 		return ImGui::IsKeyReleased(key);
 	}
 

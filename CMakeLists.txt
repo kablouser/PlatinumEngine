@@ -175,6 +175,8 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	
 
 	"Source/Physics/Physics.cpp;"
+	
+	"Source/PlatformingGame/Player.cpp;"
 
 	"Source/ParticleEffects/ParticleEmitter.cpp"
 	"Source/ParticleEffects/ParticleRenderer.cpp;"

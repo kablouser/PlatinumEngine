@@ -97,7 +97,7 @@ namespace PlatinumEngine
 			rigidBodyPointer->_collisionRecords.clear();
 		}
 
-		_bulletWorld.stepSimulation((btScalar)deltaTime, 1);
+		_bulletWorld.stepSimulation((btScalar)deltaTime, 3, 1.0f/60.0f);
 
 		// All physics rigidBody need there updated position to reflect what bullet decides
 		// Write data from bullet back into our data
@@ -153,11 +153,22 @@ namespace PlatinumEngine
 
 				Maths::Vec3 contactPoint0 = ConvertVectorBack(manifoldPoint.m_positionWorldOnA);
 				Maths::Vec3 contactPoint1 = ConvertVectorBack(manifoldPoint.m_positionWorldOnB);
+				Maths::Vec3 normalOnB = ConvertVectorBack(manifoldPoint.m_normalWorldOnB);
 
 				if (rigidBodyPointer0->isCollisionRecorded)
-					rigidBodyPointer0->_collisionRecords.push_back({ rigidBody1, contactPoint0, contactPoint1 });
+					rigidBodyPointer0->_collisionRecords.push_back({
+						rigidBody1,
+						contactPoint0,
+						contactPoint1,
+						normalOnB
+					});
 				if (rigidBodyPointer1->isCollisionRecorded)
-					rigidBodyPointer1->_collisionRecords.push_back({ rigidBody0, contactPoint1, contactPoint0 });
+					rigidBodyPointer1->_collisionRecords.push_back({
+						rigidBody0,
+						contactPoint1,
+						contactPoint0,
+						-normalOnB
+					});
 			}
 		}
 	}

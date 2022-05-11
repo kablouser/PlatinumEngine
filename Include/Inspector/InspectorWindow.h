@@ -23,6 +23,8 @@
 
 #include <ParticleEffects/ParticleEmitter.h>
 
+#include <PlatformingGame/Player.h>
+
 #include <OpenGL/Mesh.h>
 #include <SceneEditor/SceneEditor.h>
 
@@ -47,6 +49,7 @@ namespace PlatinumEngine
 		void ShowParticleEffectComponent(SavedReference<ParticleEffect>& reference);
 		void ShowAudioComponent(SavedReference<AudioComponent>& reference);
 		void ShowAnimationComponent(SavedReference<AnimationComponent>& reference);
+		void ShowPlayerComponent(SavedReference<Player>& reference);
 
 
 		// Shown when add component button pressed
