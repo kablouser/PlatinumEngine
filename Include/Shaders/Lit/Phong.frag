@@ -21,6 +21,9 @@ uniform bool useNormalTexture;
 const int MAX_NUM_DIR_LIGHTS = 3;
 const int MAX_NUM_POINT_LIGHTS = 16;
 
+uniform int numDirLights;
+uniform int numPointLights;
+
 // Matieral colour
 uniform vec3 diffuseColour;
 
@@ -82,7 +85,7 @@ void main()
 
     if(isDirLight)
     {
-        for(int i = 0; i < MAX_NUM_DIR_LIGHTS; i++)
+        for(int i = 0; i < numDirLights; i++)
             result += GetDirLight(dirLights[i], normal, viewDirection, colour);
 //        if(shadowMappingOn)
 //            ShadowCalculation();
@@ -90,7 +93,7 @@ void main()
 
     if(isPointLight)
     {
-        for(int i = 0; i < MAX_NUM_POINT_LIGHTS; i++)
+        for(int i = 0; i < numPointLights; i++)
             result += GetPointLight(pointLights[i], normal, vertexPos, viewDirection, colour);
     }
 

@@ -52,11 +52,11 @@ id, hash, doesExist, path
 9042569517036705116,10444562440618634371,1,./Assets/Meshes/Video/Waste-Bin_Type23.FBX
 2046321527456181981,9650777094738740970,1,./Assets/Texture/video/tileable_concrete_tiles_texture_NORMAL.jpeg
 14098606463482440576,8409753359297238516,1,./Assets/Texture/video/WASTEBIN_TYPE23_L9_NOR_001.png
-8168837160206256043,9650777094738740970,1,./Assets/Texture/video/tileable_concrete_tiles_texture_NORMAL.png
+8168837160206256043,9650777094738740970,0,./Assets/Texture/video/tileable_concrete_tiles_texture_NORMAL.png
 3941627040502057405,2277329877562377320,1,./Assets/Texture/video/tileable_concrete_tiles_texture.jpeg
 14290592652255983600,10948430168471374591,1,./Assets/Texture/video/Tileable_cracked_asphalt_road_texture.jpeg
 16716277917062015467,6687925086868212607,1,./Assets/Texture/video/WASTEBIN_TYPE23_L9_MAP_001.png
 3828920628650747469,3341089376299983435,1,./Assets/Texture/video/Tileable_cracked_asphalt_road_texture_NORMAL.jpeg
-5176208691261908662,2277329877562377320,1,./Assets/Texture/video/tileable_concrete_tiles_texture.png
-10971025572956664675,10948430168471374591,1,./Assets/Texture/video/Tileable_cracked_asphalt_road_texture.png
-13751444865174696485,3341089376299983435,1,./Assets/Texture/video/Tileable_cracked_asphalt_road_texture_NORMAL.png
+5176208691261908662,2277329877562377320,0,./Assets/Texture/video/tileable_concrete_tiles_texture.png
+10971025572956664675,10948430168471374591,0,./Assets/Texture/video/Tileable_cracked_asphalt_road_texture.png
+13751444865174696485,3341089376299983435,0,./Assets/Texture/video/Tileable_cracked_asphalt_road_texture_NORMAL.png

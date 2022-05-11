@@ -34,15 +34,16 @@ void main()
     }
 
     gl_Position = projection * view * model * animationTransform * vec4(inVertex, 1.0);
-    vertexPos = vec3(gl_Position);
-    mat4 viewmod = view * model * animationTransform;
-    vertexNormal = transpose(inverse(mat3(viewmod))) * inNormal;
+//    vertexPos = vec3(gl_Position);
+    mat4 animwmod = model * animationTransform;
+    vertexPos = vec3(animwmod * vec4(inVertex, 1.0));
+    vertexNormal = transpose(inverse(mat3(animwmod))) * inNormal;
     vertexTextureCoordinate = inTextureCoordinate;
 
     // For normal mapping calc TBN matrix
-    vec3 T = normalize(vec3(model * animationTransform * vec4(inTangent, 0.0)));
-    vec3 B = normalize(vec3(model * animationTransform * vec4(inBiTangent, 0.0)));
-    vec3 N = normalize(vec3(model * animationTransform * vec4(inNormal, 0.0)));
+    vec3 T = normalize(vec3(animwmod * vec4(inTangent, 0.0)));
+    vec3 B = normalize(vec3(animwmod * vec4(inBiTangent, 0.0)));
+    vec3 N = normalize(vec3(animwmod * vec4(inNormal, 0.0)));
     TBN = mat3(T, B, N);
 }
 )"

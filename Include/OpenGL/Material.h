@@ -25,7 +25,7 @@ namespace PlatinumEngine
 		bool useNormalTexture = false;
 		bool useReflectionShader = false;
 		bool useRefractionShader = false;
-		Maths::Vec3 colour = {1.0f, 0.0f, 0.0f};
+		Maths::Vec3 colour = {0.7f, 0.7f, 0.7f};
 
 		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 

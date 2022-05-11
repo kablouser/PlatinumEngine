@@ -509,6 +509,9 @@ namespace PlatinumEngine
 */
 			}
 		}
+
+		_phongShader.SetUniform("numDirLights", num_directed_lights);
+		_phongShader.SetUniform("numPointLights", num_point_lights);
 	}
 
 	void Renderer::DrawLight(Maths::Mat4 matrix)
@@ -525,7 +528,6 @@ namespace PlatinumEngine
 
 		_phongShader.Bind();
 		_phongShader.SetUniform("viewPos", pos);
-//		_phongShader.SetUniform("viewPos", Maths::Vec3{0.0f, 0.0f, 0.0f});
 
 		_particleShader.Bind();
 		_particleShader.SetUniform("cameraPos", pos);
