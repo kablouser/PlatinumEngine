@@ -17,7 +17,9 @@ namespace PlatinumEngine
 	Mesh CubeMesh(float xSize, float ySize, float zSize)
 	{
 		MeshData cubeData = Cube(xSize, ySize, zSize);
-		Mesh cubeMesh = Mesh(cubeData.vertices, cubeData.indices);
+		Mesh cubeMesh;
+		cubeMesh.vertices = cubeData.vertices;
+		cubeMesh.indices = cubeData.indices;
 		return cubeMesh;
 	}
 
@@ -25,13 +27,19 @@ namespace PlatinumEngine
 	Mesh SphereMesh(float r, int subdivsions)
 	{
 		auto ico_sphere = IconSphere(r, subdivsions);
-		return {std::move(ico_sphere.vertices), std::move(ico_sphere.indices)};
+		Mesh icoSphereMesh;
+		icoSphereMesh.vertices = ico_sphere.vertices;
+		icoSphereMesh.indices = ico_sphere.indices;
+		return std::move(icoSphereMesh);
 	}
 
 	Mesh ConeMesh(float bradius, float tradius, float height, int sides, bool cap)
 	{
 		MeshData cone = Cone(bradius, tradius, height, sides, cap);
-		return {std::move(cone.vertices), std::move(cone.indices)};
+		Mesh coneMesh;
+		coneMesh.vertices = cone.vertices;
+		coneMesh.indices = cone.indices;
+		return std::move(coneMesh);
 	}
 
 	Mesh CapsuleMesh(float h, float r)
@@ -53,7 +61,10 @@ namespace PlatinumEngine
 		bottom.vertices.insert(bottom.vertices.end(), top.vertices.begin(), top.vertices.end());
 		bottom.indices.insert(bottom.indices.end(), top.indices.begin(), top.indices.end());
 
-		return {std::move(bottom.vertices), std::move(bottom.indices)};
+		Mesh capsuleMesh;
+		capsuleMesh.vertices = bottom.vertices;
+		capsuleMesh.indices = bottom.indices;
+		return std::move(capsuleMesh);
 	}
 
 	MeshData Cube(float xSize, float ySize, float zSize)
@@ -194,12 +205,18 @@ namespace PlatinumEngine
 	Mesh QuadMesh(float x, float y)
 	{
 		MeshData square = Quad(x, y);
-		return {std::move(square.vertices), std::move(square.indices)};
+		Mesh quadMesh;
+		quadMesh.vertices = std::move(square.vertices);
+		quadMesh.indices = std::move(square.indices);
+		return std::move(quadMesh);
 	}
 	Mesh SquareMesh(float r)
 	{
 		MeshData square = Quad(r, r);
-		return {std::move(square.vertices), std::move(square.indices)};
+		Mesh squareMesh;
+		squareMesh.vertices = std::move(square.vertices);
+		squareMesh.indices = std::move(square.indices);
+		return std::move(squareMesh);
 	}
 
 	MeshData uv_hemisphere(float radius)
@@ -394,7 +411,10 @@ namespace PlatinumEngine
 			elems.push_back(new_idx);
 		}
 
-		return {std::move(verts), std::move(elems)};
+		Mesh dedup;
+		dedup.vertices = std::move(verts);
+		dedup.indices = std::move(elems);
+		return std::move(dedup);
 	}
 
 	Mesh Merge(MeshData&& l, MeshData&& r)
@@ -402,6 +422,10 @@ namespace PlatinumEngine
 		for(auto& i : r.indices) i += (GLuint)l.vertices.size();
 		l.vertices.insert(l.vertices.end(), r.vertices.begin(), r.vertices.end());
 		l.indices.insert(l.indices.end(), r.indices.begin(), r.indices.end());
-		return Mesh(std::move(l.vertices), std::move(l.indices));
+
+		Mesh mergedMesh;
+		mergedMesh.vertices = std::move(l.vertices);
+		mergedMesh.indices = std::move(l.indices);
+		return std::move(mergedMesh);
 	}
 }

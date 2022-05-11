@@ -136,7 +136,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/ComponentComposition/GameObject.cpp;"
 	"Source/ComponentComposition/MeshRender.cpp;"
 	"Source/ComponentComposition/Transform.cpp;"	
-	"Source/ComponentComposition/LightComponent.cpp;"
+	"Source/ComponentComposition/Light.cpp;"
 	"Source/ComponentComposition/Objects.cpp;"
 	"Source/ComponentComposition/RigidBody.cpp;"
 	"Source/ComponentComposition/BoxCollider.cpp;"

@@ -7,7 +7,7 @@
 #include "WindowManager/Filedialog.h"
 
 #include <ComponentComposition/Component.h>
-#include <ComponentComposition/LightComponent.h>
+#include <ComponentComposition/Light.h>
 #include <ComponentComposition/MeshRender.h>
 #include <ComponentComposition/Transform.h>
 #include <ComponentComposition/Camera.h>

@@ -357,18 +357,20 @@ namespace PlatinumEngine
 			BroadcastOnIDSystemUpdate(gameObject);
 	}
 
-	void Scene::LoadLights(Renderer& renderer)
+	void Scene::LoadLights()
 	{
-		std::vector<GameObject*> lights;
-		for (auto gameObject: _rootGameObjects)
+		std::vector<SavedReference<LightComponent>> lights;
+		for (auto& component: _components)
 		{
-			auto lightComponent = gameObject->GetComponent<LightComponent>();
-			if(lightComponent)
-			{
-				lights.push_back(gameObject);
-			}
+			if (!component || !component.DeRef()->GetGameObject())
+				continue;
+
+			SavedReference<LightComponent> asLight = (SavedReference<LightComponent>)component;
+
+			if (asLight)
+				lights.push_back(asLight);
 		}
-		renderer.SetupLights(lights);
+		Application::Instance->renderer.SetupLights(lights);
 	}
 
 

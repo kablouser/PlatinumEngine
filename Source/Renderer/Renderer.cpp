@@ -50,6 +50,7 @@ const std::string LIGHT_VERTEX_SHADER =
 ;
 const std::string LIGHT_FRAGMENT_SHADER =
 #include <Shaders/Unlit/LightShader.frag>
+;
 const std::string PARTICLE_VERTEX_SHADER =
 #include <Shaders/Unlit/ParticleShader.vert>
 ;
@@ -437,7 +438,7 @@ namespace PlatinumEngine
 		_gridShader.SetUniform("GridAxis", gridAxis);
 	}
 
-	void Renderer::SetupLights(std::vector<GameObject*> &lights)
+	void Renderer::SetupLights(std::vector<SavedReference<LightComponent>> &lights)
 	{
 		_phongShader.Bind();
 		int num_directed_lights, num_point_lights;
@@ -445,40 +446,40 @@ namespace PlatinumEngine
 		bool isDirLight = false, isPointLight = false;
 		for(auto light:lights)
 		{
-			auto lightComponent = light->GetComponent<LightComponent>();
+			auto lightComponent = light;
 			if(lightComponent)
 			{
-				LightComponent::LightType type = lightComponent->type;
-				auto transform = light->GetComponent<TransformComponent>();
+				LightComponent::LightType type = lightComponent.DeRef()->type;
+				auto transform = lightComponent.DeRef()->GetComponent<Transform>();
 				if(transform)
 				{
 					if (type == LightComponent::LightType::Directional)
 					{
 						isDirLight = true;
-						auto lightDir = transform->GetLocalToWorldMatrix() * Maths::Vec4(0.f, 1.f, 0.f, 0.f);
-						_phongShader.SetUniform("ambientLight", lightComponent->ambientLight);
+						auto lightDir = transform.DeRef()->GetLocalToWorldMatrix() * Maths::Vec4(0.f, 1.f, 0.f, 0.f);
+						_phongShader.SetUniform("ambientLight", lightComponent.DeRef()->ambientLight);
 						_phongShader.SetUniform("isDirLight", isDirLight);
 						_phongShader.SetUniform("dirLights[" + std::to_string(num_directed_lights) + "].direction",
 								Maths::Vec3(lightDir.x, lightDir.y, lightDir.z));
 						_phongShader.SetUniform("dirLights[" + std::to_string(num_directed_lights) + "].baseLight",
-								(lightComponent->intensity * lightComponent->spectrum).to_vec());
+								(lightComponent.DeRef()->intensity * lightComponent.DeRef()->spectrum).to_vec());
 						num_directed_lights++;
 					}
 					else if (type == LightComponent::LightType::Point)
 					{
 						isPointLight = true;
-						_phongShader.SetUniform("ambientLight", lightComponent->ambientLight);
+						_phongShader.SetUniform("ambientLight", lightComponent.DeRef()->ambientLight);
 						_phongShader.SetUniform("isPointLight", isPointLight);
 						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].position",
-								transform->localPosition);
+								transform.DeRef()->localPosition);
 						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].baseLight",
-								(lightComponent->intensity * lightComponent->spectrum).to_vec());
+								(lightComponent.DeRef()->intensity * lightComponent.DeRef()->spectrum).to_vec());
 						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].constant",
-								lightComponent->constant);
+								lightComponent.DeRef()->constant);
 						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].linear",
-								lightComponent->linear);
+								lightComponent.DeRef()->linear);
 						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].quadratic",
-								lightComponent->quadratic);
+								lightComponent.DeRef()->quadratic);
 						num_point_lights++;
 					}
 				}

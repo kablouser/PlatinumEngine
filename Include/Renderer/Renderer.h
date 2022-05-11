@@ -7,13 +7,12 @@
 
 // PlatinumEngine lib
 #include <ComponentComposition/GameObject.h>
-#include <OpenGL/ShaderInput.h>
-#include <OpenGL/ShaderProgram.h>
 #include <OpenGL/Framebuffer.h>
-#include <GLFW/glfw3.h>
+#include <OpenGL/ShaderProgram.h>
 #include <OpenGL/Material.h>
 #include <OpenGL/Mesh.h>
 #include <ParticleEffects/ParticleRenderer.h>
+#include <ComponentComposition/Light.h>
 
 namespace PlatinumEngine
 {
@@ -110,7 +109,7 @@ namespace PlatinumEngine
 		 * @param light
 		 */
 		// void LoadLight(const Light &light);
-		void SetupLights(std::vector<GameObject*> &lights);
+		void SetupLights(std::vector<SavedReference<LightComponent>> &lights);
 
 		/**
 		 * draw light

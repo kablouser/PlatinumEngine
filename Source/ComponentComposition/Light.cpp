@@ -2,8 +2,10 @@
 // Created by Jinyuan on 04/04/2022.
 //
 #include "ComponentComposition/Light.h"
-#include <ComponentComposition/TransformComponent.h>
+#include <ComponentComposition/Transform.h>
 #include <ComponentComposition/Objects.h>
+#include <Application.h>
+#include <OpenGL/Mesh.h>
 
 namespace PlatinumEngine
 {
@@ -46,22 +48,22 @@ namespace PlatinumEngine
 	}
 
 
-	void LightComponent::OnRender(Scene& scene, Renderer& renderer)
+	void LightComponent::OnRender()
 	{
-		auto transform = GetComponent<TransformComponent>();
+		auto transform = GetComponent<Transform>();
 
 		if(transform)
 		{
 			if(type == LightType::Point)
-				transform->localScale = 0.1f;
-			renderer.DrawLight(transform->GetLocalToWorldMatrix());
+				transform.DeRef()->localScale = 0.1f;
+			Application::Instance->renderer.DrawLight(transform.DeRef()->GetLocalToWorldMatrix());
 		}
 		else
 		{
 			Maths::Mat4 matrix(1.f);
 			if(type == LightType::Point)
 				matrix.SetScaleMatrix(Maths::Vec3(0.1f, 0.1f, 0.1f));
-			renderer.DrawLight(matrix);
+			Application::Instance->renderer.DrawLight(matrix);
 		}
 		shaderInput.Draw();
 	}

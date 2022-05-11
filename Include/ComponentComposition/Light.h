@@ -2,12 +2,10 @@
 // Created by Jinyuan on 04/04/2022.
 //
 #pragma once
-#include <vector>
+#include <ComponentComposition/Component.h>
 #include <Maths/Vectors.h>
 #include <Inspector/Spectrum.h>
-#include <OpenGL/Mesh.h>
 #include <OpenGL/ShaderInput.h>
-#include "ComponentComposition/Component.h"
 
 namespace PlatinumEngine
 {
@@ -38,7 +36,7 @@ namespace PlatinumEngine
 		void UpdateMesh();
 		explicit LightComponent(LightType type);
 
-		virtual void OnRender(Scene& scene, Renderer& renderer) override;
+		virtual void OnRender() override;
 
 	};
 }
