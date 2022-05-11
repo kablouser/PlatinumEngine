@@ -5,16 +5,11 @@
  * But no implementations for the templated functions.
  */
 
-#include <Renderer/Renderer.h>
 #include <IDSystem/IDSystem.h>
 
 namespace PlatinumEngine
 {
-	class Scene;
-
 	class GameObject;
-
-	class Renderer;
 
 	/**
 	 * Compositional thing that can be attached to GameObjects and updated during the game loop.

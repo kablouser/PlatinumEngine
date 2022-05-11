@@ -7,7 +7,7 @@
 #include "WindowManager/Filedialog.h"
 
 #include <ComponentComposition/Component.h>
-
+#include <ComponentComposition/Light.h>
 #include <ComponentComposition/MeshRender.h>
 #include <ComponentComposition/Transform.h>
 #include <ComponentComposition/Camera.h>
@@ -35,6 +35,7 @@ namespace PlatinumEngine
 		void ShowGUIWindow(bool* isOpen);
 	private:
 		// TODO: Add specific component guis as components are created
+		void ShowLightComponent(SavedReference<LightComponent>& reference);
 		void ShowMeshRenderComponent(SavedReference<MeshRender>& reference);
 		void ShowTransformComponent(SavedReference<Transform>& reference);
 		void ShowCameraComponent(SavedReference<Camera>& reference);

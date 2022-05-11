@@ -7,6 +7,8 @@
 #include <ComponentComposition/Component.h>
 #include <Helpers/VectorHelpers.h>
 #include <Logger/Logger.h>
+#include <ComponentComposition/Light.h>
+#include <ComponentComposition/Transform.h>
 #include <Application.h>
 #include <fstream>
 
@@ -354,6 +356,23 @@ namespace PlatinumEngine
 		for (auto& gameObject: _rootGameObjects)
 			BroadcastOnIDSystemUpdate(gameObject);
 	}
+
+	void Scene::LoadLights()
+	{
+		std::vector<SavedReference<LightComponent>> lights;
+		for (auto& component: _components)
+		{
+			if (!component || !component.DeRef()->GetGameObject())
+				continue;
+
+			SavedReference<LightComponent> asLight = (SavedReference<LightComponent>)component;
+
+			if (asLight)
+				lights.push_back(asLight);
+		}
+		Application::Instance->renderer.SetupLights(lights);
+	}
+
 
 	//--------------------------------------------------------------------------------------------------------------
 	// External controls

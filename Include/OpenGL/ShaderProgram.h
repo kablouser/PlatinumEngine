@@ -53,6 +53,7 @@ namespace PlatinumEngine
 
 		void SetUniform(const std::string &name, const glm::mat3 &value) const;
 
+		void SetUniform(const std::string &name, const Maths::Mat3 &value) const;
 		void SetUniform(const std::string &name, const Maths::Mat4 &value) const;
 
 		void SetUniform(const std::string &name, const glm::mat4 &value) const;

@@ -2,9 +2,9 @@
 // Created by Shihua on 01/05/2022.
 //
 
+#include <Application.h>
 #include <ComponentComposition/AnimationComponent.h>
 #include <SceneManager/Scene.h>
-#include <Application.h>
 
 namespace PlatinumEngine
 {

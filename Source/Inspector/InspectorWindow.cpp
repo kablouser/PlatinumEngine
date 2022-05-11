@@ -43,6 +43,9 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen)
 			if (auto ref = obj.DeRef()->GetComponent<Transform>())
 				ShowTransformComponent(ref);
 
+			if (auto ref = obj.DeRef()->GetComponent<LightComponent>())
+				ShowLightComponent(ref);
+			
 			if (auto ref = obj.DeRef()->GetComponent<Camera>())
 				ShowCameraComponent(ref);
 
@@ -1070,6 +1073,7 @@ void InspectorWindow::ShowAddComponent()
 				"Mesh Render Component",
 				"Transform Component",
 				"Camera Component",
+				"Light Component",
 				"RigidBody Component",
 				"BoxCollider Component",
 				"SphereCollider Component",
@@ -1161,11 +1165,41 @@ void InspectorWindow::ShowAddComponent()
 					obj.DeRef()->GetComponent<AnimationComponent>().DeRef()->SetMesh(obj.DeRef()->GetComponent<MeshRender>().DeRef()->GetMesh());
 				}
 			}
+			else if (strcmp(selectedComponent, "Light Component") == 0)
+			{
+				Application::Instance->scene.AddComponent<LightComponent>(obj);
+			}
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;
 		}
 	}
 	ImGui::EndChild();
+}
+
+void InspectorWindow::ShowLightComponent(SavedReference<LightComponent>& reference)
+{
+	// If this gui is being shown, assumption that object has light component
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_ARROWS_TURN_TO_DOTS "  Light Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveLightComponent")) {
+		// remove component
+		Application::Instance->scene.RemoveComponent(reference);
+		return;
+	}
+	if (isHeaderOpen)
+	{
+		auto& light = reference;
+		if(ImGui::Combo("Type", (int*)&light.DeRef()->type, light.DeRef()->LightTypeNames, (int)LightComponent::LightType::count))
+		{
+			light.DeRef()->UpdateMesh();
+		}
+
+		ImGui::ColorEdit3("Spectrum", light.DeRef()->spectrum.data);
+		ImGui::DragFloat("Intensity", &light.DeRef()->intensity, 0.1f, 0.0f,
+				std::numeric_limits<float>::max(), "%.2f");
+	}
 }
 
 std::filesystem::path InspectorWindow::GetPayloadPath(const ImGuiPayload* payload)
