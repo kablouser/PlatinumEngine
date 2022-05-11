@@ -56,7 +56,7 @@ namespace PlatinumEngine
 		//Update the physics world by delta time
 		void Update();
 
-		void SetGravity(Maths::Vec3 gravity = {0.f, -9.81f, 0.f});
+		void SetGravity(Maths::Vec3 gravity = {0.f, -19.81f, 0.f});
 		Maths::Vec3 GetGravity() const;
 
 		std::vector<SavedReference<PlatinumEngine::RigidBody>>& GetRigidBodies();

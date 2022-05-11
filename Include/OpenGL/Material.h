@@ -5,6 +5,8 @@
 #include <OpenGL/Texture.h>
 #include <IDSystem/IDSystem.h>
 #include <TypeDatabase/TypeDatabase.h>
+#include <Maths/Vectors.h>
+
 namespace PlatinumEngine
 {
 	class Material
@@ -23,6 +25,7 @@ namespace PlatinumEngine
 		bool useNormalTexture = false;
 		bool useReflectionShader = false;
 		bool useRefractionShader = false;
+		Maths::Vec3 colour = {0.7f, 0.7f, 0.7f};
 
 		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 

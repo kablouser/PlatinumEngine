@@ -479,6 +479,9 @@ namespace PlatinumEngine
 		for (auto& component: gameObjectPointer->_components)
 			component.OnIDSystemUpdate(Application::Instance->idSystem);
 
+		for (auto& child: gameObjectPointer->_children)
+			child.OnIDSystemUpdate(Application::Instance->idSystem);
+
 		for (auto& component: gameObjectPointer->_components)
 		{
 			if (!component)

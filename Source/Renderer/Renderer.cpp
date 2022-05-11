@@ -264,6 +264,18 @@ namespace PlatinumEngine
 		_particleShader.SetUniform(name, val);
 	}
 
+	void Renderer::SetBoolParticleShader(const char* name, bool val)
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform(name, val);
+	}
+
+	void Renderer::SetVec3ParticleShader(const char * name, const Maths::Vec3 &scaleFactors)
+	{
+		_particleShader.Bind();
+		_particleShader.SetUniform(name, scaleFactors);
+	}
+
 	void Renderer::ResizeFrameBuffer(Framebuffer &framebuffer, ImVec2 targetSize)
 	{
 		_framebufferWidth = (int)targetSize.x;
@@ -296,6 +308,7 @@ namespace PlatinumEngine
 		}
 
 		_phongShader.Bind();
+		_phongShader.SetUniform("diffuseColour", material.colour);
 		_phongShader.SetUniform("useTexture", material.useTexture);
 
 		// bind diffuse map
@@ -496,6 +509,9 @@ namespace PlatinumEngine
 */
 			}
 		}
+
+		_phongShader.SetUniform("numDirLights", num_directed_lights);
+		_phongShader.SetUniform("numPointLights", num_point_lights);
 	}
 
 	void Renderer::DrawLight(Maths::Mat4 matrix)
@@ -512,7 +528,7 @@ namespace PlatinumEngine
 
 		_phongShader.Bind();
 		_phongShader.SetUniform("viewPos", pos);
-		
+
 		_particleShader.Bind();
 		_particleShader.SetUniform("cameraPos", pos);
 	}

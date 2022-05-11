@@ -24,6 +24,7 @@ namespace PlatinumEngine
 		{
 			// Particles will want to use a nice blending function as a lof of them will be crammed into one space
 			// Creates a glow effect
+			GL_CHECK(glEnable(GL_BLEND));
 			GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE));
 
 			// Make sure depth test is on and reset if needed later
@@ -91,7 +92,12 @@ namespace PlatinumEngine
 
 		void ParticleRenderer::Clear()
 		{
-			// TODO: Delete buffers
+			GL_CHECK(glDeleteVertexArrays(1, &_particleVertexVAO));
+			GL_CHECK(glDeleteBuffers(1, &_particleVertexVBO));
+			GL_CHECK(glDeleteBuffers(1, &_textureIndexVBO));
+			GL_CHECK(glDeleteBuffers(1, &_positionLifeVBO));
+			GL_CHECK(glDeleteBuffers(1, &_velocityScaleVBO));
+			_positionLifeVBO = _velocityScaleVBO = _textureIndexVBO = _particleVertexVAO = _particleVertexVBO = 0;
 		}
 
 		void ParticleRenderer::Init()

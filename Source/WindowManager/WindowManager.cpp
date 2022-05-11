@@ -25,7 +25,7 @@ namespace PlatinumEngine
 		///ifs in main menu window list to call the function inside
 		///-----------------------------------------------------------------------
 		//window section
-		Application::Instance->gameWindow.ShowGUIWindow(&_showWindowGame);
+		if (_showWindowGame)			Application::Instance->gameWindow.ShowGUIWindow(&_showWindowGame);
 		if (_showWindowScene) 			ShowWindowScene(&_showWindowScene);
 		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy);
 		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector);
@@ -217,20 +217,44 @@ namespace PlatinumEngine
 				Application::Instance->scene.AddComponent<Transform>(obj);
 				Application::Instance->sceneEditor.SetSelectedGameobject(obj);
 			}
-			if (ImGui::MenuItem("Light"))
-			{}
-			if (ImGui::MenuItem(ICON_FA_FIRE " Particle Effect"))
+			if (ImGui::BeginMenu("Lights"))
 			{
-				auto obj = Application::Instance->scene.AddGameObject("Particle Effect");
-				Application::Instance->scene.AddComponent<ParticleEffect>(obj);
-				Application::Instance->scene.AddComponent<Transform>(obj);
-				Application::Instance->sceneEditor.SetSelectedGameobject(obj);
+				if (ImGui::MenuItem(ICON_FA_LIGHTBULB " Point Light"))
+				{
+					auto obj = Application::Instance->scene.AddGameObject("Light");
+					Application::Instance->scene.AddComponent<LightComponent>(obj);
+					Application::Instance->scene.AddComponent<Transform>(obj);
+					Application::Instance->sceneEditor.SetSelectedGameobject(obj);
+				}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Particle Effects"))
+			{
+				if (ImGui::MenuItem(ICON_FA_FIRE " Basic Effect"))
+				{
+					auto obj = Application::Instance->scene.AddGameObject("Particle Effect");
+					Application::Instance->scene.AddComponent<ParticleEffect>(obj);
+					Application::Instance->scene.AddComponent<Transform>(obj);
+					Application::Instance->sceneEditor.SetSelectedGameobject(obj);
+				}
+				if (ImGui::MenuItem(ICON_FA_BURST " Single Point Effect"))
+				{
+					auto obj = Application::Instance->scene.AddGameObject("Particle Effect");
+					auto component = Application::Instance->scene.AddComponent<ParticleEffect>(obj);
+					component.DeRef()->particleEmitter.useRandomInitVelocityX = false;
+					component.DeRef()->particleEmitter.useRandomInitVelocityZ = false;
+					component.DeRef()->particleEmitter.initVelocity = {0.0f, 0.0f, 0.0f};
+					component.DeRef()->particleEmitter.actingForce = {0.0f, 0.0f, 0.0f};
+					Application::Instance->scene.AddComponent<Transform>(obj);
+					Application::Instance->sceneEditor.SetSelectedGameobject(obj);
+				}
+				ImGui::EndMenu();
 			}
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("3D Object"))
 		{
-			if (ImGui::MenuItem("Cube"))
+			if (ImGui::MenuItem(ICON_FA_CUBE " Cube"))
 			{
 				std::filesystem::path cubePath = "./Assets/Meshes/Cube.obj";
 				auto [success, asset] = AssetHelper::GetAsset<Mesh>(cubePath.string());
@@ -244,7 +268,7 @@ namespace PlatinumEngine
 				Application::Instance->scene.AddComponent<BoxCollider>(cube);
 			}
 
-			if (ImGui::MenuItem("Sphere"))
+			if (ImGui::MenuItem(ICON_FA_CIRCLE " Sphere"))
 			{
 				std::filesystem::path spherePath = "./Assets/Meshes/Sphere4.obj";
 				auto [success, asset] = AssetHelper::GetAsset<Mesh>(spherePath.string());
@@ -258,7 +282,7 @@ namespace PlatinumEngine
 				Application::Instance->scene.AddComponent<SphereCollider>(sphere);
 			}
 
-			if (ImGui::MenuItem("Capsule"))
+			if (ImGui::MenuItem(ICON_FA_CAPSULES " Capsule"))
 			{
 				std::filesystem::path capsulePath = "./Assets/Meshes/Capsule.obj";
 				auto [success, asset] = AssetHelper::GetAsset<Mesh>(capsulePath.string());
@@ -272,7 +296,7 @@ namespace PlatinumEngine
 				Application::Instance->scene.AddComponent<CapsuleCollider>(capsule);
 			}
 
-			if (ImGui::MenuItem("Plane"))
+			if (ImGui::MenuItem(ICON_FA_SQUARE " Plane"))
 			{
 				std::filesystem::path planePath = "./Assets/Meshes/Quad.obj";
 				auto [success, asset] = AssetHelper::GetAsset<Mesh>(planePath.string());

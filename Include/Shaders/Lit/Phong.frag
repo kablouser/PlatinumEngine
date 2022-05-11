@@ -21,6 +21,12 @@ uniform bool useNormalTexture;
 const int MAX_NUM_DIR_LIGHTS = 3;
 const int MAX_NUM_POINT_LIGHTS = 16;
 
+uniform int numDirLights;
+uniform int numPointLights;
+
+// Matieral colour
+uniform vec3 diffuseColour;
+
 // various type of light
 struct DirLight {
     vec3 direction;
@@ -35,6 +41,7 @@ struct PointLight {
     float linear;
     float quadratic;
 };
+
 uniform DirLight dirLights[MAX_NUM_DIR_LIGHTS];
 uniform PointLight pointLights[MAX_NUM_POINT_LIGHTS];
 uniform vec3 ambientLight;
@@ -56,7 +63,7 @@ float Calculate_Avg_Dblockreceiver(vec2 projCoords_xy, int AvgTextureSize,int la
 
 void main()
 {
-    vec3 colour = vec3(0.4f, 0.4f, 0.4f);
+    vec3 colour = diffuseColour;
     if (useTexture)
     {
         colour = texture(diffuseMap, vertexTextureCoordinate).rgb;
@@ -78,7 +85,7 @@ void main()
 
     if(isDirLight)
     {
-        for(int i = 0; i < MAX_NUM_DIR_LIGHTS; i++)
+        for(int i = 0; i < numDirLights; i++)
             result += GetDirLight(dirLights[i], normal, viewDirection, colour);
 //        if(shadowMappingOn)
 //            ShadowCalculation();
@@ -86,7 +93,7 @@ void main()
 
     if(isPointLight)
     {
-        for(int i = 0; i < MAX_NUM_POINT_LIGHTS; i++)
+        for(int i = 0; i < numPointLights; i++)
             result += GetPointLight(pointLights[i], normal, vertexPos, viewDirection, colour);
     }
 

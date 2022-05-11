@@ -28,14 +28,19 @@ namespace PlatinumEngine
 			// Emitter Settings
 			int numberOfParticles = 500;
 			float respawnLifetime = 4.0f; // Particles will have this initial lifetime
-			int numberOfNewParticles = 2; // How many particles to spawn each frame
-			float spawnInterval = 4.5;
+			int numberOfNewParticles = 4; // How many particles to spawn each frame
+			float spawnInterval = 0.5;
+			bool useCylindricalBillboard = false; // Switch between spherical and cylindrical bill-boarding
 			Maths::Vec3 actingForce = {0.0f, 1.0f, 0.0f};
+			Maths::Vec3 scaleFactors = {1.0f, 1.0f, 1.0f};
 
 			// Position Settings
 			bool useRandomInitPositionX = false;
+			bool useUniformRandomPositionX = true;
 			bool useRandomInitPositionY = false;
+			bool useUniformRandomPositionY = true;
 			bool useRandomInitPositionZ = false;
+			bool useUniformRandomPositionZ = true;
 			float minPositionX = -1.0f;
 			float maxPositionX = 1.0f;
 			float minPositionY = -1.0f;
@@ -46,8 +51,11 @@ namespace PlatinumEngine
 			// Velocity Settings
 			Maths::Vec3 initVelocity = {0.0f, 1.0f, 0.0f};
 			bool useRandomInitVelocityX = true;
+			bool useUniformInitVelocityX = true;
 			bool useRandomInitVelocityY = false;
+			bool useUniformInitVelocityY = true;
 			bool useRandomInitVelocityZ = true;
+			bool useUniformInitVelocityZ = true;
 			float minVelocityX = -1.0f;
 			float maxVelocityX = 1.0f;
 			float minVelocityY = -1.0f;
@@ -60,16 +68,19 @@ namespace PlatinumEngine
 			int numRowsInTexture = 1;
 			int numColsInTexture = 1;
 
+			// Other things
+			bool isEmitting = true;
+			bool oneShot = false;
+			std::string scaleBy = "Constant";
+			float scaleFactor = 1.0f;
 			std::unique_ptr<std::vector<Particle>> particles;
 		private:
 			unsigned int FirstDeadParticle();
+			void RespawnParticles(float deltaTime, bool isOneShot);
 			void RespawnParticle(Particle &p);
-			float GetRandomFloat(const float min, const float max);
 		private:
 			unsigned int _lastDeadParticle = 0;
 			float _timeSinceLastSpawn = 0.0f;
-			std::random_device _rd;
-			std::mt19937 _mt;
 			std::unique_ptr<std::vector<Particle>> _particleContainer;
 		};
 	}

@@ -24,7 +24,6 @@ namespace PlatinumEngine
 
 	ParticleEffect::ParticleEffect()
 	{
-		// TODO: Use OnStart/OnEnd functions
 	}
 
 	void ParticleEffect::OnUpdate()
@@ -42,18 +41,17 @@ namespace PlatinumEngine
 			Application::Instance->renderer.SetModelMatrix();
 
 		// only move deltaTime once each frame
-		double deltaTime;
-		if (Application::Instance->time.getFramesPassed() == lastFrame)
-		{
-			deltaTime = 0.f;
-		}
-		else
+		float deltaTime = 0.0f;
+		if (Application::Instance->time.getFramesPassed() != lastFrame)
 		{
 			deltaTime = Application::Instance->time.GetDelta();
 			lastFrame = Application::Instance->time.getFramesPassed();
 		}
 
-		particleEmitter.UpdateParticles(deltaTime, Application::Instance->renderer.cameraPos);
+		// Only update particles if playing effect
+		if (isPlaying)
+			particleEmitter.UpdateParticles(deltaTime, Application::Instance->renderer.cameraPos);
+
 		if (particleEmitter.particles)
 		{
 			// Bind shader stuff here
@@ -62,11 +60,14 @@ namespace PlatinumEngine
 			Application::Instance->renderer.SetFloatParticleShader("maxLife", particleEmitter.respawnLifetime);
 			Application::Instance->renderer.SetVec4ParticleShader("StartColour", startColour);
 			Application::Instance->renderer.SetVec4ParticleShader("EndColour", endColour);
-			Application::Instance->renderer.SetTextureParticleShader(particleEmitter.texture, useTexture, particleEmitter.numColsInTexture, particleEmitter.numRowsInTexture);
+			Application::Instance->renderer.SetTextureParticleShader(particleEmitter.texture, useTexture,
+					particleEmitter.numColsInTexture, particleEmitter.numRowsInTexture);
 			Application::Instance->renderer.SetShadeByParticleShader(shadeBy);
 			Application::Instance->renderer.SetFloatParticleShader("minVal", minShadeValue);
 			Application::Instance->renderer.SetFloatParticleShader("maxVal", maxShadeValue);
-
+			Application::Instance->renderer.SetBoolParticleShader("isSpherical",
+					!particleEmitter.useCylindricalBillboard);
+			Application::Instance->renderer.SetVec3ParticleShader("scaleFactors", particleEmitter.scaleFactors);
 			Application::Instance->renderer.particleRenderer.Render();
 			Application::Instance->renderer.EndParticleShader();
 		}

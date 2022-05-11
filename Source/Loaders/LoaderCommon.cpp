@@ -15,8 +15,10 @@ namespace PlatinumEngine
 		const std::map<std::string, std::type_index> EXTENSION_TO_TYPE{
 				{ ".obj", std::type_index(typeid(Mesh)) },
 				{ ".fbx", std::type_index(typeid(Mesh)) },
+				{ ".FBX", std::type_index(typeid(Mesh)) },
 
 				{ ".png", std::type_index(typeid(Texture)) },
+				{ ".jpeg", std::type_index(typeid(Texture)) },
 				// .jpg? .jpeg?
 
 				{ ".wav", std::type_index(typeid(AudioClip)) },

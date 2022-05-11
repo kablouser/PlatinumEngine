@@ -568,12 +568,12 @@ namespace PlatinumEngine{
 			Application::Instance->renderer.SetCameraPos(_camera.GetCameraPosition());
 
 			{
-				Maths::Mat4 scaleMatrix;
-				scaleMatrix.SetScaleMatrix(
-						Maths::Vec3(((float)_near * 2.f), ((float)_near * 2.f), ((float)_near * 2.f)));
-				Maths::Mat4 vpMat =
-						Maths::Inverse(_camera.GetRotationOnlyViewMatrix()) * scaleMatrix * _camera.projectionMatrix4;
-				Application::Instance->renderer.SetCameraPos(_camera.GetCameraPosition());
+//				Maths::Mat4 scaleMatrix;
+//				scaleMatrix.SetScaleMatrix(
+//						Maths::Vec3(((float)_near * 2.f), ((float)_near * 2.f), ((float)_near * 2.f)));
+//				Maths::Mat4 vpMat =
+//						Maths::Inverse(_camera.GetRotationOnlyViewMatrix()) * scaleMatrix * _camera.projectionMatrix4;
+//				Application::Instance->renderer.SetCameraPos(_camera.GetCameraPosition());
 				Application::Instance->scene.LoadLights();
 			}
 			// Render game objects

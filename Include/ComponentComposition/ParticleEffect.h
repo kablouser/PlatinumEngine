@@ -31,6 +31,8 @@ namespace PlatinumEngine
 		// last frame number that this rendered. Used to avoid incrementing the deltaTime multiple times per frame.
 		int lastFrame = -1;
 
+		bool isPlaying = true;
+
 		// TODO:
 		//  Adding interpolation between more than one colour
 		//  Bezier curve interpolation schemes?

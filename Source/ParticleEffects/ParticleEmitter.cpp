@@ -4,6 +4,7 @@
 
 #include <ParticleEffects/ParticleEmitter.h>
 #include <algorithm>
+#include <Maths/Common.h>
 
 namespace PlatinumEngine
 {
@@ -47,7 +48,6 @@ namespace PlatinumEngine
 			// Allocate enough space for all our particles, and so we can index into it straight away
 			_particleContainer = std::make_unique<std::vector<Particle>>(MaxParticles);
 			particles = std::make_unique<std::vector<Particle>>();
-			_mt = std::mt19937(_rd());
 		}
 
 		/**
@@ -62,21 +62,14 @@ namespace PlatinumEngine
 
 			particles->clear();
 
-			// Only spawn particles if enough time has passed
-			_timeSinceLastSpawn += deltaTime;
-			while (_timeSinceLastSpawn > spawnInterval)
+			// When emitting, always respawn particles
+			if (isEmitting)
+				RespawnParticles(deltaTime, false);
+			else if (oneShot)
 			{
-				// Spawn a set number of new particles every spawn interval
-				for (unsigned int i = 0; i < numberOfNewParticles; ++i)
-				{
-					// Find which particle to respawn in the particle container, so we don't infinitely spawn too many
-					unsigned int indexOfDeadParticle = FirstDeadParticle();
-
-					// Now respawn that particle (hopefully it was dead anyway)
-					RespawnParticle(_particleContainer->at(indexOfDeadParticle));
-				}
-
-				_timeSinceLastSpawn -= spawnInterval;
+				// When one shot, only spawn one batch of particles
+				RespawnParticles(deltaTime, true);
+				oneShot = false;
 			}
 
 			// Edit the particles in the container
@@ -99,9 +92,18 @@ namespace PlatinumEngine
 					p.distanceFromCamera = Maths::Length(vector);
 
 					// TODO: Let user choose how to scale particle and by what factor
-//					p.scale = 0.5f * p.life;
+					if (scaleBy == "Constant")
+						p.scale = scaleFactor;
+					if (scaleBy == "Life")
+						p.scale = scaleFactor * p.life;
+					if (scaleBy == "Position")
+						p.scale = scaleFactor * Maths::Length(p.position);
+					if (scaleBy == "Speed")
+						p.scale = scaleFactor * Maths::Length(p.velocity);
 					p.textureIndex = Maths::Vec2(0,0);
-					float lifeAsFraction = p.life / (respawnLifetime);
+					float lifeAsFraction = (p.life) / (respawnLifetime);
+					// Use 2*p.life to run through texture twice, note for later
+					// float lifeAsFraction = (p.life) / (respawnLifetime);
 					int currentIndex = floor(lifeAsFraction * numRowsInTexture * numColsInTexture);
 					int j = currentIndex / numColsInTexture;
 					int k = currentIndex - j * numColsInTexture;
@@ -150,6 +152,43 @@ namespace PlatinumEngine
 			return 0;
 		}
 
+		void ParticleEmitter::RespawnParticles(const float deltaTime, const bool isOneShot)
+		{
+			// Only spawn particles if enough time has passed, or if oneShot is triggered
+			// Only update spawn times if using standard emitting method
+			if (isOneShot)
+			{
+				// Spawn a set number of new particles every spawn interval
+				for (unsigned int i = 0; i < numberOfNewParticles; ++i)
+				{
+					// Find which particle to respawn in the particle container, so we don't infinitely spawn too many
+					unsigned int indexOfDeadParticle = FirstDeadParticle();
+
+					// Now respawn that particle (hopefully it was dead anyway)
+					RespawnParticle(_particleContainer->at(indexOfDeadParticle));
+				}
+
+				// Respawning done for one shot
+				return;
+			}
+
+			// For emission, make sure we spawn enough particles
+			_timeSinceLastSpawn += deltaTime;
+			while (_timeSinceLastSpawn > spawnInterval)
+			{
+				// Spawn a set number of new particles every spawn interval
+				for (unsigned int i = 0; i < numberOfNewParticles; ++i)
+				{
+					// Find which particle to respawn in the particle container, so we don't infinitely spawn too many
+					unsigned int indexOfDeadParticle = FirstDeadParticle();
+
+					// Now respawn that particle (hopefully it was dead anyway)
+					RespawnParticle(_particleContainer->at(indexOfDeadParticle));
+				}
+				_timeSinceLastSpawn -= spawnInterval;
+			}
+		}
+
 		/**
 		 * Given a particle in the particle container, reset its properties
 		 * @param p
@@ -158,32 +197,19 @@ namespace PlatinumEngine
 		{
 			// Respawn by resetting values
 			// Init velocity values
-			float xVelocity = (useRandomInitVelocityX) ? GetRandomFloat(minVelocityX, maxVelocityX) : initVelocity.x;
-			float yVelocity = (useRandomInitVelocityY) ? GetRandomFloat(minVelocityY, maxVelocityY) : initVelocity.y;
-			float zVelocity = (useRandomInitVelocityZ) ? GetRandomFloat(minVelocityZ, maxVelocityZ) : initVelocity.z;
+			float xVelocity = (useRandomInitVelocityX) ? Maths::Random::GetRandom(minVelocityX, maxVelocityX, !useUniformInitVelocityX) : initVelocity.x;
+			float yVelocity = (useRandomInitVelocityY) ? Maths::Random::GetRandom(minVelocityY, maxVelocityY, !useUniformInitVelocityY) : initVelocity.y;
+			float zVelocity = (useRandomInitVelocityZ) ? Maths::Random::GetRandom(minVelocityZ, maxVelocityZ, !useUniformInitVelocityZ) : initVelocity.z;
 			p.velocity = Maths::Vec3(xVelocity, yVelocity, zVelocity);
 
 			// Init position
-			float xPosition = (useRandomInitPositionX) ? GetRandomFloat(minPositionX, maxPositionX) : 0.0f;
-			float yPosition = (useRandomInitPositionY) ? GetRandomFloat(minPositionY, maxPositionY)  : 0.0f;
-			float zPosition = (useRandomInitPositionZ) ? GetRandomFloat(minPositionZ, maxPositionZ)  : 0.0f;
+			float xPosition = (useRandomInitPositionX) ? Maths::Random::GetRandom(minPositionX, maxPositionX, !useUniformRandomPositionX) : 0.0f;
+			float yPosition = (useRandomInitPositionY) ? Maths::Random::GetRandom(minPositionY, maxPositionY, !useUniformRandomPositionY)  : 0.0f;
+			float zPosition = (useRandomInitPositionZ) ? Maths::Random::GetRandom(minPositionZ, maxPositionZ, !useUniformRandomPositionZ)  : 0.0f;
 			p.position = Maths::Vec3(xPosition, yPosition, zPosition);
 
 			p.life = respawnLifetime;
-		}
-
-		/**
-		 * Simple random number generator to generate a float between two values
-		 * @param min
-		 * @param max
-		 * @return
-		 */
-		float ParticleEmitter::GetRandomFloat(const float min, const float max)
-		{
-			// Use next after so distribution is inclusive of max value, i.e.
-			// [min, max] instead of [min, max)
-			std::uniform_real_distribution<float> dist(min, std::nextafter(max, FLT_MAX));
-			return dist(_mt);
+			p.scale = 1.0f; // Normal scale to begin with
 		}
 	}
 }

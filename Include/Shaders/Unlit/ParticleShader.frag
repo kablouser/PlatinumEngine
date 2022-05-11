@@ -69,13 +69,14 @@ vec4 LerpColour(vec4 startColour, vec4 endColour, float t)
 void main()
 {
     // TODO: Modulate with colour
+    vec4 textureColour = vec4(1.0,1.0,1.0,1.0);
     if (useTexture)
     {
         // Compute uv coords for this particle using indices to index into texture atlas
         vec2 coords = vec2(((texCoords.x * spriteWidth) + (textureIndex.x*spriteWidth)) / textureWidth,
                            ((texCoords.y * spriteHeight) + (textureIndex.y*spriteHeight)) / textureHeight);
-        outColour = texture(sampleTexture, coords).rgba;
-        return;
+        textureColour = texture(sampleTexture, coords).rgba;
+//        return;
     }
 
     // Calc interpolator value by mapping range to 0-1
@@ -110,6 +111,8 @@ void main()
     if (curValue > curMax)
         t = 1.0f;
 
-    outColour = LerpColour(StartColour, EndColour, t);
+    vec4 colour = LerpColour(StartColour, EndColour, t);
+
+    outColour =  colour * textureColour;
 }
 )"
