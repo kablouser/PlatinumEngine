@@ -3,6 +3,9 @@
 #-----------------------------
 cmake_minimum_required(VERSION 3.21)
 project(PlatinumEngine VERSION 0.0.2)
+if (APPLE)
+	enable_language(OBJC)
+endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
 # static libraries please
@@ -28,18 +31,18 @@ FetchContent_MakeAvailable(glfw)
 # Dear ImGui
 FetchContent_Declare(imgui GIT_REPOSITORY https://github.com/ocornut/imgui.git GIT_TAG origin/docking)
 FetchContent_MakeAvailable(imgui)
-add_subdirectory("ImGui CMake")
+add_subdirectory("CMake Subfolders/ImGui CMake")
 #-----------------------------
 # ImGuiFileDialog
 add_compile_definitions(USE_BOOKMARK)
 FetchContent_Declare(imguifiledialog GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog.git GIT_TAG v0.6.4)
 FetchContent_MakeAvailable(imguifiledialog)
-include_directories(${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src)
+include_directories(${FETCHCONTENT_BASE_DIR}/imguifiledialog-src)
 #-----------------------------
 # Immediate Mode Plotting (implot)
 FetchContent_Declare(implot GIT_REPOSITORY https://github.com/epezent/implot.git GIT_TAG v0.13)
 FetchContent_MakeAvailable(implot)
-add_subdirectory("ImPlot CMake")
+add_subdirectory("CMake Subfolders/ImPlot CMake")
 #-----------------------------
 # GLM
 FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git GIT_TAG 0.9.9.8)
@@ -67,6 +70,19 @@ set(USE_GLU "Use GLU" ON)
 FetchContent_Declare(glew GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git GIT_TAG glew-cmake-2.2.0)
 FetchContent_MakeAvailable(glew)
 #-----------------------------
+# SDL
+set(SDL_SHARED OFF)
+set(SDL_STATIC ON)
+FetchContent_Declare(sdl GIT_REPOSITORY https://github.com/libsdl-org/SDL.git GIT_TAG 2.0.22-RC1)
+FetchContent_MakeAvailable(sdl)
+set(SDL2_INCLUDE_DIR "${FETCHCONTENT_BASE_DIR}/sdl-src/include")
+#-----------------------------
+# SDL2 Mixer
+FetchContent_Declare(sdl2mixer GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git GIT_TAG release-2.0.4)
+FetchContent_MakeAvailable(sdl2mixer)
+add_subdirectory("CMake Subfolders/SDL2Mixer CMake")
+set(SDL2_MIXER_INCLUDE_DIR "${FETCHCONTENT_BASE_DIR}/sdl2mixer-src")
+#-----------------------------
 # imguizmo
 FetchContent_Declare(imguizmo GIT_REPOSITORY https://github.com/CedricGuillemet/ImGuizmo.git GIT_TAG origin/master)
 FetchContent_MakeAvailable(imguizmo)
@@ -74,7 +90,23 @@ FetchContent_MakeAvailable(imguizmo)
 # stb_image
 FetchContent_Declare(stb GIT_REPOSITORY https://github.com/nothings/stb.git GIT_TAG origin/master)
 FetchContent_MakeAvailable(stb)
-add_subdirectory("stb CMake")
+#----------------------------
+# bullet3 physics library
+FetchContent_Declare(bullet3 GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git GIT_TAG 3.22b)
+FetchContent_MakeAvailable(bullet3)
+#-----------------------------
+# ozz
+set(ozz_build_fbx OFF)
+set(ozz_build_samples OFF)
+set(ozz_build_howtos ON)
+set(ozz_build_tests OFF)
+set(ozz_build_tools ON)
+set(ozz_build_postfix OFF)
+set(ozz_build_simd_ref ON)
+FetchContent_Declare(ozz GIT_REPOSITORY https://github.com/guillaumeblanc/ozz-animation.git GIT_TAG 0.14.0)
+FetchContent_MakeAvailable(ozz)
+
+
 #-----------------------------
 # Add more libraries from git repos here:
 #-----------------------------
@@ -86,23 +118,37 @@ add_subdirectory("stb CMake")
 set(PROJECT_SOURCES_WITHOUT_MAIN
 	# order by folder structure
 
-	"${CMAKE_BINARY_DIR}/_deps/imguifiledialog-src/ImGuiFileDialog.cpp;"
-	"${CMAKE_BINARY_DIR}/_deps/imguizmo-src/ImGuizmo.cpp;"
+	"${FETCHCONTENT_BASE_DIR}/imguifiledialog-src/ImGuiFileDialog.cpp;"
+	"${FETCHCONTENT_BASE_DIR}/imguizmo-src/ImGuizmo.cpp;"
+	
+	"Source/Animation/Animation.cpp;"
+	"Source/Animation/AnimationLocalTimer.cpp;"
 	
 	"Source/AssetDatabase/AssetDatabase.cpp;"
-	"Source/AssetDatabase/AssetHelper.cpp;"
 	
-	"Source/ComponentComposition/CameraComponent.cpp;"
+	"Source/Audio/AudioClip.cpp;"
+	
+	"Source/ComponentComposition/Camera.cpp;"
+	"Source/ComponentComposition/AudioComponent.cpp;"
+	"Source/ComponentComposition/AnimationComponent.cpp;"
 	"Source/ComponentComposition/Color.cpp;"
 	"Source/ComponentComposition/Component.cpp;"
-	"Source/ComponentComposition/ComponentType.cpp;"
 	"Source/ComponentComposition/GameObject.cpp;"
-	"Source/ComponentComposition/RenderComponent.cpp;"
-	"Source/ComponentComposition/TransformComponent.cpp;"
+	"Source/ComponentComposition/MeshRender.cpp;"
+	"Source/ComponentComposition/Transform.cpp;"	
 	"Source/ComponentComposition/LightComponent.cpp;"
 	"Source/ComponentComposition/Objects.cpp;"
+	"Source/ComponentComposition/RigidBody.cpp;"
+	"Source/ComponentComposition/BoxCollider.cpp;"
+	"Source/ComponentComposition/CapsuleCollider.cpp;"
+	"Source/ComponentComposition/SphereCollider.cpp;"
+	"Source/ComponentComposition/Collider.cpp;"
+	"Source/ComponentComposition/ParticleEffect.cpp;"
+
 	
 	"Source/GameWindow/GameWindow.cpp;"
+	
+	"Source/IDSystem/IDSystem.cpp;"
 	
 	"Source/InputManager/InputManager.cpp;"
 	
@@ -127,6 +173,13 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/OpenGL/Texture.cpp;"
 	"Source/OpenGL/Material.cpp;"
 	
+
+	"Source/Physics/Physics.cpp;"
+
+	"Source/ParticleEffects/ParticleEmitter.cpp"
+	"Source/ParticleEffects/ParticleRenderer.cpp;"
+
+	
 	"Source/Profiler/Profiler.cpp;"
 	
 	"Source/Project/ProjectWindow.cpp;"
@@ -138,18 +191,18 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	
 	"Source/SceneManager/HierarchyWindow.cpp;"
 	"Source/SceneManager/Scene.cpp;"
-	"Source/SceneManager/SceneManager.cpp;"
+	
+	"Source/TypeDatabase/TypeDatabase.cpp;"
+	"Source/TypeDatabase/TypeDatabaseInit.cpp;"
 	
 	"Source/WindowManager/Filedialog.cpp;"
 	"Source/WindowManager/WindowManager.cpp;"
+	
+	"Source/Application.cpp;"
 	)
 
 add_executable(${PROJECT_NAME} Source/main.cpp ${PROJECT_SOURCES_WITHOUT_MAIN})
-
-
-target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include" "${CMAKE_CURRENT_LIST_DIR}/Fonts" "${FETCHCONTENT_BASE_DIR}/imguizmo-src" "${FETCHCONTENT_BASE_DIR}/stb-src")
 #-----------------------------
-
 
 #-----------------------------
 # IMPORTANT SECTION! Unit testing
@@ -160,13 +213,31 @@ set(UNIT_TESTS
 	"Test/Maths/VectorsTest.cpp;"
 	"Test/Maths/MatricesTest.cpp;"
 	"Test/SceneEditor/EditorCameraTest.cpp;"
-  	"Test/TestScene.cpp;"
-	)
+	"Test/TypeDatabase/TestTypeDatabase.cpp;"
+	"Test/IDSystem/TestIDSystem.cpp;"
+	Include/Animation/AnimationLocalTimer.h Source/Animation/AnimationLocalTimer.cpp)
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
-
-target_include_directories(tests PRIVATE "${CMAKE_CURRENT_LIST_DIR}/Include")
 #-----------------------------
 
+
+#-----------------------------
+# IMPORTANT SECTION! Include files
+#-----------------------------
+# list of folders to include
+set(PROJECT_INCLUDES
+	"Include;"
+	"Fonts;"
+	"${FETCHCONTENT_BASE_DIR}/imguizmo-src;"
+	"${FETCHCONTENT_BASE_DIR}/stb-src;"
+	"${FETCHCONTENT_BASE_DIR}/bullet3-src/src"
+ 	"${SDL2_INCLUDE_DIR}" 
+    "${SDL2_MIXER_INCLUDE_DIR}"
+	)
+	
+# different targets
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDES})
+target_include_directories(tests PRIVATE ${PROJECT_INCLUDES})
+#-----------------------------
 
 #-----------------------------
 # Linking libraries
@@ -181,7 +252,21 @@ set(PROJECT_LIBRARIES
 	"glm;"
 	"assimp;"
 	"libglew_static;"
+
+	# Bullet3D libs
+	"BulletDynamics;"
+	"Bullet3Common;"
+	"BulletCollision;"
+	"LinearMath;"
+	#"BulletInverseDynamics;"
+	#"BulletSoftBody;" #shouldnt be necessary
+
+	"SDL2_mixer;"
+
+	"ozz_animation;"
+	"ozz_animation_offline;"
   )
+
 # different targets
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_LIBRARIES})
 target_link_libraries(tests PRIVATE ${PROJECT_LIBRARIES} Catch2::Catch2WithMain)

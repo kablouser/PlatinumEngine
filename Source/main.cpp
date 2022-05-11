@@ -10,18 +10,36 @@
 #include <InputManager/InputManager.h>
 #include <Renderer/Renderer.h>
 #include <WindowManager/WindowManager.h>
+#include <TypeDatabase/TypeDatabase.h>
 
 #include <AssetDatabase/AssetHelper.h>
 
 #include <OpenGL/GLCheck.h>
 
-static void GlfwErrorCallback(int error, const char* description)
+#define SDL_MAIN_HANDLED
+#include <SDL.h>
+#include <SDL_mixer.h>
+
+void GlfwErrorCallback(int error, const char* description)
 {
-	std::cerr << "Glfw Error " << error << ": " << description << std::endl;
+	PLATINUM_ERROR_STREAM << "Glfw Error " << error << ": " << description;
 }
 
 int main(int, char**)
 {
+	PLATINUM_INFO("Platinum Engine Started.");
+
+	if (SDL_Init(SDL_INIT_AUDIO) < 0)
+	{
+		PLATINUM_ERROR_STREAM << "SDL could not initialize! SDL Error: " << SDL_GetError();
+		return EXIT_FAILURE;
+	}
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0)
+	{
+		PLATINUM_ERROR_STREAM << "Failed to open audio! Mix Error: " << Mix_GetError();
+		return EXIT_FAILURE;
+	}
+
 	// Setup window
 	glfwSetErrorCallback(GlfwErrorCallback);
 	if (!glfwInit())
@@ -41,7 +59,6 @@ int main(int, char**)
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
 
-
 	{
 		// this scope has a valid OpenGL context initialised
 
@@ -49,9 +66,9 @@ int main(int, char**)
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImPlot::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		ImGuiIO& io = ImGui::GetIO();
 
-		const ImWchar aw_icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0};
+		const ImWchar aw_icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 
 		ImFontConfig config;
 		config.MergeMode = true;
@@ -76,26 +93,18 @@ int main(int, char**)
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
-		// construct logger before everything to save all logs
-		PlatinumEngine::Profiler profiler;
-		PlatinumEngine::AssetDatabase assetDatabase;
-		PlatinumEngine::AssetHelper assetHelper(&assetDatabase);
-		PlatinumEngine::Logger logger;
-		PlatinumEngine::InputManager inputManager;
-		PlatinumEngine::Renderer rasterRenderer;
-		PlatinumEngine::Scene scene;
-		PlatinumEngine::SceneEditor sceneEditor(&inputManager, &scene, &rasterRenderer, &assetHelper);
+		PlatinumEngine::Application application;
 
-		PlatinumEngine::HierarchyWindow hierarchyWindow(&sceneEditor, &assetHelper);
-		PlatinumEngine::InspectorWindow inspectorWindow(&assetHelper, &sceneEditor);
+		// create assets
+		application.assetDatabase.Update(application.idSystem, application.scene);
 
-		PlatinumEngine::GameWindow gameWindow(&inputManager, &scene, &rasterRenderer);
-		PlatinumEngine::ProjectWindow projectWindow(&scene, &assetHelper, &sceneEditor);
-		PlatinumEngine::WindowManager windowManager(&gameWindow, &sceneEditor, &hierarchyWindow, &logger, &inspectorWindow, &profiler, &projectWindow);
+		// load default scene
+		application.scene.LoadFile("Assets/Default.scene");
 
 		// Main loop
 		while (!glfwWindowShouldClose(window))
 		{
+			application.time.Update();
 			{
 				PlatinumEngine::Profiler::Frame frame;
 
@@ -120,10 +129,10 @@ int main(int, char**)
 					PlatinumEngine::Profiler::Section dockingSection("Docking");
 					ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 				}
-				
+
 				{
 					PlatinumEngine::Profiler::Section windowManagerSection("Window Manager");
-					windowManager.ShowGUI(scene);
+					application.windowManager.ShowGUI();
 				}
 
 				//--------------------------------------------------------------------------------------------------------------
@@ -148,11 +157,9 @@ int main(int, char**)
 			}
 			// don't include swap buffers function in the frame for profiling
 			// swap buffers waits for vsync
-	
+
 			glfwSwapBuffers(window);
 		}
-
-
 
 		// Cleanup ImGui
 		ImGui_ImplOpenGL3_Shutdown();
@@ -164,6 +171,9 @@ int main(int, char**)
 	// Cleanup glfw
 	glfwDestroyWindow(window);
 	glfwTerminate();
+
+	Mix_Quit();
+	SDL_Quit();
 
 	return EXIT_SUCCESS;
 }

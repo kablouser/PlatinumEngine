@@ -75,10 +75,16 @@ namespace PlatinumEngine
 				vertices, indices);
 	}
 
-	void ShaderInput::Set(const std::vector<Maths::Vec3>& vertices, const std::vector<GLuint>& indices)
+	void ShaderInput::Set(const std::vector<AnimationVertex>& vertices, const std::vector<GLuint>& indices)
 	{
-		SetGeneric<Maths::Vec3, GLuint>({
-						{ GL_FLOAT, 3, 0}
+		SetGeneric<AnimationVertex, GLuint>({
+						{ GL_FLOAT, 3, offsetof(AnimationVertex, position)},
+						{ GL_FLOAT, 3, offsetof(AnimationVertex, normal) },
+						{ GL_FLOAT, 2, offsetof(AnimationVertex, textureCoords) },
+						{ GL_FLOAT, 3, offsetof(AnimationVertex, tangent) },
+						{ GL_FLOAT, 3, offsetof(AnimationVertex, biTangent) },
+						{ GL_FLOAT, 4, offsetof(AnimationVertex, trackIDs) },
+						{ GL_FLOAT, 4, offsetof(AnimationVertex, weights) }
 						},
 				vertices, indices);
 	}
@@ -116,11 +122,15 @@ namespace PlatinumEngine
 	void ShaderInput::Set(
 			const std::vector<VertexAttribute>& vertexAttributes,
 
+			// vertices info for vbo
 			size_t sizeOfVertex,
 			size_t verticesLength,
 			const void* vertices,
 
+
 			GLenum typeOfIndex,
+
+			// indices info for ebo
 			size_t sizeOfIndex,
 			size_t indicesLength,
 			const void* indices,
@@ -150,6 +160,8 @@ namespace PlatinumEngine
 		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _elementBufferObject));
 		GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeOfIndex * indicesLength, indices, usage));
 
+
+		// vertices array attributes (info that are not belong to vbo or ebo)
 		_vertexAttributesLength = vertexAttributes.size();
 		for (size_t i = 0; i < vertexAttributes.size(); ++i)
 		{

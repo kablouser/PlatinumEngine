@@ -5,38 +5,43 @@
 #include <random>
 #include <filesystem>
 
-#include <OpenGL/Mesh.h>
-#include <OpenGL/Texture.h>
+#include <TypeDatabase/TypeDatabase.h>
+#include <SceneManager/Scene.h>
+
 namespace PlatinumEngine
 {
 	//--------------------------------------------------------------------------------------------------------------
 	// Types
 	//--------------------------------------------------------------------------------------------------------------
 
-	typedef size_t AssetID;
 	typedef uint64_t HashType;
 
 	struct Asset
 	{
-		// note: id is NOT hash
-		AssetID id;
-		HashType hash;
+		IDSystem::ID id;
+		HashType hash; // not related to id
 		bool doesExist;
 		std::filesystem::path path;
+
+		std::type_index GetTypeIndex() const; // implied from path
 	};
 
-	/**
-	 * Same as AssetID, but guarantees this is Mesh
-	 */
-	struct MeshAssetID
+	// Helper functions when you know the exact type of the asset
+	template<typename T>
+	struct AssetWithType
 	{
-		AssetID id;
+		Asset asset;
+
+		/**
+		 * @param fromIDSystem using ids inside this system
+		 * @return if loading was bad null, otherwise something non-null
+		 */
+		SavedReference<T> GetSavedReference(IDSystem& fromIDSystem) const
+		{
+			return fromIDSystem.template GetSavedReference<T>(asset.id);
+		}
 	};
 
-	struct TextureAssetID
-	{
-		AssetID id;
-	};
 	/**
 	 * Keeps track of assets in assets folder, loads them, and manages a database file.
 	 */
@@ -89,33 +94,22 @@ namespace PlatinumEngine
 
 		AssetDatabase(std::string assetsFolderPath, std::string assetDatabasePath);
 
-		~AssetDatabase();
-
 		//--------------------------------------------------------------------------------------------------------------
 		// Getters
 		//--------------------------------------------------------------------------------------------------------------
 
 		/**
-		 * Attempt to retrieve asset using its id from database
-		 * @param id key
-		 * @param outAsset output asset if found, could be non-existent asset
-		 * @return true iff id is in database
+		 * Attempt to retrieve asset using its path
+		 * @param withPath match with equivalent path
+		 * @return {true, something} if path is in database, otherwise {false, nullptr}
 		 */
-		bool TryGetAsset(AssetID id, Asset& outAsset);
-
-		/**
-		 * Attempt to retrieve asset using its filePath from database
-		 * @param filePath to match
-		 * @param outAsset output asset if found, could be non-existent asset
-		 * @return true iff filePath is in database
-		 */
-		bool TryGetAsset(const std::string& filePath, Asset& outAsset);
+		std::pair<bool, const Asset*> GetAsset(std::filesystem::path withPath);
 
 		/**
 		 * nodiscard means compiler creates warning if you don't use this function's return value
 		 * @return readonly database
 		 */
-		[[nodiscard]] const std::vector<Asset>& GetDatabase() const;
+		[[nodiscard]] const std::vector<Asset>& GetAssets() const;
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Database controls
@@ -150,80 +144,49 @@ namespace PlatinumEngine
 		 * 3. write to database file
 		 * 4. ReloadAssets()
 		 */
-		void Update();
-
-		/**
-		 * Loaded assets are deleted. Then loads existent assets in database.
-		 * TODO only load assets that are in-use, otherwise leave them alone
-		 */
-		void ReloadAssets();
+		void Update(IDSystem& idSystem, Scene& scene);
 
 		//--------------------------------------------------------------------------------------------------------------
 		// Get Loaded Asset functions
 		//--------------------------------------------------------------------------------------------------------------
 
-		//Mesh
-		/**
-		 * nodiscard means compiler creates warning if you don't use this function's return value
-		 * @param requireExist if true, return only existent assets
-		 * @return MeshAssetID that are in the database
-		 */
-		[[nodiscard]] std::vector<MeshAssetID> GetMeshAssetIDs(bool requireExist = true) const;
+		template<typename T>
+		std::vector<AssetWithType<T>> GetAssets()
+		{
+			auto findAssetIndices = _assetIndicesByType.find(std::type_index(typeid(T)));
+			if (findAssetIndices == _assetIndicesByType.end())
+				return {};
+			else
+			{
+				std::vector<AssetWithType<T>> results(findAssetIndices->second.size());
+				for (size_t i = 0; i < findAssetIndices->second.size(); ++i)
+					results[i] = { _assets.at(findAssetIndices->second[i]) };
+				return results;
+			}
+		}
 
-		/**
-		 * Get a mesh object from id. The object (if not null) is guaranteed to be loaded/ready
-		 * @param meshAssetID to match
-		 * @return nullptr if id doesn't exist or it's not a mesh, otherwise a loaded/ready mesh object
-		 */
-		Mesh* GetLoadedMeshAsset(MeshAssetID meshAssetID);
-
-		/**
-		 * Get a mesh object from id. The object (if not null) is guaranteed to be loaded/ready
-		 * @param meshAssetID to match
-		 * @return nullptr if id doesn't exist or it's not a mesh, otherwise a loaded/ready mesh object
-		 */
-		Mesh* operator[](MeshAssetID meshAssetID);
-
-		//Texture
-		[[nodiscard]] std::vector<TextureAssetID> GetTextureAssetIDs(bool requireExist = true) const;
-
-		Texture* GetLoadedTextureAsset(TextureAssetID textureAssetID);
-
-		Texture* operator[](TextureAssetID TextureAssetID);
 
 	private:
 
 		std::string _assetsFolderPath;
 		std::string _assetDatabasePath;
 
-		std::vector<Asset> _database;
+		std::vector<Asset> _assets;
+		// only loaded assets are inside this data structure
+		std::map<std::type_index, std::vector<std::size_t>> _assetIndicesByType;
 
-		// maps assetID to database index
-		std::map<AssetID, size_t> _assetIDsMap;
-
-		// random number generator
-		std::mt19937 _generator;
-		std::uniform_int_distribution<AssetID> _anyNumber;
-
-		// pointers to loaded in assets
-		std::vector<void*> _loadedAssets;
-		// Assets loaded in their classes/structures appropriately
-		std::vector<Mesh*> _loadedMeshAssets;
-
-		std::vector<Texture*> _loadedTextureAssets;
 		//--------------------------------------------------------------------------------------------------------------
 		// Internal
 		//--------------------------------------------------------------------------------------------------------------
 
-		/**
-		 * @return an unique AssetID that's not in database currently
-		 */
-		AssetID GenerateAssetID();
+		// Clears _assetIndicesByType and rebuilds its structure
+		void RebuildStoredMap();
 
-		/**
-		 * Clears _assetIDsMap and rebuilds its structure
-		 */
-		void RebuildAssetIDsMap();
+		// Creates all current assets into the idSystem. Existing IDs' are overwritten.
+		void CreateAssets(IDSystem& idSystem);
+
+		// Removes all current assets from the fromIDSystem
+		void RemoveAssets(IDSystem& fromIDSystem);
 
 		/**
 		 * Updates the database with list of current existing paths
@@ -232,8 +195,7 @@ namespace PlatinumEngine
 		 */
 		void UpdateWithCurrentPaths(
 				const std::vector<std::filesystem::path>& currentExistingPaths,
+				IDSystem& idSystem,
 				bool debugMessages = true);
-
-		void DeleteLoadedAssets();
 	};
 }

@@ -18,7 +18,6 @@
 #include <SceneManager/Scene.h>
 #include <SceneEditor/SceneEditor.h>
 #include <Logger/Logger.h>
-#include "AssetDatabase/AssetHelper.h"
 
 
 namespace PlatinumEngine
@@ -31,12 +30,11 @@ namespace PlatinumEngine
 		/**
 		 * Function that show Hierarchy window
 		 * @param isOpen : status of this window (open or not)
-		 * @param scene : scene object reference that carries the game object hierarchy structure
 		 */
-		void ShowGUIWindow(bool* isOpen, Scene& scene);
+		void ShowGUIWindow(bool* isOpen);
 
 		// ---> CONSTRUCTOR
-		HierarchyWindow(SceneEditor* sceneEditor, AssetHelper* assetHelper);
+		HierarchyWindow();
 
 		// ---> PARAMETER
 
@@ -51,11 +49,11 @@ namespace PlatinumEngine
 		 * @param gameObject : the game object that is processing
 		 * @param scene : scene object reference that carries the game object hierarchy structure
 		 */
-		void DisplayTreeNote(GameObject* gameObject, Scene& scene, ModeForDraggingBehavior modeForDraggingBehavior);
+		void DisplayTreeNote(
+				SavedReference<GameObject>& gameObject,
+				ModeForDraggingBehavior modeForDraggingBehavior);
 
 		// ---> PARAMETER
 		ModeForDraggingBehavior _modeForDraggingBehavior;
-		SceneEditor* _sceneEditor;
-		AssetHelper* _assetHelper;
 	};
 }

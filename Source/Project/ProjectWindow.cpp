@@ -3,14 +3,16 @@
 //
 
 #include <Project/ProjectWindow.h>
-#include "ComponentComposition/GameObject.h"
-#include "ComponentComposition/TransformComponent.h"
-#include "ComponentComposition/RenderComponent.h"
+#include <ComponentComposition/GameObject.h>
+#include <ComponentComposition/Transform.h>
+#include <ComponentComposition/MeshRender.h>
+#include <Application.h>
+#include <AssetDatabase/AssetHelper.h>
+#include <SceneManager/SceneWithTemplates.h>
 
 using namespace PlatinumEngine;
 
-ProjectWindow::ProjectWindow(Scene* scene, AssetHelper* assetHelper, SceneEditor* sceneEditor): _scene(scene), _assetHelper(assetHelper), _sceneEditor(sceneEditor)
-{}
+ProjectWindow::ProjectWindow() = default;
 
 void ProjectWindow::ShowGUIWindow(bool* isOpen)
 {
@@ -113,33 +115,33 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 				{
 					if(dir.extension()==".obj")
 					{
-						GameObject* go = _scene->AddGameObject(dir.stem().string());
-						_scene->AddComponent<TransformComponent>(go);
-						_scene->AddComponent<RenderComponent>(go);
-						auto asset_Helper = _assetHelper->GetMeshAsset(dir.string());
+						SavedReference<GameObject> go = Application::Instance->scene.AddGameObject(dir.stem().string());
+						Application::Instance->scene.AddComponent<Transform>(go);
+						Application::Instance->scene.AddComponent<MeshRender>(go);
+						auto asset_Helper = AssetHelper::GetAsset<Mesh>(dir.string());
 						if (std::get<0>(asset_Helper))
-							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+							go.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(std::get<1>(asset_Helper));
 					}
 				}
 				if(dir.extension()==".png")
 				{
-					GameObject* go = _sceneEditor->GetSelectedGameobject();
-					if(go == nullptr)
+					SavedReference<GameObject> go = Application::Instance->sceneEditor.GetSelectedGameobject();
+					if(go.DeRef() == nullptr)
 						ImGui::CloseCurrentPopup();
 					if (ImGui::Selectable("Add Texture"))
 					{
-							auto asset_Helper = _assetHelper->GetTextureAsset(dir.string());
+							auto asset_Helper = AssetHelper::GetAsset<Texture>(dir.string());
 							if (std::get<0>(asset_Helper))
 							{
-								go->GetComponent<RenderComponent>()->SetMaterial(std::get<1>(asset_Helper));
-								go->GetComponent<RenderComponent>()->material.useTexture = true;
+								go.DeRef()->GetComponent<MeshRender>().DeRef()->SetMaterial(std::get<1>(asset_Helper));
+								go.DeRef()->GetComponent<MeshRender>().DeRef()->material.useTexture = true;
 							}
 					}
 					if (ImGui::Selectable("Add Normal"))
 					{
-							auto asset_Helper = _assetHelper->GetTextureAsset(dir.string());
+							auto asset_Helper = AssetHelper::GetAsset<Texture>(dir.string());
 							if (std::get<0>(asset_Helper))
-								go->GetComponent<RenderComponent>()->SetNormalMap(std::get<1>(asset_Helper));
+								go.DeRef()->GetComponent<MeshRender>().DeRef()->SetNormalMap(std::get<1>(asset_Helper));
 					}
 				}
 				ImGui::EndPopup();

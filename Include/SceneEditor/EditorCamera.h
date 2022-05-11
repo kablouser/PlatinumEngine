@@ -56,7 +56,7 @@ namespace PlatinumEngine
 		 * based on the mouse wheel delta value.
 		 * @param wheelDelta
 		 */
-		void TranslationByMouse(float wheelDelta);
+		void ChangeSpeedScale(float wheelDelta);
 
 		/**
 		 * Accept keyboard input and translate camera
@@ -127,11 +127,15 @@ namespace PlatinumEngine
 
 		/**
 		 * Return the rotation part of the view matrix
-		 * @return
+		 * @return : the rotation part of the view matrix
 		 */
 		Maths::Mat4 GetRotationOnlyViewMatrix();
 
-		Maths::Vec3 GetPos() const;
+		/**
+		 * Set camera position by the input position value
+		 * @param newPosition : the position that we want to move to
+		 */
+		void SetCameraPosition(Maths::Vec3 newPosition);
 
 		// ___CONSTRUCTOR___
 		EditorCamera();
@@ -149,8 +153,10 @@ namespace PlatinumEngine
 		Maths::Vec3 _translationValue;
 
 		// device input data
-		float _translationSpeed = 0.05;
+		float _translationSpeed = 0.1;
 		float _rotationSpeed = 0.002;
+		// the translation speed multiplier
+		float _speedScale = 1.0f;
 
 	};
 

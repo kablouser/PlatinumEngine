@@ -8,24 +8,21 @@
 // Platinum library
 #include "ComponentComposition/Objects.h"
 #include <SceneEditor/SceneEditor.h>
-#include <ComponentComposition/TransformComponent.h>
-#include <ComponentComposition/RenderComponent.h>
-
+#include <ComponentComposition/Transform.h>
+#include <ComponentComposition/MeshRender.h>
+#include <AssetDatabase/AssetHelper.h>
+#include <SceneManager/SceneWithTemplates.h>
 
 namespace PlatinumEngine{
 
 	// ___CONSTRUCTOR___
 
-	SceneEditor::SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer, AssetHelper* assetHelper):
+
+	SceneEditor::SceneEditor():
 			_ifCameraSettingWindowOpen(false),
 			_camera(), _fov(60), _near(0.1), _far(10000),
 
-			_inputManager(inputManager),
-			_scene(scene),
-			_renderer(renderer),
 			_renderTexture(),
-
-			_selectedGameobject(nullptr),
 
 			_mouseMoveDelta(0, 0) ,
 			_mouseButtonType(-1),
@@ -47,11 +44,9 @@ namespace PlatinumEngine{
 			_skyBoxShaderInput(),
 			_transparency(1.0),
 
-			_enableGrid(false),
-			_enableSkyBox(false),
-			_xGrid(false), _yGrid(true), _zGrid(false),
-
-			_assetHelper(assetHelper)
+			_enableGrid(true),
+			_enableSkyBox(true),
+			_xGrid(false), _yGrid(true), _zGrid(false)
 	{
 
 		// Setup skybox texture
@@ -70,8 +65,10 @@ namespace PlatinumEngine{
 		CreateGridShaderInput();
 
 		// Setup input manager
-		_inputManager->CreateAxis(std::string ("HorizontalAxisForEditorCamera"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
-		_inputManager->CreateAxis(std::string ("VerticalAxisForEditorCamera"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
+		Application::Instance->inputManager.CreateAxis(std::string ("HorizontalAxisForEditorCamera"), GLFW_KEY_RIGHT, GLFW_KEY_LEFT, InputManager::AxisType::keyboardMouseButton);
+		Application::Instance->inputManager.CreateAxis(std::string ("VerticalAxisForEditorCamera"), GLFW_KEY_UP, GLFW_KEY_DOWN, InputManager::AxisType::keyboardMouseButton);
+
+		Application::Instance->inputManager.CreateAxis(std::string ("ControlSpeed"), GLFW_KEY_EQUAL,GLFW_KEY_MINUS, InputManager::AxisType::keyboardMouseButton);
 
 		// Setup frame buffer
 		_framebufferWidth = 1;
@@ -91,14 +88,18 @@ namespace PlatinumEngine{
 		//-------------------------------------------
 		if (ImGui::Begin(ICON_FA_IMAGE " Scene Editor", outIsOpen))
 		{
-			if(ImGui::IsKeyPressed(GLFW_KEY_Q))
-				_currentGizmoOperation = ImGuizmo::TRANSLATE;
-			if(ImGui::IsKeyPressed(GLFW_KEY_W))
-				_currentGizmoOperation = ImGuizmo::ROTATE;
-			if(ImGui::IsKeyPressed(GLFW_KEY_E))
-				_currentGizmoOperation = ImGuizmo::SCALE;
-			if(ImGui::IsKeyPressed(GLFW_KEY_R))
-				_currentGizmoOperation = ImGuizmo::UNIVERSAL;
+			// the render window is a child window
+			if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
+			{
+				if (ImGui::IsKeyPressed(GLFW_KEY_Q))
+					_currentGizmoOperation = ImGuizmo::TRANSLATE;
+				if (ImGui::IsKeyPressed(GLFW_KEY_W))
+					_currentGizmoOperation = ImGuizmo::ROTATE;
+				if (ImGui::IsKeyPressed(GLFW_KEY_E))
+					_currentGizmoOperation = ImGuizmo::SCALE;
+				if (ImGui::IsKeyPressed(GLFW_KEY_R))
+					_currentGizmoOperation = ImGuizmo::UNIVERSAL;
+			}
 			//-----------
 			// Widgets
 			//-----------
@@ -111,6 +112,7 @@ namespace PlatinumEngine{
 			{
 				ImGui::SetTooltip("Scene Camera");
 			}
+
 			//translate, rotate, scale button
 			ImGui::SameLine();
 			if (_currentGizmoOperation != ImGuizmo::SCALE)
@@ -133,7 +135,6 @@ namespace PlatinumEngine{
 					if(_currentGizmoMode == ImGuizmo::WORLD)
 						ImGui::SetTooltip("Global gizmo");
 				}
-
 			}
 			else if(_currentGizmoOperation == ImGuizmo::SCALE)
 			{
@@ -145,34 +146,42 @@ namespace PlatinumEngine{
 			}
 
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT "##Translate"))
+			if(ImGui::Checkbox("##turn_on_off_gizmo", &_onObjectGizmo)) {}
+			if(ImGui::IsItemHovered())
+				ImGui::SetTooltip("turn on or off the gizmo");
+
+			ImGui::SameLine();
+			ImGui::Text(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT);
+			ImGui::SameLine();
+			if (ImGui::RadioButton("##Translate", _currentGizmoOperation == ImGuizmo::TRANSLATE))
 				_currentGizmoOperation = ImGuizmo::TRANSLATE;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("Translate");
 
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_ROTATE "##Rotate"))
+			ImGui::Text(ICON_FA_ROTATE);
+			ImGui::SameLine();
+			if (ImGui::RadioButton("##Rotate", _currentGizmoOperation == ImGuizmo::ROTATE))
 				_currentGizmoOperation = ImGuizmo::ROTATE;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("Rotate");
 
 			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_MAXIMIZE "##Scale"))
+			ImGui::Text(ICON_FA_MAXIMIZE);
+			ImGui::SameLine();
+			if (ImGui::RadioButton("##Scale", _currentGizmoOperation == ImGuizmo::SCALE))
 				_currentGizmoOperation = ImGuizmo::SCALE;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("Scale");
 
 			ImGui::SameLine();
-			if (ImGui::Button( ICON_FA_SLIDERS "##Universal"))
+			ImGui::Text(ICON_FA_SLIDERS);
+			ImGui::SameLine();
+			if (ImGui::RadioButton("##Universal", _currentGizmoOperation == ImGuizmo::UNIVERSAL))
 				_currentGizmoOperation = ImGuizmo::UNIVERSAL;
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("translate, rotate and scale");
-			ImGui::SameLine();
 
-			if(ImGui::Checkbox("##turn_on_off_gizmo", &_onObjectGizmo)) {}
-			if(ImGui::IsItemHovered())
-				ImGui::SetTooltip("turn on or off the gizmo");
-			ImGui::SameLine();
 			// grid and skybox
 			if (ImGui::BeginPopupContextItem("grid"))
 			{
@@ -194,18 +203,19 @@ namespace PlatinumEngine{
 				ImGui::Text("Opacity");
 				ImGui::SameLine();
 				ImGui::SetNextItemWidth(70.f);
-				ImGui::SliderFloat("##Opacity", &_transparency, 0.0f, 1.0f, "%.2f");
+				ImGui::SliderFloat("##Opacity", &_transparency, 0.0f, 10.0f, "%.01f");
 				ImGui::EndPopup();
 			}
 
-			if(ImGui::Button(_transparency ? ICON_FA_BORDER_ALL "##enable###gridTransparency" : ICON_FA_BORDER_NONE "##disable###gridTransparency"))
+			ImGui::SameLine(0, ImGui::GetStyle().ItemSpacing.x * 4.0f);
+			if(ImGui::Button(_enableGrid ? ICON_FA_BORDER_ALL "##enable###gridTransparency" : ICON_FA_BORDER_NONE "##disable###gridTransparency"))
 			{
 				_enableGrid = !_enableGrid;
 			}
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("turn on or off the grid");
 
-			ImGui::SameLine(260.f);
+			ImGui::SameLine();
 			if(ImGui::Button(ICON_FA_CARET_DOWN "##GridDetail"))
 			{
 				ImGui::OpenPopup("grid");
@@ -218,7 +228,14 @@ namespace PlatinumEngine{
 			}
 			if(ImGui::IsItemHovered())
 				ImGui::SetTooltip("turn on or off the skybox");
-			ImGui::Checkbox("Bound Sizing", &_boundSizing);
+
+			ImGui::SameLine();
+			ImGui::Text("Bound Sizing");
+			ImGui::SameLine();
+			ImGui::Checkbox("##BoundSizing", &_boundSizing);
+			if(ImGui::IsItemHovered())
+				ImGui::SetTooltip("Bound Sizing");
+
 			//-------------
 			// Sub window
 			//-------------
@@ -286,9 +303,9 @@ namespace PlatinumEngine{
 			if(ImGui::BeginChild("##renderingWindow",ImVec2(targetSize.x, targetSize.y), false,ImGuiWindowFlags_NoMove))
 			{
 				//------------------
-				// Update Data
+				// Render Data
 				//------------------
-				Update(targetSize, isProjectionUpdated, _currentGizmoMode, _currentGizmoOperation);
+				Render(targetSize, isProjectionUpdated, _currentGizmoMode, _currentGizmoOperation);
 			}
 			ImGui::EndChild();
 			if(ImGui::BeginDragDropTarget())
@@ -303,13 +320,13 @@ namespace PlatinumEngine{
 					std::filesystem::path payloadPath = std::filesystem::path(filePath);
 					if(payloadPath.extension()==".obj")
 					{
-						GameObject* go = _scene->AddGameObject(payloadPath.stem().string());
-						_scene->AddComponent<TransformComponent>(go);
-						_scene->AddComponent<RenderComponent>(go);
+						SavedReference<GameObject> go = Application::Instance->scene.AddGameObject(payloadPath.stem().string());
+						Application::Instance->scene.AddComponent<Transform>(go);
+						Application::Instance->scene.AddComponent<MeshRender>(go);
 						//Now we set the mesh
-						auto asset_Helper = _assetHelper->GetMeshAsset(payloadPath.string());
+						auto asset_Helper = AssetHelper::GetAsset<Mesh>(payloadPath.string());
 						if (std::get<0>(asset_Helper))
-							go->GetComponent<RenderComponent>()->SetMesh(std::get<1>(asset_Helper));
+							go.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(std::get<1>(asset_Helper));
 						_selectedGameobject = go;
 					}
 				}
@@ -324,27 +341,28 @@ namespace PlatinumEngine{
 
 
 
-	void SceneEditor::Update(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
+	void SceneEditor::Render(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation)
 	{
-
-		//--------------------------------
-		// update mouse && keyboard input
-		//--------------------------------
-		_mouseButtonType = _inputManager->GetMouseDown();
-		_mouseMoveDelta  = _inputManager->GetMouseMoveVector();
-		_wheelValueDelta = _inputManager->GetMouseWheelDeltaValue();
-
 		//--------------------------------------
-		// check if mouse is inside the screen
+		// Check mouse input. Only when mouse is inside this render window and ImGuizmo is not being used.
 		//--------------------------------------
-
-		if (   _inputManager->GetMousePosition().x <= ImGui::GetWindowContentRegionMax().x
-			&& _inputManager->GetMousePosition().x >= ImGui::GetWindowContentRegionMin().x
-			&& _inputManager->GetMousePosition().y <= ImGui::GetWindowContentRegionMax().y
-			&& _inputManager->GetMousePosition().y >= ImGui::GetWindowContentRegionMin().y
-			&& ImGui::IsWindowFocused()
-			&& !ImGuizmo::IsUsing())
+		if (ImGui::IsWindowHovered() && !ImGuizmo::IsOver())
 		{
+			//--------------------------------
+			// update mouse && keyboard input
+			//--------------------------------
+			_mouseButtonType = Application::Instance->inputManager.GetMouseDown();
+			_mouseMoveDelta  = Application::Instance->inputManager.GetMouseMoveVector();
+			_wheelValueDelta = Application::Instance->inputManager.GetMouseWheelDeltaValue();
+
+			//---------------------------------------------
+			// check if the mouse is selecting game object
+			//---------------------------------------------
+			if (Application::Instance->inputManager.IsMouseClicked(0))
+			{
+				SelectGameObjectFromScene();
+				ImGui::SetWindowFocus();
+			}
 
 			//---------------------
 			// update view matrix
@@ -354,28 +372,56 @@ namespace PlatinumEngine{
 			if (_mouseButtonType == 0)// translation (up down left right)
 			{
 				_camera.TranslationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
+				ImGui::SetWindowFocus();
 			}
 			else if (_mouseButtonType == 1) // for rotation
 			{
 				_camera.RotationByMouse(Maths::Vec2(_mouseMoveDelta.x, _mouseMoveDelta.y));
+				ImGui::SetWindowFocus();
 			}
-			// check this is for moving camera closer/further
-			if (_wheelValueDelta != 0)
-			{
-				_camera.TranslationByMouse(_wheelValueDelta);
-			}
+			// no checks, this is cheap
+			_camera.ChangeSpeedScale(_wheelValueDelta);
 
 		}
 
-		// check if there is any keyboard input
-		if (_inputManager->IsKeyPressed(GLFW_KEY_UP) || _inputManager->IsKeyPressed(GLFW_KEY_DOWN) ||
-			_inputManager->IsKeyPressed(GLFW_KEY_LEFT) || _inputManager->IsKeyPressed(GLFW_KEY_RIGHT))
-			_camera.TranslationByKeyBoard(_inputManager->GetAxis("VerticalAxisForEditorCamera"), _inputManager->GetAxis("HorizontalAxisForEditorCamera"));
+		//---------------------------------------------
+		// Key controls require focus of parent or this window
+		//---------------------------------------------
+		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+		{
+			// check if there is any keyboard input to move camera position
+			if (Application::Instance->inputManager.IsKeyDown(GLFW_KEY_UP) ||
+				Application::Instance->inputManager.IsKeyDown(GLFW_KEY_DOWN) ||
+				Application::Instance->inputManager.IsKeyDown(GLFW_KEY_LEFT) ||
+				Application::Instance->inputManager.IsKeyDown(GLFW_KEY_RIGHT))
+			{
+				// Do translation based on keyboard input
+				_camera.TranslationByKeyBoard(
+						Application::Instance->inputManager.GetAxis("VerticalAxisForEditorCamera"),
+						Application::Instance->inputManager.GetAxis("HorizontalAxisForEditorCamera"));
+			}
 
+			// Move camera to look at the selected object
+			if (Application::Instance->inputManager.IsKeyDown(GLFW_KEY_SPACE) && _selectedGameobject)
+			{
+				SavedReference<Transform> transformComponent = _selectedGameobject.DeRef()->GetComponent<Transform>();
+
+				Maths::Vec3 gameObjectPosition = Maths::Vec3(0.f, 0.f, 0.f);
+
+				if (transformComponent.DeRef() != nullptr)
+				{
+					gameObjectPosition = transformComponent.DeRef()->GetLocalToWorldMatrix().MultiplyVec3(
+							gameObjectPosition, 1.f);
+
+				}
+
+				_camera.SetCameraPosition(gameObjectPosition - _camera.GetForwardDirection() * 20);
+			}
+		}
 
 
 		//---------------------------
-		// Update projection matrix
+		// Render projection matrix
 		//---------------------------
 
 		// check camera type
@@ -399,12 +445,6 @@ namespace PlatinumEngine{
 						(float)_near, (float)_far);
 			}
 		}
-
-		//---------------------------------------------
-		// check if the mouse is selecting game object
-		//---------------------------------------------
-		if(_inputManager->IsMouseDown(0))
-			SelectGameObjectFromScene();
 
 		//--------------------
 		// Render Objects
@@ -438,53 +478,71 @@ namespace PlatinumEngine{
 			if(_enableSkyBox)
 			{
 				glDepthMask(false);
-				_renderer->BeginSkyBoxShader();
+				Application::Instance->renderer.BeginSkyBoxShader();
 
 				// matrix for rescaling the skybox based on the near panel distance
 				Maths::Mat4 scaleMatrix;
 				scaleMatrix.SetScaleMatrix(
 						Maths::Vec3(((float)_near * 2.f), ((float)_near * 2.f), ((float)_near * 2.f)));
 				// set matrix uniform
-				_renderer->SetViewMatrixSkyBox(Maths::Inverse(_camera.GetRotationOnlyViewMatrix()) * scaleMatrix);
-				_renderer->SetProjectionMatrixSkyBox(_camera.projectionMatrix4);
+				Application::Instance->renderer.SetViewMatrixSkyBox(Maths::Inverse(_camera.GetRotationOnlyViewMatrix()) * scaleMatrix);
+				Application::Instance->renderer.SetProjectionMatrixSkyBox(_camera.projectionMatrix4);
 				_skyboxTexture.BindCubeMap();
 				_skyBoxShaderInput.Draw();
-				_renderer->EndSkyBoxShader();
+				Application::Instance->renderer.EndSkyBoxShader();
 
 				// enable depth test for the later rendering
 				glDepthMask(true);
 			}
 
+			// ------------- Render Game Objects ------------- //
+			// Start rendering (bind a shader)
+			Application::Instance->renderer.Begin();
+
+			// Update rendering information to renderer
+			Application::Instance->renderer.SetModelMatrix();
+
+			// check if the view matrix is passed to shader
+			Application::Instance->renderer.SetViewMatrix(_camera.viewMatrix4);
+			Application::Instance->renderer.SetProjectionMatrix(_camera.projectionMatrix4);
+			Application::Instance->renderer.SetLightProperties();
+
+			// Render game objects
+			Application::Instance->scene.Render();
+
+			// End rendering (unbind a shader)
+			Application::Instance->renderer.End();
+
 			// -------------------- Render GRID ------------------ //
 			if(_enableGrid)
 			{
-				_renderer->BeginGrid();
-				_renderer->SetViewMatrixForGridShader(_camera.viewMatrix4);
-				_renderer->SetProjectionMatrixForGridShader(_camera.projectionMatrix4);
-				_renderer->SetFarValueForGridShader((float)_far);
-				_renderer->SetNearValueForGridShader((float)_near);
-				_renderer->SetTransparencyForGridShader(_transparency);
+				Application::Instance->renderer.BeginGrid();
+				Application::Instance->renderer.SetViewMatrixForGridShader(_camera.viewMatrix4);
+				Application::Instance->renderer.SetProjectionMatrixForGridShader(_camera.projectionMatrix4);
+				Application::Instance->renderer.SetFarValueForGridShader((float)_far);
+				Application::Instance->renderer.SetNearValueForGridShader((float)_near);
+				Application::Instance->renderer.SetTransparencyForGridShader(_transparency);
 
 				if (_xGrid)
 				{
-					_renderer->SetGridAxisForGridShader(0);
+					Application::Instance->renderer.SetGridAxisForGridShader(0);
 				}
 				else if (_zGrid)
 				{
-					_renderer->SetGridAxisForGridShader(2);
+					Application::Instance->renderer.SetGridAxisForGridShader(2);
 				}
 				else
 				{
-					_renderer->SetGridAxisForGridShader(1);
+					Application::Instance->renderer.SetGridAxisForGridShader(1);
 				}
 
 				_gridShaderInput.Draw();
-				_renderer->EndGrid();
+				Application::Instance->renderer.EndGrid();
 			}
 			glEnable(GL_DEPTH_TEST);
 			// ------------- Render Game Objects ------------- //
 			// Start rendering (bind a shader)
-			_renderer->Begin();
+			Application::Instance->renderer.Begin();
 
 			// Bind skybox for objects to sample from, use an unused texture
 			glActiveTexture(GL_TEXTURE7);
@@ -492,21 +550,24 @@ namespace PlatinumEngine{
 			glActiveTexture(GL_TEXTURE0);
 
 			// Update rendering information to renderer
-			_renderer->SetModelMatrix();
+			Application::Instance->renderer.SetModelMatrix();
 
 			// check if the view matrix is passed to shader
 
 			// TODO: Commneted these lines of code out to fix some bug, need to check how to do properly
 			// if(!_camera.CheckIfViewMatrixUsed())
 			{
-				_renderer->SetViewMatrix(_camera.viewMatrix4);
+				Application::Instance->renderer.SetViewMatrix(_camera.viewMatrix4);
 				_camera.MarkViewMatrixAsUsed();
 			}
 			// if(!_camera.CheckIfProjectionMatrixUsed())
 			{
-				_renderer->SetProjectionMatrix(_camera.projectionMatrix4);
+				Application::Instance->renderer.SetProjectionMatrix(_camera.projectionMatrix4);
 				_camera.MarkProjectionMatrixAsUsed();
 			}
+      
+			Application::Instance->renderer.SetLightProperties();
+			Application::Instance->renderer.SetCameraPos(_camera.GetCameraPosition());
 
 			{
 				Maths::Mat4 scaleMatrix;
@@ -518,10 +579,10 @@ namespace PlatinumEngine{
 				_scene->LoadLights(*_renderer);
 			}
 			// Render game objects
-			_scene->Render(*_renderer);
+			Application::Instance->scene.Render();
 
 			// End rendering (unbind a shader)
-			_renderer->End();
+			Application::Instance->renderer.End();
 
 			// unbind framebuffer
 			_renderTexture.Unbind();
@@ -529,8 +590,6 @@ namespace PlatinumEngine{
 			// reset setting after rendering
 			glDisable(GL_DEPTH_TEST);
 			glDisable(GL_BLEND);
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
 
 
 			// display updated framebuffer
@@ -552,22 +611,18 @@ namespace PlatinumEngine{
 	void SceneEditor::SelectGameObjectFromScene()
 	{
 		// get mouse click position
-		ImVec2 mouseClickedPosition = _inputManager->GetMousePosition();
+		ImVec2 mouseClickedPosition = Application::Instance->inputManager.GetMousePosition();
 
 		// since the display window use coordinate system which is inverse vertically,
 		// we have to inverse the y value
 		mouseClickedPosition.y = (float)_framebufferHeight - mouseClickedPosition.y;
 
-		// check which object is clicked
-		if(GameObject* result = FindClickedObject(mouseClickedPosition);
-				result != nullptr)
-		{
-			_selectedGameobject = result;
-		}
+		// set any result. clicking into space will unselect.
+		_selectedGameobject = FindClickedObject(mouseClickedPosition);
 	}
 
 
-	GameObject* SceneEditor::FindClickedObject(ImVec2& clickedPosition)
+	SavedReference<GameObject> SceneEditor::FindClickedObject(ImVec2& clickedPosition)
 	{
 		//---------------------------------------//
 		// Calculate ray (only for perspective)  //
@@ -591,21 +646,21 @@ namespace PlatinumEngine{
 		//----------------------------------------//
 
 		// variable that store the current selected game object
-		GameObject* currentSelectedGameobject = nullptr;
+		SavedReference<GameObject> currentSelectedGameobject;
 
 		// value that store the closest z value
 		float closestZValue = (float)_far;
 
 		// loop through all the root game object from scene class
-		unsigned int numberOfRootGameObject = _scene->GetRootGameObjectsCount();
+		unsigned int numberOfRootGameObject = Application::Instance->scene.GetRootGameObjectsCount();
 
 		for(int gameObjectIndex =0; gameObjectIndex < numberOfRootGameObject; gameObjectIndex++)
 		{
 			// get current game object
-			GameObject* currentGameobject = _scene->GetRootGameObject(gameObjectIndex);
+			SavedReference<GameObject>& currentGameobject = Application::Instance->scene.GetRootGameObject(gameObjectIndex);
 
 			// check if the object enable
-			if(currentGameobject->IsEnabledInHierarchy())
+			if(currentGameobject.DeRef()->IsEnabledInHierarchy())
 			{
 				// check whether this game object or one of its children is selected
 				if(_camera.isOrthogonal!=true)
@@ -622,12 +677,19 @@ namespace PlatinumEngine{
 	}
 
 	// for triangle mesh only
-	GameObject* SceneEditor::UpdateSelectedGameObject(GameObject* currentCheckingGameobject, PlatinumEngine::Maths::Vec3 inRay,
-			const PlatinumEngine::Maths::Vec3& inCameraPosition, GameObject* currentSelectedGameObject, float& closestZValueForCrossPoint)
+	SavedReference<GameObject>& SceneEditor::UpdateSelectedGameObject(
+			SavedReference<GameObject>& currentCheckingGameobject,
+			PlatinumEngine::Maths::Vec3 inRay,
+			const PlatinumEngine::Maths::Vec3& inCameraPosition,
+			SavedReference<GameObject>& currentSelectedGameObject,
+			float& closestZValueForCrossPoint)
 	{
+		// check if null
+		if (!currentCheckingGameobject)
+			return currentSelectedGameObject;
 
 		// check if the game object enable
-		if(!currentCheckingGameobject->IsEnabledInHierarchy())
+		if(!currentCheckingGameobject.DeRef()->IsEnabledInHierarchy())
 			return currentSelectedGameObject;
 
 		//------------------//
@@ -635,14 +697,19 @@ namespace PlatinumEngine{
 		//------------------//
 
 		// check if the game object has mesh component
-		if( auto renderComponent = currentCheckingGameobject->GetComponent<RenderComponent>(); renderComponent!= nullptr)
+		if( auto renderComponent = currentCheckingGameobject.DeRef()->GetComponent<MeshRender>();
+			renderComponent)
 		{
 			// fetch mesh
-			Mesh* mesh = renderComponent->GetMesh();
+			SavedReference<Mesh>& meshReference = renderComponent.DeRef()->GetMesh();
+			Mesh* mesh = nullptr;
+			if (meshReference)
+				mesh = meshReference.DeRef().get();
 
 			// Make sure there is mesh
-			if(mesh != nullptr)
+			if(mesh)
 			{
+
 				// loop all the vertices
 				for (int count = 0; count < mesh->indices.size(); count += 3)
 				{
@@ -653,41 +720,42 @@ namespace PlatinumEngine{
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
 					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject->GetComponent<TransformComponent>();
-							transformComponent != nullptr)
+					if (auto meshRenderComponent = currentCheckingGameobject.DeRef()->GetComponent<MeshRender>();
+							meshRenderComponent && meshRenderComponent.DeRef()->GetMesh().DeRef()->animationVertices.size()>0)
 					{
-						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
-						Maths::Vec4 temporaryMatrix;
+						vertex0 = mesh->animationVertices[mesh->indices[count + 0]].position;
+						vertex1 = mesh->animationVertices[mesh->indices[count + 1]].position;
+						vertex2 = mesh->animationVertices[mesh->indices[count + 2]].position;
 
-						// get the world coordinate of vertex 0
-						temporaryMatrix = modelMatrix *
-										  Maths::Vec4(mesh->vertices[mesh->indices[count + 0]].position.x,
-												  mesh->vertices[mesh->indices[count + 0]].position.y,
-												  mesh->vertices[mesh->indices[count + 0]].position.z, 1.0f);
-						temporaryMatrix = temporaryMatrix / temporaryMatrix.w;
-						vertex0 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
-
-						// get the world coordinate of vertex 1
-						temporaryMatrix = modelMatrix *
-										  Maths::Vec4(mesh->vertices[mesh->indices[count + 1]].position.x,
-												  mesh->vertices[mesh->indices[count + 1]].position.y,
-												  mesh->vertices[mesh->indices[count + 1]].position.z, 1.0f);
-						temporaryMatrix = temporaryMatrix / temporaryMatrix.w;
-						vertex1 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
-
-						// get the world coordinate of vertex 2
-						temporaryMatrix = modelMatrix *
-										  Maths::Vec4(mesh->vertices[mesh->indices[count + 2]].position.x,
-												  mesh->vertices[mesh->indices[count + 2]].position.y,
-												  mesh->vertices[mesh->indices[count + 2]].position.z, 1.0f);
-						temporaryMatrix = temporaryMatrix / temporaryMatrix.w;
-						vertex2 = PlatinumEngine::Maths::Vec3(temporaryMatrix.x, temporaryMatrix.y, temporaryMatrix.z);
 					}
 					else
 					{
 						vertex0 = mesh->vertices[mesh->indices[count + 0]].position;
 						vertex1 = mesh->vertices[mesh->indices[count + 1]].position;
 						vertex2 = mesh->vertices[mesh->indices[count + 2]].position;
+					}
+
+					// check if the game object has transformation components
+					if (auto transformComponent = currentCheckingGameobject.DeRef()->GetComponent<Transform>();
+							transformComponent)
+					{
+						Maths::Mat4 modelMatrix = transformComponent.DeRef()->GetLocalToWorldMatrix();
+						Maths::Vec4 temporaryVertex;
+
+						// get the world coordinate of vertex 0
+						temporaryVertex = modelMatrix * Maths::Vec4(vertex0.x,vertex0.y,vertex0.z, 1.0f);
+						temporaryVertex = temporaryVertex / temporaryVertex.w;
+						vertex0 = PlatinumEngine::Maths::Vec3(temporaryVertex.x, temporaryVertex.y, temporaryVertex.z);
+
+						// get the world coordinate of vertex 1
+						temporaryVertex = modelMatrix * Maths::Vec4(vertex1.x,vertex1.y,vertex1.z, 1.0f);
+						temporaryVertex = temporaryVertex / temporaryVertex.w;
+						vertex1 = PlatinumEngine::Maths::Vec3(temporaryVertex.x, temporaryVertex.y, temporaryVertex.z);
+
+						// get the world coordinate of vertex 2
+						temporaryVertex = modelMatrix * Maths::Vec4(vertex2.x,vertex2.y,vertex2.z, 1.0f);
+						temporaryVertex = temporaryVertex / temporaryVertex.w;
+						vertex2 = PlatinumEngine::Maths::Vec3(temporaryVertex.x, temporaryVertex.y, temporaryVertex.z);
 					}
 
 					//----------------------------------//
@@ -715,7 +783,7 @@ namespace PlatinumEngine{
 					if (lengthU == 0 || lengthN == 0 || lengthW == 0)
 					{
 						//PLATINUM_ERROR("You are clicking on an object with invalid triangle primitive.");
-						break;
+						continue;
 					}
 
 					// if the length of the three axes are not 0, normalize them
@@ -747,7 +815,7 @@ namespace PlatinumEngine{
 					}
 					else
 					{
-						break;
+						continue;
 					}
 
 					// calculate the cross point by adding vector with the right ratio to the camera position (which is the start point of the Ray)
@@ -811,9 +879,9 @@ namespace PlatinumEngine{
 
 		// Keep checking the children of currentChecking Gameobject
 		// if children exist, call this function for every child
-		for(int counter = 0; counter < currentCheckingGameobject->GetChildrenCount(); counter++)
+		for(int counter = 0; counter < currentCheckingGameobject.DeRef()->GetChildrenCount(); counter++)
 		{
-			currentSelectedGameObject = UpdateSelectedGameObject(currentCheckingGameobject->GetChild(counter), inRay,
+			currentSelectedGameObject = UpdateSelectedGameObject(currentCheckingGameobject.DeRef()->GetChild(counter), inRay,
 					inCameraPosition, currentSelectedGameObject, closestZValueForCrossPoint);
 		}
 
@@ -899,10 +967,18 @@ namespace PlatinumEngine{
 				coordinateV4.z/coordinateV4.w};
 	}
 
-	GameObject* SceneEditor::UpdateSelectedGameObject(GameObject* currentCheckingGameobject, GameObject* currentSelectedGameObject, Maths::Vec2 clickedPosition, float& closestZValueForCrossPoint)
+	SavedReference<GameObject>& SceneEditor::UpdateSelectedGameObject(
+			SavedReference<GameObject>& currentCheckingGameobject,
+			SavedReference<GameObject>& currentSelectedGameObject,
+			Maths::Vec2 clickedPosition,
+			float& closestZValueForCrossPoint)
 	{
+		// check if nullptr
+		if (!currentCheckingGameobject)
+			return currentSelectedGameObject;
+
 		// check if the game object enable
-		if(!currentCheckingGameobject->IsEnabledInHierarchy())
+		if(!currentCheckingGameobject.DeRef()->IsEnabledInHierarchy())
 			return currentSelectedGameObject;
 
 		//------------------//
@@ -910,13 +986,17 @@ namespace PlatinumEngine{
 		//------------------//
 
 		// check if the game object has mesh component
-		if( auto renderComponent = currentCheckingGameobject->GetComponent<RenderComponent>(); renderComponent!= nullptr)
+		if( auto renderComponent = currentCheckingGameobject.DeRef()->GetComponent<MeshRender>(); 
+		    renderComponent)
 		{
 			// fetch mesh
-			Mesh* mesh = renderComponent->GetMesh();
+			SavedReference<Mesh>& meshReference = renderComponent.DeRef()->GetMesh();
+			Mesh* mesh = nullptr;
+			if (meshReference)
+				mesh = meshReference.DeRef().get();
 
 			// Make sure there is mesh
-			if (mesh != nullptr)
+			if (mesh)
 			{
 				// loop all the vertices
 				for (int count = 0; count < mesh->indices.size(); count += 3)
@@ -929,10 +1009,10 @@ namespace PlatinumEngine{
 					Maths::Vec3 vertex0, vertex1, vertex2;
 
 					// check if the game object has transformation components
-					if (auto transformComponent = currentCheckingGameobject->GetComponent<TransformComponent>();
-							transformComponent != nullptr)
+					if (auto transformComponent = currentCheckingGameobject.DeRef()->GetComponent<Transform>();
+							transformComponent)
 					{
-						Maths::Mat4 modelMatrix = transformComponent->GetLocalToWorldMatrix();
+						Maths::Mat4 modelMatrix = transformComponent.DeRef()->GetLocalToWorldMatrix();
 
 
 						Maths::Vec4 temporaryMatrix;
@@ -1008,27 +1088,28 @@ namespace PlatinumEngine{
 
 		// Keep checking the children of currentChecking Gameobject
 		// if children exist, call this function for every child
-		for(int counter = 0; counter < currentCheckingGameobject->GetChildrenCount(); counter++)
+		for(int counter = 0; counter < currentCheckingGameobject.DeRef()->GetChildrenCount(); counter++)
 		{
-			currentSelectedGameObject = UpdateSelectedGameObject(currentCheckingGameobject->GetChild(counter),
+			currentSelectedGameObject = UpdateSelectedGameObject(currentCheckingGameobject.DeRef()->GetChild(counter),
 					currentSelectedGameObject, clickedPosition, closestZValueForCrossPoint);
 		}
 
 		return currentSelectedGameObject;
 	}
 
-	void SceneEditor::SetSelectedGameobject(GameObject* inGameObject)
+	void SceneEditor::SetSelectedGameobject(SavedReference<GameObject> inGameObject)
 	{
-		_selectedGameobject = inGameObject;
+		// do NOT move this, copy it
+		_selectedGameobject = SavedReference<GameObject>(inGameObject);
 	}
 
 	void SceneEditor::DeleteSelectedGameObject()
 	{
-		_scene->RemoveGameObject(*_selectedGameobject);
-		_selectedGameobject = nullptr;
+		Application::Instance->scene.RemoveGameObject(_selectedGameobject);
+		_selectedGameobject = {};
 	}
 
-	GameObject* SceneEditor::GetSelectedGameobject()
+	SavedReference<GameObject>& SceneEditor::GetSelectedGameobject()
 	{
 		return _selectedGameobject;
 	}
@@ -1037,7 +1118,12 @@ namespace PlatinumEngine{
 	///--------------------------------------------
 	/// Gizmo
 	///--------------------------------------------
-	void SceneEditor::UseGizmo(float* cameraView, float* cameraProjection, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation, bool onGizmo)
+	void SceneEditor::UseGizmo(
+			float* cameraView,
+			float* cameraProjection,
+			ImGuizmo::MODE currentGizmoMode,
+			ImGuizmo::OPERATION currentGizmoOperation,
+			bool onGizmo)
 	{
 		Maths::Mat4 identityMatrix(1);
 
@@ -1050,17 +1136,18 @@ namespace PlatinumEngine{
 
 		if(onGizmo)
 		{
-			if (_selectedGameobject != nullptr && _selectedGameobject->GetComponent<TransformComponent>() != nullptr)
+			if (_selectedGameobject &&
+				_selectedGameobject.DeRef()->GetComponent<Transform>())
 			{
-				auto transform = _selectedGameobject->GetComponent<TransformComponent>();
-				Maths::Mat4 transform_matrix = transform->GetLocalToWorldMatrix();
+				auto transform = _selectedGameobject.DeRef()->GetComponent<Transform>();
+				Maths::Mat4 transform_matrix = transform.DeRef()->GetLocalToWorldMatrix();
 
 				ImGuizmo::Manipulate(
 						cameraView, cameraProjection, currentGizmoOperation, currentGizmoMode,
 						transform_matrix.matrix, NULL, _useSnap ? &_snap[0] : NULL,
 						_boundSizing ? _bounds : NULL, _boundSizingSnap ? _boundsSnap : NULL);
 
-				transform->SetLocalToWorldMatrix(transform_matrix);
+				transform.DeRef()->SetLocalToWorldMatrix(transform_matrix);
 			}
 		}
 		// view manipulate gizmo
@@ -1069,6 +1156,10 @@ namespace PlatinumEngine{
 
 	}
 
+
+	///--------------------------------------------
+	/// SkyBox
+	///--------------------------------------------
 	void SceneEditor::CreateSkyBoxShaderInput()
 	{
 

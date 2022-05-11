@@ -5,29 +5,29 @@
 #pragma once
 
 #include <string>
-#include <vector>
-
+#include <map>
+#include <typeindex>
+#include <filesystem>
 
 namespace PlatinumEngine
 {
-	// TODO change extensions to ".obj" instead of just "obj"
-	// because C++ filesystem get extensions returns ".obj" so it's easier to use
-	// also create a enum extensions allowed, makes programming less error prone
+	namespace Loaders
+	{
+		// 1 global variable visible to everyone
+		extern const std::map<std::string, std::type_index> EXTENSION_TO_TYPE;
 
-	// For now to avoid anything weird explicitly only allow these files to be loaded
-	static const std::vector<std::string> ALLOWED_EXTENSIONS {"obj", "png"};
+		/**
+		 * Checks if path with its extension is allowed for loading
+		 * @param path filesystem path
+		 * @return : True if extensions ok, false is bad
+		 */
+		bool ExtensionAllowed(const std::filesystem::path& path);
 
-	/**
-	 * Returns the extensions of the given filepath
-	 * @param filePath
-	 * @return : Extension as string
-	 */
-	std::string GetExtension(const std::string& filePath);
-
-	/**
-	 * Checks is extension exists in list of allowed extensions
-	 * @param extension
-	 * @return : True if extensions ok, false is bad
-	 */
-	bool ExtensionAllowed(const std::string& extension);
+		/**
+		 * Checks if a given type index is an asset that can be loaded in.
+		 * @param typeIndex type is check
+		 * @return true if type is an asset, false otherwise
+		 */
+		bool IsAsset(const std::type_index& typeIndex);
+	}
 }

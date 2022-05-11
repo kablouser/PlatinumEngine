@@ -3,63 +3,82 @@
 //
 
 #pragma once
-#include "InputManager/InputManager.h"
-#include "SceneManager/Scene.h"
-#include "Renderer/Renderer.h"
+#include <OpenGL/ShaderInput.h>
+#include <SceneManager/Scene.h>
+#include <Helpers/Time.h>
+#include <Renderer/Renderer.h>
+#include <Physics/Physics.h>
+
 namespace PlatinumEngine
 {
 	class GameWindow
 	{
 	public:
-		GameWindow(InputManager* inputManager, Scene* scene, Renderer* renderer);
 		GameWindow();
-		//~GameWindow();
 
 		/**
 		 * This is a Gui
 		 * @param OutIsOpen
 		 */
-		void ShowGuiWindow(bool* OutIsOpen);
+		void ShowGUIWindow(bool* OutIsOpen);
+
+		bool GetIsStarted() const;
+		void SetIsStarted(bool isStarted);
 
 		/**
-		 * Pause function that will make the update in gameWinodw pause
-		 * @param OnPause
+		 * If game is started, pauses game and updates the scene.
+		 * Does nothing if the game is ended.
 		 */
-		void Pause(bool OnPause);
-
 		void Step();
 
 		/**
-		 * Update the GameObject states in scene
+		 * Game state definition:
+		 *
+		 * Game can be started or ended. Default is ended.
+		 *
+		 * A started game can be paused or resumed.
+		 * A ended game can neither be paused nor resumed.
+		 * By default, a game is resumed.
+		 *
+		 * Scene.OnStart is called when game enters started state.
+		 * Scene.OnEnd is called when game enters ended state.
+		 * So, 1 Scene.OnStart always corresponds to 1 Scene.OnEnd.
+		 *
+		 * A paused game can be paused again. (no effect)
+		 * A resumed game can be resumed again. (no effect)
+		 *
+		 * Scene.OnUpdate is called when a game is started and resumed.
+		 *
+		 * These 2 states are controlled by:
+		 * Scene._isStarted and isPaused
 		 */
-		void Update(double deltaTime);
+
+		bool isPaused;
+
+	private:
+
+		// Skybox
+		Texture _skyboxTexture;
+		ShaderInput _skyBoxShaderInput;
+
+		// output of OpenGL rendering
+		Framebuffer _renderTexture;
+		int _framebufferWidth;
+		int _framebufferHeight;
+		bool _hasWarningBeenShown = false;
+
+		/**
+		 * Update the scene and physics by current delta time in _time object.
+		 */
+		void Update();
 
 		/**
 		 * Render the GameObjects in the scene
 		 * @param targetSize
 		 * @param scene
 		 */
-		void Render(ImVec2 targetSize, Scene* scene);
-	private:
-		InputManager* _inputManager;
-		Scene* _scene;
-		Renderer* _renderer;
+		void Render(ImVec2 targetSize);
 
-		// output of OpenGL rendering
-		Framebuffer _renderTexture;
-		int _framebufferWidth;
-		int _framebufferHeight;
-
-		double _previousTime = 0.0;
-		double _deltaTime = 0.0;
-		// user event
-		ImVec2 _mouseMoveDelta;
-		int _mouseButtonType;
-		float _wheelValueDelta;
-
-		bool _onPlay = true;
-		bool _hasWarningBeenShown = false;
-	public:
-		bool _onUpdate = false;
+		void CreateSkyBoxShaderInput();
 	};
 }

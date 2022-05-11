@@ -15,22 +15,26 @@
 
 // Game object related
 #include <SceneManager/Scene.h>
-
+#include <ComponentComposition/AnimationComponent.h>
+#include <ComponentComposition/AnimationComponent.h>
 
 // Input manager
 #include <InputManager/InputManager.h>
 #include <IconsFontAwesome6.h>
 #include <ImGuizmo.h>
 
-//Asset Helper
-#include "AssetDatabase/AssetHelper.h"
+//Physics related
+#include <Helpers/Time.h>
+#include <Physics/Physics.h>
+
 
 namespace PlatinumEngine
 {
 	class SceneEditor
 	{
 	public:
-		// ___VARIABLE___
+		// ___CONSTRUCTOR___
+		SceneEditor();
 
 
 		// ___FUNCTION___
@@ -43,9 +47,19 @@ namespace PlatinumEngine
 		void ShowGUIWindow(bool* outIsOpen);
 
 		/**
-		 * Update data in Scene Editor
+		 *
+		 * @param targetSize: window size
+		 * @param IsProjectionUpdated
+		 * @param currentGizmoMode
+		 * @param currentGizmoOperation
 		 */
-		void Update(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE, ImGuizmo::OPERATION);
+		void Render(ImVec2 targetSize, bool IsProjectionUpdated, ImGuizmo::MODE currentGizmoMode, ImGuizmo::OPERATION currentGizmoOperation);
+
+		/**
+		 *
+		 * @param Time: DeltaTime
+		 */
+		//void Update(double Time);
 
 		/**
 		 * Function to detect which object shown in scene editor is selected
@@ -58,7 +72,7 @@ namespace PlatinumEngine
 		 * @param clickedPosition : the mouse position when it is clicked
 		 * @return
 		 */
-		GameObject* FindClickedObject(ImVec2& clickedPosition);
+		SavedReference<GameObject> FindClickedObject(ImVec2& clickedPosition);
 
 
 		/**
@@ -70,8 +84,12 @@ namespace PlatinumEngine
 		 * @param closestZValueForCrossPoint  : the z value of the intersection/clicked point of the previous temporary selected game object.
 		 * @return : return the selected game object with the shortest distance to the near panel.
 		 */
-		GameObject* UpdateSelectedGameObject(GameObject* currentCheckingGameobject, PlatinumEngine::Maths::Vec3 inRay,
-				const PlatinumEngine::Maths::Vec3& inCameraPosition, GameObject* currentSelectedGameObject, float& closestZValueForCrossPoint);
+		SavedReference<GameObject>& UpdateSelectedGameObject(
+				SavedReference<GameObject>& currentCheckingGameobject,
+				PlatinumEngine::Maths::Vec3 inRay,
+				const PlatinumEngine::Maths::Vec3& inCameraPosition,
+				SavedReference<GameObject>& currentSelectedGameObject,
+				float& closestZValueForCrossPoint);
 
 		/**
 		 * Transforming world coordinate into screen coordinate and use interpolation
@@ -82,7 +100,11 @@ namespace PlatinumEngine
 		 * @param closestZValueForCrossPoint : the z value of the intersection/clicked point of the previous temporary selected game object.
 		 * @return : return the selected game object with the shortest distance to the near panel.
 		 */
-		GameObject* UpdateSelectedGameObject(GameObject* currentCheckingGameobject, GameObject* currentSelectedGameObject, Maths::Vec2 clickedPosition, float& closestZValueForCrossPoint);
+		SavedReference<GameObject>& UpdateSelectedGameObject(
+				SavedReference<GameObject>& currentCheckingGameobject,
+				SavedReference<GameObject>& currentSelectedGameObject,
+				Maths::Vec2 clickedPosition,
+				float& closestZValueForCrossPoint);
 
 
 		/**
@@ -111,10 +133,10 @@ namespace PlatinumEngine
 		bool DoInterpolationCheck(std::array<Maths::Vec2,3> triangle, Maths::Vec2 point, float& x, float& y, float& z);
 
 		/**
-		 * Update selected game object
+		 * Render selected game object
 		 * @param inGameObject
 		 */
-		void SetSelectedGameobject(GameObject* inGameObject);
+		void SetSelectedGameobject(SavedReference<GameObject> inGameObject);
 
 		void DeleteSelectedGameObject();
 
@@ -122,7 +144,7 @@ namespace PlatinumEngine
 		 * Get the private selected game object
 		 * @return
 		 */
-		GameObject* GetSelectedGameobject();
+		SavedReference<GameObject>& GetSelectedGameobject();
 
 
 
@@ -146,9 +168,6 @@ namespace PlatinumEngine
 		 */
 		void CreateGridShaderInput();
 
-		// ___CONSTRUCTOR___
-		SceneEditor(InputManager* inputManager, Scene* scene, Renderer* renderer, AssetHelper* assetHelper);
-
 	private:
 
 		// ___PARAMETERS___
@@ -160,7 +179,7 @@ namespace PlatinumEngine
 		ShaderInput _skyBoxShaderInput;
 
 		// Store
-		GameObject* _selectedGameobject;
+		SavedReference<GameObject> _selectedGameobject;
 
 		//ImGuizmo
 		float _snap[3];
@@ -176,12 +195,6 @@ namespace PlatinumEngine
 		ImGuizmo::OPERATION _currentGizmoOperation;
 		// Flags
 		bool _ifCameraSettingWindowOpen;
-
-		// Managers
-		InputManager* _inputManager;
-		Scene* _scene;
-		Renderer* _renderer;
-		AssetHelper* _assetHelper;
 
 		// Values for Camera
 		EditorCamera _camera;
