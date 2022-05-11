@@ -226,7 +226,7 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 						auto asset_Helper = AssetHelper::GetAsset<Mesh>(dir.string());
 						if (std::get<0>(asset_Helper))
 							go.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(std::get<1>(asset_Helper));
-						_sceneEditor->SetSelectedGameobject(go);
+						Application::Instance->sceneEditor.SetSelectedGameobject(go);
 					}
 					ImGui::Separator();
 				}
@@ -249,23 +249,22 @@ void ProjectWindow::ShowTreeNode(std::filesystem::path dir)
 						auto asset_Helper = AssetHelper::GetAsset<Texture>(dir.string());
 						if (std::get<0>(asset_Helper))
 							go.DeRef()->GetComponent<MeshRender>().DeRef()->SetNormalMap(std::get<1>(asset_Helper));
-						}
 					}
 					ImGui::Separator();
 				}
 				if(dir.extension()==".wav")
 				{
-					SavedReference<GameObject> go = _sceneEditor->GetSelectedGameobject();
+					SavedReference<GameObject> go = Application::Instance->sceneEditor.GetSelectedGameobject();
 					if(go.DeRef() != nullptr)
 					{
 						if (ImGui::Selectable("Add Audio"))
 						{
-							_assetHelper->GetAsset<AudioClip>(dir.string());
-							auto asset_Helper = _assetHelper->GetAsset<AudioClip>(dir.string());
+							AssetHelper::GetAsset<AudioClip>(dir.string());
+							auto asset_Helper = AssetHelper::GetAsset<AudioClip>(dir.string());
 							if (std::get<0>(asset_Helper))
 							{
 								if (!go.DeRef()->GetComponent<AudioComponent>())
-									_scene->AddComponent<AudioComponent>(go);
+									Application::Instance->scene.AddComponent<AudioComponent>(go);
 								go.DeRef()->GetComponent<AudioComponent>().DeRef()->audioClip = std::get<1>(
 										asset_Helper);
 							}
@@ -342,7 +341,7 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 	{
 		//Grab the texture from AssetDatabase (pre-loaded, so we don't need to load again here)
 		SavedReference<Texture> image;
-		auto asset_Helper = _assetHelper->GetAsset<Texture>(filePath.string());
+		auto asset_Helper = AssetHelper::GetAsset<Texture>(filePath.string());
 		if (std::get<0>(asset_Helper))
 			image = std::get<1>(asset_Helper);
 		ImGui::Image((void*)(intptr_t)image.DeRef()->GetOpenGLHandle(), ImVec2(_framebufferWidth,_framebufferHeight));
@@ -352,7 +351,7 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 		std::string dim = std::to_string((int)image.DeRef()->width)+" x "+std::to_string((int)image.DeRef()->height);
 		ImGui::Text("Dimensions: ");
 		ImGui::SameLine();
-		ImGui::Text(dim.c_str());
+		ImGui::Text("%s", dim.c_str());
 	}
 
 	//Preview the mesh
@@ -373,7 +372,7 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 		//Just consider that audio files are of type clip (.wav files)
 		//Just simple play/stop button to preview
 		SavedReference<AudioClip> audioSample;
-		auto asset_Helper = _assetHelper->GetAsset<AudioClip>(filePath.string());
+		auto asset_Helper = AssetHelper::GetAsset<AudioClip>(filePath.string());
 		if (std::get<0>(asset_Helper))
 			audioSample = std::get<1>(asset_Helper);
 
@@ -450,11 +449,11 @@ void ProjectWindow::RenderPreview(std::filesystem::path filePath)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	// Start rendering (bind a shader)
-	_renderer->Begin();
+	Application::Instance->renderer.Begin();
 
 	// Get the mesh to be rendered
 	SavedReference<Mesh> mesh;
-	auto asset_Helper = _assetHelper->GetAsset<Mesh>(filePath.string());
+	auto asset_Helper = AssetHelper::GetAsset<Mesh>(filePath.string());
 	if (std::get<0>(asset_Helper))
 		mesh = std::get<1>(asset_Helper);
 
@@ -470,20 +469,20 @@ void ProjectWindow::RenderPreview(std::filesystem::path filePath)
 	_shaderInput.Draw();
 
 	// Using a perspective camera
-	_previewCamera->SetPerspectiveMatrix(60.f, _framebufferWidth/_framebufferHeight, 0.1f, 1000.f);
+	_previewCamera.SetPerspectiveMatrix(60.f, _framebufferWidth/_framebufferHeight, 0.1f, 1000.f);
 
 	// Set the rotation of the model
 	Maths::Mat4 modelRotationMat;
 	modelRotationMat.SetRotationMatrix(_modelRotation);
 
 	// Setup renderer's settings
-	_renderer->SetModelMatrix(modelRotationMat);
-	_renderer->SetViewMatrix(_previewCamera->viewMatrix4);
-	_renderer->SetProjectionMatrix(_previewCamera->projectionMatrix4);
-	_renderer->SetLightProperties();
+	Application::Instance->renderer.SetModelMatrix(modelRotationMat);
+	Application::Instance->renderer.SetViewMatrix(_previewCamera.viewMatrix4);
+	Application::Instance->renderer.SetProjectionMatrix(_previewCamera.projectionMatrix4);
+	Application::Instance->scene.LoadLights();
 
 	// End rendering (unbind a shader)
-	_renderer->End();
+	Application::Instance->renderer.End();
 
 	// unbind framebuffer
 	_renderTexture.Unbind();
@@ -503,7 +502,7 @@ void ProjectWindow::RenderPreview(std::filesystem::path filePath)
 		//Mouse Wheel changes zoom
 		float wheelValue = ImGui::GetIO().MouseWheel;
 		if (wheelValue != 0)
-			_previewCamera->TranslationByKeyBoard(wheelValue,0);
+			_previewCamera.TranslationByKeyBoard(wheelValue,0);
 
 		// Item's properties
 		ImVec2 itemSize = ImGui::GetItemRectSize();

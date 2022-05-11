@@ -1004,9 +1004,9 @@ void InspectorWindow::ShowAudioComponent(SavedReference<AudioComponent>& referen
 				if(payloadPath.extension()==".wav")
 				{
 					//Set the sample that we dragged to the AudioComponent
-					auto asset_Helper = _assetHelper->GetAsset<AudioClip>(payloadPath.string());
+					auto asset_Helper = AssetHelper::GetAsset<AudioClip>(payloadPath.string());
 					if (std::get<0>(asset_Helper))
-						obj.DeRef()->GetComponent<AudioComponent>().DeRef()->audioClip = (std::get<1>(asset_Helper));
+						audioComponentPointer->audioClip = (std::get<1>(asset_Helper));
 				}
 			}
 			// End DragDropTarget
