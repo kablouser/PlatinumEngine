@@ -127,10 +127,10 @@ namespace PlatinumEngine
 				{
 
 					// check if the dragged objects is the parent or ancestor of the target object
-					SavedReference<GameObject>& temp = gameObject.DeRef()->GetParent();
+					SavedReference<GameObject> temp = gameObject.DeRef()->GetParent();
 					while(temp)
 					{
-						if(temp == payloadPointer)
+						if(temp.id == payloadPointer.id)
 						{
 							PLATINUM_INFO("Setting a parent object as a child of one of it's children or it's children' children is forbidden.");
 							break;
@@ -139,7 +139,7 @@ namespace PlatinumEngine
 						temp = temp.DeRef()->GetParent();
 					}
 
-					if(!temp) // if null
+					if(!temp) // if not null
 						// change the dragged object's parent
 						payloadPointer.DeRef()->SetParent(gameObject);
 				}
@@ -179,13 +179,17 @@ namespace PlatinumEngine
 		// check if the node is expanded
 		if(is_expanded)
 		{
-
-			// Loop through the children under this node
-			for(int i = 0; i < gameObject.DeRef()->GetChildrenCount(); i++)
+			if(gameObject)
 			{
+				// Loop through the children under this node
+				for (int i = 0; i < gameObject.DeRef()->GetChildrenCount(); i++)
+				{
 
-				DisplayTreeNote(gameObject.DeRef()->GetChild(i), modeForDraggingBehavior);
+					DisplayTreeNote(gameObject.DeRef()->GetChild(i), modeForDraggingBehavior);
 
+					if(!gameObject)
+						break;
+				}
 			}
 
 			ImGui::TreePop();

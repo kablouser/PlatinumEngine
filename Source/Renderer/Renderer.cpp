@@ -395,6 +395,7 @@ namespace PlatinumEngine
 
 	void Renderer::SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat)
 	{
+		_phongShader.Bind();
 		if(transformMatrixIndex < 128)
 			_phongShader.SetUniform("tracks["+std::to_string(transformMatrixIndex)+"]", mat);
 		else
@@ -403,7 +404,14 @@ namespace PlatinumEngine
 
 	void Renderer::SetAnimationStatus(bool isAnimationOn)
 	{
+		_phongShader.Bind();
 		_phongShader.SetUniform("isAnimationDisplay", isAnimationOn);
+	}
+
+	void Renderer::SetAnimationAttachmentStatus(bool isAnimationAttachmentOn)
+	{
+		_phongShader.Bind();
+		_phongShader.SetUniform("isAnimationAttachmentDisplay", isAnimationAttachmentOn);
 	}
 
 	// update view matrix in shader

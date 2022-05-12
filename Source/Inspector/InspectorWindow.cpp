@@ -56,6 +56,9 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen)
 			if (auto ref = obj.DeRef()->GetComponent<AnimationComponent>())
 				ShowAnimationComponent(ref);
 
+			if (auto ref = obj.DeRef()->GetComponent<AnimationAttachment>())
+				ShowAnimationAttachmentComponent(ref);
+
 			if (auto ref = obj.DeRef()->GetComponent<BoxCollider>())
 				ShowBoxColliderComponent(ref);
 
@@ -749,6 +752,7 @@ void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>
 			ImGui::Text("Z");
 			ImGui::SameLine();
 			ImGui::InputFloat("##ActingForceZ", &(particleEffectPointer->particleEmitter.actingForce[2]));
+			ImGui::PopItemWidth();
 		}
 
 		if (ImGui::CollapsingHeader("Particle Settings"))
@@ -1178,7 +1182,7 @@ void InspectorWindow::ShowAnimationComponent(SavedReference<AnimationComponent>&
 	ImGui::Separator();
 	char meshBuffer[64];
 	char textureBuffer[64];
-	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_TABLE_CELLS "  Animation", ImGuiTreeNodeFlags_AllowItemOverlap);
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_PERSON_FALLING "  Animation", ImGuiTreeNodeFlags_AllowItemOverlap);
 
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
@@ -1218,18 +1222,13 @@ void InspectorWindow::ShowAnimationComponent(SavedReference<AnimationComponent>&
 	}
 }
 
+
 void InspectorWindow::ShowPlayerComponent(SavedReference<Player>& reference)
 {
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader("Player", ImGuiTreeNodeFlags_AllowItemOverlap);
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemovePlayerComponent"))
-	{
-		// remove component
-		Application::Instance->scene.RemoveComponent(reference);
-		return;
-	}
-	if (isHeaderOpen)
 	{
 		// store pointer of renderComponent
 		Player* player = reference.DeRef().get();
@@ -1238,6 +1237,114 @@ void InspectorWindow::ShowPlayerComponent(SavedReference<Player>& reference)
 		ImGui::InputFloat("Move Acceleration##Player", &player->moveAcceleration);
 		ImGui::InputFloat("Move Deceleration##Player", &player->moveDeceleration);
 		ImGui::InputFloat("Jump Speed##Player", &player->jumpSpeed);
+	}
+}
+
+void InspectorWindow::ShowAnimationAttachmentComponent(SavedReference<AnimationAttachment>& reference)
+{
+	ImGui::Separator();
+	char meshBuffer[64];
+	char textureBuffer[64];
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_WAND_MAGIC "  Animation Attachment", ImGuiTreeNodeFlags_AllowItemOverlap);
+
+	// TODO: Icon button maybe?
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveAnimationAttachmentComponent"))
+	{
+		// remove component
+		Application::Instance->scene.RemoveComponent(reference);
+		return;
+	}
+	if (isHeaderOpen)
+	{
+
+
+		// store pointer of renderComponent
+		AnimationAttachment* animationAttachment = reference.DeRef().get();
+
+		if(animationAttachment == nullptr)
+			return;
+
+		// update joints' names
+		animationAttachment->GetSkeletonNameFromParentAnimation();
+		std::vector<std::string>& jointNames = animationAttachment->jointsName;
+
+		if(jointNames.empty())
+			return;
+
+
+		// select box
+		if(ImGui::BeginCombo("Joints", jointNames[animationAttachment->GetSelectedJoint()].c_str(), 0))
+		{
+			for(unsigned int i =0; i<jointNames.size(); i++)
+			{
+				bool is_selected = (i == animationAttachment->GetSelectedJoint());
+
+				if (ImGui::Selectable(jointNames[i].c_str(), is_selected))
+				{
+					animationAttachment->SetSelectedJoint(i);
+				}
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo(); // only call EndCombo() if BeginCombo() returns true!
+		}
+
+		// input boxes
+		float x=animationAttachment->translation.x,
+		y= animationAttachment->translation.y,
+		z= animationAttachment->translation.z;
+		ImGui::Text(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT " Position: ");;
+		ImGui::SameLine();
+		ImGui::Text("x");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(50);
+		ImGui::InputFloat("##attachTranslationx", &x);
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+		ImGui::Text("y");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(50);
+		ImGui::InputFloat("##attachTranslationy", &y);
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+		ImGui::Text("z");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(50);
+		ImGui::InputFloat("##attachTranslationz", &z);
+		ImGui::PopItemWidth();
+
+		float rx=animationAttachment->rotation.x,
+		ry=animationAttachment->rotation.y,
+		rz=animationAttachment->rotation.z;
+		ImGui::Text(ICON_FA_ROTATE " Rotation: ");;
+		ImGui::SameLine();
+		ImGui::Text("x");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(50);
+		ImGui::InputFloat("##attachRotationx", &rx);
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+		ImGui::Text("y");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(50);
+		ImGui::InputFloat("##attachRotationy", &ry);
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+		ImGui::Text("z");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(50);
+		ImGui::InputFloat("##attachRotationz", &rz);
+		ImGui::PopItemWidth();
+
+		ImGui::Text(ICON_FA_MAXIMIZE " Scale: ");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(50);
+		ImGui::InputFloat("##attachScale", &animationAttachment->scale);
+		ImGui::PopItemWidth();
+
+		animationAttachment->UpdateOffsetMatrix(Maths::Vec3(x, y, z), Maths::Vec3(rx,ry,rz), animationAttachment->scale);
+
 	}
 }
 
@@ -1260,6 +1367,7 @@ void InspectorWindow::ShowAddComponent()
 				"Audio Component",
 				"Animation Component",
 				"Player",
+				"Animation Attachment Component"
 		};
 		static const char* selectedComponent = nullptr;
 		static ImGuiTextFilter filter;
@@ -1345,6 +1453,10 @@ void InspectorWindow::ShowAddComponent()
 				Application::Instance->scene.AddComponent<Player>(obj);
 			}
 
+			else if (strcmp(selectedComponent, "Animation Attachment Component") == 0)
+			{
+				Application::Instance->scene.AddComponent<AnimationAttachment>(obj);
+			}
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;
 		}

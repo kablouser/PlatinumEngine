@@ -16,7 +16,7 @@ namespace PlatinumEngine
 	public:
 		// {  PARAMETER  }
 		std::vector<Maths::Mat4> worldTransform;
-
+		//std::vector<Maths::Mat4> boneRelativeTransform;
 		AnimationLocalTimer timer;
 
 	public:
@@ -52,8 +52,12 @@ namespace PlatinumEngine
 
 	private:
 		// {  PARAMETER  }
+		// variables
 		SavedReference<Mesh> _mesh;
 		unsigned int _selectedAnimationIndex;
 		bool _isDisplay;
+		// flags
+
+
 	};
 }

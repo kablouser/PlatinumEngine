@@ -14,6 +14,7 @@ uniform mat4 projection;
 
 const int MAX_BONES = 128;
 uniform bool isAnimationDisplay;
+uniform bool isAnimationAttachmentDisplay;
 uniform mat4 tracks[MAX_BONES];
 
 out vec3 vertexPos;
@@ -31,6 +32,11 @@ void main()
          animationTransform += tracks[int(trackIDs[1])] * weights[1];
          animationTransform += tracks[int(trackIDs[2])] * weights[2];
          animationTransform += tracks[int(trackIDs[3])] * weights[3];
+    }
+
+    if(isAnimationAttachmentDisplay)
+    {
+        animationTransform =  tracks[0];
     }
 
     gl_Position = projection * view * model * animationTransform * vec4(inVertex, 1.0);

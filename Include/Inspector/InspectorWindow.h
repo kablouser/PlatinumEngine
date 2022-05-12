@@ -13,6 +13,7 @@
 #include <ComponentComposition/Transform.h>
 #include <ComponentComposition/Camera.h>
 #include <ComponentComposition/AnimationComponent.h>
+#include <ComponentComposition/AnimationAttachment.h>
 #include <ComponentComposition/GameObject.h>
 #include <ComponentComposition/RigidBody.h>
 #include <ComponentComposition/BoxCollider.h>
@@ -50,7 +51,7 @@ namespace PlatinumEngine
 		void ShowAudioComponent(SavedReference<AudioComponent>& reference);
 		void ShowAnimationComponent(SavedReference<AnimationComponent>& reference);
 		void ShowPlayerComponent(SavedReference<Player>& reference);
-
+		void ShowAnimationAttachmentComponent(SavedReference<AnimationAttachment>& reference);
 
 		// Shown when add component button pressed
 		void ShowAddComponent();
