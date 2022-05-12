@@ -36,6 +36,7 @@ namespace PlatinumEngine
 		float _currentVelocityX = 0.f;
 		float _nextJumpAvailable = 0.f;
 		float _nextFootStep = 0.f;
+		float _startPositionZ = 0.f;
 
 		bool IsGrounded(RigidBody* rigidBodyPointer) const;
 	};

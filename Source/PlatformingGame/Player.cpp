@@ -20,6 +20,8 @@ namespace PlatinumEngine
 			_rigidBody.DeRef()->isCollisionRecorded = true;
 		_jumpAudio = GetComponent<AudioComponent>();
 		_transform = GetComponent<Transform>();
+		if (_transform)
+			_startPositionZ = _transform.DeRef()->localPosition.z;
 
 		if (0 < GetGameObject().DeRef()->GetChildrenCount())
 		{
@@ -87,7 +89,10 @@ namespace PlatinumEngine
 		rigidBodyPointer->SetVelocity({ _currentVelocityX, velocity.y, 0 });
 		rigidBodyPointer->SetAngularVelocity({});
 		if (_transform)
+		{
+			_transform.DeRef()->localPosition.z = _startPositionZ;
 			_transform.DeRef()->localRotation = Maths::Quaternion();
+		}
 
 		if (_animationComponent && _animationTransform)
 		{
