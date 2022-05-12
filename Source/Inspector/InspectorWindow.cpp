@@ -752,6 +752,7 @@ void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>
 			ImGui::Text("Z");
 			ImGui::SameLine();
 			ImGui::InputFloat("##ActingForceZ", &(particleEffectPointer->particleEmitter.actingForce[2]));
+			ImGui::PopItemWidth();
 		}
 
 		if (ImGui::CollapsingHeader("Particle Settings"))
@@ -1273,11 +1274,11 @@ void InspectorWindow::ShowAnimationAttachmentComponent(SavedReference<AnimationA
 
 
 		// select box
-		if(ImGui::BeginCombo("Joints", jointNames[animationAttachment->selectedJoint].c_str(), 0))
+		if(ImGui::BeginCombo("Joints", jointNames[animationAttachment->GetSelectedJoint()].c_str(), 0))
 		{
 			for(unsigned int i =0; i<jointNames.size(); i++)
 			{
-				bool is_selected = (i == animationAttachment->selectedJoint);
+				bool is_selected = (i == animationAttachment->GetSelectedJoint());
 
 				if (ImGui::Selectable(jointNames[i].c_str(), is_selected))
 				{
@@ -1295,16 +1296,22 @@ void InspectorWindow::ShowAnimationAttachmentComponent(SavedReference<AnimationA
 		z= animationAttachment->translation.z;
 		ImGui::Text(ICON_FA_ARROWS_UP_DOWN_LEFT_RIGHT " Position: ");;
 		ImGui::SameLine();
-		ImGui::PushItemWidth(50);
-		ImGui::InputFloat("X ##attachTranslationx", &x);
-		ImGui::PopItemWidth();
+		ImGui::Text("x");
 		ImGui::SameLine();
 		ImGui::PushItemWidth(50);
-		ImGui::InputFloat("Y ##attachTranslationy", &y);
+		ImGui::InputFloat("##attachTranslationx", &x);
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
+		ImGui::Text("y");
+		ImGui::SameLine();
 		ImGui::PushItemWidth(50);
-		ImGui::InputFloat("Z ##attachTranslationz", &z);
+		ImGui::InputFloat("##attachTranslationy", &y);
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+		ImGui::Text("z");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(50);
+		ImGui::InputFloat("##attachTranslationz", &z);
 		ImGui::PopItemWidth();
 
 		float rx=animationAttachment->rotation.x,
@@ -1312,19 +1319,32 @@ void InspectorWindow::ShowAnimationAttachmentComponent(SavedReference<AnimationA
 		rz=animationAttachment->rotation.z;
 		ImGui::Text(ICON_FA_ROTATE " Rotation: ");;
 		ImGui::SameLine();
-		ImGui::PushItemWidth(50);
-		ImGui::InputFloat("X ##attachRotationx", &rx);
-		ImGui::PopItemWidth();
+		ImGui::Text("x");
 		ImGui::SameLine();
 		ImGui::PushItemWidth(50);
-		ImGui::InputFloat("Y ##attachRotationy", &ry);
+		ImGui::InputFloat("##attachRotationx", &rx);
 		ImGui::PopItemWidth();
 		ImGui::SameLine();
+		ImGui::Text("y");
+		ImGui::SameLine();
 		ImGui::PushItemWidth(50);
-		ImGui::InputFloat("Z ##attachRotationz", &rz);
+		ImGui::InputFloat("##attachRotationy", &ry);
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+		ImGui::Text("z");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(50);
+		ImGui::InputFloat("##attachRotationz", &rz);
 		ImGui::PopItemWidth();
 
-		animationAttachment->UpdateOffsetMatrix(Maths::Vec3(x, y, z), Maths::Vec3(rx,ry,rz));
+		ImGui::Text(ICON_FA_MAXIMIZE " Scale: ");
+		ImGui::SameLine();
+		ImGui::PushItemWidth(50);
+		ImGui::InputFloat("##attachScale", &animationAttachment->scale);
+		ImGui::PopItemWidth();
+
+		animationAttachment->UpdateOffsetMatrix(Maths::Vec3(x, y, z), Maths::Vec3(rx,ry,rz), animationAttachment->scale);
+
 	}
 }
 

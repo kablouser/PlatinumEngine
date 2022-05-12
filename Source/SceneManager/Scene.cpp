@@ -502,6 +502,9 @@ namespace PlatinumEngine
 			PLATINUM_WARNING("Scene removed some references because they were null. "
 							 "Did you remember to serialize all your components?");
 
+		for(auto& child: gameObjectPointer->_children)
+			child.OnIDSystemUpdate(Application::Instance->idSystem);
+
 		for (auto& component: gameObjectPointer->_components)
 		{
 			// guaranteed to be not null

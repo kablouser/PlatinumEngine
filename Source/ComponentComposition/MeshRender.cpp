@@ -33,6 +33,7 @@ namespace PlatinumEngine
 		if (!_mesh)
 			return;
 
+
 		// animation component
 		SavedReference<AnimationComponent> animation = GetComponent<AnimationComponent>();
 
@@ -68,30 +69,26 @@ namespace PlatinumEngine
 		// send flag to uniform
 		Application::Instance->renderer.SetAnimationStatus(doesAnimationWork);
 
+
 		// animation attachment
 		SavedReference<AnimationAttachment> animationAttachment = GetComponent<AnimationAttachment>();
-		// set status for animatinn attachment
-		bool doesAnimationAttachmentWork = false;
+
+		// Transformation matrix
+		Maths::Mat4 transformMatrix(1.0f);
 
 		if (animationAttachment)
 		{
-			// check if the object can be an attachment of an animation
+			// check if the object is an attachment of an animation
 			if (!animationAttachment.DeRef()->jointsName.empty())
 			{
-				doesAnimationAttachmentWork = true;
 				animationAttachment.DeRef()->UpdateTransformMatrixBySelectedJoint();
-				Maths::Mat4 transformMatrix =animationAttachment.DeRef()->transformMatrix * animationAttachment.DeRef()->offsetMatrix;
-				Application::Instance->renderer.SetAnimationTransform(0, transformMatrix);
+				transformMatrix = animationAttachment.DeRef()->transformMatrix * animationAttachment.DeRef()->offsetMatrix;
 			}
-
 		}
-
-		Application::Instance->renderer.SetAnimationAttachmentStatus(doesAnimationAttachmentWork && animationAttachment.DeRef()->CheckIfParentAnimationDisplay());
-
 
 		SavedReference<Transform> transform = GetComponent<Transform>();
 		if (transform)
-			Application::Instance->renderer.SetModelMatrix(transform.DeRef()->GetLocalToWorldMatrix());
+			Application::Instance->renderer.SetModelMatrix(transform.DeRef()->GetLocalToWorldMatrix() * transformMatrix);
 		else
 			Application::Instance->renderer.SetModelMatrix();
 

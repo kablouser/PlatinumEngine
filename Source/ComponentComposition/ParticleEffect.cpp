@@ -33,10 +33,27 @@ namespace PlatinumEngine
 
 	void ParticleEffect::OnRender()
 	{
+		// animation attachment
+		SavedReference<AnimationAttachment> animationAttachment = GetComponent<AnimationAttachment>();
+
+		// Transformation matrix
+		Maths::Mat4 transformMatrix(1.0f);
+
+		if (animationAttachment)
+		{
+			// check if the object can be an attachment of an animation
+			if (!animationAttachment.DeRef()->jointsName.empty())
+			{
+				animationAttachment.DeRef()->UpdateTransformMatrixBySelectedJoint();
+				transformMatrix = animationAttachment.DeRef()->transformMatrix * animationAttachment.DeRef()->offsetMatrix;
+			}
+
+		}
+
 		// Render all particles
 		SavedReference<Transform> transform = GetComponent<Transform>();
 		if (transform)
-			Application::Instance->renderer.SetModelMatrix(transform.DeRef()->GetLocalToWorldMatrix());
+			Application::Instance->renderer.SetModelMatrix(transform.DeRef()->GetLocalToWorldMatrix() * transformMatrix);
 		else
 			Application::Instance->renderer.SetModelMatrix();
 
