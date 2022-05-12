@@ -4,13 +4,13 @@
 
 #pragma once
 
+#include <ComponentComposition/MeshRender.h>
+#include <ComponentComposition/Component.h>
+#include <ComponentComposition/AnimationComponent.h>
+#include <ComponentComposition/Transform.h>
 #include <iostream>
 #include <Maths/Matrices.h>
 #include <vector>
-#include <ComponentComposition/Component.h>
-#include <ComponentComposition/AnimationComponent.h>
-#include <ComponentComposition/MeshRender.h>
-#include <ComponentComposition/Transform.h>
 namespace PlatinumEngine
 {
 	class AnimationAttachment: public Component
