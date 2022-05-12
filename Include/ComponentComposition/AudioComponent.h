@@ -9,15 +9,19 @@
 #include "SDL_mixer.h"
 #include <filesystem>
 #include <SceneManager/Scene.h>
+#include "DspFilters/Dsp.h"
 
 namespace PlatinumEngine
 {
 	class AudioComponent: public Component
 	{
+
 	public:
 		std::string fileName;
 		bool isLooping;
+		bool isFilterEnabled;
 		SavedReference<AudioClip> audioClip;
+		static std::vector<std::string> filterTypes;
 
 	private:
 		int _channel;
@@ -25,6 +29,9 @@ namespace PlatinumEngine
 		bool _isPlaying;
 		bool _isPaused;
 		static std::vector<bool> _allocatedChannel;
+
+		struct filterData{const char* type; float userdata[8]; Dsp::Filter* filter;};
+		filterData _filterInfo;
 
 	public:
 		AudioComponent();
@@ -54,6 +61,16 @@ namespace PlatinumEngine
 
 		void OnIDSystemUpdate() override;
 
+		// FILTER RELATED FUNCTIONS
+
+		// Sets parameters of the current filter (by definition, a max number of 8 possible parameters)
+		void SetFilterParams(float params[8]);
+		// Sets the type of filter to be used on the current channel
+		void SetFilterType(int type);
+		// Gets the parameters supported by the current filter and returns their information (maximum of 8 possible parameters)
+		void GetFilterParamsInfo(int &numParams, char* (&paramNames)[8],float (&paramValues)[8]);
+		// Applies the filter effect (No need to call this)
+		static void FilterEffect(int channel, void* stream, int length, void* userData);
 
 		//STATIC FUNCTIONS
 
@@ -66,5 +83,7 @@ namespace PlatinumEngine
 
 	private:
 		bool AllocateChannel();
+
+		void RegisterEffects();
 	};
 }
