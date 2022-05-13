@@ -632,7 +632,7 @@ void InspectorWindow::ShowRigidBodyComponent(SavedReference<RigidBody>& referenc
 	RigidBody* rigidBodyPointer = reference.DeRef().get();
 
 	ImGui::Separator();
-	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_USER " RigidBody Component",
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_USER "  RigidBody Component",
 			ImGuiTreeNodeFlags_AllowItemOverlap);
 
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
@@ -1083,7 +1083,7 @@ void InspectorWindow::ShowAudioComponent(SavedReference<AudioComponent>& referen
 	AudioComponent* audioComponentPointer = reference.DeRef().get();
 
 	ImGui::Separator();
-	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_TABLE_CELLS "  Audio", ImGuiTreeNodeFlags_AllowItemOverlap);
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_MUSIC "  Audio", ImGuiTreeNodeFlags_AllowItemOverlap);
 	// TODO: Icon button maybe?
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveAudioComponent"))
@@ -1228,7 +1228,15 @@ void InspectorWindow::ShowPlayerComponent(SavedReference<Player>& reference)
 	ImGui::Separator();
 	bool isHeaderOpen = ImGui::CollapsingHeader("Player", ImGuiTreeNodeFlags_AllowItemOverlap);
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
-	if (ImGui::Button("X##RemovePlayerComponent"))
+
+	if (ImGui::Button("X##RemovePlayerAttachmentComponent"))
+	{
+		// remove component
+		Application::Instance->scene.RemoveComponent(reference);
+		return;
+	}
+
+	if (isHeaderOpen)
 	{
 		// store pointer of renderComponent
 		Player* player = reference.DeRef().get();
@@ -1468,7 +1476,7 @@ void InspectorWindow::ShowLightComponent(SavedReference<LightComponent>& referen
 {
 	// If this gui is being shown, assumption that object has light component
 	ImGui::Separator();
-	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_ARROWS_TURN_TO_DOTS "  Light Component", ImGuiTreeNodeFlags_AllowItemOverlap);
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_LIGHTBULB "   Light Component", ImGuiTreeNodeFlags_AllowItemOverlap);
 
 	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
 	if (ImGui::Button("X##RemoveLightComponent")) {

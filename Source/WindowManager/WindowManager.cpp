@@ -213,6 +213,21 @@ namespace PlatinumEngine
 		}
 		if (ImGui::BeginMenu("Create Game Object"))
 		{
+			if(ImGui::MenuItem(ICON_FA_PERSON_FALLING "  Animation"))
+			{
+				auto obj = Application::Instance->scene.AddGameObject("Animation");
+				Application::Instance->scene.AddComponent<MeshRender>(obj);
+				Application::Instance->scene.AddComponent<Transform>(obj);
+				Application::Instance->scene.AddComponent<AnimationComponent>(obj);
+				Application::Instance->sceneEditor.SetSelectedGameobject(obj);
+			}
+			if(ImGui::MenuItem(ICON_FA_MUSIC "  Audio"))
+			{
+				auto obj = Application::Instance->scene.AddGameObject("Audio");
+				Application::Instance->scene.AddComponent<AudioComponent>(obj);
+				Application::Instance->scene.AddComponent<Transform>(obj);
+				Application::Instance->sceneEditor.SetSelectedGameobject(obj);
+			}
 			if (ImGui::MenuItem(ICON_FA_CAMERA " Camera"))
 			{
 				auto obj = Application::Instance->scene.AddGameObject("Camera");
