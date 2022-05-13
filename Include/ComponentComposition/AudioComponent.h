@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <SceneManager/Scene.h>
 #include "DspFilters/Dsp.h"
+#include "Audio/custom_mix_pitch.h"
 
 namespace PlatinumEngine
 {
@@ -20,8 +21,10 @@ namespace PlatinumEngine
 		std::string fileName;
 		bool isLooping;
 		bool isFilterEnabled;
+		bool isPlaybackShiftEnabled;
 		SavedReference<AudioClip> audioClip;
 		static std::vector<std::string> filterTypes;
+		float playbackSpeed;
 
 	private:
 		int _channel;

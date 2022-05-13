@@ -5,7 +5,7 @@
 namespace PlatinumEngine
 {
 	AudioComponent::AudioComponent():
-		isLooping(false), _isPaused(false), _isPlaying(false), _panning(127), isFilterEnabled(false)
+		isLooping(false), _isPaused(false), _isPlaying(false), _panning(127), isFilterEnabled(false), playbackSpeed(1.f), isPlaybackShiftEnabled(false)
 	{
 		if(!AllocateChannel())
 			PLATINUM_WARNING("Could not allocate a channel");
@@ -34,8 +34,7 @@ namespace PlatinumEngine
 		}
 		if(!_isPlaying)
 		{
-			if(isFilterEnabled)
-				RegisterEffects();
+			RegisterEffects();
 			_isPlaying = true;
 			_isPaused = false;
 			Mix_PlayChannel(_channel, audioClip.DeRef()->chunk, isLooping ? -1 : 0);
@@ -271,7 +270,9 @@ namespace PlatinumEngine
 
 	void AudioComponent::RegisterEffects()
 	{
-		if(std::string(_filterInfo.type).compare("None")!=0 && _filterInfo.filter!=nullptr)
+		if(isPlaybackShiftEnabled)
+			Custom_Mix_RegisterPlaybackSpeedEffect(_channel, audioClip.DeRef()->chunk, &playbackSpeed, isLooping, 0);
+		if(isFilterEnabled && (std::string(_filterInfo.type).compare("None")!=0 && _filterInfo.filter!=nullptr))
 			Mix_RegisterEffect(_channel, FilterEffect, NULL, &_filterInfo);
 	}
 

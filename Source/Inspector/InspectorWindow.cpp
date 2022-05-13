@@ -1104,6 +1104,16 @@ void InspectorWindow::ShowAudioComponent(SavedReference<AudioComponent>& referen
 			audioComponentPointer->SetFilterParams(paramValues);
 		}
 
+		if(ImGui::Checkbox("Playback Shift",&audioComponentPointer->isPlaybackShiftEnabled))
+		{
+			if(audioComponentPointer->IsPlaying())
+				audioComponentPointer->Stop();
+		}
+		if(audioComponentPointer->isPlaybackShiftEnabled)
+		{
+			ImGui::InputFloat("Playback Speed",&audioComponentPointer->playbackSpeed);
+		}
+
 		int channel = audioComponentPointer->GetChannel();
 		ImGui::Text("CHANNEL: %d",channel);
 
