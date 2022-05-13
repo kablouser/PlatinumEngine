@@ -5,13 +5,15 @@
 namespace PlatinumEngine
 {
 	AudioComponent::AudioComponent():
-		isLooping(false), _isPaused(false), _isPlaying(false), _panning(127), isFilterEnabled(false), playbackSpeed(1.f), isPlaybackShiftEnabled(false)
+		isLooping(false), _isPaused(false), _isPlaying(false), _panning(127), isFilterEnabled(false), playbackSpeed(1.f), isPlaybackShiftEnabled(false), isDistortEnabled(false)
 	{
 		if(!AllocateChannel())
 			PLATINUM_WARNING("Could not allocate a channel");
 		_filterInfo.filter = nullptr;
 		_filterInfo.type = "None";
 		std::memset(_filterInfo.userdata, 0, sizeof(_filterInfo.userdata));
+		_distortInfo.previousStreamLength = 0;
+		_distortInfo.mixDistortDryValue = 1.f;
 	}
 
 	AudioComponent::~AudioComponent()
@@ -225,6 +227,61 @@ namespace PlatinumEngine
 		}
 	}
 
+	void AudioComponent::SetDistortDryValue(float value)
+	{
+		_distortInfo.mixDistortDryValue = value;
+	}
+
+	float AudioComponent::GetDistortDryValue()
+	{
+		return _distortInfo.mixDistortDryValue;
+	}
+
+	void AudioComponent::DistortEffect(int channel, void* stream, int length, void* userData)
+	{
+		distortData* userParam = static_cast<distortData*>(userData);
+
+		Sint16* previousStream = userParam->previousStream;
+		int previousStreamLength = userParam->previousStreamLength;
+		float mixDryValue = userParam->mixDistortDryValue;
+		float mixWetValue = 1.f - mixDryValue;
+
+		//Stream related operations
+		const std::size_t buffer_length = length/sizeof(Sint16);
+		Sint16* buffer = static_cast<Sint16*>(stream);
+		int numSamples = buffer_length/2;
+
+		Sint16 buffer_copy[buffer_length];
+		memcpy(buffer_copy, buffer, buffer_length);
+
+		int offset = numSamples/2;
+		for(int i=0; i<numSamples; i+=2)
+		{
+			if(i<offset)
+			{
+				if(previousStreamLength/2 == numSamples)
+				{
+					buffer_copy[i]  =(Sint16) (buffer[i]    *mixDryValue + previousStream[numSamples+i-offset]  *mixWetValue);
+					buffer_copy[i+1]=(Sint16) (buffer[i + 1]*mixDryValue + previousStream[numSamples+i-offset+1]*mixWetValue);
+				}
+			}
+			else
+			{
+				buffer_copy[i]  =(Sint16) (buffer[i]  *mixDryValue + buffer[i-offset]  *mixWetValue);
+				buffer_copy[i+1]=(Sint16) (buffer[i+1]*mixDryValue + buffer[i-offset+1]*mixWetValue);
+			}
+		}
+
+		if(previousStreamLength!=buffer_length)
+			userParam->previousStream = new Sint16[buffer_length];
+
+		memcpy(userParam->previousStream, buffer, buffer_length);
+		memcpy(buffer, buffer_copy, buffer_length);
+
+		userParam->previousStreamLength = buffer_length;
+
+	}
+
 	void AudioComponent::CreateTypeInfo(TypeDatabase& typeDatabase)
 	{
 		typeDatabase.BeginTypeInfo<AudioComponent>()
@@ -272,8 +329,11 @@ namespace PlatinumEngine
 	{
 		if(isPlaybackShiftEnabled)
 			Custom_Mix_RegisterPlaybackSpeedEffect(_channel, audioClip.DeRef()->chunk, &playbackSpeed, isLooping, 0);
+		if(isDistortEnabled)
+			Mix_RegisterEffect(_channel, DistortEffect, NULL, &_distortInfo);
 		if(isFilterEnabled && (std::string(_filterInfo.type).compare("None")!=0 && _filterInfo.filter!=nullptr))
 			Mix_RegisterEffect(_channel, FilterEffect, NULL, &_filterInfo);
+
 	}
 
 	std::vector<bool> AudioComponent::_allocatedChannel = std::vector<bool>(Mix_AllocateChannels(-1));

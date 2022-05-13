@@ -22,6 +22,7 @@ namespace PlatinumEngine
 		bool isLooping;
 		bool isFilterEnabled;
 		bool isPlaybackShiftEnabled;
+		bool isDistortEnabled;
 		SavedReference<AudioClip> audioClip;
 		static std::vector<std::string> filterTypes;
 		float playbackSpeed;
@@ -35,6 +36,8 @@ namespace PlatinumEngine
 
 		struct filterData{const char* type; float userdata[8]; Dsp::Filter* filter;};
 		filterData _filterInfo;
+		struct distortData{Sint16* previousStream; int previousStreamLength; float mixDistortDryValue;};
+		distortData _distortInfo;
 
 	public:
 		AudioComponent();
@@ -74,6 +77,12 @@ namespace PlatinumEngine
 		void GetFilterParamsInfo(int &numParams, char* (&paramNames)[8],float (&paramValues)[8]);
 		// Applies the filter effect (No need to call this)
 		static void FilterEffect(int channel, void* stream, int length, void* userData);
+
+		void SetDistortDryValue(float value);
+
+		float GetDistortDryValue();
+
+		static void DistortEffect(int channel, void* stream, int length, void* userData);
 
 		//STATIC FUNCTIONS
 

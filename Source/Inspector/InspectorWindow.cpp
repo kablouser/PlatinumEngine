@@ -1114,6 +1114,18 @@ void InspectorWindow::ShowAudioComponent(SavedReference<AudioComponent>& referen
 			ImGui::InputFloat("Playback Speed",&audioComponentPointer->playbackSpeed);
 		}
 
+		if(ImGui::Checkbox("Distort",&audioComponentPointer->isDistortEnabled))
+		{
+			if(audioComponentPointer->IsPlaying())
+				audioComponentPointer->Stop();
+		}
+		if(audioComponentPointer->isDistortEnabled)
+		{
+			float distortValue = audioComponentPointer->GetDistortDryValue();
+			ImGui::SliderFloat("Dry/Wet Mix", &distortValue, 0.f, 1.f);
+			audioComponentPointer->SetDistortDryValue(distortValue);
+		}
+
 		int channel = audioComponentPointer->GetChannel();
 		ImGui::Text("CHANNEL: %d",channel);
 
