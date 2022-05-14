@@ -19,7 +19,8 @@ namespace PlatinumEngine
 				.WithField<Maths::Vec4>("endColour", PLATINUM_OFFSETOF(ParticleEffect, endColour))
 				.WithField<float>("minShadeValue", PLATINUM_OFFSETOF(ParticleEffect, minShadeValue))
 				.WithField<float>("maxShadeValue", PLATINUM_OFFSETOF(ParticleEffect, maxShadeValue))
-				.WithField<ParticleEffects::ParticleEmitter>("particleEmitter", PLATINUM_OFFSETOF(ParticleEffect, particleEmitter));
+				.WithField<ParticleEffects::ParticleEmitter>("particleEmitter", PLATINUM_OFFSETOF(ParticleEffect, particleEmitter))
+				.WithField<bool>("isPlaying", PLATINUM_OFFSETOF(ParticleEffect, isPlaying));
 	}
 
 	ParticleEffect::ParticleEffect()

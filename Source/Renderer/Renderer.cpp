@@ -491,8 +491,10 @@ namespace PlatinumEngine
 						isPointLight = true;
 						_phongShader.SetUniform("ambientLight", lightComponent.DeRef()->ambientLight);
 						_phongShader.SetUniform("isPointLight", isPointLight);
+						auto matrix = transform.DeRef()->GetLocalToWorldMatrix();
+						auto pos = Maths::Vec3{matrix[3][0], matrix[3][1], matrix[3][2]};
 						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].position",
-								transform.DeRef()->localPosition);
+								pos);
 						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].baseLight",
 								(lightComponent.DeRef()->intensity * lightComponent.DeRef()->spectrum).to_vec());
 						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].constant",

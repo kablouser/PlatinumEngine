@@ -25,7 +25,7 @@ namespace PlatinumEngine
 		///ifs in main menu window list to call the function inside
 		///-----------------------------------------------------------------------
 		//window section
-		Application::Instance->gameWindow.ShowGUIWindow(&_showWindowGame);
+		if (_showWindowGame)			Application::Instance->gameWindow.ShowGUIWindow(&_showWindowGame);
 		if (_showWindowScene) 			ShowWindowScene(&_showWindowScene);
 		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy);
 		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector);
@@ -209,7 +209,8 @@ namespace PlatinumEngine
 	{
 		if (ImGui::MenuItem("Create Empty"))
 		{
-			Application::Instance->scene.AddGameObject();
+			auto obj = Application::Instance->scene.AddGameObject();
+			Application::Instance->sceneEditor.SetSelectedGameobject(obj);
 		}
 		if (ImGui::BeginMenu("Create Game Object"))
 		{
@@ -237,6 +238,14 @@ namespace PlatinumEngine
 			}
 			if (ImGui::BeginMenu("Lights"))
 			{
+				if (ImGui::MenuItem(ICON_FA_SUN " Directional Light"))
+				{
+					auto obj = Application::Instance->scene.AddGameObject("Light");
+					auto component = Application::Instance->scene.AddComponent<LightComponent>(obj);
+					component.DeRef()->type = LightComponent::LightType::Directional;
+					Application::Instance->scene.AddComponent<Transform>(obj);
+					Application::Instance->sceneEditor.SetSelectedGameobject(obj);
+				}
 				if (ImGui::MenuItem(ICON_FA_LIGHTBULB " Point Light"))
 				{
 					auto obj = Application::Instance->scene.AddGameObject("Light");
@@ -284,6 +293,7 @@ namespace PlatinumEngine
 					cube.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(asset);
 				}
 				Application::Instance->scene.AddComponent<BoxCollider>(cube);
+				Application::Instance->sceneEditor.SetSelectedGameobject(cube);
 			}
 
 			if (ImGui::MenuItem(ICON_FA_CIRCLE " Sphere"))
@@ -298,6 +308,7 @@ namespace PlatinumEngine
 					sphere.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(asset);
 				}
 				Application::Instance->scene.AddComponent<SphereCollider>(sphere);
+				Application::Instance->sceneEditor.SetSelectedGameobject(sphere);
 			}
 
 			if (ImGui::MenuItem(ICON_FA_CAPSULES " Capsule"))
@@ -312,6 +323,7 @@ namespace PlatinumEngine
 					capsule.DeRef()->GetComponent<MeshRender>().DeRef()->SetMesh(asset);
 				}
 				Application::Instance->scene.AddComponent<CapsuleCollider>(capsule);
+				Application::Instance->sceneEditor.SetSelectedGameobject(capsule);
 			}
 
 			if (ImGui::MenuItem(ICON_FA_SQUARE " Plane"))
@@ -327,6 +339,7 @@ namespace PlatinumEngine
 				}
 
 				Application::Instance->scene.AddComponent<BoxCollider>(plane);
+				Application::Instance->sceneEditor.SetSelectedGameobject(plane);
 			}
 			ImGui::EndMenu();
 		}

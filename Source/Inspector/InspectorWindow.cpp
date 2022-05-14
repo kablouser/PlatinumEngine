@@ -77,7 +77,6 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen)
 			if (auto ref = obj.DeRef()->GetComponent<Player>())
 				ShowPlayerComponent(ref);
 
-			ImGui::Separator();
 			if (_isAddComponentWindowOpen)
 				ShowAddComponent();
 			else
@@ -707,36 +706,43 @@ void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>
 	{
 		ParticleEffect* particleEffectPointer = reference.DeRef().get();
 
+		ImGui::Text("%s", "Playing");
+		ImGui::SameLine();
+		ImGui::Checkbox("##PlayingParticleEffect", &(particleEffectPointer->isPlaying));
+		ImGui::SameLine();
 		ImGui::Text("%s", "Emitting");
 		ImGui::SameLine();
 		ImGui::Checkbox("##BeginEmittingParticleEffect", &(particleEffectPointer->particleEmitter.isEmitting));
 		ImGui::SameLine();
 		if (ImGui::Button("OneShot##OneShotParticleEffect"))
 			particleEffectPointer->particleEmitter.oneShot = true;
+
+		ImGui::Text("%s", "Use Cylinder billboard");
 		ImGui::SameLine();
-		ImGui::Text("%s", "Playing");
-		ImGui::SameLine();
-		ImGui::Checkbox("##PlayingParticleEffect", &(particleEffectPointer->isPlaying));
+		ImGui::Checkbox("##Use Cylinder billboard", &(particleEffectPointer->particleEmitter.useCylindricalBillboard));
 
 		if (ImGui::CollapsingHeader("Emitter Settings"))
 		{
+			ImGui::PushItemWidth(_inputClampedWidth);
+
 			ImGui::Text("Maximum Particles: ");
-			ImGui::SliderInt("##MaximumNumberOfParticles", &(particleEffectPointer->particleEmitter.numberOfParticles), 0.f, 5000,
-					"%d", ImGuiSliderFlags_None);
+			ImGui::SameLine(_textWidthParticleEffectComponent);
+			InputIntClamped("##MaximumParticles", &particleEffectPointer->particleEmitter.numberOfParticles, 0, 5000);
 
 			ImGui::Text("Particle Lifetime: ");
-			ImGui::SliderFloat("##RespawnLifetime: ", &(particleEffectPointer->particleEmitter.respawnLifetime), 0.f, 10, "%.3f",
-					ImGuiSliderFlags_None);
+			ImGui::SameLine(_textWidthParticleEffectComponent);
+			InputFloatClamped("##ParticleLifetime", &particleEffectPointer->particleEmitter.respawnLifetime, 0.0f, 100.0f);
 
 			ImGui::Text("New Particles: ");
-			ImGui::SliderInt("##NumberOfNewParticles", &(particleEffectPointer->particleEmitter.numberOfNewParticles), 0.f, 100,
-					"%d", ImGuiSliderFlags_None);
+			ImGui::SameLine(_textWidthParticleEffectComponent);
+			InputIntClamped("##NewParticles", &particleEffectPointer->particleEmitter.numberOfNewParticles, 0, 100);
 
 			ImGui::Text("Spawn Interval: ");
-			ImGui::SliderFloat("##SpawnIntervalParticles", &(particleEffectPointer->particleEmitter.spawnInterval), 0.016f, 5,
-					"%.3f", ImGuiSliderFlags_None);
+			ImGui::SameLine(_textWidthParticleEffectComponent);
+			InputFloatClamped("##SpawnInterval", &particleEffectPointer->particleEmitter.spawnInterval, 0.016f, 100.0f);
 
 			ImGui::Text("Acting Force: ");
+			ImGui::SameLine(_textWidthParticleEffectComponent);
 
 			ImGui::PushItemWidth(50);
 			ImGui::Text("X");
@@ -753,13 +759,15 @@ void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>
 			ImGui::SameLine();
 			ImGui::InputFloat("##ActingForceZ", &(particleEffectPointer->particleEmitter.actingForce[2]));
 			ImGui::PopItemWidth();
+			ImGui::PopItemWidth();
 		}
 
 		if (ImGui::CollapsingHeader("Particle Settings"))
 		{
 			// Scale
 			{
-				ImGui::Text("Scale");
+				ImGui::Text("Scale: ");
+				ImGui::SameLine();
 				ImGui::PushItemWidth(50);
 				ImGui::Text("X");
 				ImGui::SameLine();
@@ -782,7 +790,7 @@ void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>
 
 			// Position
 			{
-				ImGui::Text("%s", "Random Position");
+				ImGui::Text("%s", "Random Initial Position");
 				ImGui::PushItemWidth(50);
 				ImGui::Text("X");
 				ImGui::SameLine();
@@ -848,7 +856,8 @@ void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>
 
 			// Velocity
 			{
-				ImGui::Text("%s", "Default Initial Velocity");
+				ImGui::Text("%s", "Initial Velocity: ");
+				ImGui::SameLine();
 				ImGui::PushItemWidth(50);
 				ImGui::Text("X");
 				ImGui::SameLine();
@@ -864,7 +873,7 @@ void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>
 				ImGui::SameLine();
 				ImGui::InputFloat("##VelocityZ", &(particleEffectPointer->particleEmitter.initVelocity[2]));
 
-				ImGui::Text("%s", "Random Velocity");
+				ImGui::Text("%s", "Random Initial Velocity");
 
 				ImGui::Text("X");
 				ImGui::SameLine();
@@ -975,6 +984,8 @@ void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>
 				ImGui::EndPopup();
 			}
 
+			ImGui::Separator();
+
 			// Possible options to shade by
 			const std::string items[] = { "Life", "Position", "Size", "Speed" };
 			ImGui::Text("Shade by: ");
@@ -993,29 +1004,24 @@ void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>
 				ImGui::EndCombo();
 			}
 			ImGui::PopItemWidth();
-			ImGui::SameLine();
+
 			ImGui::Text("Min");
-			float maxVal = 100.0f;
-			if (particleEffectPointer->shadeBy == "Life")
-			{
-				maxVal = particleEffectPointer->particleEmitter.respawnLifetime;
-				if (particleEffectPointer->maxShadeValue > maxVal)
-					particleEffectPointer->maxShadeValue = maxVal;
-				if (particleEffectPointer->minShadeValue > maxVal)
-					particleEffectPointer->minShadeValue = maxVal;
-			}
 			ImGui::SameLine();
-			ImGui::PushItemWidth(50);
-			ImGui::SliderFloat("##MinShadeValue", &particleEffectPointer->minShadeValue, 0.f, maxVal, "%.3f",
-					ImGuiSliderFlags_None);
+			float maxVal = 100.0f; // default max value
+			// If shading by life can only go to max life
+			if (particleEffectPointer->shadeBy == "Life")
+				maxVal = particleEffectPointer->particleEmitter.respawnLifetime;
+			ImGui::PushItemWidth(_inputClampedWidth);
+			InputFloatClamped("##MinShadeValue", &particleEffectPointer->minShadeValue, 0.f, maxVal);
 			ImGui::PopItemWidth();
 			ImGui::SameLine();
 			ImGui::Text("Max");
 			ImGui::SameLine();
-			ImGui::PushItemWidth(50);
-			ImGui::SliderFloat("##MaxShadeValue", &particleEffectPointer->maxShadeValue, 0.f, maxVal, "%.3f",
-					ImGuiSliderFlags_None);
+			ImGui::PushItemWidth(_inputClampedWidth);
+			InputFloatClamped("##MaxShadeValue", &particleEffectPointer->maxShadeValue, 0.f, maxVal);
 			ImGui::PopItemWidth();
+
+			ImGui::Separator();
 
 			const std::string scaleByItems[] = { "Constant", "Life", "Position", "Speed" };
 			ImGui::Text("Scale by: ");
@@ -1037,15 +1043,18 @@ void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>
 			ImGui::SameLine();
 			ImGui::Text("%s", "Scale Factor: ");
 			ImGui::SameLine();
-			ImGui::SliderFloat("##ScaleFactorParticles", &particleEffectPointer->particleEmitter.scaleFactor, 0.f, 10.0f, "%.3f",
-					ImGuiSliderFlags_None);
+			ImGui::PushItemWidth(_inputClampedWidth);
+			InputFloatClamped("##ScaleFactorParticles", &particleEffectPointer->particleEmitter.scaleByFactor, 0.f, 100.0f);
+			ImGui::PopItemWidth();
+
+			ImGui::Separator();
 
 			char textureBuffer[64];
 			if (particleEffectPointer->particleEmitter.texture.DeRef() != nullptr)
 				strcpy(textureBuffer, particleEffectPointer->particleEmitter.texture.DeRef()->fileName.c_str());
 			else
 				memset(textureBuffer, 0, 64 * sizeof(char));
-			ImGui::Text("%s", "Texture:");
+			ImGui::Text("%s", "Texture: ");
 			ImGui::SameLine(_textWidthParticleEffectComponentSmall - 30);
 			ImGui::PushItemWidth(_itemWidthParticleEffectComponent);
 			ImGui::InputText("##ParticleEffectTexture", textureBuffer, sizeof(textureBuffer),
@@ -1064,16 +1073,14 @@ void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>
 			ImGui::SameLine();
 			ImGui::Checkbox("##UseParticleEffectTexture", &(particleEffectPointer->useTexture));
 
+			ImGui::PushItemWidth(_inputClampedWidth);
 			ImGui::Text("Number of Rows: ");
-			ImGui::SameLine();
-			ImGui::InputInt("##NumberOfRowsInTexture", &(particleEffectPointer->particleEmitter.numRowsInTexture));
+			ImGui::SameLine(_textWidthParticleEffectComponent);
+			InputIntClamped("##NumberOfRowsInTexture", &particleEffectPointer->particleEmitter.numRowsInTexture, 0, 99999);
 			ImGui::Text("Number of Columns: ");
-			ImGui::SameLine();
-			ImGui::InputInt("##NumberOfColsInTexture", &(particleEffectPointer->particleEmitter.numColsInTexture));
-
-			ImGui::Text("%s", "Use Cylinder billboard");
-			ImGui::SameLine();
-			ImGui::Checkbox("##Use Cylinder billboard", &(particleEffectPointer->particleEmitter.useCylindricalBillboard));
+			ImGui::SameLine(_textWidthParticleEffectComponent);
+			InputIntClamped("##NumberOfColsInTexture", &particleEffectPointer->particleEmitter.numColsInTexture, 0, 99999);
+			ImGui::PopItemWidth();
 		}
 	}
 }
@@ -1360,6 +1367,8 @@ void InspectorWindow::ShowAddComponent()
 {
 	if (ImGui::BeginChild("ComponentSelector"))
 	{
+		ImGui::Separator();
+
 		auto& obj = Application::Instance->sceneEditor.GetSelectedGameobject();
 
 		static const char* components[] = {
@@ -1495,6 +1504,11 @@ void InspectorWindow::ShowLightComponent(SavedReference<LightComponent>& referen
 		ImGui::ColorEdit3("Spectrum", light.DeRef()->spectrum.data);
 		ImGui::DragFloat("Intensity", &light.DeRef()->intensity, 0.1f, 0.0f,
 				std::numeric_limits<float>::max(), "%.2f");
+		if (light.DeRef()->type == LightComponent::LightType::Point)
+		{
+			ImGui::InputFloat("Linear", &light.DeRef()->linear);
+			ImGui::InputFloat("Quadratic", &light.DeRef()->quadratic, 0.0f, 0.0f, "%.6f");
+		}
 	}
 }
 
@@ -1506,4 +1520,25 @@ std::filesystem::path InspectorWindow::GetPayloadPath(const ImGuiPayload* payloa
 	for (int i = 0; i < size; i++)
 		filePath += *(payloadPointer + i);
 	return std::filesystem::path(filePath);
+}
+
+void InspectorWindow::InputIntClamped(const char *label, int *val, int min, int max)
+{
+	int inputVal = *val;
+	ImGui::InputInt(label, &inputVal, 1, 10);
+	if (ImGui::IsItemDeactivatedAfterEdit())
+	{
+		inputVal = std::clamp(inputVal, min, max);
+		*val = inputVal;
+	}
+}
+
+void InspectorWindow::InputFloatClamped(const char *label, float *val, float min, float max) {
+	float inputVal = *val;
+	ImGui::InputFloat(label, &inputVal, 0.1f, 1.0f);
+	if (ImGui::IsItemDeactivatedAfterEdit())
+	{
+		inputVal = std::clamp(inputVal, min, max);
+		*val = inputVal;
+	}
 }

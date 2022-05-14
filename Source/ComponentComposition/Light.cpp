@@ -53,11 +53,19 @@ namespace PlatinumEngine
 		if(type == LightType::Directional)
 		{
 			Mesh arrow = ArrowMesh(0.03f, 0.075f, 1.0f);
+			auto transform = GetComponent<Transform>();
+			if (transform)
+				transform.DeRef()->localScale = 1.0f;
+			shaderInput.Clear();
 			shaderInput.Set(arrow.vertices, arrow.indices);
 		}
 		else if(type == LightType::Point)
 		{
 			Mesh sphere = SphereMesh(0.1f, 3);
+			auto transform = GetComponent<Transform>();
+			if (transform)
+				transform.DeRef()->localScale = 0.01f;
+			shaderInput.Clear();
 			shaderInput.Set(sphere.vertices, sphere.indices);
 		}
 	}

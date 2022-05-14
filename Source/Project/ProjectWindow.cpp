@@ -406,11 +406,11 @@ void ProjectWindow::ShowProjectWindowPreview(std::filesystem::path filePath)
 	//Common info
 	ImGui::Text("Name: ");
 	ImGui::SameLine();
-	ImGui::Text(filePath.filename().string().c_str());
+	ImGui::Text("%s", filePath.filename().string().c_str());
 
 	ImGui::Text("Size: ");
 	ImGui::SameLine();
-	ImGui::Text(FormatFileSize(file_size(filePath)).c_str());
+	ImGui::Text("%s", FormatFileSize(file_size(filePath)).c_str());
 }
 
 /**

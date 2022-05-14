@@ -12,6 +12,7 @@ namespace PlatinumEngine
 	{
 		void ParticleEmitter::CreateTypeInfo(TypeDatabase& typeDatabase)
 		{
+			// So long now :(
 			typeDatabase.BeginTypeInfo<ParticleEmitter>()
 			        .WithField<int>("numberOfParticles", PLATINUM_OFFSETOF(ParticleEmitter, numberOfParticles))
 					.WithField<float>("respawnLifetime", PLATINUM_OFFSETOF(ParticleEmitter, respawnLifetime))
@@ -39,7 +40,19 @@ namespace PlatinumEngine
 					.WithField<float>("maxVelocityZ", PLATINUM_OFFSETOF(ParticleEmitter, maxVelocityZ))
 					.WithField<SavedReference<Texture>>("texture", PLATINUM_OFFSETOF(ParticleEmitter, texture))
 					.WithField<int>("numRowsInTexture", PLATINUM_OFFSETOF(ParticleEmitter, numRowsInTexture))
-					.WithField<int>("numColsInTexture", PLATINUM_OFFSETOF(ParticleEmitter, numColsInTexture));
+					.WithField<int>("numColsInTexture", PLATINUM_OFFSETOF(ParticleEmitter, numColsInTexture))
+					.WithField<bool>("useCylindricalBillboard", PLATINUM_OFFSETOF(ParticleEmitter, useCylindricalBillboard))
+					.WithField<Maths::Vec3>("scaleFactors", PLATINUM_OFFSETOF(ParticleEmitter, scaleFactors))
+					.WithField<bool>("useUniformRandomPositionX", PLATINUM_OFFSETOF(ParticleEmitter, useUniformRandomPositionX))
+					.WithField<bool>("useUniformRandomPositionY", PLATINUM_OFFSETOF(ParticleEmitter, useUniformRandomPositionY))
+					.WithField<bool>("useUniformRandomPositionZ", PLATINUM_OFFSETOF(ParticleEmitter, useUniformRandomPositionZ))
+					.WithField<bool>("useUniformInitVelocityX", PLATINUM_OFFSETOF(ParticleEmitter, useUniformInitVelocityX))
+					.WithField<bool>("useUniformInitVelocityY", PLATINUM_OFFSETOF(ParticleEmitter, useUniformInitVelocityY))
+					.WithField<bool>("useUniformInitVelocityZ", PLATINUM_OFFSETOF(ParticleEmitter, useUniformInitVelocityZ))
+					.WithField<bool>("isEmitting", PLATINUM_OFFSETOF(ParticleEmitter, isEmitting))
+					.WithField<std::string>("scaleBy", PLATINUM_OFFSETOF(ParticleEmitter, scaleBy))
+					.WithField<float>("scaleByFactor", PLATINUM_OFFSETOF(ParticleEmitter, scaleByFactor));
+			// oneShot does not need to be serialised
 		}
 
 
@@ -93,13 +106,13 @@ namespace PlatinumEngine
 
 					// TODO: Let user choose how to scale particle and by what factor
 					if (scaleBy == "Constant")
-						p.scale = scaleFactor;
+						p.scale = scaleByFactor;
 					if (scaleBy == "Life")
-						p.scale = scaleFactor * p.life;
+						p.scale = scaleByFactor * p.life;
 					if (scaleBy == "Position")
-						p.scale = scaleFactor * Maths::Length(p.position);
+						p.scale = scaleByFactor * Maths::Length(p.position);
 					if (scaleBy == "Speed")
-						p.scale = scaleFactor * Maths::Length(p.velocity);
+						p.scale = scaleByFactor * Maths::Length(p.velocity);
 					p.textureIndex = Maths::Vec2(0,0);
 					float lifeAsFraction = (p.life) / (respawnLifetime);
 					// Use 2*p.life to run through texture twice, note for later
