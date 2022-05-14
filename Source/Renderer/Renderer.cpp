@@ -465,6 +465,10 @@ namespace PlatinumEngine
 		int num_directed_lights, num_point_lights;
 		num_directed_lights = num_point_lights = 0;
 		bool isDirLight = false, isPointLight = false;
+
+		// Reset uniforms
+		_phongShader.SetUniform("ambientLight", Maths::Vec3{0.0f, 0.0f, 0.0f});
+
 		for(auto light:lights)
 		{
 			auto lightComponent = light;

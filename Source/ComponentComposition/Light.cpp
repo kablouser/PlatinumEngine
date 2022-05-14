@@ -27,7 +27,7 @@ namespace PlatinumEngine
 	LightComponent::LightComponent()
 		:type(LightType::Point),
 		 direction({0.0f, 1.0f, 0.0f}),
-		 ambientLight({ 0.2f, 0.2f, 0.2f }),
+		 ambientLight({ 0.0f, 0.0f, 0.0f }),
 		 intensity(1.0f),
 		 spectrum(0.7f)
 	{
@@ -36,7 +36,7 @@ namespace PlatinumEngine
 	LightComponent::LightComponent(LightType type)
 		:type(type),
 		 direction({0.0f, 0.0f, -1.0f}),
-		 ambientLight({ 0.2f, 0.2f, 0.2f }),
+		 ambientLight({ 0.0f, 0.0f, 0.0f }),
 		 intensity(1.0f),
 		 spectrum(1.0f)
 	{

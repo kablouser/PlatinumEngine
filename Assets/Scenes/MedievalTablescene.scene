@@ -226,14 +226,31 @@ IDSystem
 			{
 				16273465316111765953,
 				11787666238402050604,
-				18387969221521630528,
-				3389413701573643959,
+				1639174340460383776,
 			};
 			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
 			{
 				{6331786250430706963, PlatinumEngine::Transform},
 				{8238954121679976837, PlatinumEngine::MeshRender},
 				{17569458000516166968, PlatinumEngine::BoxCollider},
+			};
+		}
+	},
+	{
+		1639174340460383776,
+		PlatinumEngine::GameObject 
+		{
+			std::string name = "LeftLight";
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 911240000009314386;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children = 
+			{
+			};
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
+			{
+				{11823304415433184498, PlatinumEngine::LightComponent},
+				{12662171156258409187, PlatinumEngine::Transform},
 			};
 		}
 	},
@@ -276,24 +293,6 @@ IDSystem
 				{14051450617012227691, PlatinumEngine::Transform},
 				{2355212908569130894, PlatinumEngine::MeshRender},
 				{15562691837194204940, PlatinumEngine::BoxCollider},
-			};
-		}
-	},
-	{
-		3389413701573643959,
-		PlatinumEngine::GameObject 
-		{
-			std::string name = "LightLeft";
-			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 911240000009314386;
-			bool _isEnabled = 1;
-			bool _isEnabledInHierarchy = 1;
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children = 
-			{
-			};
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
-			{
-				{14166217645124516777, PlatinumEngine::LightComponent},
-				{11348159293543457967, PlatinumEngine::Transform},
 			};
 		}
 	},
@@ -392,42 +391,6 @@ IDSystem
 		}
 	},
 	{
-		7605389543654410491,
-		PlatinumEngine::GameObject 
-		{
-			std::string name = "LightLeft";
-			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 17613120459898670380;
-			bool _isEnabled = 1;
-			bool _isEnabledInHierarchy = 1;
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children = 
-			{
-			};
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
-			{
-				{1972777290953119435, PlatinumEngine::LightComponent},
-				{476560699478546976, PlatinumEngine::Transform},
-			};
-		}
-	},
-	{
-		7801968806489958341,
-		PlatinumEngine::GameObject 
-		{
-			std::string name = "LightMiddle";
-			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 17613120459898670380;
-			bool _isEnabled = 1;
-			bool _isEnabledInHierarchy = 1;
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children = 
-			{
-			};
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
-			{
-				{5880685619358460696, PlatinumEngine::LightComponent},
-				{4571752498583871592, PlatinumEngine::Transform},
-			};
-		}
-	},
-	{
 		11787666238402050604,
 		PlatinumEngine::GameObject 
 		{
@@ -446,10 +409,10 @@ IDSystem
 		}
 	},
 	{
-		12438944686990073153,
+		12952306353251896460,
 		PlatinumEngine::GameObject 
 		{
-			std::string name = "LightRight";
+			std::string name = "MiddleLight";
 			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 17613120459898670380;
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
@@ -458,8 +421,8 @@ IDSystem
 			};
 			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
 			{
-				{16248060007835375151, PlatinumEngine::LightComponent},
-				{17755189659635333305, PlatinumEngine::Transform},
+				{12416297685480495733, PlatinumEngine::LightComponent},
+				{3449501095875807505, PlatinumEngine::Transform},
 			};
 		}
 	},
@@ -513,9 +476,7 @@ IDSystem
 				4438070839608414218,
 				7415190052381573615,
 				1843658962015654709,
-				7605389543654410491,
-				12438944686990073153,
-				7801968806489958341,
+				12952306353251896460,
 			};
 			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
 			{
@@ -545,90 +506,14 @@ IDSystem
 		}
 	},
 	{
-		18387969221521630528,
-		PlatinumEngine::GameObject 
-		{
-			std::string name = "LightRight";
-			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 911240000009314386;
-			bool _isEnabled = 1;
-			bool _isEnabledInHierarchy = 1;
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children = 
-			{
-			};
-			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
-			{
-				{220536483236656471, PlatinumEngine::LightComponent},
-				{12886812642364002278, PlatinumEngine::Transform},
-			};
-		}
-	},
-	{
-		220536483236656471,
+		11823304415433184498,
 		PlatinumEngine::LightComponent 
 		{
 			PlatinumEngine::LightComponent::LightType type = 1;
 			PlatinumEngine::Spectrum spectrum = 
 			{
-				float r = 0.635294;
-				float g = 0.54902;
-				float b = 0.364706;
-			};
-			PlatinumEngine::Maths::Vec3 direction = 
-			{
-				float x = 0;
-				float y = 1;
-				float z = 0;
-			};
-			PlatinumEngine::Maths::Vec3 ambientLight = 
-			{
-				float x = 0.2;
-				float y = 0.2;
-				float z = 0.2;
-			};
-			float constant = 1;
-			float linear = 0.09;
-			float quadratic = 0.032;
-			float intensity = 0;
-		}
-	},
-	{
-		1972777290953119435,
-		PlatinumEngine::LightComponent 
-		{
-			PlatinumEngine::LightComponent::LightType type = 1;
-			PlatinumEngine::Spectrum spectrum = 
-			{
-				float r = 0.96139;
-				float g = 0.368026;
-				float b = 0.0185596;
-			};
-			PlatinumEngine::Maths::Vec3 direction = 
-			{
-				float x = 0;
-				float y = 1;
-				float z = 0;
-			};
-			PlatinumEngine::Maths::Vec3 ambientLight = 
-			{
-				float x = 0.2;
-				float y = 0.2;
-				float z = 0.2;
-			};
-			float constant = 1;
-			float linear = 0.002;
-			float quadratic = 0.09;
-			float intensity = 4.3;
-		}
-	},
-	{
-		5880685619358460696,
-		PlatinumEngine::LightComponent 
-		{
-			PlatinumEngine::LightComponent::LightType type = 1;
-			PlatinumEngine::Spectrum spectrum = 
-			{
-				float r = 0.352941;
-				float g = 1;
+				float r = 0.835294;
+				float g = 0.211765;
 				float b = 0;
 			};
 			PlatinumEngine::Maths::Vec3 direction = 
@@ -639,54 +524,25 @@ IDSystem
 			};
 			PlatinumEngine::Maths::Vec3 ambientLight = 
 			{
-				float x = 0.2;
-				float y = 0.2;
-				float z = 0.2;
-			};
-			float constant = 1;
-			float linear = 0.09;
-			float quadratic = 0.032;
-			float intensity = 0;
-		}
-	},
-	{
-		14166217645124516777,
-		PlatinumEngine::LightComponent 
-		{
-			PlatinumEngine::LightComponent::LightType type = 1;
-			PlatinumEngine::Spectrum spectrum = 
-			{
-				float r = 0.635294;
-				float g = 0.54902;
-				float b = 0.364706;
-			};
-			PlatinumEngine::Maths::Vec3 direction = 
-			{
 				float x = 0;
-				float y = 1;
+				float y = 0;
 				float z = 0;
 			};
-			PlatinumEngine::Maths::Vec3 ambientLight = 
-			{
-				float x = 0.2;
-				float y = 0.2;
-				float z = 0.2;
-			};
 			float constant = 1;
-			float linear = 0.09;
-			float quadratic = 0.032;
-			float intensity = 0;
+			float linear = 1;
+			float quadratic = 0.23;
+			float intensity = 7.3;
 		}
 	},
 	{
-		16248060007835375151,
+		12416297685480495733,
 		PlatinumEngine::LightComponent 
 		{
 			PlatinumEngine::LightComponent::LightType type = 1;
 			PlatinumEngine::Spectrum spectrum = 
 			{
-				float r = 0.352941;
-				float g = 1;
+				float r = 0.833977;
+				float g = 0.212519;
 				float b = 0;
 			};
 			PlatinumEngine::Maths::Vec3 direction = 
@@ -697,14 +553,14 @@ IDSystem
 			};
 			PlatinumEngine::Maths::Vec3 ambientLight = 
 			{
-				float x = 0.2;
-				float y = 0.2;
-				float z = 0.2;
+				float x = 0;
+				float y = 0;
+				float z = 0;
 			};
 			float constant = 1;
-			float linear = 0.09;
-			float quadratic = 0.032;
-			float intensity = 0;
+			float linear = 1;
+			float quadratic = 1;
+			float intensity = 23.4;
 		}
 	},
 	{
@@ -1461,50 +1317,6 @@ IDSystem
 		}
 	},
 	{
-		476560699478546976,
-		PlatinumEngine::Transform 
-		{
-			// inherited from PlatinumEngine::Component
-			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 7605389543654410491;
-			bool _isEnabled = 1;
-			bool _isEnabledInHierarchy = 1;
-			// from PlatinumEngine::Transform
-			PlatinumEngine::Maths::Vec3 localPosition = 
-			{
-				float x = 26.9223;
-				float y = 20.6057;
-				float z = 1.52588e-05;
-			};
-			PlatinumEngine::Maths::Quaternion localRotation = 
-			{
-				float x = -1.03202e-06;
-				float y = 0;
-				float z = 0;
-				float w = 1;
-			};
-			PlatinumEngine::Maths::Mat4 transformationMatrix = 
-			{
-				float [0,0] = 0;
-				float [0,1] = 0;
-				float [0,2] = 0;
-				float [0,3] = 0;
-				float [1,0] = 0;
-				float [1,1] = 0;
-				float [1,2] = 0;
-				float [1,3] = 0;
-				float [2,0] = 0;
-				float [2,1] = 0;
-				float [2,2] = 0;
-				float [2,3] = 0;
-				float [3,0] = 0;
-				float [3,1] = 0;
-				float [3,2] = 0;
-				float [3,3] = 0;
-			};
-			float localScale = 0.1;
-		}
-	},
-	{
 		1952613032673660581,
 		PlatinumEngine::Transform 
 		{
@@ -1549,6 +1361,50 @@ IDSystem
 		}
 	},
 	{
+		3449501095875807505,
+		PlatinumEngine::Transform 
+		{
+			// inherited from PlatinumEngine::Component
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 12952306353251896460;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			// from PlatinumEngine::Transform
+			PlatinumEngine::Maths::Vec3 localPosition = 
+			{
+				float x = 0;
+				float y = 6.8513;
+				float z = 0;
+			};
+			PlatinumEngine::Maths::Quaternion localRotation = 
+			{
+				float x = 0;
+				float y = 0;
+				float z = 0;
+				float w = 1;
+			};
+			PlatinumEngine::Maths::Mat4 transformationMatrix = 
+			{
+				float [0,0] = 0;
+				float [0,1] = 0;
+				float [0,2] = 0;
+				float [0,3] = 0;
+				float [1,0] = 0;
+				float [1,1] = 0;
+				float [1,2] = 0;
+				float [1,3] = 0;
+				float [2,0] = 0;
+				float [2,1] = 0;
+				float [2,2] = 0;
+				float [2,3] = 0;
+				float [3,0] = 0;
+				float [3,1] = 0;
+				float [3,2] = 0;
+				float [3,3] = 0;
+			};
+			float localScale = 0.1;
+		}
+	},
+	{
 		3568266894266649053,
 		PlatinumEngine::Transform 
 		{
@@ -1566,9 +1422,9 @@ IDSystem
 			PlatinumEngine::Maths::Quaternion localRotation = 
 			{
 				float x = 0;
-				float y = -0.70911;
+				float y = 0.704198;
 				float z = 0;
-				float w = 0.705098;
+				float w = 0.710004;
 			};
 			PlatinumEngine::Maths::Mat4 transformationMatrix = 
 			{
@@ -1634,50 +1490,6 @@ IDSystem
 				float [3,3] = 0;
 			};
 			float localScale = -0.0399997;
-		}
-	},
-	{
-		4571752498583871592,
-		PlatinumEngine::Transform 
-		{
-			// inherited from PlatinumEngine::Component
-			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 7801968806489958341;
-			bool _isEnabled = 1;
-			bool _isEnabledInHierarchy = 1;
-			// from PlatinumEngine::Transform
-			PlatinumEngine::Maths::Vec3 localPosition = 
-			{
-				float x = -4.76837e-07;
-				float y = 7.28119;
-				float z = 0.000305176;
-			};
-			PlatinumEngine::Maths::Quaternion localRotation = 
-			{
-				float x = -2.32249e-07;
-				float y = 0;
-				float z = 0;
-				float w = 1;
-			};
-			PlatinumEngine::Maths::Mat4 transformationMatrix = 
-			{
-				float [0,0] = 0;
-				float [0,1] = 0;
-				float [0,2] = 0;
-				float [0,3] = 0;
-				float [1,0] = 0;
-				float [1,1] = 0;
-				float [1,2] = 0;
-				float [1,3] = 0;
-				float [2,0] = 0;
-				float [2,1] = 0;
-				float [2,2] = 0;
-				float [2,3] = 0;
-				float [3,0] = 0;
-				float [3,1] = 0;
-				float [3,2] = 0;
-				float [3,3] = 0;
-			};
-			float localScale = 0.1;
 		}
 	},
 	{
@@ -1901,50 +1713,6 @@ IDSystem
 		}
 	},
 	{
-		11348159293543457967,
-		PlatinumEngine::Transform 
-		{
-			// inherited from PlatinumEngine::Component
-			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 3389413701573643959;
-			bool _isEnabled = 1;
-			bool _isEnabledInHierarchy = 1;
-			// from PlatinumEngine::Transform
-			PlatinumEngine::Maths::Vec3 localPosition = 
-			{
-				float x = 14.7704;
-				float y = 72.2393;
-				float z = -11.3591;
-			};
-			PlatinumEngine::Maths::Quaternion localRotation = 
-			{
-				float x = 0;
-				float y = -1.16415e-09;
-				float z = 0;
-				float w = 1;
-			};
-			PlatinumEngine::Maths::Mat4 transformationMatrix = 
-			{
-				float [0,0] = 0;
-				float [0,1] = 0;
-				float [0,2] = 0;
-				float [0,3] = 0;
-				float [1,0] = 0;
-				float [1,1] = 0;
-				float [1,2] = 0;
-				float [1,3] = 0;
-				float [2,0] = 0;
-				float [2,1] = 0;
-				float [2,2] = 0;
-				float [2,3] = 0;
-				float [3,0] = 0;
-				float [3,1] = 0;
-				float [3,2] = 0;
-				float [3,3] = 0;
-			};
-			float localScale = 0.1;
-		}
-	},
-	{
 		11914556111919142035,
 		PlatinumEngine::Transform 
 		{
@@ -2033,6 +1801,50 @@ IDSystem
 		}
 	},
 	{
+		12662171156258409187,
+		PlatinumEngine::Transform 
+		{
+			// inherited from PlatinumEngine::Component
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 1639174340460383776;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			// from PlatinumEngine::Transform
+			PlatinumEngine::Maths::Vec3 localPosition = 
+			{
+				float x = 15.2225;
+				float y = 67.8358;
+				float z = -17.6131;
+			};
+			PlatinumEngine::Maths::Quaternion localRotation = 
+			{
+				float x = 0;
+				float y = -5.82077e-10;
+				float z = 0;
+				float w = 1;
+			};
+			PlatinumEngine::Maths::Mat4 transformationMatrix = 
+			{
+				float [0,0] = 0;
+				float [0,1] = 0;
+				float [0,2] = 0;
+				float [0,3] = 0;
+				float [1,0] = 0;
+				float [1,1] = 0;
+				float [1,2] = 0;
+				float [1,3] = 0;
+				float [2,0] = 0;
+				float [2,1] = 0;
+				float [2,2] = 0;
+				float [2,3] = 0;
+				float [3,0] = 0;
+				float [3,1] = 0;
+				float [3,2] = 0;
+				float [3,3] = 0;
+			};
+			float localScale = 0.1;
+		}
+	},
+	{
 		12803244846600824332,
 		PlatinumEngine::Transform 
 		{
@@ -2074,50 +1886,6 @@ IDSystem
 				float [3,3] = 0;
 			};
 			float localScale = 30;
-		}
-	},
-	{
-		12886812642364002278,
-		PlatinumEngine::Transform 
-		{
-			// inherited from PlatinumEngine::Component
-			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 18387969221521630528;
-			bool _isEnabled = 1;
-			bool _isEnabledInHierarchy = 1;
-			// from PlatinumEngine::Transform
-			PlatinumEngine::Maths::Vec3 localPosition = 
-			{
-				float x = -14.9258;
-				float y = 71.007;
-				float z = -17.5582;
-			};
-			PlatinumEngine::Maths::Quaternion localRotation = 
-			{
-				float x = 0;
-				float y = -1.16415e-09;
-				float z = 0;
-				float w = 1;
-			};
-			PlatinumEngine::Maths::Mat4 transformationMatrix = 
-			{
-				float [0,0] = 0;
-				float [0,1] = 0;
-				float [0,2] = 0;
-				float [0,3] = 0;
-				float [1,0] = 0;
-				float [1,1] = 0;
-				float [1,2] = 0;
-				float [1,3] = 0;
-				float [2,0] = 0;
-				float [2,1] = 0;
-				float [2,2] = 0;
-				float [2,3] = 0;
-				float [3,0] = 0;
-				float [3,1] = 0;
-				float [3,2] = 0;
-				float [3,3] = 0;
-			};
-			float localScale = 0.1;
 		}
 	},
 	{
@@ -2252,50 +2020,6 @@ IDSystem
 			float localScale = 30;
 		}
 	},
-	{
-		17755189659635333305,
-		PlatinumEngine::Transform 
-		{
-			// inherited from PlatinumEngine::Component
-			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 12438944686990073153;
-			bool _isEnabled = 1;
-			bool _isEnabledInHierarchy = 1;
-			// from PlatinumEngine::Transform
-			PlatinumEngine::Maths::Vec3 localPosition = 
-			{
-				float x = -29.2366;
-				float y = 20.2678;
-				float z = 0.000289917;
-			};
-			PlatinumEngine::Maths::Quaternion localRotation = 
-			{
-				float x = -1.66474e-07;
-				float y = 0;
-				float z = 0;
-				float w = 1;
-			};
-			PlatinumEngine::Maths::Mat4 transformationMatrix = 
-			{
-				float [0,0] = 0;
-				float [0,1] = 0;
-				float [0,2] = 0;
-				float [0,3] = 0;
-				float [1,0] = 0;
-				float [1,1] = 0;
-				float [1,2] = 0;
-				float [1,3] = 0;
-				float [2,0] = 0;
-				float [2,1] = 0;
-				float [2,2] = 0;
-				float [2,3] = 0;
-				float [3,0] = 0;
-				float [3,1] = 0;
-				float [3,2] = 0;
-				float [3,3] = 0;
-			};
-			float localScale = 0.1;
-		}
-	},
 };
 PlatinumEngine::Scene
 {
@@ -2312,16 +2036,13 @@ PlatinumEngine::Scene
 		4438070839608414218,
 		7415190052381573615,
 		1843658962015654709,
-		7605389543654410491,
-		12438944686990073153,
 		5878028818115688584,
 		5114187831099112156,
 		911240000009314386,
 		16273465316111765953,
-		7801968806489958341,
 		11787666238402050604,
-		18387969221521630528,
-		3389413701573643959,
+		12952306353251896460,
+		1639174340460383776,
 	};
 	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _rootGameObjects = 
 	{
@@ -2358,10 +2079,6 @@ PlatinumEngine::Scene
 		{12646035254428272974, PlatinumEngine::Transform},
 		{1419397665220534827, PlatinumEngine::ParticleEffect},
 		{90698491566214660, PlatinumEngine::Transform},
-		{1972777290953119435, PlatinumEngine::LightComponent},
-		{476560699478546976, PlatinumEngine::Transform},
-		{16248060007835375151, PlatinumEngine::LightComponent},
-		{17755189659635333305, PlatinumEngine::Transform},
 		{9462888457664525617, PlatinumEngine::Transform},
 		{7875191408691653345, PlatinumEngine::MeshRender},
 		{3840387634040240151, PlatinumEngine::BoxCollider},
@@ -2373,13 +2090,11 @@ PlatinumEngine::Scene
 		{17569458000516166968, PlatinumEngine::BoxCollider},
 		{788655367443931497, PlatinumEngine::ParticleEffect},
 		{17559832399778505088, PlatinumEngine::Transform},
-		{5880685619358460696, PlatinumEngine::LightComponent},
-		{4571752498583871592, PlatinumEngine::Transform},
 		{12187778284644590953, PlatinumEngine::ParticleEffect},
 		{12803244846600824332, PlatinumEngine::Transform},
-		{220536483236656471, PlatinumEngine::LightComponent},
-		{12886812642364002278, PlatinumEngine::Transform},
-		{14166217645124516777, PlatinumEngine::LightComponent},
-		{11348159293543457967, PlatinumEngine::Transform},
+		{12416297685480495733, PlatinumEngine::LightComponent},
+		{3449501095875807505, PlatinumEngine::Transform},
+		{11823304415433184498, PlatinumEngine::LightComponent},
+		{12662171156258409187, PlatinumEngine::Transform},
 	};
 };
