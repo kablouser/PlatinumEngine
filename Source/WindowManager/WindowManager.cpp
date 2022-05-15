@@ -381,11 +381,9 @@ namespace PlatinumEngine
 
 		// Do NOT call ShowWindowXYZ here. Do NOT call OnRenderGUI here.
 		// They are called once already in the ShowGUI.
-		ImGui::MenuItem("Animation", "", &_showWindowAnimation);
 		ImGui::MenuItem(ICON_FA_GAMEPAD " Game", "", &_showWindowGame);
 		ImGui::MenuItem(ICON_FA_BARS_STAGGERED " Hierarchy", "", &_showWindowHierarchy);
 		ImGui::MenuItem(ICON_FA_CIRCLE_INFO " Inspector", "", &_showWindowInspector);
-		ImGui::MenuItem("Lighting", "", &_showWindowLight);
 		ImGui::MenuItem(ICON_FA_FOLDER " Project", "", &_showWindowProject);
 		ImGui::MenuItem(ICON_FA_IMAGE " Scene", "", &_showWindowScene);
 	}
