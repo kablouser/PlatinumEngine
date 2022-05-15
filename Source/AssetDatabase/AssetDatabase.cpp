@@ -184,7 +184,7 @@ namespace PlatinumEngine
 			}
 			catch (std::filesystem::filesystem_error const &error)
 			{
-				PLATINUM_ERROR_STREAM << error.what();
+				// just ignore this
 			}
 		}
 		return { false, nullptr };
