@@ -173,12 +173,19 @@ namespace PlatinumEngine
 	// Getters
 	//--------------------------------------------------------------------------------------------------------------
 
-	std::pair<bool, const Asset*> AssetDatabase::GetAsset(std::filesystem::path withPath)
+	std::pair<bool, const Asset*> AssetDatabase::GetAsset(const std::filesystem::path &withPath)
 	{
 		for (Asset& asset: _assets)
 		{
-			if (std::filesystem::equivalent(asset.path, withPath))
-				return { true, &asset };
+			try
+			{
+				if (std::filesystem::equivalent(asset.path, withPath))
+					return { true, &asset };
+			}
+			catch (std::filesystem::filesystem_error const &error)
+			{
+				// just ignore this
+			}
 		}
 		return { false, nullptr };
 	}
@@ -288,7 +295,7 @@ namespace PlatinumEngine
 			if (!asset.doesExist || asset.id == 0)
 				continue;
 
-//			PLATINUM_INFO_STREAM << "Creating asset: " << asset.path;
+			PLATINUM_INFO_STREAM << "Creating asset: " << asset.path;
 
 			auto findExtension = Loaders::EXTENSION_TO_TYPE.find(asset.path.extension().string());
 			if (findExtension == Loaders::EXTENSION_TO_TYPE.end())

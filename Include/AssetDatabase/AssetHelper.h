@@ -53,9 +53,9 @@ namespace PlatinumEngine
 		}
 
 		template<typename T>
-		std::tuple<bool, SavedReference<T>> GetAsset(std::string filePath)
+		std::tuple<bool, SavedReference<T>> GetAsset(const std::string &filePath)
 		{
-			auto [success, asset] =	Application::Instance->assetDatabase.GetAsset(filePath);
+			auto [success, asset] =	Application::Instance->assetDatabase.GetAsset({filePath});
 
 			if (success)
 				return {true ,Application::Instance->idSystem.GetSavedReference<T>(asset->id)};

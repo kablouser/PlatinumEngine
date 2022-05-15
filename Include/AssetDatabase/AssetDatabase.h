@@ -103,7 +103,7 @@ namespace PlatinumEngine
 		 * @param withPath match with equivalent path
 		 * @return {true, something} if path is in database, otherwise {false, nullptr}
 		 */
-		std::pair<bool, const Asset*> GetAsset(std::filesystem::path withPath);
+		std::pair<bool, const Asset*> GetAsset(const std::filesystem::path &withPath);
 
 		/**
 		 * nodiscard means compiler creates warning if you don't use this function's return value

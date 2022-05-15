@@ -395,6 +395,7 @@ namespace PlatinumEngine
 
 	void Renderer::SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat)
 	{
+		_phongShader.Bind();
 		if(transformMatrixIndex < 128)
 			_phongShader.SetUniform("tracks["+std::to_string(transformMatrixIndex)+"]", mat);
 		else
@@ -403,7 +404,14 @@ namespace PlatinumEngine
 
 	void Renderer::SetAnimationStatus(bool isAnimationOn)
 	{
+		_phongShader.Bind();
 		_phongShader.SetUniform("isAnimationDisplay", isAnimationOn);
+	}
+
+	void Renderer::SetAnimationAttachmentStatus(bool isAnimationAttachmentOn)
+	{
+		_phongShader.Bind();
+		_phongShader.SetUniform("isAnimationAttachmentDisplay", isAnimationAttachmentOn);
 	}
 
 	// update view matrix in shader
@@ -457,6 +465,10 @@ namespace PlatinumEngine
 		int num_directed_lights, num_point_lights;
 		num_directed_lights = num_point_lights = 0;
 		bool isDirLight = false, isPointLight = false;
+
+		// Reset uniforms
+		_phongShader.SetUniform("ambientLight", Maths::Vec3{0.0f, 0.0f, 0.0f});
+
 		for(auto light:lights)
 		{
 			auto lightComponent = light;
@@ -483,8 +495,10 @@ namespace PlatinumEngine
 						isPointLight = true;
 						_phongShader.SetUniform("ambientLight", lightComponent.DeRef()->ambientLight);
 						_phongShader.SetUniform("isPointLight", isPointLight);
+						auto matrix = transform.DeRef()->GetLocalToWorldMatrix();
+						auto pos = Maths::Vec3{matrix[3][0], matrix[3][1], matrix[3][2]};
 						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].position",
-								transform.DeRef()->localPosition);
+								pos);
 						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].baseLight",
 								(lightComponent.DeRef()->intensity * lightComponent.DeRef()->spectrum).to_vec());
 						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].constant",

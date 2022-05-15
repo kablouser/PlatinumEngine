@@ -72,7 +72,7 @@ namespace PlatinumEngine
 			bool isEmitting = true;
 			bool oneShot = false;
 			std::string scaleBy = "Constant";
-			float scaleFactor = 1.0f;
+			float scaleByFactor = 1.0f;
 			std::unique_ptr<std::vector<Particle>> particles;
 		private:
 			unsigned int FirstDeadParticle();

@@ -13,6 +13,7 @@
 #include <ComponentComposition/Transform.h>
 #include <ComponentComposition/Camera.h>
 #include <ComponentComposition/AnimationComponent.h>
+#include <ComponentComposition/AnimationAttachment.h>
 #include <ComponentComposition/GameObject.h>
 #include <ComponentComposition/RigidBody.h>
 #include <ComponentComposition/BoxCollider.h>
@@ -50,14 +51,17 @@ namespace PlatinumEngine
 		void ShowAudioComponent(SavedReference<AudioComponent>& reference);
 		void ShowAnimationComponent(SavedReference<AnimationComponent>& reference);
 		void ShowPlayerComponent(SavedReference<Player>& reference);
-
+		void ShowAnimationAttachmentComponent(SavedReference<AnimationAttachment>& reference);
 
 		// Shown when add component button pressed
 		void ShowAddComponent();
 
-    	void cameraComponentHelper(char* cameraType[]);
-    
 		std::filesystem::path GetPayloadPath(const ImGuiPayload* payload);
+
+	private:
+		// Helpers for GUI creation with min and max values using ImGui
+		void InputIntClamped(const char *label, int *val, int min, int max);
+		void InputFloatClamped(const char *label, float *val, float min, float max);
 
 	private:
 
@@ -74,6 +78,7 @@ namespace PlatinumEngine
 		float _itemWidthAudioComponent = 160.f;
 
 		float _textWidthParticleEffectComponent = 135.0f;
+		float _inputClampedWidth = 150.0f;
 		float _textWidthParticleEffectComponentSmall = 100.0f;
 		float _itemWidthParticleEffectComponent = 180.0f;
 

@@ -131,6 +131,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/ComponentComposition/Camera.cpp;"
 	"Source/ComponentComposition/AudioComponent.cpp;"
 	"Source/ComponentComposition/AnimationComponent.cpp;"
+	"Source/ComponentComposition/AnimationAttachment.cpp;"
 	"Source/ComponentComposition/Color.cpp;"
 	"Source/ComponentComposition/Component.cpp;"
 	"Source/ComponentComposition/GameObject.cpp;"
@@ -217,7 +218,7 @@ set(UNIT_TESTS
 	"Test/SceneEditor/EditorCameraTest.cpp;"
 	"Test/TypeDatabase/TestTypeDatabase.cpp;"
 	"Test/IDSystem/TestIDSystem.cpp;"
-	Include/Animation/AnimationLocalTimer.h Source/Animation/AnimationLocalTimer.cpp)
+	Include/Animation/AnimationLocalTimer.h Source/Animation/AnimationLocalTimer.cpp Include/ComponentComposition/AnimationAttachment.h Source/ComponentComposition/AnimationAttachment.cpp)
 add_executable(tests ${PROJECT_SOURCES_WITHOUT_MAIN} ${UNIT_TESTS})
 #-----------------------------
 

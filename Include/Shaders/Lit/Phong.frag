@@ -99,6 +99,10 @@ void main()
 
     // Final colour
     fragColour = vec4(ambient + result, 1.0);
+
+    // Gamma correction
+    float gamma = 2.2;
+    fragColour.rgb = pow(fragColour.rgb, vec3(1.0/gamma));
 }
 
 vec3 GetDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 colour)
@@ -153,8 +157,8 @@ vec3 GetPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, ve
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 
     // combine results
-    vec3 diffuse = light.baseLight * diff * colour;
-    vec3 specular = light.baseLight * spec * materialSpec;
+    vec3 diffuse = light.baseLight * diff * colour * attenuation;
+    vec3 specular = light.baseLight * spec * materialSpec * attenuation;
 
     return (diffuse + specular);
 }

@@ -5,6 +5,7 @@
 #include <ComponentComposition/MeshRender.h>
 #include <ComponentComposition/Camera.h>
 #include <ComponentComposition/AnimationComponent.h>
+#include <ComponentComposition/AnimationAttachment.h>
 #include <Animation/AnimationLocalTimer.h>
 #include <ComponentComposition/BoxCollider.h>
 #include <ComponentComposition/SphereCollider.h>
@@ -39,6 +40,7 @@ namespace PlatinumEngine
 		Camera::CreateTypeInfo(*this);
 		Transform::CreateTypeInfo(*this);
 		AnimationComponent::CreateTypeInfo(*this);
+		AnimationAttachment::CreateTypeInfo(*this);
 		AudioComponent::CreateTypeInfo(*this);
 		RigidBody::CreateTypeInfo(*this);
 		BoxCollider::CreateTypeInfo(*this);

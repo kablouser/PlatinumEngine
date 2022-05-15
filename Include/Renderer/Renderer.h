@@ -75,6 +75,8 @@ namespace PlatinumEngine
 
 		void SetAnimationStatus(bool isAnimationOn);
 
+		void SetAnimationAttachmentStatus(bool isAnimationAttachmentOn);
+
 		// a window for renderer to test
 
 		void SetProjectionMatrixSkyBox(Maths::Mat4 mat);
