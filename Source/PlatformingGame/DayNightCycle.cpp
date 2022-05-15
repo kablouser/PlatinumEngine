@@ -41,9 +41,12 @@ namespace PlatinumEngine
 			isDay = false;
 		}
 
-		_transform.DeRef()->localRotation =
-				Maths::Quaternion::EulerToQuaternion({0,0, 180.f + currentPeriod * 180.f}) *
-				Maths::Quaternion::EulerToQuaternion({0,90.f,0});
+
+		/*
+		 * Go from 0 -> 180 twice per day
+		 * First time isDay = true
+		 * */
+		_transform.DeRef()->localRotation = Maths::Quaternion::EulerToQuaternion({0,0,currentDay*360});
 
 		bool isFirstQuarter = true;
 		float currentQuarter = currentPeriod * 2;
@@ -55,23 +58,41 @@ namespace PlatinumEngine
 
 		Maths::Vec3 twilightColor = (dayColor + nightColor) / 2.0f;
 
+		/**
+		 * At time 0 -> sunrise/sunset colour
+		 * At time 0.25 -> day colour
+		 * At time 0.5 -> sunrise/sunset colour
+		 * At time 0.75 -> night colour
+		 * At time 1 -> sunrise/sunset colour
+		 */
+
+		auto OldRange = 0.25;
+		auto NewRange = 1.0f;
+
 		for (int i = 0; i < 3; ++i)
 		{
-			if (isDay)
+			if (0.0f <= currentDay && currentDay < 0.25f)
 			{
-				_light.DeRef()->spectrum.data[i] = dayColor[i];
-//				if (isFirstQuarter)
-//					_light.DeRef()->spectrum.data[i] = Maths::Common::Lerp(twilightColor[i], dayColor[i], currentPeriod);
-//				else
-//					_light.DeRef()->spectrum.data[i] = Maths::Common::Lerp(dayColor[i], twilightColor[i], currentPeriod);
+				auto newValue = (((currentDay - 0.0f) * NewRange) / OldRange) + 0.0f;
+				_light.DeRef()->spectrum.data[i] = Maths::Common::Lerp(twilightColor[i], dayColor[i], newValue);
 			}
-			else
+
+			if (0.25f <= currentDay && currentDay < 0.5f)
 			{
-				_light.DeRef()->spectrum.data[i] = {};// nightColor[i];
-//				if (isFirstQuarter)
-//					_light.DeRef()->spectrum.data[i] = Maths::Common::Lerp(twilightColor[i], nightColor[i], currentPeriod);
-//				else
-//					_light.DeRef()->spectrum.data[i] = Maths::Common::Lerp(nightColor[i], twilightColor[i], currentPeriod);
+				auto newValue = (((currentDay - 0.25f) * NewRange) / OldRange) + 0.0f;
+				_light.DeRef()->spectrum.data[i] = Maths::Common::Lerp(dayColor[i], twilightColor[i], newValue);
+			}
+
+			if (0.5f <= currentDay && currentDay < 0.75f)
+			{
+				auto newValue = (((currentDay - 0.5f) * NewRange) / OldRange) + 0.0f;
+				_light.DeRef()->spectrum.data[i] = Maths::Common::Lerp(twilightColor[i], nightColor[i], newValue);
+			}
+
+			if (0.75f <= currentDay && currentDay <= 1.0f)
+			{
+				auto newValue = (((currentDay - 0.75f) * NewRange) / OldRange) + 0.0f;
+				_light.DeRef()->spectrum.data[i] = Maths::Common::Lerp(nightColor[i], twilightColor[i], newValue);
 			}
 		}
 	}
