@@ -97,3 +97,7 @@ id, hash, doesExist, path
 2801248218867529033,4766720288209316213,1,./Assets/Medeival/Textures/candlestick_wall [Albedo].png
 6428795682736483579,15584358992758396111,1,./Assets/Medeival/Textures/candlestick_wall [Normal].png
 7183731601091927069,7129669032720089144,1,./Assets/Medeival/Meshes/candlestick_wall.fbx
+7002589796378304250,3130374457779488846,1,./Assets/LowPoly/Textures/PP_Color_Palette.png
+18417447470959615639,5916064223947516753,1,./Assets/LowPoly/Meshes/PP_Lake.obj
+12683524456286082604,13986678353924784667,1,./Assets/LowPoly/Meshes/PP_Mountain2.obj
+9171398301337302333,3759096604709608987,1,./Assets/LowPoly/Meshes/PP_Mountain1.obj
