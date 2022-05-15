@@ -163,6 +163,7 @@ namespace PlatinumEngine
 				Application::Instance->renderer.SetProjectionMatrix(camera.DeRef()->GetProjectionMatrix(
 						{ (float)_framebufferWidth, (float)_framebufferHeight }));
 				Application::Instance->renderer.SetCameraPos(camera.DeRef()->GetComponent<Transform>().DeRef()->localPosition);
+				Application::Instance->scene.LoadLights();
 			}
 			else
 			{

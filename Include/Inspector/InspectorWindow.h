@@ -25,6 +25,7 @@
 #include <ParticleEffects/ParticleEmitter.h>
 
 #include <PlatformingGame/Player.h>
+#include <PlatformingGame/DayNightCycle.h>
 
 #include <OpenGL/Mesh.h>
 #include <SceneEditor/SceneEditor.h>
@@ -52,6 +53,7 @@ namespace PlatinumEngine
 		void ShowAnimationComponent(SavedReference<AnimationComponent>& reference);
 		void ShowPlayerComponent(SavedReference<Player>& reference);
 		void ShowAnimationAttachmentComponent(SavedReference<AnimationAttachment>& reference);
+		void ShowDayNightCycleComponent(SavedReference<DayNightCycle>& reference);
 
 		// Shown when add component button pressed
 		void ShowAddComponent();

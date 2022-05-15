@@ -17,6 +17,7 @@
 #include <ComponentComposition/Light.h>
 #include <Audio/AudioClip.h>
 #include <PlatformingGame/Player.h>
+#include <PlatformingGame/DayNightCycle.h>
 
 namespace PlatinumEngine
 {
@@ -123,6 +124,7 @@ namespace PlatinumEngine
 		//------------------------------------------------------------------------------------------------------------------
 
 		Player::CreateTypeInfo();
+		DayNightCycle::CreateTypeInfo(*this);
 
 		// this checks all fields/things are defined properly
 		FinalCheck();

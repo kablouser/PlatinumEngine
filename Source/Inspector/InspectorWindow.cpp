@@ -77,6 +77,9 @@ void InspectorWindow::ShowGUIWindow(bool* isOpen)
 			if (auto ref = obj.DeRef()->GetComponent<Player>())
 				ShowPlayerComponent(ref);
 
+			if (auto ref = obj.DeRef()->GetComponent<DayNightCycle>())
+				ShowDayNightCycleComponent(ref);
+
 			if (_isAddComponentWindowOpen)
 				ShowAddComponent();
 			else
@@ -1363,6 +1366,29 @@ void InspectorWindow::ShowAnimationAttachmentComponent(SavedReference<AnimationA
 	}
 }
 
+void InspectorWindow::ShowDayNightCycleComponent(SavedReference<DayNightCycle>& reference)
+{
+	ImGui::Separator();
+	bool isHeaderOpen = ImGui::CollapsingHeader(ICON_FA_CLOUD_MOON " Day Night Cycle", ImGuiTreeNodeFlags_AllowItemOverlap);
+
+	ImGui::SameLine((ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x) - 4.0f);
+	if (ImGui::Button("X##RemoveDayNightCycleComponent"))
+	{
+		// remove component
+		Application::Instance->scene.RemoveComponent(reference);
+		return;
+	}
+	if (isHeaderOpen)
+	{
+		// store pointer of renderComponent
+		auto dayNightCycle = reference.DeRef().get();
+
+		ImGui::ColorEdit3("Day Color", &dayNightCycle->dayColor[0]);
+		ImGui::ColorEdit3("Night Color", &dayNightCycle->nightColor[0]);
+		ImGui::InputFloat("Whole Day Duration", &dayNightCycle->wholeDayDuration);
+	}
+}
+
 void InspectorWindow::ShowAddComponent()
 {
 	if (ImGui::BeginChild("ComponentSelector"))
@@ -1384,7 +1410,8 @@ void InspectorWindow::ShowAddComponent()
 				"Audio Component",
 				"Animation Component",
 				"Player",
-				"Animation Attachment Component"
+				"Animation Attachment Component",
+				"DayNightCycle",
 		};
 		static const char* selectedComponent = nullptr;
 		static ImGuiTextFilter filter;
@@ -1474,6 +1501,12 @@ void InspectorWindow::ShowAddComponent()
 			{
 				Application::Instance->scene.AddComponent<AnimationAttachment>(obj);
 			}
+
+			else if (strcmp(selectedComponent, "DayNightCycle") == 0)
+			{
+				Application::Instance->scene.AddComponent<DayNightCycle>(obj);
+			}
+
 			_isAddComponentWindowOpen = false;
 			selectedComponent = nullptr;
 		}
