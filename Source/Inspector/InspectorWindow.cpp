@@ -1385,6 +1385,7 @@ void InspectorWindow::ShowDayNightCycleComponent(SavedReference<DayNightCycle>& 
 
 		ImGui::ColorEdit3("Day Color", &dayNightCycle->dayColor[0]);
 		ImGui::ColorEdit3("Night Color", &dayNightCycle->nightColor[0]);
+		ImGui::ColorEdit3("Twilight Color", &dayNightCycle->twilightColor[0]);
 		ImGui::InputFloat("Whole Day Duration", &dayNightCycle->wholeDayDuration);
 	}
 }
@@ -1531,7 +1532,6 @@ void InspectorWindow::ShowLightComponent(SavedReference<LightComponent>& referen
 		auto& light = reference;
 		if(ImGui::Combo("Type", (int*)&light.DeRef()->type, light.DeRef()->LightTypeNames, (int)LightComponent::LightType::count))
 		{
-			light.DeRef()->UpdateMesh();
 		}
 
 		ImGui::ColorEdit3("Spectrum", light.DeRef()->spectrum.data);

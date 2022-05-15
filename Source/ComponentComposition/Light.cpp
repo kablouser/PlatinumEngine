@@ -31,64 +31,6 @@ namespace PlatinumEngine
 		 intensity(1.0f),
 		 spectrum(0.7f)
 	{
-		UpdateMesh();
-	}
-	LightComponent::LightComponent(LightType type)
-		:type(type),
-		 direction({0.0f, 0.0f, -1.0f}),
-		 ambientLight({ 0.0f, 0.0f, 0.0f }),
-		 intensity(1.0f),
-		 spectrum(1.0f)
-	{
-		UpdateMesh();
-	}
-
-	LightComponent::~LightComponent()
-	{
-
-	}
-
-	void LightComponent::UpdateMesh()
-	{
-		if(type == LightType::Directional)
-		{
-			Mesh arrow = ArrowMesh(0.03f, 0.075f, 1.0f);
-			auto transform = GetComponent<Transform>();
-			if (transform)
-				transform.DeRef()->localScale = 1.0f;
-			shaderInput.Clear();
-			shaderInput.Set(arrow.vertices, arrow.indices);
-		}
-		else if(type == LightType::Point)
-		{
-			Mesh sphere = SphereMesh(0.1f, 3);
-			auto transform = GetComponent<Transform>();
-			if (transform)
-				transform.DeRef()->localScale = 0.01f;
-			shaderInput.Clear();
-			shaderInput.Set(sphere.vertices, sphere.indices);
-		}
-	}
-
-
-	void LightComponent::OnRender()
-	{
-		auto transform = GetComponent<Transform>();
-
-		if(transform)
-		{
-			if(type == LightType::Point)
-				transform.DeRef()->localScale = 0.1f;
-			Application::Instance->renderer.DrawLight(transform.DeRef()->GetLocalToWorldMatrix());
-		}
-		else
-		{
-			Maths::Mat4 matrix(1.f);
-			if(type == LightType::Point)
-				matrix.SetScaleMatrix(Maths::Vec3(0.1f, 0.1f, 0.1f));
-			Application::Instance->renderer.DrawLight(matrix);
-		}
-		shaderInput.Draw();
 	}
 }
 

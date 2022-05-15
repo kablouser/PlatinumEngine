@@ -1,3 +1,4 @@
+#include <Application.h>
 #include <Renderer/Renderer.h>
 // checking errors
 #include <OpenGL/GLCheck.h>

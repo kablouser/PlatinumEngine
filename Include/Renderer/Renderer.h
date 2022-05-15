@@ -124,6 +124,7 @@ namespace PlatinumEngine
 	public:
 		Maths::Vec3 cameraPos;
 		ParticleEffects::ParticleRenderer particleRenderer;
+		ShaderProgram _skyBoxShader;
 
 	private:
 
@@ -131,7 +132,7 @@ namespace PlatinumEngine
 		bool _isInitGood;
 
 		ShaderProgram _unlitShader;
-		ShaderProgram _skyBoxShader;
+//		ShaderProgram _skyBoxShader;
 		ShaderProgram _gridShader;
 		ShaderProgram _phongShader;
 		ShaderProgram _reflectRefractShader;

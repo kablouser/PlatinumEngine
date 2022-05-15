@@ -34,11 +34,5 @@ namespace PlatinumEngine
 		float intensity;
 
 		LightComponent();
-		~LightComponent();
-		void UpdateMesh();
-		explicit LightComponent(LightType type);
-
-		virtual void OnRender() override;
-
 	};
 }

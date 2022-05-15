@@ -18,7 +18,12 @@ namespace PlatinumEngine
 
 		void OnUpdate() override;
 
-		Maths::Vec3 dayColor = {1.0,1.0,0.0}, nightColor = {0.0,0.1,0.4};
+		void OnEnd() override;
+
+		Maths::Vec3 dayColor = {1.0,1.0,0.0};
+		Maths::Vec3 nightColor = {0.0,0.1,0.4};
+		Maths::Vec3 twilightColor{1.0, 0.3, 0.0};
+
 		// in seconds
 		float wholeDayDuration = 20.f;
 

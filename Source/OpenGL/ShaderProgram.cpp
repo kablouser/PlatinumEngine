@@ -99,7 +99,9 @@ namespace PlatinumEngine
 
 	void ShaderProgram::SetUniform(const std::string &name, float value) const
 	{
-		GL_CHECK(glUniform1f(glGetUniformLocation(_shaderProgramHandle, name.c_str()), value));
+		GLint index;
+		GL_CHECK(index = glGetUniformLocation(_shaderProgramHandle, name.c_str()));
+		GL_CHECK(glUniform1f(index, value));
 	}
 
 
