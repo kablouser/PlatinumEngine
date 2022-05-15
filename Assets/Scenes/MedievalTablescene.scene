@@ -427,6 +427,24 @@ IDSystem
 		}
 	},
 	{
+		13207384261522939573,
+		PlatinumEngine::GameObject 
+		{
+			std::string name = "LeftLight";
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 17613120459898670380;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children = 
+			{
+			};
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
+			{
+				{15304022297813070835, PlatinumEngine::LightComponent},
+				{13598865165268191290, PlatinumEngine::Transform},
+			};
+		}
+	},
+	{
 		15126534258895590583,
 		PlatinumEngine::GameObject 
 		{
@@ -477,6 +495,7 @@ IDSystem
 				7415190052381573615,
 				1843658962015654709,
 				12952306353251896460,
+				13207384261522939573,
 			};
 			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
 			{
@@ -531,7 +550,7 @@ IDSystem
 			float constant = 1;
 			float linear = 1;
 			float quadratic = 0.23;
-			float intensity = 7.3;
+			float intensity = 0;
 		}
 	},
 	{
@@ -558,9 +577,38 @@ IDSystem
 				float z = 0;
 			};
 			float constant = 1;
-			float linear = 1;
-			float quadratic = 1;
-			float intensity = 23.4;
+			float linear = 1000;
+			float quadratic = 100;
+			float intensity = 10000;
+		}
+	},
+	{
+		15304022297813070835,
+		PlatinumEngine::LightComponent 
+		{
+			PlatinumEngine::LightComponent::LightType type = 1;
+			PlatinumEngine::Spectrum spectrum = 
+			{
+				float r = 0.835294;
+				float g = 0.211765;
+				float b = 0;
+			};
+			PlatinumEngine::Maths::Vec3 direction = 
+			{
+				float x = 0;
+				float y = 1;
+				float z = 0;
+			};
+			PlatinumEngine::Maths::Vec3 ambientLight = 
+			{
+				float x = 0;
+				float y = 0;
+				float z = 0;
+			};
+			float constant = 1;
+			float linear = 0.1;
+			float quadratic = 102;
+			float intensity = 0;
 		}
 	},
 	{
@@ -579,9 +627,9 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
 				float refractionIndex = 1.5;
-				bool useBlinnPhong = 0;
+				bool useBlinnPhong = 1;
 				bool useTexture = 1;
-				bool useNormalTexture = 1;
+				bool useNormalTexture = 0;
 				bool useReflectionShader = 0;
 				bool useRefractionShader = 0;
 				PlatinumEngine::Maths::Vec3 colour = 
@@ -641,9 +689,9 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
 				float refractionIndex = 1.5;
-				bool useBlinnPhong = 0;
+				bool useBlinnPhong = 1;
 				bool useTexture = 1;
-				bool useNormalTexture = 1;
+				bool useNormalTexture = 0;
 				bool useReflectionShader = 0;
 				bool useRefractionShader = 0;
 				PlatinumEngine::Maths::Vec3 colour = 
@@ -672,9 +720,9 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
 				float refractionIndex = 1.5;
-				bool useBlinnPhong = 0;
+				bool useBlinnPhong = 1;
 				bool useTexture = 1;
-				bool useNormalTexture = 1;
+				bool useNormalTexture = 0;
 				bool useReflectionShader = 0;
 				bool useRefractionShader = 0;
 				PlatinumEngine::Maths::Vec3 colour = 
@@ -703,9 +751,9 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
 				float refractionIndex = 1.5;
-				bool useBlinnPhong = 0;
+				bool useBlinnPhong = 1;
 				bool useTexture = 1;
-				bool useNormalTexture = 1;
+				bool useNormalTexture = 0;
 				bool useReflectionShader = 0;
 				bool useRefractionShader = 0;
 				PlatinumEngine::Maths::Vec3 colour = 
@@ -734,9 +782,9 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 20.548;
 				float refractionIndex = 1.5;
-				bool useBlinnPhong = 0;
+				bool useBlinnPhong = 1;
 				bool useTexture = 1;
-				bool useNormalTexture = 1;
+				bool useNormalTexture = 0;
 				bool useReflectionShader = 0;
 				bool useRefractionShader = 0;
 				PlatinumEngine::Maths::Vec3 colour = 
@@ -765,7 +813,7 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
 				float refractionIndex = 1.5;
-				bool useBlinnPhong = 0;
+				bool useBlinnPhong = 1;
 				bool useTexture = 1;
 				bool useNormalTexture = 1;
 				bool useReflectionShader = 0;
@@ -796,9 +844,9 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 20.548;
 				float refractionIndex = 1.5;
-				bool useBlinnPhong = 0;
+				bool useBlinnPhong = 1;
 				bool useTexture = 1;
-				bool useNormalTexture = 1;
+				bool useNormalTexture = 0;
 				bool useReflectionShader = 0;
 				bool useRefractionShader = 0;
 				PlatinumEngine::Maths::Vec3 colour = 
@@ -827,7 +875,7 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
 				float refractionIndex = 1.5;
-				bool useBlinnPhong = 0;
+				bool useBlinnPhong = 1;
 				bool useTexture = 1;
 				bool useNormalTexture = 1;
 				bool useReflectionShader = 0;
@@ -1377,7 +1425,7 @@ IDSystem
 			};
 			PlatinumEngine::Maths::Quaternion localRotation = 
 			{
-				float x = 0;
+				float x = -9.77889e-08;
 				float y = 0;
 				float z = 0;
 				float w = 1;
@@ -1445,7 +1493,7 @@ IDSystem
 				float [3,2] = 0;
 				float [3,3] = 0;
 			};
-			float localScale = 10.0001;
+			float localScale = 10.0003;
 		}
 	},
 	{
@@ -1503,9 +1551,9 @@ IDSystem
 			// from PlatinumEngine::Transform
 			PlatinumEngine::Maths::Vec3 localPosition = 
 			{
-				float x = -0.0270188;
+				float x = -0.0270102;
 				float y = -0.440596;
-				float z = -2.38419e-07;
+				float z = -7.10487e-05;
 			};
 			PlatinumEngine::Maths::Quaternion localRotation = 
 			{
@@ -1548,8 +1596,8 @@ IDSystem
 			PlatinumEngine::Maths::Vec3 localPosition = 
 			{
 				float x = -3.77771;
-				float y = -2.36188;
-				float z = -5.44411;
+				float y = -2.36206;
+				float z = -5.44416;
 			};
 			PlatinumEngine::Maths::Quaternion localRotation = 
 			{
@@ -1725,13 +1773,13 @@ IDSystem
 			{
 				float x = 6.477;
 				float y = 6.00496;
-				float z = 0.00167357;
+				float z = 0.00167352;
 			};
 			PlatinumEngine::Maths::Quaternion localRotation = 
 			{
-				float x = -1.03454e-08;
+				float x = -1.03455e-08;
 				float y = -0.70719;
-				float z = 9.41086e-09;
+				float z = 9.4107e-09;
 				float w = 0.707024;
 			};
 			PlatinumEngine::Maths::Mat4 transformationMatrix = 
@@ -1818,7 +1866,7 @@ IDSystem
 			PlatinumEngine::Maths::Quaternion localRotation = 
 			{
 				float x = 0;
-				float y = -5.82077e-10;
+				float y = 0;
 				float z = 0;
 				float w = 1;
 			};
@@ -1889,6 +1937,50 @@ IDSystem
 		}
 	},
 	{
+		13598865165268191290,
+		PlatinumEngine::Transform 
+		{
+			// inherited from PlatinumEngine::Component
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 13207384261522939573;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			// from PlatinumEngine::Transform
+			PlatinumEngine::Maths::Vec3 localPosition = 
+			{
+				float x = 29.6406;
+				float y = 14.9208;
+				float z = -1.52588e-05;
+			};
+			PlatinumEngine::Maths::Quaternion localRotation = 
+			{
+				float x = -9.77889e-08;
+				float y = 0;
+				float z = 0;
+				float w = 1;
+			};
+			PlatinumEngine::Maths::Mat4 transformationMatrix = 
+			{
+				float [0,0] = 0;
+				float [0,1] = 0;
+				float [0,2] = 0;
+				float [0,3] = 0;
+				float [1,0] = 0;
+				float [1,1] = 0;
+				float [1,2] = 0;
+				float [1,3] = 0;
+				float [2,0] = 0;
+				float [2,1] = 0;
+				float [2,2] = 0;
+				float [2,3] = 0;
+				float [3,0] = 0;
+				float [3,1] = 0;
+				float [3,2] = 0;
+				float [3,3] = 0;
+			};
+			float localScale = 0.1;
+		}
+	},
+	{
 		13710565940447068618,
 		PlatinumEngine::Transform 
 		{
@@ -1899,9 +1991,9 @@ IDSystem
 			// from PlatinumEngine::Transform
 			PlatinumEngine::Maths::Vec3 localPosition = 
 			{
-				float x = 4.24603;
-				float y = 2.14165;
-				float z = -5.43998;
+				float x = 4.29111;
+				float y = 2.17646;
+				float z = -5.44055;
 			};
 			PlatinumEngine::Maths::Quaternion localRotation = 
 			{
@@ -2043,6 +2135,7 @@ PlatinumEngine::Scene
 		11787666238402050604,
 		12952306353251896460,
 		1639174340460383776,
+		13207384261522939573,
 	};
 	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _rootGameObjects = 
 	{
@@ -2096,5 +2189,7 @@ PlatinumEngine::Scene
 		{3449501095875807505, PlatinumEngine::Transform},
 		{11823304415433184498, PlatinumEngine::LightComponent},
 		{12662171156258409187, PlatinumEngine::Transform},
+		{15304022297813070835, PlatinumEngine::LightComponent},
+		{13598865165268191290, PlatinumEngine::Transform},
 	};
 };

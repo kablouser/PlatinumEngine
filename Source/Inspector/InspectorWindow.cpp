@@ -1506,8 +1506,9 @@ void InspectorWindow::ShowLightComponent(SavedReference<LightComponent>& referen
 				std::numeric_limits<float>::max(), "%.2f");
 		if (light.DeRef()->type == LightComponent::LightType::Point)
 		{
-			ImGui::InputFloat("Linear", &light.DeRef()->linear);
-			ImGui::InputFloat("Quadratic", &light.DeRef()->quadratic, 0.0f, 0.0f, "%.6f");
+			ImGui::DragFloat("Constant", &light.DeRef()->constant);
+			ImGui::DragFloat("Linear", &light.DeRef()->linear);
+			ImGui::DragFloat("Quadratic", &light.DeRef()->quadratic, 1.0f, 0.0f, 0.0f, "%.6f");
 		}
 	}
 }
