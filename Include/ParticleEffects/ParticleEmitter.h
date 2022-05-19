@@ -27,9 +27,9 @@ namespace PlatinumEngine
 		public:
 			// Emitter Settings
 			int numberOfParticles = 500;
-			float respawnLifetime = 4.0f; // Particles will have this initial lifetime
-			int numberOfNewParticles = 4; // How many particles to spawn each frame
-			float spawnInterval = 0.5;
+			float respawnLifetime = 1.0f; // Particles will have this initial lifetime
+			int numberOfNewParticles = 2; // How many particles to spawn each frame
+			float spawnInterval = 0.3;
 			bool useCylindricalBillboard = false; // Switch between spherical and cylindrical bill-boarding
 			Maths::Vec3 actingForce = {0.0f, 1.0f, 0.0f};
 			Maths::Vec3 scaleFactors = {1.0f, 1.0f, 1.0f};

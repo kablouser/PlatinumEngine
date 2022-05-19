@@ -165,7 +165,7 @@ int main(int, char**)
 		application.assetDatabase.Update(application.idSystem, application.scene);
 
 		// load default scene
-		application.scene.LoadFile("Assets/Default.scene");
+		application.scene.LoadFile("Assets/Scenes/EmptyScene.scene");
 
 		// Main loop
 		while (!glfwWindowShouldClose(window))

@@ -36,8 +36,8 @@ namespace PlatinumEngine
 		// TODO:
 		//  Adding interpolation between more than one colour
 		//  Bezier curve interpolation schemes?
-		Maths::Vec4 startColour = Maths::Vec4(1,0,0,1);
-		Maths::Vec4 endColour = Maths::Vec4(0,1,0,0);
+		Maths::Vec4 startColour = Maths::Vec4(1,1,1,1);
+		Maths::Vec4 endColour = Maths::Vec4(1,1,1,0);
 		float minShadeValue = 0.0f;
 		float maxShadeValue = 4.0f;
 	};

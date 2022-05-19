@@ -9,93 +9,8 @@ IDSystem
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
 			// from PlatinumEngine::AnimationAttachment
-			std::vector<std::__cxx11::basic_string<char>> jointsName = 
+			std::vector<std::string> jointsName = 
 			{
-				"RootNode",
-				"Armature",
-				"root",
-				"pelvis",
-				"spine_01",
-				"spine_02",
-				"spine_03",
-				"neck_01",
-				"head",
-				"Hat16",
-				"face",
-				"mouth",
-				"mouth_end",
-				"Jaw",
-				"Jaw_end",
-				"hat_01",
-				"hat_02",
-				"hat_02_end",
-				"hornA_01_l",
-				"hornA_02_l",
-				"hornA_02_l_end",
-				"hornB_01_l",
-				"hornB_02_l",
-				"hornB_03_l",
-				"hornB_03_l_end",
-				"hornC_01_l",
-				"hornC_02_l",
-				"hornC_02_l_end",
-				"hornA_01_r",
-				"hornA_02_r",
-				"hornA_02_r_end",
-				"hornC_01_r",
-				"hornC_02_r",
-				"hornC_02_r_end",
-				"hornB_01_r",
-				"hornB_02_r",
-				"hornB_03_r",
-				"hornB_03_r_end",
-				"clavicle_l",
-				"upperarm_l",
-				"lowerarm_l",
-				"hand_l",
-				"drill_l",
-				"drill_l_end",
-				"saw_l",
-				"saw_l_end",
-				"upperJaw_l",
-				"upperJaw_l_end",
-				"LowerJaw_l",
-				"LowerJaw_l_end",
-				"clavicle_r",
-				"upperarm_r",
-				"lowerarm_r",
-				"hand_r",
-				"drill_r",
-				"drill_r_end",
-				"saw_r",
-				"saw_r_end",
-				"upperJaw_r",
-				"upperJaw_r_end",
-				"LowerJaw_r",
-				"LowerJaw_r_end",
-				"FrontBelly",
-				"FrontBelly_end",
-				"thigh_l",
-				"calf_l",
-				"foot_l",
-				"ball_l",
-				"ball_l_end",
-				"tail_01",
-				"tail_02",
-				"tail_03",
-				"tail_04",
-				"tail_04_end",
-				"thigh_r",
-				"calf_r",
-				"foot_r",
-				"ball_r",
-				"ball_r_end",
-				"Bodypart08",
-				"Nose13",
-				"Eye11",
-				"Glove04",
-				"Tail06",
-				"MainBody03",
 			};
 			unsigned int _selectedJoint = 9;
 			PlatinumEngine::Maths::Vec3 translation = 
@@ -160,93 +75,8 @@ IDSystem
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
 			// from PlatinumEngine::AnimationAttachment
-			std::vector<std::__cxx11::basic_string<char>> jointsName = 
+			std::vector<std::string> jointsName = 
 			{
-				"RootNode",
-				"Armature",
-				"root",
-				"pelvis",
-				"spine_01",
-				"spine_02",
-				"spine_03",
-				"neck_01",
-				"head",
-				"Hat16",
-				"face",
-				"mouth",
-				"mouth_end",
-				"Jaw",
-				"Jaw_end",
-				"hat_01",
-				"hat_02",
-				"hat_02_end",
-				"hornA_01_l",
-				"hornA_02_l",
-				"hornA_02_l_end",
-				"hornB_01_l",
-				"hornB_02_l",
-				"hornB_03_l",
-				"hornB_03_l_end",
-				"hornC_01_l",
-				"hornC_02_l",
-				"hornC_02_l_end",
-				"hornA_01_r",
-				"hornA_02_r",
-				"hornA_02_r_end",
-				"hornC_01_r",
-				"hornC_02_r",
-				"hornC_02_r_end",
-				"hornB_01_r",
-				"hornB_02_r",
-				"hornB_03_r",
-				"hornB_03_r_end",
-				"clavicle_l",
-				"upperarm_l",
-				"lowerarm_l",
-				"hand_l",
-				"drill_l",
-				"drill_l_end",
-				"saw_l",
-				"saw_l_end",
-				"upperJaw_l",
-				"upperJaw_l_end",
-				"LowerJaw_l",
-				"LowerJaw_l_end",
-				"clavicle_r",
-				"upperarm_r",
-				"lowerarm_r",
-				"hand_r",
-				"drill_r",
-				"drill_r_end",
-				"saw_r",
-				"saw_r_end",
-				"upperJaw_r",
-				"upperJaw_r_end",
-				"LowerJaw_r",
-				"LowerJaw_r_end",
-				"FrontBelly",
-				"FrontBelly_end",
-				"thigh_l",
-				"calf_l",
-				"foot_l",
-				"ball_l",
-				"ball_l_end",
-				"tail_01",
-				"tail_02",
-				"tail_03",
-				"tail_04",
-				"tail_04_end",
-				"thigh_r",
-				"calf_r",
-				"foot_r",
-				"ball_r",
-				"ball_r_end",
-				"Bodypart08",
-				"Nose13",
-				"Eye11",
-				"Glove04",
-				"Tail06",
-				"MainBody03",
 			};
 			unsigned int _selectedJoint = 9;
 			PlatinumEngine::Maths::Vec3 translation = 
@@ -311,93 +141,8 @@ IDSystem
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
 			// from PlatinumEngine::AnimationAttachment
-			std::vector<std::__cxx11::basic_string<char>> jointsName = 
+			std::vector<std::string> jointsName = 
 			{
-				"RootNode",
-				"Armature",
-				"root",
-				"pelvis",
-				"spine_01",
-				"spine_02",
-				"spine_03",
-				"neck_01",
-				"head",
-				"Hat16",
-				"face",
-				"mouth",
-				"mouth_end",
-				"Jaw",
-				"Jaw_end",
-				"hat_01",
-				"hat_02",
-				"hat_02_end",
-				"hornA_01_l",
-				"hornA_02_l",
-				"hornA_02_l_end",
-				"hornB_01_l",
-				"hornB_02_l",
-				"hornB_03_l",
-				"hornB_03_l_end",
-				"hornC_01_l",
-				"hornC_02_l",
-				"hornC_02_l_end",
-				"hornA_01_r",
-				"hornA_02_r",
-				"hornA_02_r_end",
-				"hornC_01_r",
-				"hornC_02_r",
-				"hornC_02_r_end",
-				"hornB_01_r",
-				"hornB_02_r",
-				"hornB_03_r",
-				"hornB_03_r_end",
-				"clavicle_l",
-				"upperarm_l",
-				"lowerarm_l",
-				"hand_l",
-				"drill_l",
-				"drill_l_end",
-				"saw_l",
-				"saw_l_end",
-				"upperJaw_l",
-				"upperJaw_l_end",
-				"LowerJaw_l",
-				"LowerJaw_l_end",
-				"clavicle_r",
-				"upperarm_r",
-				"lowerarm_r",
-				"hand_r",
-				"drill_r",
-				"drill_r_end",
-				"saw_r",
-				"saw_r_end",
-				"upperJaw_r",
-				"upperJaw_r_end",
-				"LowerJaw_r",
-				"LowerJaw_r_end",
-				"FrontBelly",
-				"FrontBelly_end",
-				"thigh_l",
-				"calf_l",
-				"foot_l",
-				"ball_l",
-				"ball_l_end",
-				"tail_01",
-				"tail_02",
-				"tail_03",
-				"tail_04",
-				"tail_04_end",
-				"thigh_r",
-				"calf_r",
-				"foot_r",
-				"ball_r",
-				"ball_r_end",
-				"Bodypart08",
-				"Nose13",
-				"Eye11",
-				"Glove04",
-				"Tail06",
-				"MainBody03",
 			};
 			unsigned int _selectedJoint = 9;
 			PlatinumEngine::Maths::Vec3 translation = 
@@ -462,93 +207,8 @@ IDSystem
 			bool _isEnabled = 1;
 			bool _isEnabledInHierarchy = 1;
 			// from PlatinumEngine::AnimationAttachment
-			std::vector<std::__cxx11::basic_string<char>> jointsName = 
+			std::vector<std::string> jointsName = 
 			{
-				"RootNode",
-				"Armature",
-				"root",
-				"pelvis",
-				"spine_01",
-				"spine_02",
-				"spine_03",
-				"neck_01",
-				"head",
-				"Hat16",
-				"face",
-				"mouth",
-				"mouth_end",
-				"Jaw",
-				"Jaw_end",
-				"hat_01",
-				"hat_02",
-				"hat_02_end",
-				"hornA_01_l",
-				"hornA_02_l",
-				"hornA_02_l_end",
-				"hornB_01_l",
-				"hornB_02_l",
-				"hornB_03_l",
-				"hornB_03_l_end",
-				"hornC_01_l",
-				"hornC_02_l",
-				"hornC_02_l_end",
-				"hornA_01_r",
-				"hornA_02_r",
-				"hornA_02_r_end",
-				"hornC_01_r",
-				"hornC_02_r",
-				"hornC_02_r_end",
-				"hornB_01_r",
-				"hornB_02_r",
-				"hornB_03_r",
-				"hornB_03_r_end",
-				"clavicle_l",
-				"upperarm_l",
-				"lowerarm_l",
-				"hand_l",
-				"drill_l",
-				"drill_l_end",
-				"saw_l",
-				"saw_l_end",
-				"upperJaw_l",
-				"upperJaw_l_end",
-				"LowerJaw_l",
-				"LowerJaw_l_end",
-				"clavicle_r",
-				"upperarm_r",
-				"lowerarm_r",
-				"hand_r",
-				"drill_r",
-				"drill_r_end",
-				"saw_r",
-				"saw_r_end",
-				"upperJaw_r",
-				"upperJaw_r_end",
-				"LowerJaw_r",
-				"LowerJaw_r_end",
-				"FrontBelly",
-				"FrontBelly_end",
-				"thigh_l",
-				"calf_l",
-				"foot_l",
-				"ball_l",
-				"ball_l_end",
-				"tail_01",
-				"tail_02",
-				"tail_03",
-				"tail_04",
-				"tail_04_end",
-				"thigh_r",
-				"calf_r",
-				"foot_r",
-				"ball_r",
-				"ball_r_end",
-				"Bodypart08",
-				"Nose13",
-				"Eye11",
-				"Glove04",
-				"Tail06",
-				"MainBody03",
 			};
 			unsigned int _selectedJoint = 9;
 			PlatinumEngine::Maths::Vec3 translation = 
@@ -616,7 +276,7 @@ IDSystem
 			bool _isDisplay = 1;
 			PlatinumEngine::AnimationLocalTimer timer = 
 			{
-				float animationTime = 0.165383;
+				float animationTime = 0.349123;
 				bool isAnimationLooping = 1;
 				bool isAnimationPlaying = 1;
 			};
@@ -636,7 +296,7 @@ IDSystem
 			bool _isDisplay = 1;
 			PlatinumEngine::AnimationLocalTimer timer = 
 			{
-				float animationTime = 0.917495;
+				float animationTime = 0.601235;
 				bool isAnimationLooping = 1;
 				bool isAnimationPlaying = 1;
 			};
@@ -656,7 +316,7 @@ IDSystem
 			bool _isDisplay = 1;
 			PlatinumEngine::AnimationLocalTimer timer = 
 			{
-				float animationTime = 0.28729;
+				float animationTime = 0.471027;
 				bool isAnimationLooping = 1;
 				bool isAnimationPlaying = 1;
 			};
@@ -676,7 +336,7 @@ IDSystem
 			bool _isDisplay = 1;
 			PlatinumEngine::AnimationLocalTimer timer = 
 			{
-				float animationTime = 0.175642;
+				float animationTime = 0.359379;
 				bool isAnimationLooping = 1;
 				bool isAnimationPlaying = 1;
 			};
@@ -696,7 +356,7 @@ IDSystem
 			bool _isDisplay = 1;
 			PlatinumEngine::AnimationLocalTimer timer = 
 			{
-				float animationTime = 1.3109;
+				float animationTime = 1.69464;
 				bool isAnimationLooping = 1;
 				bool isAnimationPlaying = 1;
 			};
@@ -716,7 +376,7 @@ IDSystem
 			bool _isDisplay = 1;
 			PlatinumEngine::AnimationLocalTimer timer = 
 			{
-				float animationTime = 0.780352;
+				float animationTime = 0.0974216;
 				bool isAnimationLooping = 1;
 				bool isAnimationPlaying = 1;
 			};
@@ -736,7 +396,7 @@ IDSystem
 			bool _isDisplay = 1;
 			PlatinumEngine::AnimationLocalTimer timer = 
 			{
-				float animationTime = 1.65142;
+				float animationTime = 0.168492;
 				bool isAnimationLooping = 1;
 				bool isAnimationPlaying = 1;
 			};
@@ -756,7 +416,7 @@ IDSystem
 			bool _isDisplay = 1;
 			PlatinumEngine::AnimationLocalTimer timer = 
 			{
-				float animationTime = 0.0247827;
+				float animationTime = 0.541853;
 				bool isAnimationLooping = 1;
 				bool isAnimationPlaying = 1;
 			};
@@ -961,6 +621,24 @@ IDSystem
 		}
 	},
 	{
+		13567417549350398090,
+		PlatinumEngine::GameObject 
+		{
+			std::string name = "Light";
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _parent = 0;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _children = 
+			{
+			};
+			std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
+			{
+				{11007454166030372693, PlatinumEngine::LightComponent},
+				{7316555606630489489, PlatinumEngine::Transform},
+			};
+		}
+	},
+	{
 		14750404620514591365,
 		PlatinumEngine::GameObject 
 		{
@@ -1039,6 +717,35 @@ IDSystem
 		}
 	},
 	{
+		11007454166030372693,
+		PlatinumEngine::LightComponent 
+		{
+			PlatinumEngine::LightComponent::LightType type = 1;
+			PlatinumEngine::Spectrum spectrum = 
+			{
+				float r = 0.7;
+				float g = 0.7;
+				float b = 0.7;
+			};
+			PlatinumEngine::Maths::Vec3 direction = 
+			{
+				float x = 0;
+				float y = 1;
+				float z = 0;
+			};
+			PlatinumEngine::Maths::Vec3 ambientLight = 
+			{
+				float x = 0;
+				float y = 0;
+				float z = 0;
+			};
+			float constant = 1;
+			float linear = 0.09;
+			float quadratic = 0.032;
+			float intensity = 100;
+		}
+	},
+	{
 		557190368259523852,
 		PlatinumEngine::MeshRender 
 		{
@@ -1053,9 +760,18 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> normalTexture = 0;
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
+				float refractionIndex = 1.5;
 				bool useBlinnPhong = 0;
 				bool useTexture = 1;
 				bool useNormalTexture = 0;
+				bool useReflectionShader = 0;
+				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 0.7;
+					float y = 0.7;
+					float z = 0.7;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 9820136440010587766;
 		}
@@ -1075,9 +791,18 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> normalTexture = 0;
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
+				float refractionIndex = 1.5;
 				bool useBlinnPhong = 0;
 				bool useTexture = 1;
 				bool useNormalTexture = 0;
+				bool useReflectionShader = 0;
+				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 0.7;
+					float y = 0.7;
+					float z = 0.7;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 3421080182443779151;
 		}
@@ -1097,9 +822,18 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> normalTexture = 0;
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
+				float refractionIndex = 1.5;
 				bool useBlinnPhong = 0;
 				bool useTexture = 1;
 				bool useNormalTexture = 0;
+				bool useReflectionShader = 0;
+				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 0.7;
+					float y = 0.7;
+					float z = 0.7;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 9820136440010587766;
 		}
@@ -1119,9 +853,18 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> normalTexture = 0;
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
+				float refractionIndex = 1.5;
 				bool useBlinnPhong = 0;
 				bool useTexture = 1;
 				bool useNormalTexture = 0;
+				bool useReflectionShader = 0;
+				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 0.7;
+					float y = 0.7;
+					float z = 0.7;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 8386586314592114621;
 		}
@@ -1141,9 +884,18 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> normalTexture = 0;
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
+				float refractionIndex = 1.5;
 				bool useBlinnPhong = 0;
 				bool useTexture = 1;
 				bool useNormalTexture = 0;
+				bool useReflectionShader = 0;
+				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 0.7;
+					float y = 0.7;
+					float z = 0.7;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 9820136440010587766;
 		}
@@ -1163,9 +915,18 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> normalTexture = 0;
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
+				float refractionIndex = 1.5;
 				bool useBlinnPhong = 0;
 				bool useTexture = 1;
 				bool useNormalTexture = 0;
+				bool useReflectionShader = 0;
+				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 0.7;
+					float y = 0.7;
+					float z = 0.7;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 8386586314592114621;
 		}
@@ -1185,9 +946,18 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> normalTexture = 0;
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
+				float refractionIndex = 1.5;
 				bool useBlinnPhong = 0;
 				bool useTexture = 1;
 				bool useNormalTexture = 0;
+				bool useReflectionShader = 0;
+				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 0.7;
+					float y = 0.7;
+					float z = 0.7;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 8386586314592114621;
 		}
@@ -1207,9 +977,18 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> normalTexture = 0;
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
+				float refractionIndex = 1.5;
 				bool useBlinnPhong = 0;
 				bool useTexture = 1;
 				bool useNormalTexture = 0;
+				bool useReflectionShader = 0;
+				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 0.7;
+					float y = 0.7;
+					float z = 0.7;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 8386586314592114621;
 		}
@@ -1229,9 +1008,18 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> normalTexture = 16878968118726513012;
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
+				float refractionIndex = 1.5;
 				bool useBlinnPhong = 0;
 				bool useTexture = 1;
 				bool useNormalTexture = 0;
+				bool useReflectionShader = 0;
+				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 0.7;
+					float y = 0.7;
+					float z = 0.7;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 3421080182443779151;
 		}
@@ -1251,9 +1039,18 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> normalTexture = 0;
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
+				float refractionIndex = 1.5;
 				bool useBlinnPhong = 0;
 				bool useTexture = 1;
 				bool useNormalTexture = 0;
+				bool useReflectionShader = 0;
+				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 0.7;
+					float y = 0.7;
+					float z = 0.7;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 3421080182443779151;
 		}
@@ -1273,9 +1070,18 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> normalTexture = 0;
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
+				float refractionIndex = 1.5;
 				bool useBlinnPhong = 0;
 				bool useTexture = 1;
 				bool useNormalTexture = 0;
+				bool useReflectionShader = 0;
+				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 0.7;
+					float y = 0.7;
+					float z = 0.7;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 9820136440010587766;
 		}
@@ -1295,9 +1101,18 @@ IDSystem
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> normalTexture = 0;
 				PlatinumEngine::SavedReference<PlatinumEngine::Texture> specularTexture = 0;
 				float shininessFactor = 1;
+				float refractionIndex = 1.5;
 				bool useBlinnPhong = 0;
 				bool useTexture = 1;
 				bool useNormalTexture = 0;
+				bool useReflectionShader = 0;
+				bool useRefractionShader = 0;
+				PlatinumEngine::Maths::Vec3 colour = 
+				{
+					float x = 0.7;
+					float y = 0.7;
+					float z = 0.7;
+				};
 			};
 			PlatinumEngine::SavedReference<PlatinumEngine::Mesh> _mesh = 3421080182443779151;
 		}
@@ -1489,7 +1304,7 @@ IDSystem
 			// from PlatinumEngine::Transform
 			PlatinumEngine::Maths::Vec3 localPosition = 
 			{
-				float x = 20.6473;
+				float x = 20.4534;
 				float y = 0;
 				float z = 0.780971;
 			};
@@ -1520,6 +1335,50 @@ IDSystem
 				float [3,3] = 0;
 			};
 			float localScale = 0.1;
+		}
+	},
+	{
+		7316555606630489489,
+		PlatinumEngine::Transform 
+		{
+			// inherited from PlatinumEngine::Component
+			PlatinumEngine::SavedReference<PlatinumEngine::GameObject> _gameObject = 13567417549350398090;
+			bool _isEnabled = 1;
+			bool _isEnabledInHierarchy = 1;
+			// from PlatinumEngine::Transform
+			PlatinumEngine::Maths::Vec3 localPosition = 
+			{
+				float x = 0;
+				float y = 42.6805;
+				float z = -31.5573;
+			};
+			PlatinumEngine::Maths::Quaternion localRotation = 
+			{
+				float x = 0;
+				float y = 0;
+				float z = 0;
+				float w = 1;
+			};
+			PlatinumEngine::Maths::Mat4 transformationMatrix = 
+			{
+				float [0,0] = 0;
+				float [0,1] = 0;
+				float [0,2] = 0;
+				float [0,3] = 0;
+				float [1,0] = 0;
+				float [1,1] = 0;
+				float [1,2] = 0;
+				float [1,3] = 0;
+				float [2,0] = 0;
+				float [2,1] = 0;
+				float [2,2] = 0;
+				float [2,3] = 0;
+				float [3,0] = 0;
+				float [3,1] = 0;
+				float [3,2] = 0;
+				float [3,3] = 0;
+			};
+			float localScale = 1;
 		}
 	},
 	{
@@ -1893,6 +1752,7 @@ PlatinumEngine::Scene
 		12478636785553370342,
 		13268168446530483392,
 		3090685187538509406,
+		13567417549350398090,
 	};
 	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::GameObject>> _rootGameObjects = 
 	{
@@ -1905,6 +1765,7 @@ PlatinumEngine::Scene
 		12478636785553370342,
 		13268168446530483392,
 		798763187062360754,
+		13567417549350398090,
 	};
 	std::vector<PlatinumEngine::SavedReference<PlatinumEngine::Component>> _components = 
 	{
@@ -1946,5 +1807,7 @@ PlatinumEngine::Scene
 		{5374657408151339421, PlatinumEngine::MeshRender},
 		{7386724942488921904, PlatinumEngine::Transform},
 		{10306295513207833604, PlatinumEngine::AnimationAttachment},
+		{11007454166030372693, PlatinumEngine::LightComponent},
+		{7316555606630489489, PlatinumEngine::Transform},
 	};
 };

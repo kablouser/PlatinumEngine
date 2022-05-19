@@ -25,7 +25,8 @@ namespace PlatinumEngine
 		///ifs in main menu window list to call the function inside
 		///-----------------------------------------------------------------------
 		//window section
-		if (_showWindowGame)			Application::Instance->gameWindow.ShowGUIWindow(&_showWindowGame);
+		// Game window must always be open or things wont be updated
+		Application::Instance->gameWindow.ShowGUIWindow(&_showWindowGame);
 		if (_showWindowScene) 			ShowWindowScene(&_showWindowScene);
 		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy);
 		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector);
