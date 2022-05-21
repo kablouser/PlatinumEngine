@@ -76,3 +76,47 @@ namespace PlatinumEngine
 		return _depthAndStencilHandle;
 	}
 }
+
+namespace PlatinumEngine
+{
+	DepthMapFrameBuffer::DepthMapFrameBuffer() : _framebufferHandle(0) {}
+
+	DepthMapFrameBuffer::~DepthMapFrameBuffer()
+	{
+		GL_CHECK(glDeleteFramebuffers(1, &_framebufferHandle));
+	}
+
+	bool DepthMapFrameBuffer::Create(GLsizei width, GLsizei height)
+	{
+		if (_framebufferHandle == 0)
+			GL_CHECK(glGenFramebuffers(1, &_framebufferHandle));
+		GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, _framebufferHandle));
+
+		// There is no colour attachment in a depth map frame buffer
+		depthMap.CreateDepthMap(width, height);
+		GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap.GetOpenGLHandle(), 0));
+
+		// Don't actually need a colour buffer for rendering so tell OpenGL no colour data will be rendered
+		GL_CHECK(glDrawBuffer(GL_NONE));
+		GL_CHECK(glReadBuffer(GL_NONE));
+
+		// Job done, reset global state
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		return true; // Idk what else to return here?
+	}
+
+	void DepthMapFrameBuffer::Bind()
+	{
+		GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, _framebufferHandle));
+	}
+
+	void DepthMapFrameBuffer::Unbind()
+	{
+		GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+	}
+
+	GLuint DepthMapFrameBuffer::GetFrameBufferHandle() const
+	{
+		return _framebufferHandle;
+	}
+}

@@ -58,6 +58,12 @@ const std::string PARTICLE_VERTEX_SHADER =
 const std::string PARTICLE_FRAGMENT_SHADER =
 #include <Shaders/Unlit/ParticleShader.frag>
 ;
+const std::string DEPTH_VERTEX_SHADER =
+#include <Shaders/Unlit/DepthMapShader.vert>
+;
+const std::string DEPTH_FRAGMENT_SHADER =
+#include <Shaders/Unlit/DepthMapShader.frag>
+;
 
 namespace PlatinumEngine
 {
@@ -132,6 +138,12 @@ namespace PlatinumEngine
 			return;
 		}
 
+		if (!depthShader.Compile(DEPTH_VERTEX_SHADER, DEPTH_FRAGMENT_SHADER))
+		{
+			PLATINUM_ERROR("Cannot generate the depth shader");
+			return;
+		}
+
 		_framebufferWidth = 1;
 		_framebufferHeight = 1;
 		if (!_framebuffer.Create(_framebufferWidth, _framebufferHeight))
@@ -160,6 +172,7 @@ namespace PlatinumEngine
 //		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 //		_unlitShader.Bind();
 		_phongShader.Bind();
+		std::cout << "phong binding" << std::endl;
 	}
 
 
@@ -309,6 +322,7 @@ namespace PlatinumEngine
 		}
 
 		_phongShader.Bind();
+		std::cout << "phong bind" << std::endl;
 		_phongShader.SetUniform("diffuseColour", material.colour);
 		_phongShader.SetUniform("useTexture", material.useTexture);
 
@@ -335,6 +349,13 @@ namespace PlatinumEngine
 
 		// Reset state
 		glActiveTexture(GL_TEXTURE0);
+
+		// Depth shader doesn't need any martierls, but if in depth pass bind the shader back
+		if (isDepthPass)
+		{
+			std::cout << "depth bind" << std::endl;
+			depthShader.Bind();
+		}
 	}
 
 	// update model matrix in shader
@@ -344,8 +365,18 @@ namespace PlatinumEngine
 		_reflectRefractShader.SetUniform("model", mat);
 		_particleShader.Bind();
 		_particleShader.SetUniform("model", mat);
+		// Also need a model matrix in the depth shader
+		depthShader.Bind();
+		depthShader.SetUniform("model", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("model", mat);
+		std::cout << "phong bind" << std::endl;
+
+		if (isDepthPass)
+		{
+			std::cout << "depth bind" << std::endl;
+			depthShader.Bind();
+		}
 	}
 
 	// update view matrix in shader
@@ -397,22 +428,31 @@ namespace PlatinumEngine
 	void Renderer::SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat)
 	{
 		_phongShader.Bind();
+		std::cout << "phong bind" << std::endl;
 		if(transformMatrixIndex < 128)
 			_phongShader.SetUniform("tracks["+std::to_string(transformMatrixIndex)+"]", mat);
 		else
 			PLATINUM_WARNING_STREAM << "Size of transformation matrices " << transformMatrixIndex << " for animation exceeds 128.";
+
+		if (isDepthPass)
+		{
+			depthShader.Bind();
+			std::cout << "depth bind" << std::endl;
+		}
 	}
 
 	void Renderer::SetAnimationStatus(bool isAnimationOn)
 	{
 		_phongShader.Bind();
 		_phongShader.SetUniform("isAnimationDisplay", isAnimationOn);
+		std::cout << "phong bind" << std::endl;
 	}
 
 	void Renderer::SetAnimationAttachmentStatus(bool isAnimationAttachmentOn)
 	{
 		_phongShader.Bind();
 		_phongShader.SetUniform("isAnimationAttachmentDisplay", isAnimationAttachmentOn);
+		std::cout << "phong bind" << std::endl;
 	}
 
 	// update view matrix in shader
@@ -479,6 +519,8 @@ namespace PlatinumEngine
 				auto transform = lightComponent.DeRef()->GetComponent<Transform>();
 				if(transform)
 				{
+					auto matrix = transform.DeRef()->GetLocalToWorldMatrix();
+					auto pos = Maths::Vec3{matrix[3][0], matrix[3][1], matrix[3][2]};
 					if (type == LightComponent::LightType::Directional)
 					{
 						isDirLight = true;
@@ -490,14 +532,47 @@ namespace PlatinumEngine
 						_phongShader.SetUniform("dirLights[" + std::to_string(num_directed_lights) + "].baseLight",
 								(lightComponent.DeRef()->intensity * lightComponent.DeRef()->spectrum).to_vec());
 						num_directed_lights++;
+
+						// Set up depth shader
+						depthShader.Bind();
+						// Just use glm here
+						// Set some big near and far values for directional light
+						/*
+						 * -26.57
+							26.57
+							-27.9966
+							27.9966
+							0.1
+							10000
+						 * */
+						float near = 0.1f, far = 1000.0f;
+						// It is an ortho matrix as the lights go in parallel
+						glm::mat4 lightProjectionMatrix = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near, far);
+						// We use the magic glm::lookAt  and accept that we aren't smart enough to do this part ourselves
+						// The position is slightly different in that we move along the negative direction of the light
+						// A set amount of distance so we can render things
+						auto camera = lightComponent.DeRef()->GetComponent<Camera>();
+						glm::mat4 lightViewMatrix;
+						lightViewMatrix = glm::lookAt(-10*Maths::Vec3(lightDir.x, lightDir.y, lightDir.z)/* position */,
+								Maths::Vec3(0, 0, 0)/* Looking at origin */,
+								Maths::Vec3(0, 1, 0)/* Up vector */
+						);
+						// Now combine the two matrices
+						Maths::Mat4 matrix{};
+						matrix.ConvertFromGLM(lightProjectionMatrix * lightViewMatrix);
+						depthShader.SetUniform("lightTransform", matrix);
+						depthShader.Unbind();
+
+						// Don't forget the light transform matrix is also used in the phong shader
+						// this bug took me forever to find :(
+						_phongShader.Bind();
+						_phongShader.SetUniform("lightTransform", matrix);
 					}
 					else if (type == LightComponent::LightType::Point)
 					{
 						isPointLight = true;
 						_phongShader.SetUniform("ambientLight", lightComponent.DeRef()->ambientLight);
 						_phongShader.SetUniform("isPointLight", isPointLight);
-						auto matrix = transform.DeRef()->GetLocalToWorldMatrix();
-						auto pos = Maths::Vec3{matrix[3][0], matrix[3][1], matrix[3][2]};
 						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].position",
 								pos);
 						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].baseLight",
@@ -527,6 +602,9 @@ namespace PlatinumEngine
 
 		_phongShader.SetUniform("numDirLights", num_directed_lights);
 		_phongShader.SetUniform("numPointLights", num_point_lights);
+
+		if (isDepthPass)
+			depthShader.Bind();
 	}
 
 	void Renderer::DrawLight(Maths::Mat4 matrix)

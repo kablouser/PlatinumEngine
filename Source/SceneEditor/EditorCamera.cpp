@@ -152,8 +152,14 @@ namespace PlatinumEngine
 	void EditorCamera::SetOrthogonalMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
 	{
 		// update projection matrix
+		std::cout << left << std::endl;
+		std::cout << right << std::endl;
+		std::cout << bottom << std::endl;
+		std::cout << top << std::endl;
+		std::cout << zNear << std::endl;
+		std::cout << zFar << std::endl;
+		std::cout  << std::endl;
 		projectionMatrix4.SetOrthogonalMatrix( left,  right,  bottom,  top,  zNear,  zFar);
-
 		_IsProjectionMatrixUsed = false;
 	}
 

@@ -212,6 +212,9 @@ namespace PlatinumEngine
 		int _framebufferWidth;
 		int _framebufferHeight;
 
+		// for depth mapping
+		DepthMapFrameBuffer _depthMapFramebuffer;
+
 		// Grid transparency parameters
 		float _transparency;
 		bool _xGrid = false, _yGrid = true, _zGrid = false;

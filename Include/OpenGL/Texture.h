@@ -41,6 +41,9 @@ namespace PlatinumEngine
 		void BindCubeMap() const;
 		void UnbindCubeMap() const;
 
+		// Have a separate function for this as some things are needed that are included in a normal texture
+		void CreateDepthMap(GLsizei width, GLsizei height);
+
 		std::string fileName;
 		GLsizei width, height;
 	private:

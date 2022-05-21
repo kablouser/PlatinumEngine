@@ -69,7 +69,6 @@ namespace PlatinumEngine
 		// send flag to uniform
 		Application::Instance->renderer.SetAnimationStatus(doesAnimationWork);
 
-
 		// animation attachment
 		SavedReference<AnimationAttachment> animationAttachment = GetComponent<AnimationAttachment>();
 
@@ -95,6 +94,7 @@ namespace PlatinumEngine
 
 		// load texture
 		Application::Instance->renderer.LoadMaterial(material);
+		std::cout << "draw" << std::endl;
 		_shaderInput.Draw();
 	}
 

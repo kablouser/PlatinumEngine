@@ -82,8 +82,6 @@ namespace PlatinumEngine
 		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
-		this->width = width;
-		this->height = height;
 	}
 
 	void Texture::CreateCubeMap(std::vector<std::string> faces)
@@ -155,6 +153,25 @@ namespace PlatinumEngine
 	void Texture::UnbindCubeMap() const
 	{
 		GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
+	}
+
+	void Texture::CreateDepthMap(GLsizei width, GLsizei height)
+	{
+		if (_textureHandle == 0)
+			GL_CHECK(glGenTextures(1, &_textureHandle));
+
+		std::cout << width << std::endl;
+		std::cout << height << std::endl;
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, _textureHandle));
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+				width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 	}
 
 	///-------------------------------------------------------------

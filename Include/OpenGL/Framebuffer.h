@@ -28,4 +28,20 @@ namespace PlatinumEngine
 		Texture _colorTexture;
 
 	};
+
+	class DepthMapFrameBuffer {
+	public:
+		DepthMapFrameBuffer();
+		~DepthMapFrameBuffer();
+		bool Create(GLsizei width, GLsizei height);
+		void Bind();
+		void Unbind();
+		GLuint GetFrameBufferHandle() const;
+	public:
+		Texture depthMap;
+
+	private:
+		GLuint _framebufferHandle;
+
+	};
 }

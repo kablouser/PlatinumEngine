@@ -126,6 +126,16 @@ namespace PlatinumEngine
 		ParticleEffects::ParticleRenderer particleRenderer;
 		ShaderProgram _skyBoxShader;
 
+		// This should be public anyway really cba to change the name
+		ShaderProgram _phongShader;
+
+		ShaderProgram depthShader;
+
+		// Because of the bad way we set things up, when we render the scene the phong shader is always
+		// bound before drawing
+		// To get around it we can set this flag to true and then the phong shader will not be rebound
+		bool isDepthPass = true;
+
 	private:
 
 		// true iff all init steps were successful
@@ -134,7 +144,7 @@ namespace PlatinumEngine
 		ShaderProgram _unlitShader;
 //		ShaderProgram _skyBoxShader;
 		ShaderProgram _gridShader;
-		ShaderProgram _phongShader;
+//		ShaderProgram _phongShader;
 		ShaderProgram _reflectRefractShader;
 		ShaderProgram _lightShader;
 		ShaderProgram _particleShader;

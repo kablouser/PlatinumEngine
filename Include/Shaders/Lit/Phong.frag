@@ -52,13 +52,13 @@ uniform vec3 viewPos;
 uniform bool useBlinnPhong;
 
 // shadow mapping properties
-uniform bool shadowMappingOn = false;
-uniform sampler2D directionalLightShadowMap;
+uniform sampler2D depthMap;
+uniform mat4 lightTransform;
 
 // Calculate lights
-vec3 GetDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 colour);
+vec3 GetDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 colour, vec4 position);
 vec3 GetPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 colour);
-float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal);
+float ShadowCalculation(vec4 position, vec3 normal, vec3 lightDirection);
 float Calculate_Avg_Dblockreceiver(vec2 projCoords_xy, int AvgTextureSize,int layer);
 
 void main()
@@ -86,9 +86,7 @@ void main()
     if(isDirLight)
     {
         for(int i = 0; i < numDirLights; i++)
-            result += GetDirLight(dirLights[i], normal, viewDirection, colour);
-//        if(shadowMappingOn)
-//            ShadowCalculation();
+            result += GetDirLight(dirLights[i], normal, viewDirection, colour, lightTransform*vec4(vertexPos,1.0f));
     }
 
     if(isPointLight)
@@ -105,7 +103,7 @@ void main()
     fragColour.rgb = pow(fragColour.rgb, vec3(1.0/gamma));
 }
 
-vec3 GetDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 colour)
+vec3 GetDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 colour, vec4 position)
 {
     vec3 lightDir = vec3(-light.direction);
 
@@ -128,8 +126,9 @@ vec3 GetDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 colour)
     // combine results
     vec3 diffuse = light.baseLight * diff * colour;
     vec3 specular = light.baseLight * spec * materialSpec;
-
-    return (diffuse + specular);
+    float shadow = ShadowCalculation(position, normal, light.direction);
+    return (1.0-shadow) * (diffuse + specular);
+    //return (diffuse + specular);
 }
 
 vec3 GetPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 colour)
@@ -163,35 +162,24 @@ vec3 GetPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, ve
     return (diffuse + specular);
 }
 
-float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, DirLight light)
+float ShadowCalculation(vec4 position, vec3 normal, vec3 lightDirection)
 {
-    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    projCoords = projCoords * 0.5 + 0.5;
+    // This gives position in range [-1, 1]
+    vec3 coords = position.xyz / position.w;
 
-    float closestDepth = texture(directionalLightShadowMap, projCoords.xy).r;
-    float currentDepth = projCoords.z;
+    // However, depth map range is [0, 1], so transform coords
+    coords = coords * 0.5 + 0.5;
 
-    normal = normalize(normal);
-    vec3 lightDir = normalize(-light.direction);
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+    // Closest depth from the lights point of view
+    float closestDepth = texture(depthMap, coords.xy).r;
 
-    // Check whether current frag pos is in shadow
-    // float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
-    // PCF
-    float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(directionalLightShadowMap, 0);
-    for(int x = -1; x <= 1; ++x)
-    {
-        for(int y = -1; y <= 1; ++y)
-        {
-            float pcfDepth = texture(directionalLightShadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;
-        }
-    }
-    shadow /= 9.0;
+    // The current depth
+    float currentDepth = coords.z;
 
-    if(projCoords.z > 1.0)
-        shadow = 0.0;
+    // To solve shadow acne, subtract a bias
+    float bias = max(0.05 * (1.0 - dot(normal, lightDirection)), 0.005);
+
+    float shadow = currentDepth - 0.001 > closestDepth ? 1.0 : 0.0;
 
     return shadow;
 }
