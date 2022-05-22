@@ -468,7 +468,7 @@ namespace PlatinumEngine
 		bool isDirLight = false, isPointLight = false;
 
 		// Reset uniforms
-		_phongShader.SetUniform("ambientLight", Maths::Vec3{0.0f, 0.0f, 0.0f});
+		_phongShader.SetUniform("ambientLight", Maths::Vec3{0.1f, 0.1f, 0.1f});
 
 		for(auto light:lights)
 		{
@@ -483,7 +483,6 @@ namespace PlatinumEngine
 					{
 						isDirLight = true;
 						auto lightDir = transform.DeRef()->GetLocalToWorldMatrix() * Maths::Vec4(0.f, 1.f, 0.f, 0.f);
-						_phongShader.SetUniform("ambientLight", lightComponent.DeRef()->ambientLight);
 						_phongShader.SetUniform("isDirLight", isDirLight);
 						_phongShader.SetUniform("dirLights[" + std::to_string(num_directed_lights) + "].direction",
 								Maths::Vec3(lightDir.x, lightDir.y, lightDir.z));
@@ -494,7 +493,6 @@ namespace PlatinumEngine
 					else if (type == LightComponent::LightType::Point)
 					{
 						isPointLight = true;
-						_phongShader.SetUniform("ambientLight", lightComponent.DeRef()->ambientLight);
 						_phongShader.SetUniform("isPointLight", isPointLight);
 						auto matrix = transform.DeRef()->GetLocalToWorldMatrix();
 						auto pos = Maths::Vec3{matrix[3][0], matrix[3][1], matrix[3][2]};
