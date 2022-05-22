@@ -291,7 +291,13 @@ namespace PlatinumEngine
 				.WithField<int>("_channel", PLATINUM_OFFSETOF(AudioComponent, _channel))
 				.WithField<int>("_panning", PLATINUM_OFFSETOF(AudioComponent, _panning))
 				.WithField<bool>("_isPlaying", PLATINUM_OFFSETOF(AudioComponent, _isPlaying))
-				.WithField<bool>("_isPaused", PLATINUM_OFFSETOF(AudioComponent, _isPaused));
+				.WithField<bool>("_isPaused", PLATINUM_OFFSETOF(AudioComponent, _isPaused))
+				.WithField<bool>("isDistortEnabled", PLATINUM_OFFSETOF(AudioComponent, isDistortEnabled))
+				.WithField<bool>("isFilterEnabled", PLATINUM_OFFSETOF(AudioComponent, isFilterEnabled))
+				.WithField<bool>("isPlaybackShiftEnabled", PLATINUM_OFFSETOF(AudioComponent, isPlaybackShiftEnabled))
+				.WithField<float>("playbackSpeed", PLATINUM_OFFSETOF(AudioComponent, playbackSpeed))
+				.WithField<filterData>("_filterInfo", PLATINUM_OFFSETOF(AudioComponent, _filterInfo))
+				.WithField<distortData>("_distortInfo", PLATINUM_OFFSETOF(AudioComponent, _distortInfo));
 	}
 
 	bool AudioComponent::IsPlaying(int channel)
