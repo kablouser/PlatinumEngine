@@ -31,8 +31,6 @@ namespace PlatinumEngine
 		if (_showWindowHierarchy) 		ShowWindowHierarchy(&_showWindowHierarchy);
 		if (_showWindowInspector) 		ShowWindowInspector(&_showWindowInspector);
 		if (_showWindowProject) 		ShowWindowProject(&_showWindowProject);
-		if (_showWindowAnimation) 		ShowWindowAnimation(&_showWindowAnimation);
-		if (_showWindowLight) 			ShowWindowLight(&_showWindowLight);
 		if (_showWindowLogger)   		ShowWindowLogger(&_showWindowLogger);
 		if(_showWindowProfiler) 		ShowWindowProfiler(&_showWindowProfiler);
 		if (_showFileLoad) 				LoadFile(&_showFileLoad);
@@ -394,29 +392,10 @@ namespace PlatinumEngine
 	///   | Section: Please implement GUI in the corresponding function below |
 	///   ---                                                               ---
 	///--------------------------------------------------------------------------
-
-	//Please implement Animation Window below
-	void WindowManager::ShowWindowAnimation(bool* outIsOpen)
-	{
-		if (!ImGui::Begin("Animation", outIsOpen))
-		{
-			ImGui::Text("ABOUT THIS DEMO:");
-			ImGui::End();
-			return;
-		}
-		ImGui::End();
-	}
-
 	//Please implement Project Window below
 	void WindowManager::ShowWindowProject(bool* outIsOpen)
 	{
 		Application::Instance->projectWindow.ShowGUIWindow(outIsOpen);
-	}
-
-	//Please implement Light Window below
-	void WindowManager::ShowWindowLight(bool* outIsOpen)
-	{
-		//TODO:
 	}
 
 	//Please implement Scene Window below

@@ -47,8 +47,6 @@ namespace PlatinumEngine
 		void ShowWindowInspector(bool* outIsOpen);
 		void ShowWindowScene(bool* outIsOpen);
 		void ShowWindowProject(bool* outIsOpen);
-		void ShowWindowAnimation(bool* outIsOpen);
-		void ShowWindowLight(bool* outIsOpen);
 		void ShowWindowLogger(bool* outIsOpen);
 		void ShowWindowProfiler(bool* outIsOpen);
 
@@ -65,8 +63,6 @@ namespace PlatinumEngine
 		bool _showWindowInspector            = true;
 		bool _showWindowHierarchy            = true;
 		bool _showWindowProject              = true;
-		bool _showWindowAnimation            = false;
-		bool _showWindowLight                = false;
 		bool _showWindowLogger				 = false;
 		bool _showWindowProfiler			 = false;
 
