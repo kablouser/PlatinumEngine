@@ -306,6 +306,8 @@ void InspectorWindow::ShowMeshRenderComponent(SavedReference<MeshRender>& refere
 
 		auto ColourPickerFlags =
 				ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_AlphaBar;
+
+		// Material colour (albedo for PBR)
 		ImGui::Text("Colour: ");
 		ImGui::SameLine();
 		ImVec4 startColour((reference.DeRef()->material.colour[0]),
@@ -325,6 +327,36 @@ void InspectorWindow::ShowMeshRenderComponent(SavedReference<MeshRender>& refere
 			ImGui::PopItemWidth();
 			ImGui::EndPopup();
 		}
+
+		// Emissive colour
+		ImGui::Text("Emission: ");
+		ImGui::SameLine();
+		ImVec4 emissionColour((reference.DeRef()->material.emission[0]),
+				(reference.DeRef()->material.emission[1]),
+				(reference.DeRef()->material.emission[2]), 1.0f);
+		ImGui::PushItemWidth(20);
+		if (ImGui::ColorButton("##ButtonEmissionColour", emissionColour))
+		{
+			ImGui::OpenPopup("##PickEmissionColour");
+		}
+		ImGui::PopItemWidth();
+		if (ImGui::BeginPopup("##PickEmissionColour"))
+		{
+			ImGui::PushItemWidth(180.0f);
+			ImGui::ColorPicker4("##MaterialEmission", (float*)&(reference.DeRef()->material.emission),
+					ColourPickerFlags);
+			ImGui::PopItemWidth();
+			ImGui::EndPopup();
+		}
+
+		// Metalness
+		ImGui::Text("%s", "Metalness");
+		ImGui::DragFloat("##Metalness", &reference.DeRef()->material.metalness, 0.01f, 0.0f, 1.0f, nullptr); // NO ROUNDING PLEASE
+
+		// Use PBR
+		ImGui::Text("%s", "PBR");
+		ImGui::SameLine();
+		ImGui::Checkbox("##UsePBR", &reference.DeRef()->material.usePBR);
 	}
 }
 

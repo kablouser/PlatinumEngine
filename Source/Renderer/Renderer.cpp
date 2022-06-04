@@ -28,6 +28,9 @@ const std::string PHONG_VERTEX_SHADER =
 const std::string PHONG_FRAGMENT_SHADER =
 #include <Shaders/Lit/Phong.frag>
 ;
+const std::string PBR_FRAGMENT_SHADER =
+#include <Shaders/Lit/PBR.frag>
+;
 const std::string SKYBOX_VERTEX_SHADER =
 #include <Shaders/Unlit/SkyBoxShader.vert>
 ;
@@ -111,6 +114,12 @@ namespace PlatinumEngine
 		if (!_phongShader.Compile(PHONG_VERTEX_SHADER, PHONG_FRAGMENT_SHADER))
 		{
 			PLATINUM_ERROR("Cannot generate the phong shader.");
+			return;
+		}
+
+		if (!PBRShader.Compile(PHONG_VERTEX_SHADER, PBR_FRAGMENT_SHADER))
+		{
+			PLATINUM_ERROR("Cannot generate the PBR shader.");
 			return;
 		}
 
@@ -308,30 +317,48 @@ namespace PlatinumEngine
 			return;
 		}
 
-		_phongShader.Bind();
-		_phongShader.SetUniform("diffuseColour", material.colour);
-		_phongShader.SetUniform("useTexture", material.useTexture);
-
 		// bind diffuse map
 		if (material.diffuseTexture)
 		{
+			PBRShader.Bind();
+			PBRShader.SetUniform("diffuseMap", (int)0);
+			_phongShader.Bind();
 			_phongShader.SetUniform("diffuseMap", (int)0);
 			glActiveTexture(GL_TEXTURE0);
 			material.diffuseTexture.DeRef()->Bind();
 		}
 
-		_phongShader.SetUniform("useNormalTexture", material.useNormalTexture);
 		if (material.normalTexture)
 		{
+			PBRShader.Bind();
+			PBRShader.SetUniform("normalMap", (int)1);
+			_phongShader.Bind();
 			_phongShader.SetUniform("normalMap", (int)1);
 			glActiveTexture(GL_TEXTURE1);
 			material.normalTexture.DeRef()->Bind();
 		}
 
-		// Other uniforms
+		// Other uniforms for PBR
+		PBRShader.Bind();
+		PBRShader.SetUniform("useNormalTexture", material.useNormalTexture);
+		PBRShader.SetUniform("albedo", material.colour);
+		PBRShader.SetUniform("emissive", material.emission);
+		PBRShader.SetUniform("shininess", material.shininessFactor);
+		PBRShader.SetUniform("metalness", material.metalness);
+		PBRShader.SetUniform("useTexture", material.useTexture);
+
+		// Other uniforms for Phong
+		_phongShader.Bind();
+		_phongShader.SetUniform("useNormalTexture", material.useNormalTexture);
+		_phongShader.SetUniform("diffuseColour", material.colour);
+		_phongShader.SetUniform("useTexture", material.useTexture);
 		_phongShader.SetUniform("materialSpec", Maths::Vec3(0.6f, 0.6f, 0.6f));
 		_phongShader.SetUniform("shininess", material.shininessFactor);
 		_phongShader.SetUniform("useBlinnPhong", material.useBlinnPhong);
+
+		// Make sure correct shader is bound before draw
+		if (material.usePBR)
+			PBRShader.Bind();
 
 		// Reset state
 		glActiveTexture(GL_TEXTURE0);
@@ -344,6 +371,8 @@ namespace PlatinumEngine
 		_reflectRefractShader.SetUniform("model", mat);
 		_particleShader.Bind();
 		_particleShader.SetUniform("model", mat);
+		PBRShader.Bind();
+		PBRShader.SetUniform("model", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("model", mat);
 	}
@@ -355,6 +384,8 @@ namespace PlatinumEngine
 		_reflectRefractShader.SetUniform("view", mat);
 		_particleShader.Bind();
 		_particleShader.SetUniform("view", mat);
+		PBRShader.Bind();
+		PBRShader.SetUniform("view", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("view", mat);
 		_lightShader.Bind();
@@ -368,6 +399,8 @@ namespace PlatinumEngine
 		_reflectRefractShader.SetUniform("projection", mat);
 		_particleShader.Bind();
 		_particleShader.SetUniform("projection", mat);
+		PBRShader.Bind();
+		PBRShader.SetUniform("projection", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("projection", mat);
 		_lightShader.Bind();
@@ -396,21 +429,29 @@ namespace PlatinumEngine
 
 	void Renderer::SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat)
 	{
-		_phongShader.Bind();
 		if(transformMatrixIndex < 128)
-			_phongShader.SetUniform("tracks["+std::to_string(transformMatrixIndex)+"]", mat);
+		{
+			PBRShader.Bind();
+			PBRShader.SetUniform("tracks[" + std::to_string(transformMatrixIndex) + "]", mat);
+			_phongShader.Bind();
+			_phongShader.SetUniform("tracks[" + std::to_string(transformMatrixIndex) + "]", mat);
+		}
 		else
 			PLATINUM_WARNING_STREAM << "Size of transformation matrices " << transformMatrixIndex << " for animation exceeds 128.";
 	}
 
 	void Renderer::SetAnimationStatus(bool isAnimationOn)
 	{
+		PBRShader.Bind();
+		PBRShader.SetUniform("isAnimationDisplay", isAnimationOn);
 		_phongShader.Bind();
 		_phongShader.SetUniform("isAnimationDisplay", isAnimationOn);
 	}
 
 	void Renderer::SetAnimationAttachmentStatus(bool isAnimationAttachmentOn)
 	{
+		PBRShader.Bind();
+		PBRShader.SetUniform("isAnimationAttachmentDisplay", isAnimationAttachmentOn);
 		_phongShader.Bind();
 		_phongShader.SetUniform("isAnimationAttachmentDisplay", isAnimationAttachmentOn);
 	}
@@ -462,12 +503,14 @@ namespace PlatinumEngine
 
 	void Renderer::SetupLights(std::vector<SavedReference<LightComponent>> &lights)
 	{
-		_phongShader.Bind();
 		int num_directed_lights, num_point_lights;
 		num_directed_lights = num_point_lights = 0;
 		bool isDirLight = false, isPointLight = false;
 
 		// Reset uniforms
+		PBRShader.Bind();
+		PBRShader.SetUniform("ambientLight", Maths::Vec3{0.1f, 0.1f, 0.1f});
+		_phongShader.Bind();
 		_phongShader.SetUniform("ambientLight", Maths::Vec3{0.1f, 0.1f, 0.1f});
 
 		for(auto light:lights)
@@ -483,6 +526,17 @@ namespace PlatinumEngine
 					{
 						isDirLight = true;
 						auto lightDir = transform.DeRef()->GetLocalToWorldMatrix() * Maths::Vec4(0.f, 1.f, 0.f, 0.f);
+
+						// For PBR first
+						PBRShader.Bind();
+						PBRShader.SetUniform("isDirLight", isDirLight);
+						PBRShader.SetUniform("dirLights[" + std::to_string(num_directed_lights) + "].direction",
+								Maths::Vec3(lightDir.x, lightDir.y, lightDir.z));
+						PBRShader.SetUniform("dirLights[" + std::to_string(num_directed_lights) + "].baseLight",
+								(lightComponent.DeRef()->intensity * lightComponent.DeRef()->spectrum).to_vec());
+
+						// Then phong
+						_phongShader.Bind();
 						_phongShader.SetUniform("isDirLight", isDirLight);
 						_phongShader.SetUniform("dirLights[" + std::to_string(num_directed_lights) + "].direction",
 								Maths::Vec3(lightDir.x, lightDir.y, lightDir.z));
@@ -493,9 +547,26 @@ namespace PlatinumEngine
 					else if (type == LightComponent::LightType::Point)
 					{
 						isPointLight = true;
-						_phongShader.SetUniform("isPointLight", isPointLight);
 						auto matrix = transform.DeRef()->GetLocalToWorldMatrix();
 						auto pos = Maths::Vec3{matrix[3][0], matrix[3][1], matrix[3][2]};
+
+						// PBR first
+						PBRShader.Bind();
+						PBRShader.SetUniform("isPointLight", isPointLight);
+						PBRShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].position",
+								pos);
+						PBRShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].baseLight",
+								(lightComponent.DeRef()->intensity * lightComponent.DeRef()->spectrum).to_vec());
+						PBRShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].constant",
+								lightComponent.DeRef()->constant);
+						PBRShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].linear",
+								lightComponent.DeRef()->linear);
+						PBRShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].quadratic",
+								lightComponent.DeRef()->quadratic);
+
+						// Then phong
+						_phongShader.Bind();
+						_phongShader.SetUniform("isPointLight", isPointLight);
 						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].position",
 								pos);
 						_phongShader.SetUniform("pointLights[" + std::to_string(num_point_lights) + "].baseLight",
@@ -509,20 +580,13 @@ namespace PlatinumEngine
 						num_point_lights++;
 					}
 				}
-/*
-				Begin();
-				Mesh mesh;
-				mesh.vertices = vertices;
-				mesh.indices = indices;
-//				MeshRender renderComponent(mesh);
-				LoadMesh(mesh);
-				End();
-
-				ImGui::Image(_framebuffer.GetColorTexture().GetImGuiHandle(), targetSize);
-*/
 			}
 		}
 
+		PBRShader.Bind();
+		PBRShader.SetUniform("numDirLights", num_directed_lights);
+		PBRShader.SetUniform("numPointLights", num_point_lights);
+		_phongShader.Bind();
 		_phongShader.SetUniform("numDirLights", num_directed_lights);
 		_phongShader.SetUniform("numPointLights", num_point_lights);
 	}
@@ -539,6 +603,8 @@ namespace PlatinumEngine
 		_reflectRefractShader.Bind();
 		_reflectRefractShader.SetUniform("cameraPos", pos);
 
+		PBRShader.Bind();
+		PBRShader.SetUniform("viewPos", pos);
 		_phongShader.Bind();
 		_phongShader.SetUniform("viewPos", pos);
 

@@ -36,7 +36,7 @@ void main()
 
     if(isAnimationAttachmentDisplay)
     {
-        animationTransform =  tracks[0];
+        animationTransform = tracks[0];
     }
 
     gl_Position = projection * view * model * animationTransform * vec4(inVertex, 1.0);

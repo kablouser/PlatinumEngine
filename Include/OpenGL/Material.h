@@ -16,7 +16,7 @@ namespace PlatinumEngine
 		SavedReference<Texture>			normalTexture;
 		SavedReference<Texture>			specularTexture;
 
-		float         	shininessFactor = 8.0f;
+		float shininessFactor = 8.0f;
 		float refractionIndex = 1.5f;
 
 		// Flags
@@ -26,6 +26,9 @@ namespace PlatinumEngine
 		bool useReflectionShader = false;
 		bool useRefractionShader = false;
 		Maths::Vec3 colour = {0.7f, 0.7f, 0.7f};
+		Maths::Vec3 emission = {0.0f, 0.0f, 0.0f};
+		float metalness = 0.0f;
+		bool usePBR = false;
 
 		static void CreateTypeInfo(TypeDatabase& typeDatabase);
 

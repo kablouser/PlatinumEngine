@@ -125,6 +125,7 @@ namespace PlatinumEngine
 		Maths::Vec3 cameraPos;
 		ParticleEffects::ParticleRenderer particleRenderer;
 		ShaderProgram _skyBoxShader;
+		ShaderProgram PBRShader;
 
 	private:
 

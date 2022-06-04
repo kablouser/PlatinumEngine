@@ -20,7 +20,10 @@ namespace PlatinumEngine
 				.WithField<bool>("useNormalTexture", PLATINUM_OFFSETOF(Material, useNormalTexture))
 				.WithField<bool>("useReflectionShader", PLATINUM_OFFSETOF(Material, useReflectionShader))
 				.WithField<bool>("useRefractionShader", PLATINUM_OFFSETOF(Material, useRefractionShader))
-				.WithField<Maths::Vec3>("colour", PLATINUM_OFFSETOF(Material, colour));
+				.WithField<Maths::Vec3>("colour", PLATINUM_OFFSETOF(Material, colour))
+				.WithField<Maths::Vec3>("emission", PLATINUM_OFFSETOF(Material, emission))
+				.WithField<float>("metalness", PLATINUM_OFFSETOF(Material, metalness))
+				.WithField<bool>("usePBR", PLATINUM_OFFSETOF(Material, usePBR));
 	}
 
 	Material::Material() : shininessFactor(1.0f), useBlinnPhong(false), useTexture(false), useNormalTexture(false)
