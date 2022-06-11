@@ -59,8 +59,9 @@ namespace PlatinumEngine
 		ParticleEmitter::ParticleEmitter()
 		{
 			// Allocate enough space for all our particles, and so we can index into it straight away
+			// and don't need to worry about calling alloc unnecessarily
 			_particleContainer = std::make_unique<std::vector<Particle>>(MaxParticles);
-			particles = std::make_unique<std::vector<Particle>>();
+			particles = std::make_unique<std::vector<Particle>>(MaxParticles);
 		}
 
 		/**
@@ -85,11 +86,17 @@ namespace PlatinumEngine
 				oneShot = false;
 			}
 
-			// Edit the particles in the container
-			// Store the alive ones separately for renderer (inefficient)
-			// TODO: read above
-			for (unsigned int i = 0; i < numberOfParticles; ++i)
+			// Need to update all particles but don't know where they are in container
+			// or how many are alive at a given time
+			// There is a special case where we are at max user limit but not max container limit
+			// So we can count alive particles and if we reach max user count we can stop looping
+			// container as we know remaining particles are dead
+			// However we can count and break when we hit max particle count set by user
+			unsigned int count = 0;
+			for (unsigned int i = 0; i < MaxParticles; ++i)
 			{
+				if (count == numberOfParticles)
+					break;
 				// Just so we don't have to index every time
 				Particle &p = _particleContainer->at(i);
 
@@ -124,6 +131,9 @@ namespace PlatinumEngine
 
 					// Adding to list of alive particles
 					particles->emplace_back(p);
+
+					// Increment count as particle is added
+					++count;
 				}
 			}
 
@@ -140,7 +150,7 @@ namespace PlatinumEngine
 		unsigned int ParticleEmitter::FirstDeadParticle()
 		{
 			// Fingers crossed it's found this way
-			for(unsigned int i = _lastDeadParticle; i < numberOfParticles; ++i)
+			for(unsigned int i = _lastDeadParticle; i < MaxParticles; ++i)
 			{
 				if (_particleContainer->at(i).life < 0)
 				{
