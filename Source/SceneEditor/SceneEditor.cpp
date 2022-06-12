@@ -583,7 +583,10 @@ namespace PlatinumEngine{
 				Application::Instance->scene.LoadLights();
 			}
 			// Render game objects
-			Application::Instance->scene.Render();
+			{
+				PlatinumEngine::Profiler::Section pollEventsSection("Scene Render");
+				Application::Instance->scene.Render();
+			}
 
 			// End rendering (unbind a shader)
 			Application::Instance->renderer.End();

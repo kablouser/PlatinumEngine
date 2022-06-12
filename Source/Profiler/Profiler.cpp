@@ -8,6 +8,7 @@
 #include <imgui.h>
 #include <implot.h>
 #include <GLFW/glfw3.h>
+#include <iostream>
 
 #include <Helpers/CircularBuffer.h>
 // private namespace, things in this cannot be used outside this file
@@ -55,6 +56,8 @@ namespace
 
 	ImPlotPoint SectionPlotGetter(void* encodedSectionIndex, int index)
 	{
+		//std::cout << (double)(frameHistory.workingFrame - index - 1) << ",";
+		//std::cout << sectionHistories.at((size_t)encodedSectionIndex).savedCumulativeDurations.GetFromEnd(index) << std::endl;
 		return {
 				(double)(frameHistory.workingFrame - index - 1),
 				sectionHistories.at((size_t)encodedSectionIndex).savedCumulativeDurations.GetFromEnd(index) };
