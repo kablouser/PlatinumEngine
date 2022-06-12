@@ -94,7 +94,6 @@ namespace PlatinumEngine
 
 		// load texture
 		Application::Instance->renderer.LoadMaterial(material);
-		std::cout << "draw" << std::endl;
 		_shaderInput.Draw();
 	}
 

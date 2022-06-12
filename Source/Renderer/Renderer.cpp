@@ -172,7 +172,6 @@ namespace PlatinumEngine
 //		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 //		_unlitShader.Bind();
 		_phongShader.Bind();
-		std::cout << "phong binding" << std::endl;
 	}
 
 
@@ -322,7 +321,6 @@ namespace PlatinumEngine
 		}
 
 		_phongShader.Bind();
-		std::cout << "phong bind" << std::endl;
 		_phongShader.SetUniform("diffuseColour", material.colour);
 		_phongShader.SetUniform("useTexture", material.useTexture);
 
@@ -353,7 +351,6 @@ namespace PlatinumEngine
 		// Depth shader doesn't need any martierls, but if in depth pass bind the shader back
 		if (isDepthPass)
 		{
-			std::cout << "depth bind" << std::endl;
 			depthShader.Bind();
 		}
 	}
@@ -370,11 +367,9 @@ namespace PlatinumEngine
 		depthShader.SetUniform("model", mat);
 		_phongShader.Bind();
 		_phongShader.SetUniform("model", mat);
-		std::cout << "phong bind" << std::endl;
 
 		if (isDepthPass)
 		{
-			std::cout << "depth bind" << std::endl;
 			depthShader.Bind();
 		}
 	}
@@ -428,7 +423,6 @@ namespace PlatinumEngine
 	void Renderer::SetAnimationTransform(unsigned int transformMatrixIndex, Maths::Mat4 mat)
 	{
 		_phongShader.Bind();
-		std::cout << "phong bind" << std::endl;
 		if(transformMatrixIndex < 128)
 			_phongShader.SetUniform("tracks["+std::to_string(transformMatrixIndex)+"]", mat);
 		else
@@ -437,7 +431,6 @@ namespace PlatinumEngine
 		if (isDepthPass)
 		{
 			depthShader.Bind();
-			std::cout << "depth bind" << std::endl;
 		}
 	}
 
@@ -445,14 +438,12 @@ namespace PlatinumEngine
 	{
 		_phongShader.Bind();
 		_phongShader.SetUniform("isAnimationDisplay", isAnimationOn);
-		std::cout << "phong bind" << std::endl;
 	}
 
 	void Renderer::SetAnimationAttachmentStatus(bool isAnimationAttachmentOn)
 	{
 		_phongShader.Bind();
 		_phongShader.SetUniform("isAnimationAttachmentDisplay", isAnimationAttachmentOn);
-		std::cout << "phong bind" << std::endl;
 	}
 
 	// update view matrix in shader

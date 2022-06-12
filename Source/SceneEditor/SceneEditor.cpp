@@ -549,83 +549,85 @@ namespace PlatinumEngine{
 			}
 			glEnable(GL_DEPTH_TEST);
 			// ------------- Render Game Objects ------------- //
-			// Start rendering (bind a shader)
-			Application::Instance->renderer.Begin();
-
-			// Bind skybox for objects to sample from, use an unused texture
-			glActiveTexture(GL_TEXTURE7);
-			_skyboxTexture.BindCubeMap();
-			glActiveTexture(GL_TEXTURE0);
-
-			// Update rendering information to renderer
-			Application::Instance->renderer.SetModelMatrix();
-
-			// check if the view matrix is passed to shader
-
-			// TODO: Commneted these lines of code out to fix some bug, need to check how to do properly
-			// if(!_camera.CheckIfViewMatrixUsed())
-			{
-				Application::Instance->renderer.SetViewMatrix(_camera.viewMatrix4);
-				_camera.MarkViewMatrixAsUsed();
-			}
-			// if(!_camera.CheckIfProjectionMatrixUsed())
-			{
-				Application::Instance->renderer.SetProjectionMatrix(_camera.projectionMatrix4);
-				_camera.MarkProjectionMatrixAsUsed();
-			}
-
-			Application::Instance->renderer.SetCameraPos(_camera.GetCameraPosition());
 
 			{
+				PlatinumEngine::Profiler::Section windowManagerSection("Scene Render");
+				// Start rendering (bind a shader)
+				Application::Instance->renderer.Begin();
+
+				// Bind skybox for objects to sample from, use an unused texture
+				glActiveTexture(GL_TEXTURE7);
+				_skyboxTexture.BindCubeMap();
+				glActiveTexture(GL_TEXTURE0);
+
+				// Update rendering information to renderer
+				Application::Instance->renderer.SetModelMatrix();
+
+				// check if the view matrix is passed to shader
+
+				// TODO: Commneted these lines of code out to fix some bug, need to check how to do properly
+				// if(!_camera.CheckIfViewMatrixUsed())
+				{
+					Application::Instance->renderer.SetViewMatrix(_camera.viewMatrix4);
+					_camera.MarkViewMatrixAsUsed();
+				}
+				// if(!_camera.CheckIfProjectionMatrixUsed())
+				{
+					Application::Instance->renderer.SetProjectionMatrix(_camera.projectionMatrix4);
+					_camera.MarkProjectionMatrixAsUsed();
+				}
+
+				Application::Instance->renderer.SetCameraPos(_camera.GetCameraPosition());
+
+				{
 //				Maths::Mat4 scaleMatrix;
 //				scaleMatrix.SetScaleMatrix(
 //						Maths::Vec3(((float)_near * 2.f), ((float)_near * 2.f), ((float)_near * 2.f)));
 //				Maths::Mat4 vpMat =
 //						Maths::Inverse(_camera.GetRotationOnlyViewMatrix()) * scaleMatrix * _camera.projectionMatrix4;
 //				Application::Instance->renderer.SetCameraPos(_camera.GetCameraPosition());
-				Application::Instance->scene.LoadLights();
+					Application::Instance->scene.LoadLights();
+				}
+
+				// Make first pass to fill in depth buffer
+				Application::Instance->renderer.depthShader.Bind();
+				Application::Instance->renderer.isDepthPass = true;
+				// The light transformation matrix already binded in load lights above
+				// Need to set the viewport for the depth map
+				// The size here determines how good the shadows look, 1024x1024 is okay
+				GL_CHECK(glViewport(0, 0, 1024, 1024));
+				glDisable(GL_BLEND);
+				_depthMapFramebuffer.Bind();
+				GL_CHECK(glClear(GL_DEPTH_BUFFER_BIT));
+				Application::Instance->scene.Render();
+				_depthMapFramebuffer.Unbind();
+				Application::Instance->renderer.depthShader.Unbind();
+
+				// Idk why this function is called begin but rebind the phong shader here
+				Application::Instance->renderer.Begin();
+				Application::Instance->renderer.isDepthPass = false;
+
+				// At this point the depth map should be created
+				// Bind the depth map to another unused texture (going with 6)
+				Application::Instance->renderer._phongShader.SetUniform("depthMap", (int)6);
+				glActiveTexture(GL_TEXTURE6);
+				_depthMapFramebuffer.depthMap.Bind();
+
+				// Reset
+				glActiveTexture(GL_TEXTURE0);
+
+				// and just reset everything to make sure we're good
+				_renderTexture.Bind();
+				glEnable(GL_DEPTH_TEST);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				glViewport(0, 0, _framebufferWidth, _framebufferHeight);
+				glClearColor(0.2784f, 0.2784f, 0.2784f, 1.0f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+				// Render game objects
+				Application::Instance->scene.Render();
 			}
-
-			// Make first pass to fill in depth buffer
-			Application::Instance->renderer.depthShader.Bind();
-			std::cout << "DEpth pass" << std::endl;
-			Application::Instance->renderer.isDepthPass = true;
-			// The light transformation matrix already binded in load lights above
-			// Need to set the viewport for the depth map
-			// The size here determines how good the shadows look, 1024x1024 is okay
-			GL_CHECK(glViewport(0, 0, 1024, 1024));
-			glDisable(GL_BLEND);
-			_depthMapFramebuffer.Bind();
-			GL_CHECK(glClear(GL_DEPTH_BUFFER_BIT));
-			Application::Instance->scene.Render();
-			_depthMapFramebuffer.Unbind();
-			Application::Instance->renderer.depthShader.Unbind();
-
-			// Idk why this function is called begin but rebind the phong shader here
-			Application::Instance->renderer.Begin();
-			std::cout << "Now begin normal rendering" << std::endl;
-			Application::Instance->renderer.isDepthPass = false;
-
-			// At this point the depth map should be created
-			// Bind the depth map to another unused texture (going with 6)
-			Application::Instance->renderer._phongShader.SetUniform("depthMap", (int)6);
-			glActiveTexture(GL_TEXTURE6);
-			_depthMapFramebuffer.depthMap.Bind();
-
-			// Reset
-			glActiveTexture(GL_TEXTURE0);
-
-			// and just reset everything to make sure we're good
-			_renderTexture.Bind();
-			glEnable(GL_DEPTH_TEST);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glViewport(0, 0, _framebufferWidth, _framebufferHeight);
-			glClearColor(0.2784f, 0.2784f, 0.2784f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-			// Render game objects
-			Application::Instance->scene.Render();
 
 			// End rendering (unbind a shader)
 			Application::Instance->renderer.End();

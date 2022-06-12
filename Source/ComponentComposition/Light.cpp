@@ -26,7 +26,7 @@ namespace PlatinumEngine
 
 	LightComponent::LightComponent()
 		:type(LightType::Point),
-		 direction({0.0f, 1.0f, 0.0f}),
+		 direction({0.0f, -1.0f, 0.0f}),
 		 ambientLight({ 0.0f, 0.0f, 0.0f }),
 		 intensity(1.0f),
 		 spectrum(0.7f)

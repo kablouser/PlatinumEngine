@@ -179,7 +179,7 @@ float ShadowCalculation(vec4 position, vec3 normal, vec3 lightDirection)
     // To solve shadow acne, subtract a bias
     float bias = max(0.05 * (1.0 - dot(normal, lightDirection)), 0.005);
 
-    float shadow = currentDepth - 0.001 > closestDepth ? 1.0 : 0.0;
+    float shadow = currentDepth - 0.002 > closestDepth ? 1.0 : 0.0;
 
     return shadow;
 }
