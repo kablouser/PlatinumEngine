@@ -55,6 +55,7 @@ namespace
 
 	ImPlotPoint SectionPlotGetter(void* encodedSectionIndex, int index)
 	{
+
 		return {
 				(double)(frameHistory.workingFrame - index - 1),
 				sectionHistories.at((size_t)encodedSectionIndex).savedCumulativeDurations.GetFromEnd(index) };
@@ -201,7 +202,7 @@ namespace PlatinumEngine
 									FramePlotReferenceGetter,
 									nullptr,
 									drawCount);
-							if (sectionHistory.name == "Render Time") {
+							if (sectionHistory.name == "Scene Render") {
 								toShow = &sectionHistory;
 							}
 						}
@@ -211,7 +212,12 @@ namespace PlatinumEngine
 				ImPlot::EndPlot();
 			}
 
-			ImGui::Text("Render Time: %f", );
+			double average = 0.0;
+			for (int i = 0; i < toShow->savedCumulativeDurations.Size(); ++i) {
+				average += toShow->savedCumulativeDurations.GetFromStart(i);
+			}
+			average = (toShow->savedCumulativeDurations.Size() == 0) ? 0.0 : average / toShow->savedCumulativeDurations.Size();
+			ImGui::Text("Render Time: %f", average);
 		}
 		ImGui::End();
 	}

@@ -513,7 +513,10 @@ namespace PlatinumEngine{
 			Application::Instance->renderer.SetProjectionMatrix(_camera.projectionMatrix4);
 
 			// Render game objects
-			Application::Instance->scene.Render();
+			{
+				PlatinumEngine::Profiler::Section windowManagerSection("Scene Render");
+				Application::Instance->scene.Render();
+			}
 
 			// End rendering (unbind a shader)
 			Application::Instance->renderer.End();

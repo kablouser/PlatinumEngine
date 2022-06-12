@@ -203,7 +203,7 @@ int main(int, char**)
 				}
 
 				{
-					PlatinumEngine::Profiler::Section windowManagerSection("Render Time");
+					//PlatinumEngine::Profiler::Section windowManagerSection("Render Time");
 					application.windowManager.ShowGUI();
 				}
 
