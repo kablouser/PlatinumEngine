@@ -175,7 +175,7 @@ int main(int, char**)
 				PlatinumEngine::Profiler::Frame frame;
 
 				{
-					PlatinumEngine::Profiler::Section pollEventsSection("Poll Events");
+					//PlatinumEngine::Profiler::Section pollEventsSection("Poll Events");
 					glfwPollEvents();
 
 					if (glfwWindowShouldClose(window))
@@ -186,7 +186,7 @@ int main(int, char**)
 				}
 
 				{
-					PlatinumEngine::Profiler::Section imguiSetupSection("ImGui Frame Setup");
+					//PlatinumEngine::Profiler::Section imguiSetupSection("ImGui Frame Setup");
 					// Start the Dear ImGui frame
 					ImGui_ImplOpenGL3_NewFrame();
 					ImGui_ImplGlfw_NewFrame();
@@ -198,12 +198,12 @@ int main(int, char**)
 				// GUI HERE
 				//--------------------------------------------------------------------------------------------------------------
 				{
-					PlatinumEngine::Profiler::Section dockingSection("Docking");
+					//PlatinumEngine::Profiler::Section dockingSection("Docking");
 					ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 				}
 
 				{
-					PlatinumEngine::Profiler::Section windowManagerSection("Window Manager");
+					PlatinumEngine::Profiler::Section windowManagerSection("Render Time");
 					application.windowManager.ShowGUI();
 				}
 
@@ -213,7 +213,7 @@ int main(int, char**)
 
 				// Rendering
 				{
-					PlatinumEngine::Profiler::Section imguiRenderingSection("ImGui Rendering");
+					//PlatinumEngine::Profiler::Section imguiRenderingSection("ImGui Rendering");
 					ImGui::Render();
 
 					int display_w, display_h;

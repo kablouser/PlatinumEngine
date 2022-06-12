@@ -121,9 +121,9 @@ namespace PlatinumEngine
 					if (scaleBy == "Speed")
 						p.scale = scaleByFactor * Maths::Length(p.velocity);
 					p.textureIndex = Maths::Vec2(0,0);
-					float lifeAsFraction = (p.life) / (respawnLifetime);
 					// Use 2*p.life to run through texture twice, note for later
 					// float lifeAsFraction = (p.life) / (respawnLifetime);
+					float lifeAsFraction = (p.life) / (respawnLifetime);
 					int currentIndex = floor(lifeAsFraction * numRowsInTexture * numColsInTexture);
 					int j = currentIndex / numColsInTexture;
 					int k = currentIndex - j * numColsInTexture;

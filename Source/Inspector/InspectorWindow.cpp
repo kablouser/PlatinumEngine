@@ -724,6 +724,8 @@ void InspectorWindow::ShowParticleEffectComponent(SavedReference<ParticleEffect>
 		ImGui::SameLine();
 		ImGui::Checkbox("##Use Cylinder billboard", &(particleEffectPointer->particleEmitter.useCylindricalBillboard));
 
+		ImGui::Text("Particle Count: %d", (int)particleEffectPointer->particleEmitter.particles->size());
+
 		if (ImGui::CollapsingHeader("Emitter Settings"))
 		{
 			ImGui::PushItemWidth(_inputClampedWidth);

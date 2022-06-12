@@ -152,6 +152,7 @@ namespace PlatinumEngine
 	{
 		if (ImGui::Begin( ICON_FA_CHART_AREA " Profiler", outIsOpen))
 		{
+			SectionHistory* toShow;
 			bool isPaused = !isRecording;
 			ImGui::Checkbox("Pause", &isPaused);
 			isRecording = !isPaused;
@@ -200,12 +201,17 @@ namespace PlatinumEngine
 									FramePlotReferenceGetter,
 									nullptr,
 									drawCount);
+							if (sectionHistory.name == "Render Time") {
+								toShow = &sectionHistory;
+							}
 						}
 					}
 				}
 
 				ImPlot::EndPlot();
 			}
+
+			ImGui::Text("Render Time: %f", );
 		}
 		ImGui::End();
 	}
