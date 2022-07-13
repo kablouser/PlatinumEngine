@@ -105,7 +105,12 @@ set(ozz_build_postfix OFF)
 set(ozz_build_simd_ref ON)
 FetchContent_Declare(ozz GIT_REPOSITORY https://github.com/guillaumeblanc/ozz-animation.git GIT_TAG 0.14.0)
 FetchContent_MakeAvailable(ozz)
-
+#-----------------------------
+# DSP Filters
+FetchContent_Declare(dsp GIT_REPOSITORY https://github.com/vinniefalco/DSPFilters.git)
+FetchContent_MakeAvailable(dsp)
+add_subdirectory("${FETCHCONTENT_BASE_DIR}/dsp-src/shared/DSPFilters")
+set(DSP_INCLUDE_DIR "${FETCHCONTENT_BASE_DIR}/dsp-src/shared/DSPFilters/include")
 
 #-----------------------------
 # Add more libraries from git repos here:
@@ -127,6 +132,7 @@ set(PROJECT_SOURCES_WITHOUT_MAIN
 	"Source/AssetDatabase/AssetDatabase.cpp;"
 	
 	"Source/Audio/AudioClip.cpp;"
+	"Source/Audio/custom_mix_pitch.cpp;"
 	
 	"Source/ComponentComposition/Camera.cpp;"
 	"Source/ComponentComposition/AudioComponent.cpp;"
@@ -236,6 +242,7 @@ set(PROJECT_INCLUDES
 	"${FETCHCONTENT_BASE_DIR}/bullet3-src/src"
  	"${SDL2_INCLUDE_DIR}" 
     "${SDL2_MIXER_INCLUDE_DIR}"
+	"${DSP_INCLUDE_DIR}"
 	)
 	
 # different targets
@@ -269,6 +276,7 @@ set(PROJECT_LIBRARIES
 
 	"ozz_animation;"
 	"ozz_animation_offline;"
+	"DSPFilters;"
   )
 
 # different targets

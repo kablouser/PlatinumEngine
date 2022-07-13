@@ -1176,6 +1176,80 @@ void InspectorWindow::ShowAudioComponent(SavedReference<AudioComponent>& referen
 		ImGui::SliderInt("Panning", &panning, 0, 254, panningLabel.c_str());
 		audioComponentPointer->SetPanning(panning);
 
+		if(ImGui::Checkbox("Filter",&audioComponentPointer->isFilterEnabled))
+		{
+			if(audioComponentPointer->IsPlaying())
+				audioComponentPointer->Stop();
+		}
+		if(audioComponentPointer->isFilterEnabled)
+		{
+			static int item_current_idx = 0;
+			const char* combo_preview_value = AudioComponent::filterTypes[item_current_idx].c_str();
+			if (ImGui::BeginCombo("Filter Type", combo_preview_value, 0))
+			{
+				for (int n = 0; n < AudioComponent::filterTypes.size(); n++)
+				{
+					const bool is_selected = (item_current_idx == n);
+					if (ImGui::Selectable(AudioComponent::filterTypes[n].c_str(), is_selected))
+					{
+						if(audioComponentPointer->IsPlaying())
+							audioComponentPointer->Stop();
+						item_current_idx = n;
+						audioComponentPointer->SetFilterType(n);
+					}
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+
+			int numParams = 0;
+			char* paramNames[8];
+			float paramValues[8];
+			audioComponentPointer->GetFilterParamsInfo(numParams, paramNames, paramValues);
+			for(int i=0;i<numParams;i++)
+			{
+				// Sample rate will be the one used for SDL
+				if(std::string(paramNames[i]).compare("Sample Rate")==0)
+				{
+					paramValues[i] = 44100.f;
+					ImGui::InputFloat("Sample Rate",&paramValues[i], 0, 0, "%.1f",ImGuiInputTextFlags_ReadOnly);
+					continue;
+				}
+				// Skip adjusting order of filter for now
+				if(std::string(paramNames[i]).compare("Order")==0)
+				{
+					paramValues[i] = 2.f;
+					ImGui::InputFloat("Order",&paramValues[i], 0, 0, "%.1f",ImGuiInputTextFlags_ReadOnly);
+					continue;
+				}
+				ImGui::InputFloat(paramNames[i],&paramValues[i]);
+			}
+			audioComponentPointer->SetFilterParams(paramValues);
+		}
+
+		if(ImGui::Checkbox("Playback Shift",&audioComponentPointer->isPlaybackShiftEnabled))
+		{
+			if(audioComponentPointer->IsPlaying())
+				audioComponentPointer->Stop();
+		}
+		if(audioComponentPointer->isPlaybackShiftEnabled)
+		{
+			ImGui::InputFloat("Playback Speed",&audioComponentPointer->playbackSpeed);
+		}
+
+		if(ImGui::Checkbox("Distort",&audioComponentPointer->isDistortEnabled))
+		{
+			if(audioComponentPointer->IsPlaying())
+				audioComponentPointer->Stop();
+		}
+		if(audioComponentPointer->isDistortEnabled)
+		{
+			float distortValue = audioComponentPointer->GetDistortDryValue();
+			ImGui::SliderFloat("Dry/Wet Mix", &distortValue, 0.f, 1.f);
+			audioComponentPointer->SetDistortDryValue(distortValue);
+		}
+
 		int channel = audioComponentPointer->GetChannel();
 		ImGui::Text("CHANNEL: %d",channel);
 
